@@ -1,4 +1,6 @@
 <?php
+// $Id$
+
 /* Commented out until bug fixed */
 /*
 function flickrauth_help($section) {
