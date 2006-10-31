@@ -37,7 +37,7 @@ function flickr_request($method, $args, $cacheable = TRUE) {
 
   // if it's a cachable request, try to load a cached value
   if ($cacheable) {
-    if ($cache = cache_get($arghash)) {
+    if ($cache = cache_get($arghash, 'cache')) {
       return unserialize($cache->data);
     }
   }
@@ -46,7 +46,7 @@ function flickr_request($method, $args, $cacheable = TRUE) {
   if ($result = file_get_contents($url)) {
     // save a cacheable result for future use
     if ($cacheable) {
-      cache_set($arghash, $result);
+      cache_set($arghash, 'cache', $result);
     }
     return unserialize($result);
   }
