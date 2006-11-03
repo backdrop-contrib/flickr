@@ -43,12 +43,16 @@ function flickr_request($method, $args, $cacheable = TRUE) {
   }
 
   // connect and fetch a value
-  if ($result = file_get_contents($url)) {
-    // save a cacheable result for future use
-    if ($cacheable) {
-      cache_set($arghash, 'cache', $result);
+  $result = drupal_http_request($url);
+  if ($result->code == 200) {
+    // make sure it unserializes
+    if ($object = unserialize($result->data)) {
+      // save a cacheable result for future use
+      if ($cacheable) {
+        cache_set($arghash, 'cache', $result->data);
+      }
+      return $object;
     }
-    return unserialize($result);
   }
 
   return FALSE;
