@@ -63,9 +63,11 @@ function flickr_photo_img($server, $id, $secret, $size = NULL, $format = NULL) {
 }
 
 function flickr_photo_page_url($owner, $id = NULL) {
+  $owner = is_array($owner) ? $owner['nsid']: $owner;
   return 'http://flickr.com/photos/'. $owner . ($id ? '/'. $id : '');
 }
 
 function flickr_photoset_page_url($owner, $id = NULL) {
+  $owner = is_array($owner) ? $owner['nsid']: $owner;
   return "http://flickr.com/photos/$owner/sets/$id";
 }
