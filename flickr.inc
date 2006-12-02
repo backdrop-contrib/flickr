@@ -71,3 +71,21 @@ function flickr_photoset_page_url($owner, $id = NULL) {
   $owner = is_array($owner) ? $owner['nsid']: $owner;
   return "http://flickr.com/photos/$owner/sets/$id";
 }
+
+function flickr_photo_get_info($photo_id) {
+  return flickr_request(
+    'flickr.photos.getInfo',
+    array(
+      'photo_id' => $photo_id,
+    )
+  );
+}
+
+function flickr_photoset_get_info($photoset_id) {
+  return flickr_request(
+    'flickr.photosets.getInfo',
+    array(
+      'photoset_id' => $photoset_id,
+    )
+  );
+}
