@@ -251,7 +251,7 @@ function _flickr_block_random($user_id, $show_n, $size) {
 }
 
 function flickr_recent() {
-  theme_add_style(drupal_get_path('module', 'flickr') .'/flickr.css');
+  drupal_add_css(drupal_get_path('module', 'flickr') .'/flickr.css');
 
   $result = flickr_request(
     'flickr.photos.search',
