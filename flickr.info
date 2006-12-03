@@ -1,3 +1,4 @@
+; $Id$
 name = Flickr
 description = Flickr and Drupal integration.
 version = 1.0

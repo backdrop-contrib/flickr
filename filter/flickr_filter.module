@@ -1,10 +1,13 @@
 <?php
+
 // $Id$
+
+require_once(drupal_get_path('module', 'flickr') .'/flickr.inc');
 
 function flickr_filter_tips($delta, $format, $long = FALSE) {
   switch ($delta) {
     case 0:
-      $output = t('Insert Flickr images: [flickr-photo:id=230452326,size=s] or [flickr-photoset:id=72157594262419167,size=m]. ');
+      $output = t('Insert Flickr images: [flickr-photo:id=230452326,size=s] or [flickr-photoset:id=72157594262419167,size=m].');
       if ($long) {
         $output .= t('The size parameter can be one of the following:');
         $items = array();
@@ -94,4 +97,3 @@ function flickr_filter_callback_photoset($matches) {
   }
   return $output ;
 }
-
