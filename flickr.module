@@ -354,6 +354,8 @@ function flickr_photo_sizes() {
  * Add an extra field for the user to enter his flickr nsid.
  */
 function flickr_user($op, &$edit, &$account, $category = NULL) {
+  $data = unserialize($account->data);
+  
   if ($op == 'form' && $category == 'account') {
     $form['flickr'] = array(
       '#type' => 'fieldset',
@@ -364,7 +366,7 @@ function flickr_user($op, &$edit, &$account, $category = NULL) {
     $form['flickr']['nsid'] = array(
       '#type' => 'textfield',
       '#title' => t('Flickr NSID'),
-      '#default_value' => $edit['userid'],
+      '#default_value' => $data['nsid'],
       '#description' => t('Please enter your Flickr NSID.'),
     );
     return $form;
