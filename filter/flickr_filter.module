@@ -40,8 +40,8 @@ function flickr_filter($op, $delta = 0, $format = -1, $text = '') {
           return $text;
 
         case 'process':
-          $text = preg_replace_callback('/\[flickr-photo:(.+)\]/', 'flickr_filter_callback_photo', $text);
-          $text = preg_replace_callback('/\[flickr-photoset:(.+)\]/', 'flickr_filter_callback_photoset', $text);
+          $text = preg_replace_callback('/\[flickr-photo:(.+?)\]/', 'flickr_filter_callback_photo', $text);
+          $text = preg_replace_callback('/\[flickr-photoset:(.+?)\]/', 'flickr_filter_callback_photoset', $text);
           return $text;
       }
       break;
