@@ -289,7 +289,7 @@ function _flickr_block_random($user_id, $show_n, $size) {
     $result = flickr_request('flickr.photos.search', $request);
     // then select a random photo
     $photo = rand(0, count($result['photos']['photo']));
-    $output .= flickr_img($result['photos']['photo'][$photo], $size);
+    $output .= theme('flickr_photo', $photo, $size);
   }
 
   return $output;
