@@ -123,7 +123,7 @@ function flickr_img($photo, $size = '-') {
       }
     }
     else {
-      $img_url = flickr_photo_img($p, $size, $format);
+      $img_url = flickr_photo_img($photo, $size, $format);
     }
   }
   $title = is_array($p['title']) ? $p['title']['_content'] : $p['title'];
