@@ -87,8 +87,11 @@ function flickr_request($method, $args, $cacheable = TRUE) {
   return FALSE;
 }
 
-function flickr_img($photo, $size = '-') {
+function flickr_img($photo, $size = NULL) {
   $sizes = flickr_photo_sizes();
+  if (!isset($size)) {
+    $size = '-';
+  }
   if (!isset($sizes[$size])) {
     return;
   }
