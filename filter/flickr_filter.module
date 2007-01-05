@@ -75,10 +75,16 @@ function flickr_filter_callback_photo($matches) {
   $output = '';
   if (isset($config['id'])) {
     $result = flickr_photo_get_info($config['id']);
-    $output .= '<span class="flickr-photo">';
-    $output .= theme('flickr_photo', $result['photo'], $config['size']);
-    $output .= "</span>\n";
+    if ($result['stat'] == 'ok') {
+      $output .= '<span class="flickr-photo">';
+      $output .= theme('flickr_photo', $result['photo'], $config['size']);
+      $output .= "</span>\n";
+    }
+    else {
+      drupal_set_message(t('The Flickr filter had a problem. Flickr says: %message', array('%id' => $config['id'], '%message' => $result['message'])), 'error');
+    }
   }
+#print "<pre>"; var_dump($output); print "</pre>";
   return $output ;
 }
 
@@ -91,9 +97,14 @@ function flickr_filter_callback_photoset($matches) {
   $output = '';
   if (isset($config['id'])) {
     $result = flickr_photoset_get_info($config['id']);
-    $output .= '<span class="flickr-photoset">';
-    $output .= theme('flickr_photoset', $result['photoset'], $result['photoset']['owner'], $config['size']);
-    $output .= "</span>\n";
+    if ($result['stat'] == 'ok') {
+      $output .= '<span class="flickr-photoset">';
+      $output .= theme('flickr_photoset', $result['photoset'], $result['photoset']['owner'], $config['size']);
+      $output .= "</span>\n";
+    }
+    else {
+      drupal_set_message(t('The Flickr filter had a problem. Flickr says: %message', array('%id' => $config['id'], '%message' => $result['message'])), 'error');
+    }
   }
   return $output ;
 }
