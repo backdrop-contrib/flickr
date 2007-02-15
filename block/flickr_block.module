@@ -134,7 +134,7 @@ function flickr_block($op = 'list', $delta = 0, $edit = array()) {
       $show_n = variable_get("flickr_block_{$delta}_show_n", 4);
       $size = variable_get("flickr_block_{$delta}_size", 's');
 
-      $block['subject'] = t('Flickr random photos');
+      $block['subject'] = t('Flickr recent photos');
       $block['content'] = _flickr_block_recent($user_id, $show_n, $size);
 
       break;
