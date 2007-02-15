@@ -78,7 +78,6 @@ function flickr_menu($may_cache) {
       }
       elseif ($account !== FALSE && !isset($account->flickr['nsid'])) {
         drupal_set_message(t('%user does not have a Flickr account', array('%user'=>$account->name)), 'error');
-        return '';
       }
     }
   }
