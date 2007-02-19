@@ -1,5 +1,5 @@
 ; $Id$
-name = Flickr Fliter
+name = Flickr Filter
 description = Flickr Filter for inserting photos into content.
 version = "$Name$"
 dependencies = flickr
