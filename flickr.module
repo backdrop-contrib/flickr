@@ -289,20 +289,18 @@ function flickr_photos($uid = NULL) {
 }
 
 
-function theme_flickr_photos($uid, $photo_arr){
-  $output =
-    theme('pager', NULL, variable_get('flickr_photos_per_page', 20));
+function theme_flickr_photos($uid, $photos){
+  $output = theme('pager', NULL, variable_get('flickr_photos_per_page', 20));
   $output .= "<div class='fickr-photoset'>\n";
-  foreach((array)$photo_arr['photos']['photo'] as $photo) {
+  foreach($photos['photo'] as $photo) {
     $output .= theme('flickr_photo_box', $photo, 'm');
   }
   $output .= '</div>';
-  $output .=
-    theme('pager', NULL, variable_get('flickr_photos_per_page', 20));
+  $output .= theme('pager', NULL, variable_get('flickr_photos_per_page', 20));
   return $output;
 }
 
-function theme_flickr_photoset($ps, $owner, $size, $attribs=NULL) {
+function theme_flickr_photoset($ps, $owner, $size, $attribs = NULL) {
   $img = flickr_img($ps, $size, $attribs);
   $photo_url = flickr_photoset_page_url($owner, $ps['id']);
   return '<span class="flickr-photoset">'
