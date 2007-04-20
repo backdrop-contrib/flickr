@@ -395,7 +395,7 @@ function flickr_is_nsid($id) {
  *   (http://www.flickr.com/services/api/flickr.people.findByUsername.html)
  */
 function flickr_user_find_by_username($username) {
-  return flickr_request(
+  $response = flickr_request(
     'flickr.people.findByUsername',
     array('username' => $username)
   );
