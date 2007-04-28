@@ -1,5 +1,0 @@
-; $Id$
-name = Flickr
-description = Flickr and Drupal integration.
-version = "$Name$"
-package = Flickr
