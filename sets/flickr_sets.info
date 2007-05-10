@@ -1,6 +1,0 @@
-; $Id$
-name = Flickr sets
-description = Add sets capability to Flickr module
-version = "$Name$"
-dependencies = flickr
-package = Flickr
