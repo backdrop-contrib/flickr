@@ -1,0 +1,5 @@
+; $Id$
+name = Flickr Tags
+description = Adds tags capability to Flickr module
+dependencies = flickr
+package = Flickr
