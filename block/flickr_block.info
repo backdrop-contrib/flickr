@@ -1,5 +1,6 @@
 ; $Id$
 name = Flickr Block
 description = Flickr Block for inserting photos into content.
-dependencies = flickr
+dependencies[] = flickr
 package = Flickr
+core = 6.x

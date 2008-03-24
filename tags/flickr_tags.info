@@ -1,5 +1,6 @@
 ; $Id$
 name = Flickr Tags
 description = Adds tags capability to Flickr module
-dependencies = flickr
+dependencies[] = flickr
 package = Flickr
+core = 6.x
