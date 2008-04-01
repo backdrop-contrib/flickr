@@ -164,7 +164,7 @@ function flickr_photos($user = NULL) {
   global $pager_page_array, $pager_total, $pager_total_items;
   //set this to something else if you want multiple pagers
   $element = 0;
-  $pager_page_array[$element] = !empty($_GET['page']) ? $_GET['page'] : '';
+  $pager_page_array[$element] = empty($_GET['page']) ? 0 : (int) $_GET['page'];
 
   if ($user === NULL) {
     $nsid = variable_get('flickr_default_userid', '');
@@ -186,7 +186,7 @@ function flickr_photos($user = NULL) {
     $uid = $account->uid;
   }
 
-  $photos = flickr_photos_search($nsid, $pager_page_array[$element]+1);
+  $photos = flickr_photos_search($nsid, $pager_page_array[$element] + 1);
   if (!$photos) {
     drupal_set_message(t('No accessible photos found for Flickr %userid', array('%userid' => $nsid)));
     return FALSE;
