@@ -109,7 +109,7 @@ function flickr_block($op = 'list', $delta = 0, $edit = array()) {
       'size' => 's',
     ));
     // Get the default user id as a fallback
-    if (isset($settings['user_id'])) {
+    if (!isset($settings['user_id'])) {
       $settings['user_id'] = variable_get('flickr_default_userid', '');
     }
 
