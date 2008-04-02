@@ -214,7 +214,7 @@ function theme_flickr_photo_box($p, $size = NULL, $format = NULL, $attribs = NUL
   $output = "<div class='flickr-photo-box'>\n";
   $output .= "<a href='$photo_url'>$img</a>";
   $output .= "<a href='$photo_url'>";
-  $output .= '<div class="flickr-photo-title">'. $title ."</div>\n";
+  $output .= '<div class="flickr-photo-title">'. check_plain($title) ."</div>\n";
   $output .= "</a>";
   $output .= "</div>\n";
 
