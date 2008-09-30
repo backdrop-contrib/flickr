@@ -103,6 +103,7 @@ function flickr_block($op = 'list', $delta = 0, $edit = array()) {
     break;
 
   case 'view': default:
+    drupal_add_css(drupal_get_path('module', 'flickr') .'/flickr.css');
     $settings = variable_get('flickr_block_'. $delta, array(
       'user_id' => '',
       'show_n' => 4,
