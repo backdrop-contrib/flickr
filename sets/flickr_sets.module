@@ -13,6 +13,8 @@ function flickr_sets_menu() {
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'flickr_sets_photosets',
     'page arguments' => array(1),
+    'access callback' => 'flickr_photos_access',
+    'access arguments' => array(1),
   );
   $items['flickr/%user/sets/list'] = array(
     'title' => 'List',
