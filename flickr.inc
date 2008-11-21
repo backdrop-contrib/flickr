@@ -74,7 +74,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
   foreach ($args as $k => $v){
     $encoded_params[] = urlencode($k) .'='. urlencode($v);
   }
-  $url = FLICKR_REST_ENDPOINT .'?'. implode('&', $encoded_params);
+  $url = FLICKR_REST_ENDPOINT .'?'. implode('&', $encoded_params);  
 
   // If it's a cachable request, try to load a cached value.
   if ($cacheable) {
