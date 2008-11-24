@@ -159,7 +159,7 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
   if (!isset($attributes) || !is_array($attributes)) {
     $attributes = array();
   }
-  if (empty($attributs['class'])) {
+  if (empty($attributes['class'])) {
     $attributes['class'] = NULL;
   }
 
