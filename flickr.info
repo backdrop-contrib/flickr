@@ -1,5 +1,7 @@
 ; $Id$
 name = Flickr
-description = Flickr integration.
+description = Flickr and Drupal integration.
 package = Flickr
-core = 6.x
+core = 7.x
+
+files[] = flickr.module
