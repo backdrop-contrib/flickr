@@ -1,4 +1,3 @@
-; $Id$
 name = Flickr
 description = Flickr and Drupal integration.
 package = Flickr

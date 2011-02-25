@@ -1,4 +1,3 @@
-; $Id$
 name = Flickr Block
 description = Adds capability to display Flickr photos and sets into blocks.
 dependencies[] = flickr
