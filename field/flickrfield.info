@@ -1,6 +1,9 @@
 name = Flickrfield
 description = Flickr CCK field to insert Flickr images into content.
+core = 7.x
+
+dependencies[] = field
 dependencies[] = flickr
-dependencies[] = content
-package = CCK
-core = 6.x
+
+files[] = flickrfield.install
+files[] = flickrfield.module
