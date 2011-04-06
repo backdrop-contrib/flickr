@@ -65,7 +65,7 @@ function flickrfield_field_schema($field) {
 }
 
 /**
- * Implements hook_widget_info().
+ * Implements hook_field_widget_info().
  */
 function flickrfield_field_widget_info() {
   return array(
@@ -89,7 +89,9 @@ function flickrfield_field_widget_info() {
 }
 
 /**
- * Implements hook_elements_info().
+ * Implements hook_element_info().
+ *
+  * @todo - #columns is not mentioned as a possible attribute on http://api.drupal.org/api/drupal/modules--system--system.api.php/function/hook_element_info/7
  */
 function flickrfield_element_info() {
   return array(
@@ -166,7 +168,7 @@ function flickrfield_form_process_flickrfield_flickrid($element, $form_state, $f
 }
 
 /**
- * Implements hook_content_is_empty().
+ * Implements hook_field_is_empty().
  */
 function flickrfield_field_is_empty($item, $field) {
   if ($field['type'] == 'flickrfield') {

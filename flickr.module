@@ -119,15 +119,11 @@ function flickr_photos_access($account) {
           user_access('view own flickr photos') && $GLOBALS['user']->uid == $account->uid
         );
     }
-    else {
-      drupal_set_message(t('%user does not have a Flickr account', array('%user' => $account->name)), 'error');
-    }
   }
   return $view_access;
 }
 
 function flickr_photos($user = NULL) {
-  drupal_set_title(flickr_photos_page_title($user));
   drupal_add_css(drupal_get_path('module', 'flickr') . '/flickr.css');
 
   global $pager_page_array, $pager_total, $pager_total_items;
