@@ -8,7 +8,7 @@ require_once(drupal_get_path('module', 'flickr') . '/flickr.inc');
 function flickr_filter_info() {
   $filters['filter_flickr'] = array(
     'title' =>  t('Flickr linker'),
-    'description' => t('Allows you to Insert Flickr images: [flickr-photo:id=230452326,size=s] or [flickr-photoset:id=72157594262419167,size=m]'),
+    'description' => t('Allows you to Insert Flickr images: [flickr-photo:id=230452326,size=s] or [flickr-photoset:id=72157594262419167,size=m].'),
     'process callback' => '_filter_flickr',
     'tips callback' => '_filter_flickr_tips',
   );

@@ -10,6 +10,8 @@ function flickr_uninstall() {
   variable_del('flickr_api_secret');
   variable_del('flickr_default_userid');  
   variable_del('flickr_cache_duration');
+  variable_del('flickr_class');
+  variable_del('flickr_rel');
 }
 
 function flickr_schema() {

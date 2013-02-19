@@ -55,6 +55,23 @@ function flickr_admin_settings() {
     ),
     '#description' => t('The number indicates how many photos of a photoset display in your nodes. After saving the configuration, <a href="?q=admin/settings/performance">clear the cache</a>.'),
   );
+  $form['overlay_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Overlay browser settings'),
+    '#description' => t('Leave empty to link directly to the Flickr photo page instead of opening the bigger version of the image.'),
+  );
+  $form['overlay_settings']['flickr_class'] = array(
+    '#type' => 'textfield',
+    '#title' => t('class'),
+    '#default_value' => variable_get('flickr_class', ''),
+    '#description' => t('E.g.: colorbox'),
+  );
+  $form['overlay_settings']['flickr_rel'] = array(
+    '#type' => 'textfield',
+    '#title' => t('rel'),
+    '#default_value' => variable_get('flickr_rel', ''),
+    '#description' => t('E.g.: gallery-all'),
+  );
   // we need an api key before we can verify usernames
   if (!$form['flickr_api_key']['#default_value']) {
     $form['flickr_default_userid']['#disabled'] = TRUE;
@@ -107,4 +124,3 @@ function flickr_admin_settings_submit($form, &$form_state) {
   // ... and save the settings
   system_settings_form_submit($form, $form_state);
 }
-

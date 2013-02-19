@@ -124,7 +124,6 @@ function flickr_photos_access($account) {
 }
 
 function flickr_photos($user = NULL) {
-  drupal_add_css(drupal_get_path('module', 'flickr') . '/flickr.css');
 
   global $pager_page_array, $pager_total, $pager_total_items;
   //set this to something else if you want multiple pagers
@@ -256,15 +255,47 @@ function flickr_photos_page_title($user) {
 }
 
 function theme_flickr_photo($variables) {
+  $class = variable_get('flickr_class');
+  $rel = variable_get('flickr_rel');
   $photo = $variables['photo'];
   $size = $variables['size'];
   $format = $variables['format'];
   $attribs = $variables['attribs'];
-  
+  $url = flickr_photo_img($photo, 'z', $format); // For quick opening of the big version images remove the z, using 500px instead of 620px.
+  switch($size) {
+  case 's':
+    $width = '75';
+    break;
+  case 't':
+    $width = '100';
+    break;
+  case 'q':
+    $width = '150';
+    break;
+  case 'm':
+    $width = '240';
+    break;
+  case 'n':
+    $width = '320';
+    break;
+  default:
+    $width = '500';
+  }
   $img = flickr_img($photo, $size, $attribs);
   $photo_url = flickr_photo_page_url($photo['owner'], $photo['id']);
   $title = is_array($photo['title']) ? $photo['title']['_content'] : $photo['title'];
-  return l($img, $photo_url, array('attributes' => array('title' => $title), 'absolute' => TRUE, 'html' => TRUE));
+  if ($size == 's') {
+    $credit = t('Flickr'); // The size is too small to add a title.
+  }
+  else {
+    $credit = $title;
+  }
+  if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) {
+    return l($img, $photo_url, array('attributes' => array('title' => $title), 'absolute' => TRUE, 'html' => TRUE));
+  }
+  else {
+    return '<span class="flickr-wrap">' . l($img, $url, array('attributes' => array('title' => $title, 'class' => array($class), 'rel' => $rel), 'absolute' => TRUE, 'html' => TRUE)). '<span class="flickr-credit" style="width: ' . $width . 'px;">' . l($credit, $photo_url, array('attributes' => array('title' => t('View on Flickr. To enlarge click pic.'), 'target' => '_blank'))) . '</span></span>'; //Final step that generates the image with a link to the bigger version and a link to the Flickr page under it to comply with the TOS of Flickr.
+  }
 }
 
 function theme_flickr_photo_box($variables) {

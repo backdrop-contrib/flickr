@@ -1,4 +1,3 @@
-
 .flickr-photos {}
 
 .flickr-photo {}
@@ -15,11 +14,9 @@
   height: 260px;
 }
 
-
-
 .flickr-photosets {}
 
-.flickr-photoset {}
+.flickr-photoset span.flickr-wrap{}
 
 .flickr-photoset-img {
   vertical-align: text-bottom;
@@ -36,3 +33,16 @@
 .flickr-photoset-title {}
 
 .flickr-photoset-count {}
+
+span.flickr-wrap {
+  display: inline-block;
+  vertical-align: top;
+  margin: 0 5px 5px 0;
+}
+
+span.flickr-credit {
+  display: block;
+  line-height: 100%;
+  font-size: 80%;
+}
+
