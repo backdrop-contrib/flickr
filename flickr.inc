@@ -17,28 +17,47 @@ function flickr_photo_sizes() {
   return array(
     's' => array(
       'label' => 'Square',
-      'description' => t('75x75 pixel square'),
+      'description' => t('75 px square'),
     ),
     't' => array(
       'label' => 'Thumbnail',
-      'description' => t('100 pixels on longest side'),
+      'description' => t('100 px on longest side'),
+    ),
+    'q' => array(
+      'label' => 'Large Square',
+      'description' => t('150 px square'),
     ),
     'm' => array(
       'label' => 'Small',
-      'description' => t('240 pixels on longest side'),
+      'description' => t('240 px on longest side'),
+    ),
+    'n' => array(
+      'label' => 'Small 320',
+      'description' => t('320 px on longest side'),
     ),
     '-' => array(
-      'label' => 'Medium 500',
-      'description' => t('500 pixels on longest side'),
+      'label' => 'Medium',
+      'description' => t('500 px on longest side'),
     ),
     'z' => array(
       'label' => 'Medium 640',
-      'description' => t('640 pixels on longest side'),
+      'description' => t('640 px on longest side'),
     ),
-
+    'c' => array(
+      'label' => 'Medium 800',
+      'description' => t('800 px on longest side'),
+    ),
     'b' => array(
       'label' => 'Large',
-      'description' => t('1024 pixels on longest side'),
+      'description' => t('1024 px on longest side'),
+    ),
+    'h' => array(
+      'label' => 'Large 1600',
+      'description' => t('1600 px on longest side'),
+    ),
+    'k' => array(
+      'label' => 'Large 2048',
+      'description' => t('2048 px on longest side'),
     ),
     'o' => array(
       'label' => 'Original',
