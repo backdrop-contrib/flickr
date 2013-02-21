@@ -219,7 +219,7 @@ function hook_user_delete($account) {
  * Adds the Flickr form to the user profile form
  */
 function flickr_form_user_profile_form_alter(&$form, &$form_state) {
-  if ($form['#user_category'] == 'account') {
+  if ($form['#user_category'] == 'account' && (user_access('view own flickr photos') || user_access('administer flickr'))) {
     $account = $form['#user'];
     $form['flickr'] = array(
       '#type' => 'fieldset',
