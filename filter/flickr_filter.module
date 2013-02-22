@@ -74,6 +74,7 @@ function flickr_filter_callback_photo($matches) {
   list($config, $attribs) = flickr_filter_split_config($matches[1]);
   if (isset($config['id'])) {
     if ($photo = flickr_photo_get_info($config['id'])) {
+if(!isset($config['size'])) $config['size']= variable_get('flickr_default_size', '-');
       return theme('flickr_filter_photo', array('photo' => $photo, 'size' => $config['size'], 'attribs' => $attribs));
     }
   }
