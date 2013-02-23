@@ -74,6 +74,12 @@ function flickr_admin_settings() {
       '#description' => t('A default Flickr size to use. This will be used when no size is specified, for example [flickr-photo:id=3711935987].<br />After saving the configuration, <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
     );
   }
+  $form['flickr_css'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use flickr.css'),
+    '#default_value' => variable_get('flickr_css', 1),
+    '#description' => t('Uncheck to take care of the styling yourself in custom CSS.'),
+  );
   $form['overlay_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Overlay browser settings'),

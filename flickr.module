@@ -3,6 +3,16 @@
 require_once(drupal_get_path('module', 'flickr') . '/flickr.inc');
 
 /**
+ * Implements hook_init().
+ */
+function flickr_init() {
+  // Determine the setting to use flickr.css or not.
+  if (variable_get('flickr_css', 1)) {
+    drupal_add_css(drupal_get_path('module', 'flickr') . '/flickr.css', array('group' => CSS_DEFAULT, 'every_page' => TRUE));
+  }
+}
+
+/**
  * Implements hook_menu().
  */
 function flickr_menu() {
