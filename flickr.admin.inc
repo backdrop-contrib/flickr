@@ -97,6 +97,20 @@ function flickr_admin_settings() {
     '#default_value' => variable_get('flickr_rel', ''),
     '#description' => t('E.g.: gallery-all'),
   );
+  $form['overlay_settings']['flickr_opening_size'] = array(
+    '#type' => 'select',
+    '#title' => t('Image size to open'),
+    '#default_value' => variable_get('flickr_opening_size', ''),
+    '#options' => array(
+      'm' => t('m: 240 px on longest side'),
+      'n' => t('n: 320 px on longest side (!)'),
+      '' => t('-: 500 px on longest side'),
+      'z' => t('z: 640 px on longest side'),
+      'c' => t('c: 800 px on longest side (!)'),
+      'b' => t('b: 1024 px on longest side'),
+    ),
+    '#description' => t('The image size to open in the overlay browser when clicking the image. Larger sizes make navigating to next and previous pictures slower.<br />After saving the configuration, <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+  );
   // we need an api key before we can verify usernames
   if (!$form['flickr_api_key']['#default_value']) {
     $form['flickr_default_userid']['#disabled'] = TRUE;

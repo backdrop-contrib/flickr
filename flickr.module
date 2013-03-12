@@ -271,7 +271,7 @@ function theme_flickr_photo($variables) {
   $size = $variables['size'];
   $format = $variables['format'];
   $attribs = $variables['attribs'];
-  $url = flickr_photo_img($photo, 'z', $format); // For quick opening of the big version images remove the z, using 500px instead of 620px.
+  $url = flickr_photo_img($photo, variable_get('flickr_opening_size', ''), $format);
   switch($size) {
   case 's':
     $width = '75';
