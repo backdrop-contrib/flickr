@@ -17,6 +17,7 @@ function flickr_block_info() {
 
   // Photoset blocks
   $blocks[7]['info'] = t('Flickr random photo from photoset');
+  $blocks[8]['info'] = t('Flickr recent photo from photoset');
   
   return $blocks;
 }
@@ -98,6 +99,7 @@ function flickr_block_configure($delta = '') {
       $form["flickr_block_{$delta}_user_id"]['#required'] = TRUE;
       break;
     case 7: // sitewide, random
+    case 8: // sitewide, recent
       unset($form["flickr_block_{$delta}_user_id"]);
       $form["flickr_block_{$delta}_photoset"] = array(
         '#type' => 'textfield',
@@ -138,6 +140,7 @@ function flickr_block_save($delta = '', $edit = array()) {
       ));
       break;
     case 7:
+    case 8:
       variable_set('flickr_block_' . $delta, array(
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
         'size' => $edit["flickr_block_{$delta}_size"],
@@ -210,6 +213,10 @@ function flickr_block_view($delta = '') {
     case 7:
       $block['subject'] = t('Flickr random photoset photos');
       $block['content'] = _flickr_block_photoset_random($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['photoset_id']);
+      break;
+    case 8:
+      $block['subject'] = t('Flickr recent photoset photos');
+      $block['content'] = _flickr_block_photoset_recent($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['photoset_id']);
       break;
   }
   return $block;
@@ -294,6 +301,36 @@ function _flickr_block_photoset_random($nsid, $show_n, $size, $media, $photoset_
     $photos[$i]['owner'] = $info['owner'];
     $output .= theme('flickr_block_photo', array('photo' => $photos[$i], 'size' => $size));
   }
+  return $output;
+}
+
+function _flickr_block_photoset_recent($nsid, $show_n, $size, $media, $photoset_id) {
+  // Get information about the photoset, including the owner.
+  $info = flickr_photoset_get_info($photoset_id);
+  if (!$info) {
+    return;
+  }
+
+  $response = flickr_request('flickr.photosets.getPhotos',
+    array(
+      'photoset_id' => $photoset_id,
+      'per_page' => $show_n,
+      'extras' => 'owner',
+      'media' => $media,
+    )
+  );
+  
+  if (!$response) {
+    return;
+  }
+  
+  $output = '';
+  foreach ($response['photoset']['photo'] as $photo) {
+    //insert owner into $photo because theme_flickr_photo needs it
+    $photo['owner'] = $info['owner'];
+    $output .= theme('flickr_block_photo', array('photo' => $photo, 'size' => $size));
+  }
+  
   return $output;
 }
 
