@@ -158,7 +158,7 @@ function flickrfield_form_process_flickrfield_flickrid($element, $form_state, $f
     '#title' => !empty($element['#title']) ? $element['#title'] : '',
     '#description' => !empty($element['#description']) ? $element['#description'] : '',
     '#required' => FALSE || $element['#required'],
-    '#field_prefix' => t('Flickr ID: '),
+    '#field_prefix' => t('Flickr set ID: '),
     '#default_value' => !empty($element['#value']['flickrid']) ? $element['#value']['flickrid'] : '',
     '#size' => 20,
     '#maxlength' => 20,
