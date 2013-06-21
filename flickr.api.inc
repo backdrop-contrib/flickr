@@ -71,6 +71,34 @@ function flickr_photos_search($nsid, $page = 1, $other_args = array()){
 }
 
 /**
+ * @param $nsid
+ *   nsid of the user whose photoset tags will be returned
+ * @param $page   
+ *   page of results to return
+ *
+ * @return
+ *   response from the flickr method flickr.favorites.getPublicList
+ *   (http://www.flickr.com/services/api/flickr.favorites.getPublicList.html)
+ */
+function flickr_favorites_get_public_list($nsid, $page = 1, $other_args = array()){
+  $args = array (
+    'user_id' => $nsid,
+    'page' => $page,
+  );
+
+  //set per_page to flickr module default if it is not specified in $other_args
+  if (!isset($other_args['per_page'])) {
+    $args['per_page'] = variable_get('flickr_photos_per_page', 20);
+  }
+
+  $response = flickr_request('flickr.favorites.getPublicList', array_merge($args, $other_args));
+  if ($response) {
+    return $response['photos'];
+  }
+  return FALSE;
+}
+
+/**
  * @param $photoset_id
  *   id of the photoset to get information about
  *

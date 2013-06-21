@@ -18,7 +18,10 @@ function flickr_block_info() {
   // Photoset blocks
   $blocks[7]['info'] = t('Flickr random photo from photoset');
   $blocks[8]['info'] = t('Flickr recent photo from photoset');
-  
+
+  // Returns a list of favorite public photos for the given user.
+  $blocks[9]['info'] = t("Flickr user favorite public photos");
+    
   return $blocks;
 }
 
@@ -109,6 +112,8 @@ function flickr_block_configure($delta = '') {
         '#required' => TRUE,
       );
       break;
+    case 9: // list of favorite public photos for the given user
+      break;      
   }
   return $form;
 }
@@ -132,6 +137,7 @@ function flickr_block_save($delta = '', $edit = array()) {
     case 4:
     case 5:
     case 6: 
+    case 9: 
       variable_set('flickr_block_' . $delta, array(
         'user_id' => $edit["flickr_block_{$delta}_user_id"],
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
@@ -190,6 +196,10 @@ function flickr_block_view($delta = '') {
               $block['subject'] = t("%username's random Flickr photos", array('%username' => $user->name));
               $block['content'] = _flickr_block_random($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media']);
             }
+            elseif ($delta == 9) {
+              $block['subject'] = t("%username's favorite public Flickr photos", array('%username' => $user->name));
+              $block['content'] = _flickr_block_favorite_public($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media']);
+            }            
           }
         }
       }
@@ -218,6 +228,11 @@ function flickr_block_view($delta = '') {
       $block['subject'] = t('Flickr recent photoset photos');
       $block['content'] = _flickr_block_photoset_recent($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['photoset_id']);
       break;
+    case 9:
+      $block['subject'] = t('Flickr favorite public photos');
+      $block['content'] = _flickr_block_favorite_public($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media']);
+      break;
+      
   }
   return $block;
 } 
@@ -372,4 +387,14 @@ function theme_flickr_block_photoset($variables) {
   $owner = $variables['owner'];
   $size = $variables['size'];
   return theme('flickr_photoset', array('photoset' => $photoset, 'owner' => $owner, 'size' => $size));
+}
+
+function _flickr_block_favorite_public($nsid, $show_n, $size, $media) {
+  $output = '';
+  if ($photos = flickr_favorites_get_public_list($nsid, 1, array('per_page' => $show_n, 'media' => $media))) {
+    foreach ($photos['photo'] as $photo) {
+      $output .= theme('flickr_block_photo', array('photo' => $photo, 'size' => $size));
+    }
+  }
+  return $output;
 }
