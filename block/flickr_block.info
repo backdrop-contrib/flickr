@@ -1,7 +1,7 @@
 name = Flickr Block
-description = Adds capability to display Flickr photos and sets into blocks.
-dependencies[] = flickr
-package = Flickr
+description = Display Flickr photos and sets in blocks.
 core = 7.x
+package = Flickr
 
-files[] = flickr_block.module
+dependencies[] = flickr
+

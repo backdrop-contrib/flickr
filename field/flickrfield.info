@@ -1,10 +1,8 @@
 name = Flickr Field
-description = Flickr field to insert Flickr images into content.
+description = Add Flickr images to content as fields.
 core = 7.x
 package = Flickr
 
-dependencies[] = field
 dependencies[] = flickr
+dependencies[] = field
 
-files[] = flickrfield.install
-files[] = flickrfield.module

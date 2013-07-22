@@ -15,7 +15,8 @@ that you can enable as well.
 
 Installation and configuration:
 ------------------------------
-1.) Simply extract the download package in your modules directory, e.g. '/sites/all/modules'.
+1.) Simply extract the download package in your modules directory, 
+e.g. '/sites/all/modules'.
 2.) Enable the module in 'admin/modules'.
 3.) Configure the API Key '/admin/config/media/flickr'.
 4.) Add the flickr filter to one of your input formats by following

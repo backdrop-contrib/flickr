@@ -1,12 +1,11 @@
 <?php
-
 /**
  * @file
  * The admin settings for the Flickr module
  */
 
 /**
- * Implementation of hook_settings
+ * Implements hook_settings().
  */
 function flickr_admin_settings() {
   $form['flickr_api_key'] = array(
@@ -21,7 +20,7 @@ function flickr_admin_settings() {
     '#title' => t('API Shared Secret'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_api_secret', ''),
-    '#description' => t('API key\'s secret from Flickr.'),
+    '#description' => t("API key's secret from Flickr."),
   );
   $form['flickr_default_userid'] = array(
     '#type' => 'textfield',
@@ -29,7 +28,19 @@ function flickr_admin_settings() {
     '#default_value' => variable_get('flickr_default_userid', ''),
     '#description' => t('An, optional, default Flickr username or user id. This will be used when no user is specified.'),
   );
-  $times = array(900, 1800, 2700, 3600, 7200, 10800, 14400, 18000, 21600, 43200, 86400);
+  $times = array(
+    900,
+    1800,
+    2700,
+    3600,
+    7200,
+    10800,
+    14400,
+    18000,
+    21600,
+    43200,
+    86400,
+  );
   $ageoptions = drupal_map_assoc($times, 'format_interval');
   $form['flickr_cache_duration'] = array(
     '#type' => 'select',
@@ -59,7 +70,7 @@ function flickr_admin_settings() {
     $form['flickr_default_size'] = array(
       '#type' => 'select',
       '#title' => t('Default size'),
-      '#default_value' => variable_get('flickr_default_size', '-'),
+      '#default_value' => variable_get('flickr_default_size', 'm'),
       '#options' => array(
         's' => t('s: 75 px square'),
         't' => t('t: 100 px on longest side'),
@@ -111,7 +122,7 @@ function flickr_admin_settings() {
     ),
     '#description' => t('The image size to open in the overlay browser when clicking the image. Larger sizes make navigating to next and previous pictures slower.<br />After saving the configuration, <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
   );
-  // we need an api key before we can verify usernames
+  // We need an api key before we can verify usernames.
   if (!$form['flickr_api_key']['#default_value']) {
     $form['flickr_default_userid']['#disabled'] = TRUE;
     $form['flickr_default_userid']['#description'] .= t('Disabled until a valid API Key is set.');
@@ -120,6 +131,9 @@ function flickr_admin_settings() {
   return system_settings_form($form);
 }
 
+/**
+ * Validate user input.
+ */
 function flickr_admin_settings_validate($form, &$form_state) {
   $key = trim($form_state['values']['flickr_api_key']);
   $sec = trim($form_state['values']['flickr_api_secret']);
@@ -133,7 +147,7 @@ function flickr_admin_settings_validate($form, &$form_state) {
   }
   if ($uid) {
     if (flickr_is_nsid($uid)) {
-      // it's already a uid
+      // It's already a uid.
     }
     else {
       $user = flickr_user_find_by_username($uid);
@@ -144,14 +158,17 @@ function flickr_admin_settings_validate($form, &$form_state) {
   }
 }
 
+/**
+ * Submit form data.
+ */
 function flickr_admin_settings_submit($form, &$form_state) {
-  // clean up the data ...
+  // Clean up the data.
   $form_state['values']['flickr_api_key'] = trim($form_state['values']['flickr_api_key']);
   $form_state['values']['flickr_api_secret'] = trim($form_state['values']['flickr_api_secret']);
   $form_state['values']['flickr_photos_per_page'] = trim($form_state['values']['flickr_photos_per_page']);
   $form_state['values']['flickr_default_userid'] = trim($form_state['values']['flickr_default_userid']);
 
-  // ... replace the usernames with a user id ...
+  // Replace the usernames with a uid.
   if (!flickr_is_nsid($form_state['values']['flickr_default_userid'])) {
     $username = $form_state['values']['flickr_default_userid'];
     if ($user = flickr_user_find_by_username($username)) {
@@ -160,6 +177,7 @@ function flickr_admin_settings_submit($form, &$form_state) {
     }
   }
 
-  // ... and save the settings
+  // Save the settings.
   system_settings_form_submit($form, $form_state);
 }
+

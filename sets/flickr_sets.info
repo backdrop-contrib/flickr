@@ -1,7 +1,7 @@
 name = Flickr Sets
 description = Adds photoset capability to the Flickr module.
-dependencies[] = flickr
-package = Flickr
 core = 7.x
+package = Flickr
 
-files[] = flickr_sets.module
+dependencies[] = flickr
+

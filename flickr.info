@@ -1,6 +1,5 @@
 name = Flickr
 description = Flickr and Drupal integration.
-package = Flickr
 core = 7.x
+package = Flickr
 
-files[] = flickr.module
