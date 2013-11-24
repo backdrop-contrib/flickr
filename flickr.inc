@@ -230,6 +230,9 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
     }
   }
   $title = is_array($photo['title']) ? $photo['title']['_content'] : $photo['title'];
+  if (module_exists('jcaption') && (variable_get('flickr_class') != NULL || variable_get('flickr_rel') != NULL)) {
+    $title = '';
+  }
   return theme('image', array(
     'path' => $img_url,
     'alt' => $title,
