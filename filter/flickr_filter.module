@@ -137,4 +137,3 @@ function theme_flickr_filter_photo($variables) {
 function theme_flickr_filter_photoset($variables) {
   return theme('flickr_photoset', $variables);
 }
-

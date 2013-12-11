@@ -509,6 +509,8 @@ function theme_flickrfield_photoset($variables) {
  * Also includes a link to Flickr.com photo set page to comply with terms of
  * service.
  *
+ * @param array $variables
+ *   Holds the values to assign.
  * @param string $img
  *   HTML code for image.
  * @param string $link

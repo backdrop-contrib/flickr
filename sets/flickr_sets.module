@@ -231,4 +231,3 @@ function theme_flickr_sets_photoset_box($variables) {
 
   return $output;
 }
-

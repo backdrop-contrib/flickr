@@ -35,23 +35,6 @@ function flickr_block_info() {
  * Implements hook_block_configure().
  */
 function flickr_block_configure($delta = '') {
-  $count_options = array(
-    1 => '1',
-    2 => '2',
-    3 => '3',
-    4 => '4',
-    5 => '5',
-    6 => '6',
-    7 => '7',
-    8 => '8',
-    9 => '9',
-    10 => '10',
-    15 => '15',
-    20 => '20',
-    25 => '25',
-    30 => '30',
-  );
-
   // Remove the large and original sizes.
   $size_options = array();
   foreach (flickr_photo_sizes() as $size => $info) {
@@ -60,7 +43,7 @@ function flickr_block_configure($delta = '') {
   unset($size_options['b']);
   unset($size_options['o']);
 
-  // Define all of the form element variables and retrieve existing values
+  // Define all of the form element variables and retrieve existing values.
   $settings = variable_get('flickr_block_' . $delta, array(
     'user_id' => '',
     'show_n' => 4,
@@ -70,15 +53,21 @@ function flickr_block_configure($delta = '') {
     'photoset_id' => '',
     'media' => 'all',
   ));
-  if (!isset($settings['tag'])) $settings['tag'] = '';
-  if (!isset($settings['group_id'])) $settings['group_id'] = '';
-  if (!isset($settings['photoset_id'])) $settings['photoset_id'] = '';
+  if (!isset($settings['tag'])) {
+    $settings['tag'] = '';
+  }
+  if (!isset($settings['group_id'])) {
+    $settings['group_id'] = '';
+  }
+  if (!isset($settings['photoset_id'])) {
+    $settings['photoset_id'] = '';
+  }
 
-  // Define all elements of the block parameters form
+  // Define all elements of the block parameters form.
   $form = array();
   $default_userid = variable_get('flickr_default_userid', '');
   $user_id = array_key_exists('user_id', $settings) ? $settings['user_id'] : '';
-  // Require a user id if the site-wide default user has not been set
+  // Require a user id if the site-wide default user has not been set.
   if (empty($default_userid)) {
     $form["flickr_block_{$delta}_user_id"] = array(
       '#type' => 'textfield',
@@ -87,7 +76,8 @@ function flickr_block_configure($delta = '') {
       '#required' => TRUE,
       '#description' => t("The user id of a Flickr user. Note that the sites's default Flickr user id has not been set."),
     );
-  } else {
+  }
+  else {
     $form["flickr_block_{$delta}_user_id"] = array(
       '#type' => 'textfield',
       '#title' => t('Flickr User Id'),
@@ -95,13 +85,16 @@ function flickr_block_configure($delta = '') {
       '#description' => t("The user id of a Flickr user. If this is left blank, the sites's default user will be used. Current default id is") . " " . $default_userid,
     );
   }
-  
+
   $form["flickr_block_{$delta}_show_n"] = array(
-    '#type' => 'select',
-    '#options' => $count_options,
+    '#type' => 'textfield',
     '#title' => t('Show <em>n</em> photos'),
+    '#required' => TRUE,
     '#default_value' => $settings['show_n'],
     '#description' => t("The block will display this many photos."),
+    '#element_validate' => array('flickr_block_block_validate'),
+    '#size' => 2,
+    '#maxlength' => 2,
   );
   $form["flickr_block_{$delta}_size"] = array(
     '#type' => 'select',
@@ -134,7 +127,7 @@ function flickr_block_configure($delta = '') {
     '#description' => t("Filter results by media type."),
   );
 
-  // Build the block form - use unset to hide unwanted form elements
+  // Build the block form - use unset to hide unwanted form elements.
   switch ($delta) {
     // User page, recent.
     case 0:
@@ -193,7 +186,7 @@ function flickr_block_configure($delta = '') {
 
     // Sitewide, random.
     case 7:
-    // Sitewide, recent.
+      // Sitewide, recent.
     case 8:
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_group_id"]);
@@ -221,6 +214,7 @@ function flickr_block_configure($delta = '') {
       $form["flickr_block_{$delta}_group_id"]['#description'] = t('Will select random photos from this group pool');
       $form["flickr_block_{$delta}_group_id"]['#required'] = TRUE;
       break;
+
     // Tag, random.
     case 11:
       unset($form["flickr_block_{$delta}_group_id"]);
@@ -230,6 +224,15 @@ function flickr_block_configure($delta = '') {
       break;
   }
   return $form;
+}
+
+/**
+ * Validate user input.
+ */
+function flickr_block_block_validate($element) {
+  if (!is_numeric($element['#value']) || $element['#value'] < 1) {
+    form_set_error('flickr_block_{$delta}_show_n', t('Set a number from 1 to 99.'));
+  }
 }
 
 /**
@@ -269,7 +272,7 @@ function flickr_block_save($delta = '', $edit = array()) {
         'photoset_id' => $edit["flickr_block_{$delta}_photoset"],
       ));
       break;
-      
+
     case 10:
       variable_set('flickr_block_' . $delta, array(
         'group_id' => $edit["flickr_block_{$delta}_group_id"],
@@ -278,6 +281,7 @@ function flickr_block_save($delta = '', $edit = array()) {
         'media' => $edit["flickr_block_{$delta}_media"],
       ));
       break;
+
     case 11:
       variable_set('flickr_block_' . $delta, array(
         'user_id' => $edit["flickr_block_{$delta}_user_id"],
@@ -304,9 +308,15 @@ function flickr_block_view($delta = '') {
     'photoset_id' => '',
     'media' => 'all',
   ));
-  if (!isset($settings['tag'])) $settings['tag'] = '';
-  if (!isset($settings['group_id'])) $settings['group_id'] = '';
-  if (!isset($settings['photoset_id'])) $settings['photoset_id'] = '';
+  if (!isset($settings['tag'])) {
+    $settings['tag'] = '';
+  }
+  if (!isset($settings['group_id'])) {
+    $settings['group_id'] = '';
+  }
+  if (!isset($settings['photoset_id'])) {
+    $settings['photoset_id'] = '';
+  }
 
   // Get the default user id as a fallback.
   if (empty($settings['user_id'])) {
@@ -383,6 +393,7 @@ function flickr_block_view($delta = '') {
       $block['subject'] = t('Flickr group random photos');
       $block['content'] = _flickr_block_group_random($settings['group_id'], $settings['show_n'], $settings['size'], $settings['media']);
       break;
+
     case 11:
       $block['subject'] = t('Flickr tag random photos');
       $block['content'] = _flickr_block_tag_random($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag']);
@@ -548,7 +559,7 @@ function _flickr_block_group_random($group_id, $show_n, $size, $media) {
  * Random by tag block.
  */
 function _flickr_block_tag_random($nsid, $show_n, $size, $media, $tag) {
-  // Do a photo search for the provided tag in the given user's public photos
+  // Do a photo search for the provided tag in the given user's public photos.
   $response = flickr_request('flickr.photos.search',
     array(
       'user_id' => $nsid,
@@ -685,4 +696,3 @@ function theme_flickr_block_photoset($variables) {
     'size' => $size,
   ));
 }
-

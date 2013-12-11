@@ -446,4 +446,3 @@ function theme_flickr_photoset($variables) {
       ));
   }
 }
-

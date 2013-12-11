@@ -399,7 +399,7 @@ function flickr_photoset_get_list($nsid) {
  * @param string $nsid
  *   The Flickr user's NSID.
  *
- * @return array
+ * @return array $response
  *   Array with person's info from flickr.people.getInfo.
  *   (http://www.flickr.com/services/api/flickr.people.getInfo.html)
  *   or FALSE on error.
@@ -669,4 +669,3 @@ function flickr_favorites_get_public_list($nsid, $page = 1, $other_args = array(
   }
   return FALSE;
 }
-

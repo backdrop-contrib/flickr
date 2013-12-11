@@ -50,21 +50,13 @@ function flickr_admin_settings() {
     '#description' => t('The refresh interval indicating how often you want to check cached Flickr API calls are up to date.'),
   );
   $form['flickr_photos_per_page'] = array(
-    '#type' => 'select',
+    '#type' => 'textfield',
     '#title' => t('Number of photos per photoset'),
+    '#required' => TRUE,
     '#default_value' => variable_get('flickr_photos_per_page', '30'),
-    '#options' => array(
-      '10' => t('10'),
-      '30' => t('30'),
-      '50' => t('50'),
-      '100' => t('100'),
-      '150' => t('150'),
-      '200' => t('200'),
-      '300' => t('300'),
-      '400' => t('400'),
-      '500' => t('500'),
-    ),
-    '#description' => t('The number indicates how many photos of a photoset display in your nodes. After saving the configuration, <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+    '#description' => t('The number indicates how many photos of a photoset display in your nodes. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+    '#size' => 3,
+    '#maxlength' => 3,
   );
   if (module_exists('flickr_filter')) {
     $form['flickr_default_size'] = array(
@@ -82,7 +74,7 @@ function flickr_admin_settings() {
         'c' => t('c: 800 px on longest side (!)'),
         'b' => t('b: 1024 px on longest side'),
       ),
-      '#description' => t('A default Flickr size to use. This will be used when no size is specified, for example [flickr-photo:id=3711935987].<br />After saving the configuration, <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+      '#description' => t('A default Flickr size to use. This will be used when no size is specified, for example [flickr-photo:id=3711935987].<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
     );
   }
   $form['flickr_css'] = array(
@@ -120,7 +112,7 @@ function flickr_admin_settings() {
       'c' => t('c: 800 px on longest side (!)'),
       'b' => t('b: 1024 px on longest side'),
     ),
-    '#description' => t('The image size to open in the overlay browser when clicking the image. Larger sizes make navigating to next and previous pictures slower.<br />After saving the configuration, <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+    '#description' => t('The image size to open in the overlay browser when clicking the image. Larger sizes make navigating to next and previous pictures slower.<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
   );
   // We need an api key before we can verify usernames.
   if (!$form['flickr_api_key']['#default_value']) {
@@ -138,6 +130,7 @@ function flickr_admin_settings_validate($form, &$form_state) {
   $key = trim($form_state['values']['flickr_api_key']);
   $sec = trim($form_state['values']['flickr_api_secret']);
   $uid = trim($form_state['values']['flickr_default_userid']);
+  $limit = trim($form_state['values']['flickr_photos_per_page']);
 
   if ($key && (preg_match('/^[A-Fa-f\d]{32}$/', $key) != 1)) {
     form_set_error('flickr_api_key', t('This does not appear to be a Flickr API key.'));
@@ -155,6 +148,10 @@ function flickr_admin_settings_validate($form, &$form_state) {
         form_set_error('flickr_default_userid', t('%uid is not a Flickr user id and it does not appear to be a valid user name.', array('%uid' => $uid)));
       }
     }
+  }
+  // Validate the number of photos.
+  if (!is_numeric($limit) || $limit < 1) {
+    form_set_error('flickr_photos_per_page', t('Set a number from 1 to 999.'));
   }
 }
 
@@ -180,4 +177,3 @@ function flickr_admin_settings_submit($form, &$form_state) {
   // Save the settings.
   system_settings_form_submit($form, $form_state);
 }
-

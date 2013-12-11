@@ -12,4 +12,3 @@ function flickr_block_uninstall() {
     variable_del("flickr_block_{$delta}");
   }
 }
-

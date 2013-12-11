@@ -180,7 +180,7 @@ function flickr_photoset_get_photos($photoset_id) {
  * @param string $nsid
  *   The Flickr user's NSID.
  *
- * @return array
+ * @return array $response
  *   array with person's info from flickr.people.getInfo
  *   (http://www.flickr.com/services/api/flickr.people.getInfo.html)
  *   or FALSE on error.
@@ -268,7 +268,7 @@ function flickr_tags_get_list_user_popular($nsid, $count = NULL) {
  * @param string $nsid
  *   NSID of the user whose photoset tags will be returned.
  *
- * @return array
+ * @return array $response
  *   response from the flickr method flickr.tags.getListUser
  *   (http://www.flickr.com/services/api/flickr.tags.getListUser.html)
  */
@@ -290,7 +290,7 @@ function flickr_tags_get_list_user($nsid) {
  * @param string $nid
  *   NSID of the group whose photos you want.
  *
- * @return array
+ * @return array $response
  *   response from the flickr method flickr.groups.pools.getPhotos
  *   (http://www.flickr.com/services/api/flickr.groups.pools.getPhotos.html)
  */
@@ -311,4 +311,3 @@ function flickr_get_group_photos($nsid, $page = 1, $other_args = array()) {
   }
   return FALSE;
 }
-
