@@ -428,20 +428,73 @@ function theme_flickrfield_formatter_photoset_flickrcomsetlink($variables) {
  * add a link back to the Flickr page.
  */
 function theme_flickrfield_photo($variables) {
+  $class = variable_get('flickr_class');
+  $rel = variable_get('flickr_rel');
   $img = $variables['0'];
   $photo_url = $variables['1'];
   $formatter = $variables['2'];
   $photo_data = $variables['3'];
   $node = $variables['4'];
+  $url = flickr_photo_img($photo_data, variable_get('flickr_opening_size', ''), $formatter);
+  switch ($formatter) {
+    case 's':
+      $width = '75';
+      break;
+
+    case 't':
+      $width = '100';
+      break;
+
+    case 'q':
+      $width = '150';
+      break;
+
+    case 'm':
+      $width = '240';
+      break;
+
+    case 'n':
+      $width = '320';
+      break;
+
+    default:
+      $width = '500';
+  }
   $title = is_array($photo_data['title']) ? $photo_data['title']['_content'] : $photo_data['title'];
+  if ($formatter == 's') {
+    // The size is too small to add a title.
+    $credit = t('Flickr');
+  }
+  else {
+    $credit = $title;
+  }
   if (arg(0) == 'node' && arg(1) == $node->nid) {
-    $output = '<div class="flickr-photo-img">' . $img . '</div>';
+    if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) {
+      $output = '<div class="flickr-photo-img">' . $img . '</div>';
+    }
+    else {
+      // Final step that generates the image with a link to the bigger version and
+      // a link to the Flickr page under it to comply with the TOS of Flickr.
+      return '<span class="flickr-wrap">' . l($img, $url, array(
+        'attributes' => array(
+        'title' => $title,
+        'class' => array($class),
+        'rel' => $rel),
+        'absolute' => TRUE,
+        'html' => TRUE,
+        )) . '<span class="flickr-credit" style="max-width: ' . $width . 'px;">' . l($credit, $photo_url, array(
+          'attributes' => array(
+          'title' => t('View on Flickr. To enlarge click pic.'),
+          'target' => '_blank',
+          ),
+        )) . '</span></span>';
+    }
   }
   else {
     $output = '<div class="flickr-photo-img">' . l($img, 'node/' . $node->nid, array(
       'attributes' => array('title' => $title),
       'absolute' => TRUE, 'html' => TRUE,
-    )) . '</div>';
+      )) . '</div>';
   }
   $output .= '<div class="flickr-citation"><cite>' . l(t('Source: Flickr'), $photo_url) . '</cite></div>';
   return $output;
@@ -451,28 +504,78 @@ function theme_flickrfield_photo($variables) {
  * Theme function for showing a photo set.
  */
 function theme_flickrfield_photoset($variables) {
+  $class = variable_get('flickr_class');
+  $rel = variable_get('flickr_rel');
   $img = $variables['0'];
   $photo_url = $variables['1'];
   $formatter = $variables['2'];
   $photo_data = $variables['3'];
   $node = $variables['4'];
+  switch ($formatter) {
+    case 's':
+      $width = '75';
+      break;
+
+    case 't':
+      $width = '100';
+      break;
+
+    case 'q':
+      $width = '150';
+      break;
+
+    case 'm':
+      $width = '240';
+      break;
+
+    case 'n':
+      $width = '320';
+      break;
+
+    default:
+      $width = '500';
+  }
   $output = '<div class="flickr-photoset">';
 
   if (module_exists('flickr_sets')) {
     $photos = flickr_set_load($photo_data['id']);
 
     foreach ((array) $photos['photoset']['photo'] as $photo) {
+      $url = flickr_photo_img($photo, variable_get('flickr_opening_size', ''), $formatter);
       // Insert owner into $photo because theme_flickr_photo needs it.
       $photo['owner'] = $photos['photoset']['owner'];
       $title = is_array($photo['title']) ? $photo['title']['_content'] : $photo['title'];
+      if ($formatter == 's') {
+        // The size is too small to add a title.
+        $credit = t('Flickr');
+      }
+      else {
+        $credit = $title;
+      }
       $img = flickr_img($photo, $formatter);
       $original = flickr_photo_img($photo);
 
       if (arg(0) == 'node' && arg(1) == $node->nid) {
-        $output .= '<div class="flickr-photoset-img flickr-photoset-img-' . $formatter . '">' . l($img, $original, array(
-          'attributes' => array('title' => $title),
-          'absolute' => TRUE, 'html' => TRUE,
-        )) . '</div>';
+    if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) {
+      $output = '<div class="flickr-photo-img">' . $img . '</div>';
+    }
+    else {
+      // Final step that generates the image with a link to the bigger version and
+      // a link to the Flickr page under it to comply with the TOS of Flickr.
+      $output .= '<span class="flickr-wrap">' . l($img, $url, array(
+        'attributes' => array(
+        'title' => $title,
+        'class' => array($class),
+        'rel' => $rel),
+        'absolute' => TRUE,
+        'html' => TRUE,
+        )) . '<span class="flickr-credit" style="max-width: ' . $width . 'px;">' . l($credit, $photo_url, array(
+          'attributes' => array(
+          'title' => t('View on Flickr. To enlarge click pic.'),
+          'target' => '_blank',
+          ),
+        )) . '</span></span>';
+    }
       }
       else {
         $output .= '<div class="flickr-photoset-img flickr-photoset-img-' . $formatter . '">' . l($img, 'node/' . $node->nid, array(
