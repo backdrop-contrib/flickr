@@ -14,7 +14,7 @@
  *   ID of the photo to get info about.
  *
  * @return array
- *   response from the flickr method flickr.photos.getInfo
+ *   Response from the flickr method flickr.photos.getInfo..
  *   (http://www.flickr.com/services/api/flickr.photos.getInfo.html)
  */
 function flickr_photo_get_info($photo_id) {
@@ -35,7 +35,7 @@ function flickr_photo_get_info($photo_id) {
  *   ID of the photo to get the available sizes of.
  *
  * @return array
- *   response from the flickr method flickr.photos.getSizes
+ *   Response from the flickr method flickr.photos.getSizes..
  *   (http://www.flickr.com/services/api/flickr.photos.getSizes.html)
  */
 function flickr_photo_get_sizes($photo_id) {
@@ -58,7 +58,7 @@ function flickr_photo_get_sizes($photo_id) {
  *   Page of results to return.
  *
  * @return array
- *   response from the flickr method flickr.photos.search
+ *   Response from the flickr method flickr.photos.search.
  *   (http://www.flickr.com/services/api/flickr.photos.search.html)
  */
 function flickr_photos_search($nsid, $page = 1, $other_args = array()) {
@@ -88,7 +88,7 @@ function flickr_photos_search($nsid, $page = 1, $other_args = array()) {
  *   Page of results to return.
  *
  * @return array
- *   response from the flickr method flickr.favorites.getPublicList
+ *   Response from the flickr method flickr.favorites.getPublicList.
  *   (http://www.flickr.com/services/api/flickr.favorites.getPublicList.html)
  */
 function flickr_favorites_get_public_list($nsid, $page = 1, $other_args = array()) {
@@ -116,7 +116,7 @@ function flickr_favorites_get_public_list($nsid, $page = 1, $other_args = array(
  *   ID of the photoset to get information about.
  *
  * @return array
- *   response from the flickr method flickr.photosets.getInfo
+ *   Response from the flickr method flickr.photosets.getInfo.
  *   (http://www.flickr.com/services/api/flickr.photosets.getInfo.html)
  */
 function flickr_photoset_get_info($photoset_id) {
@@ -137,7 +137,7 @@ function flickr_photoset_get_info($photoset_id) {
  *   NSID of the user whose photoset list you want.
  *
  * @return array
- *   response from the flickr method flickr.photosets.getList
+ *   Response from the flickr method flickr.photosets.getList.
  *   (http://www.flickr.com/services/api/flickr.photosets.getList.html)
  */
 function flickr_photoset_get_list($nsid) {
@@ -158,7 +158,7 @@ function flickr_photoset_get_list($nsid) {
  *   The Flickr photoset ID.
  *
  * @return array
- *   response from the flickr method flickr.photosets.getPhotos
+ *   Response from the flickr method flickr.photosets.getPhotos.
  *   (http://www.flickr.com/services/api/flickr.photosets.getPhotos.html)
  */
 function flickr_photoset_get_photos($photoset_id) {
@@ -181,7 +181,7 @@ function flickr_photoset_get_photos($photoset_id) {
  *   The Flickr user's NSID.
  *
  * @return array $response
- *   array with person's info from flickr.people.getInfo
+ *   Array with person's info from flickr.people.getInfo.
  *   (http://www.flickr.com/services/api/flickr.people.getInfo.html)
  *   or FALSE on error.
  */
@@ -200,10 +200,10 @@ function flickr_people_get_info($nisd) {
  * Return a user's NSID, given their username.
  *
  * @param string $username
- *   username to look for
+ *   Username to look for.
  *
  * @return array
- *   response from the flickr method flickr.people.findByUsername
+ *   Response from the flickr method flickr.people.findByUsername.
  *   (http://www.flickr.com/services/api/flickr.people.findByUsername.html)
  */
 function flickr_user_find_by_username($username) {
@@ -224,7 +224,7 @@ function flickr_user_find_by_username($username) {
  *   Email to look for.
  *
  * @return array
- *   response from the flickr method flickr.people.findByEmail
+ *   Response from the flickr method flickr.people.findByEmail.
  *   (http://www.flickr.com/services/api/flickr.people.findByEmail.html)
  */
 function flickr_user_find_by_email($email) {
@@ -247,7 +247,7 @@ function flickr_user_find_by_email($email) {
  *   Number of tags to return.
  *
  * @return array
- *   response from the flickr method flickr.tags.getListUserPopular
+ *   Response from the flickr method flickr.tags.getListUserPopular.
  *   (http://www.flickr.com/services/api/flickr.tags.getListUserPopular.html)
  */
 function flickr_tags_get_list_user_popular($nsid, $count = NULL) {
@@ -269,7 +269,7 @@ function flickr_tags_get_list_user_popular($nsid, $count = NULL) {
  *   NSID of the user whose photoset tags will be returned.
  *
  * @return array $response
- *   response from the flickr method flickr.tags.getListUser
+ *   Response from the flickr method flickr.tags.getListUser.
  *   (http://www.flickr.com/services/api/flickr.tags.getListUser.html)
  */
 function flickr_tags_get_list_user($nsid) {
@@ -291,7 +291,7 @@ function flickr_tags_get_list_user($nsid) {
  *   NSID of the group whose photos you want.
  *
  * @return array $response
- *   response from the flickr method flickr.groups.pools.getPhotos
+ *   Response from the flickr method flickr.groups.pools.getPhotos.
  *   (http://www.flickr.com/services/api/flickr.groups.pools.getPhotos.html)
  */
 function flickr_get_group_photos($nsid, $page = 1, $other_args = array()) {
