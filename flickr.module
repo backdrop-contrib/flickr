@@ -305,7 +305,7 @@ function theme_flickr_photo($variables) {
   $size = $variables['size'];
   $format = $variables['format'];
   $attribs = $variables['attribs'];
-  $url = flickr_photo_img($photo, variable_get('flickr_opening_size', 'm'), $format);
+  $url = flickr_photo_img($photo, variable_get('flickr_opening_size', ''), $format);
   $img = flickr_img($photo, $size, $attribs);
   $img_url = flickr_photo_img($photo, $size);
   // Get the real width of the image.
