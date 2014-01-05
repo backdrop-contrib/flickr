@@ -305,36 +305,15 @@ function theme_flickr_photo($variables) {
   $size = $variables['size'];
   $format = $variables['format'];
   $attribs = $variables['attribs'];
-  $url = flickr_photo_img($photo, variable_get('flickr_opening_size', ''), $format);
-  switch ($size) {
-    case 's':
-      $width = '75';
-      break;
-
-    case 't':
-      $width = '100';
-      break;
-
-    case 'q':
-      $width = '150';
-      break;
-
-    case 'm':
-      $width = '240';
-      break;
-
-    case 'n':
-      $width = '320';
-      break;
-
-    default:
-      $width = '500';
-  }
+  $url = flickr_photo_img($photo, variable_get('flickr_opening_size', 'm'), $format);
   $img = flickr_img($photo, $size, $attribs);
+  $img_url = flickr_photo_img($photo, $size);
+  // Get the real width of the image.
+  list($width) = getimagesize($img_url);
   $photo_url = flickr_photo_page_url($photo['owner'], $photo['id']);
   $title = is_array($photo['title']) ? $photo['title']['_content'] : $photo['title'];
-  if ($size == 's') {
-    // The size is too small to add a title.
+  // Image width < 100 px is too small for most titles. Can be set differently.
+  if ($width < variable_get('flickr_title_suppress_on_small', '100')) {
     $credit = t('Flickr');
   }
   else {

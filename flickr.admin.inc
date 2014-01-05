@@ -77,6 +77,16 @@ function flickr_admin_settings() {
       '#description' => t('A default Flickr size to use. This will be used when no size is specified, for example [flickr-photo:id=3711935987].<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
     );
   }
+  $form['flickr_title_suppress_on_small'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Minimum width to display a title caption.'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('flickr_title_suppress_on_small', '100'),
+    '#description' => t('Small images have liitle space for a title caption. Replace it with the text "Flickr" that links to the photo page on Flickr to comply with their <a href="http://www.flickr.com/guidelines.gne" title="Flickr Community Guidelines">Guidelines</a>.<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+    '#field_suffix' => t('px'),
+    '#size' => 3,
+    '#maxlength' => 3,
+  );
   $form['flickr_css'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use flickr.css'),
@@ -130,7 +140,8 @@ function flickr_admin_settings_validate($form, &$form_state) {
   $key = trim($form_state['values']['flickr_api_key']);
   $sec = trim($form_state['values']['flickr_api_secret']);
   $uid = trim($form_state['values']['flickr_default_userid']);
-  $limit = trim($form_state['values']['flickr_photos_per_page']);
+  $limit1 = trim($form_state['values']['flickr_photos_per_page']);
+  $limit2 = trim($form_state['values']['flickr_title_suppress_on_small']);
 
   if ($key && (preg_match('/^[A-Fa-f\d]{32}$/', $key) != 1)) {
     form_set_error('flickr_api_key', t('This does not appear to be a Flickr API key.'));
@@ -150,8 +161,12 @@ function flickr_admin_settings_validate($form, &$form_state) {
     }
   }
   // Validate the number of photos.
-  if (!is_numeric($limit) || $limit < 1) {
+  if (!is_numeric($limit1) || $limit1 < 1) {
     form_set_error('flickr_photos_per_page', t('Set a number from 1 to 999.'));
+  }
+  // Validate the minimum width to suppress title caption.
+  if (!is_numeric($limit2) || $limit2 < 0) {
+    form_set_error('flickr_title_suppress_on_small', t('Set a width from 0 to 999 px.'));
   }
 }
 
