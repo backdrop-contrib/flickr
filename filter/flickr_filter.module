@@ -99,6 +99,9 @@ function flickr_filter_callback_photoset($matches) {
 
   if (isset($config['id'])) {
     if ($photoset = flickr_photoset_get_info($config['id'])) {
+      if (!isset($config['size'])) {
+        $config['size'] = variable_get('flickr_default_size', 'm');
+      }
       return theme('flickr_filter_photoset', array(
         'photoset' => $photoset,
         'owner' => $photoset['owner'],
