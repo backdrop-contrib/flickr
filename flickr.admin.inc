@@ -102,13 +102,13 @@ function flickr_admin_settings() {
     '#type' => 'textfield',
     '#title' => t('class'),
     '#default_value' => variable_get('flickr_class', ''),
-    '#description' => t('E.g.: colorbox'),
+    '#description' => t('For example: <em>colorbox</em>'),
   );
   $form['overlay_settings']['flickr_rel'] = array(
     '#type' => 'textfield',
     '#title' => t('rel'),
     '#default_value' => variable_get('flickr_rel', ''),
-    '#description' => t('E.g.: gallery-all'),
+    '#description' => t('For example: <em>gallery-all</em> or <em>lightbox[gallery]</em>'),
   );
   $form['overlay_settings']['flickr_opening_size'] = array(
     '#type' => 'select',
