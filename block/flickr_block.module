@@ -62,6 +62,9 @@ function flickr_block_configure($delta = '') {
   if (!isset($settings['photoset_id'])) {
     $settings['photoset_id'] = '';
   }
+  if (!isset($settings['media'])) {
+    $settings['media'] = 'all';
+  }
 
   // Define all elements of the block parameters form.
   $form = array();
@@ -144,7 +147,6 @@ function flickr_block_configure($delta = '') {
       // Photoset, not photos.
       $form["flickr_block_{$delta}_show_n"]['#title'] = t('Show the last <em>n</em> photosets');
       $form["flickr_block_{$delta}_show_n"]['#description'] = t("The block will show this many of the user's photosets.");
-      unset($form["flickr_block_{$delta}_media"]);
       break;
 
     // User page, random.
@@ -166,7 +168,6 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_tag"]);
       $form["flickr_block_{$delta}_show_n"]['#title'] = t('Show the last <em>n</em> photosets');
       $form["flickr_block_{$delta}_show_n"]['#description'] = t("The block will show this many of the user's photosets.");
-      unset($form["flickr_block_{$delta}_media"]);
       break;
 
     // Sitewide, random.
