@@ -22,11 +22,16 @@ function flickr_admin_settings() {
     '#default_value' => variable_get('flickr_api_secret', ''),
     '#description' => t("API key's secret from Flickr."),
   );
+  $default = variable_get('flickr_default_userid', '');
+  if (!empty($default)) {
+    $info = flickr_people_get_info($default);
+    $default = $info['username']['_content'];
+  }
   $form['flickr_default_userid'] = array(
     '#type' => 'textfield',
     '#title' => t('Default Flickr User Id'),
-    '#default_value' => variable_get('flickr_default_userid', ''),
-    '#description' => t('An, optional, default Flickr username or user id. This will be used when no user is specified.'),
+    '#default_value' => $default,
+    '#description' => t('An, optional, default Flickr user (ID number, username or email). This will be used when no user is specified.'),
   );
   $times = array(
     900,
@@ -129,6 +134,8 @@ function flickr_admin_settings() {
     $form['flickr_default_userid']['#disabled'] = TRUE;
     $form['flickr_default_userid']['#description'] .= t('Disabled until a valid API Key is set.');
   }
+// Call submit_function() on form submission.
+$form['#submit'][] = 'flickr_admin_settings_submit';
 
   return system_settings_form($form);
 }
@@ -150,14 +157,9 @@ function flickr_admin_settings_validate($form, &$form_state) {
     form_set_error('flickr_api_secret', t('This does not appear to be a Flickr API secret.'));
   }
   if ($uid) {
-    if (flickr_is_nsid($uid)) {
-      // It's already a uid.
-    }
-    else {
-      $user = flickr_user_find_by_username($uid);
-      if (!$user) {
-        form_set_error('flickr_default_userid', t('%uid is not a Flickr user id and it does not appear to be a valid user name.', array('%uid' => $uid)));
-      }
+    $user = flickr_user_find_by_identifier($uid);
+    if (!$user) {
+      form_set_error('flickr_default_userid', t('%uid does not appear to be a valid Flickr user.', array('%uid' => $uid)));
     }
   }
   // Validate the number of photos.
@@ -181,14 +183,19 @@ function flickr_admin_settings_submit($form, &$form_state) {
   $form_state['values']['flickr_default_userid'] = trim($form_state['values']['flickr_default_userid']);
 
   // Replace the usernames with a uid.
+  // As emails or usernames might change, replace them with a unique nsid.
   if (!flickr_is_nsid($form_state['values']['flickr_default_userid'])) {
-    $username = $form_state['values']['flickr_default_userid'];
-    if ($user = flickr_user_find_by_username($username)) {
-      drupal_set_message(t('The Flickr username %username has been replaced with the corresponding user id %uid.', array('%username' => $form_state['values']['flickr_default_userid'], '%uid' => $user['id'])));
-      $form_state['values']['flickr_default_userid'] = $user['id'];
+    $userid = $form_state['values']['flickr_default_userid'];
+    if (empty($userid)) {
+      return;
+    }
+    if ($user = flickr_user_find_by_identifier($userid)) {
+      drupal_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $form_state['values']['flickr_default_userid'], '%uid' => $user)));
+      $form_state['values']['flickr_default_userid'] = $user;
     }
   }
-
-  // Save the settings.
-  system_settings_form_submit($form, $form_state);
+  else {
+    $info = flickr_people_get_info($form_state['values']['flickr_default_userid']);
+    drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $form_state['values']['flickr_default_userid'], '%userid' => $info['username']['_content'])));
+  }
 }
