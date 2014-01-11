@@ -82,9 +82,19 @@ function flickr_admin_settings() {
       '#description' => t('A default Flickr size to use. This will be used when no size is specified, for example [flickr-photo:id=3711935987].<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
     );
   }
-  $form['flickr_title_suppress_on_small'] = array(
+  $form['flickr_css'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use flickr.css'),
+    '#default_value' => variable_get('flickr_css', 1),
+    '#description' => t('Uncheck to take care of the styling yourself in custom CSS.'),
+  );
+  $form['info_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Flickr info to use'),
+  );
+  $form['info_settings']['flickr_title_suppress_on_small'] = array(
     '#type' => 'textfield',
-    '#title' => t('Minimum width to display a title caption.'),
+    '#title' => t('Minimum image width to display a title caption.'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_title_suppress_on_small', '100'),
     '#description' => t('Small images have liitle space for a title caption. Replace it with the text "Flickr" that links to the photo page on Flickr to comply with their <a href="http://www.flickr.com/guidelines.gne" title="Flickr Community Guidelines">Guidelines</a>.<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
@@ -92,11 +102,29 @@ function flickr_admin_settings() {
     '#size' => 3,
     '#maxlength' => 3,
   );
-  $form['flickr_css'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Use flickr.css'),
-    '#default_value' => variable_get('flickr_css', 1),
-    '#description' => t('Uncheck to take care of the styling yourself in custom CSS.'),
+  $form['info_settings']['flickr_metadata_suppress_on_small'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Minimum image width to display date, location and photographer under the caption.'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('flickr_metadata_suppress_on_small', '150'),
+    '#description' => t('Suppress extra info on small images. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+    '#field_suffix' => t('px'),
+    '#size' => 3,
+    '#maxlength' => 3,
+  );
+  $form['info_settings']['flickr_info_overlay'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Info to include when enlarging the image'),
+    '#default_value' => variable_get('flickr_info_overlay', array(
+      'title' => 'title',
+      'metadata' => 'metadata',
+      'description' => 'description',
+    )),
+    '#options' => array(
+      'title' => t('Title'),
+      'metadata' => t('Date, location and photographer'),
+      'description' => t('Description'),
+    ),
   );
   $form['overlay_settings'] = array(
     '#type' => 'fieldset',
@@ -149,6 +177,7 @@ function flickr_admin_settings_validate($form, &$form_state) {
   $uid = trim($form_state['values']['flickr_default_userid']);
   $limit1 = trim($form_state['values']['flickr_photos_per_page']);
   $limit2 = trim($form_state['values']['flickr_title_suppress_on_small']);
+  $limit3 = trim($form_state['values']['flickr_metadata_suppress_on_small']);
 
   if ($key && (preg_match('/^[A-Fa-f\d]{32}$/', $key) != 1)) {
     form_set_error('flickr_api_key', t('This does not appear to be a Flickr API key.'));
@@ -169,6 +198,10 @@ function flickr_admin_settings_validate($form, &$form_state) {
   // Validate the minimum width to suppress title caption.
   if (!is_numeric($limit2) || $limit2 < 0) {
     form_set_error('flickr_title_suppress_on_small', t('Set a width from 0 to 999 px.'));
+  }
+  // Validate the minimum width to suppress metadata caption.
+  if (!is_numeric($limit3) || $limit3 < 0) {
+    form_set_error('flickr_metadata_suppress_on_small', t('Set a width from 0 to 999 px.'));
   }
 }
 

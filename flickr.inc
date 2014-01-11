@@ -230,7 +230,11 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
       $img_url = flickr_photo_img($photo, $size);
     }
   }
-  $title = is_array($photo['title']) ? $photo['title']['_content'] : $photo['title'];
+  $info = !is_array($photo['title']) ? flickr_photo_get_info($photo['id']) : '';
+  $title = is_array($photo['title']) ? str_replace('"', "'", htmlspecialchars_decode(strip_tags($photo['description']['_content']))) : str_replace('"', "'", htmlspecialchars_decode(strip_tags($info['description']['_content'])));
+  if (empty($title) == 'title') {
+    $title = $photo['title'];
+  }
   if (module_exists('jcaption') && (variable_get('flickr_class') != NULL || variable_get('flickr_rel') != NULL)) {
     $title = '';
   }

@@ -319,6 +319,39 @@ function theme_flickr_photo($variables) {
   else {
     $credit = $title;
   }
+  // Get the Flickr image title for set data or the photo itself. Sanatize.
+  $title = is_array($photo['title']) ? str_replace('"', "'", strip_tags($photo['title']['_content'])) : $photo['title'];
+  $info = flickr_photo_get_info($photo['id']);
+  // Use title if description does not exist, else sanitize the description.
+  $description = !empty($info['description']['_content']) ? str_replace('"', "'", htmlspecialchars_decode(strip_tags($info['description']['_content']))) : $title;
+  // Real name if it exists or go with the username. Link to Flickr user page.
+  $username = !empty($info['owner']['realname']) ? l($info['owner']['realname'], 'http://www.flickr.com/photos/' . $info['owner']['nsid'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank'))) : l($info['owner']['username'], 'http://www.flickr.com/photos/' . $info['owner']['nsid'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank')));
+  // The date an image was taken formatted as 'time ago'.
+  $taken = isset($info['dates']['taken']) ? format_interval(time() - strtotime($info['dates']['taken']), 1) . ' ' . t('ago') : '';
+  // A bunch of geo data.
+  $neighbourhood = isset($info['location']['neighbourhood']['_content']) ? strip_tags($info['location']['neighbourhood']['_content']) . ', ' : '';
+  $locality = isset($info['location']['locality']['_content']) ? strip_tags($info['location']['locality']['_content']) . ', ' : '';
+  $region = isset($info['location']['region']['_content']) ? strip_tags($info['location']['region']['_content']) . ', ' : '';
+  $country = isset($info['location']['country']['_content']) ? strip_tags($info['location']['country']['_content']) : '';
+  $location = !empty($country) ? ' ' . t('at') . ' ' . $neighbourhood . $locality . $region . $country : '';
+  // Compose extra Flickr info as HTML to render.
+  $metadata = '<br />' . $taken . $location . ' ' . t('by') . ' ' . $username;
+  // Image width < 100 px is too small for most titles. Can be set differently.
+  $credit = $width < variable_get('flickr_title_suppress_on_small', '100') ? t('Flickr') : $title;
+  // Image width < 150 px is too small for extra info. Can be set differently.
+  $metadatacaption = $width < variable_get('flickr_metadata_suppress_on_small', '150') ? '' : $metadata;
+  // Determine what info goes with the enlarged version of the image.
+  $overlay = variable_get('flickr_info_overlay', array(
+    'title' => 'title',
+    'metadata' => 'metadata',
+    'description' => 'description',
+  ));
+  $overlaytitle = (gettype($overlay['title']) == 'integer') ? '' : $title . ' - ';
+  $metadata = (gettype($overlay['metadata']) == 'integer') ? '' : $metadata . ' - ';
+  $description = (gettype($overlay['description']) == 'integer' || $overlaytitle == $description . ' - ') ? '' : $description;
+  $overlayhtml = $overlaytitle . $metadata . $description;
+  // Final step when NO overlay browser is used that generates the image that
+  // links to the Flickr page to comply with the TOS of Flickr.
   if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) {
     return l($img, $photo_url, array(
       'attributes' => array(
@@ -329,21 +362,22 @@ function theme_flickr_photo($variables) {
     ));
   }
   else {
+    // If 'class' or 'rel' attribute are defined (overlay browser), use a caption.
     // Final step that generates the image with a link to the bigger version and
     // a link to the Flickr page under it to comply with the TOS of Flickr.
     return '<span class="flickr-wrap">' . l($img, $url, array(
       'attributes' => array(
-        'title' => $title,
+        'title' => $overlayhtml,
         'class' => array($class),
         'rel' => $rel),
       'absolute' => TRUE,
       'html' => TRUE,
-    )) . '<span class="flickr-credit" style="max-width: ' . $width . 'px;">' . l($credit, $photo_url, array(
+    )) . '<span class="flickr-credit" style="width: ' . $width . 'px;">' . l($credit, $photo_url, array(
       'attributes' => array(
         'title' => t('View on Flickr. To enlarge click pic.'),
         'target' => '_blank',
       ),
-    )) . '</span></span>';
+    )) . $metadatacaption . '</span></span>';
   }
 }
 
@@ -363,7 +397,7 @@ function theme_flickr_photo_box($variables) {
   $output = "<div class='flickr-photo-box'>\n";
   $output .= "<a href='$photo_url'>$img</a>";
   $output .= "<a href='$photo_url'>";
-  $output .= '<div class="flickr-photo-title">' . check_plain($title) . "</div>\n";
+  $output .= '<div class="flickr-photo-title">' . strip_tags($title) . "</div>\n";
   $output .= "</a>";
   $output .= "</div>\n";
   return $output;
