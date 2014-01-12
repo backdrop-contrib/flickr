@@ -15,6 +15,7 @@ function flickr_filter_info() {
     'description' => t('Allows you to Insert Flickr images: [flickr-photo:id=230452326,size=s] or [flickr-photoset:id=72157594262419167,size=m].'),
     'process callback' => 'flickr_filter',
     'tips callback' => 'flickr_filter_tips',
+    'weight' => 9,
   );
   return $filters;
 }
