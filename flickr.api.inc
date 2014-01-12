@@ -292,7 +292,7 @@ function flickr_tags_get_list_user($nsid) {
 /**
  * Returns a list of pool photos for a given group.
  *
- * @param string $nid
+ * @param string $nsid
  *   NSID of the group whose photos you want.
  *
  * @return array $response

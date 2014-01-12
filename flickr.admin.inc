@@ -29,7 +29,7 @@ function flickr_admin_settings() {
   }
   $form['flickr_default_userid'] = array(
     '#type' => 'textfield',
-    '#title' => t('Default Flickr User Id'),
+    '#title' => t('Default Flickr User ID'),
     '#default_value' => $default,
     '#description' => t('An, optional, default Flickr user (ID number, username or email). This will be used when no user is specified.'),
   );
@@ -58,7 +58,7 @@ function flickr_admin_settings() {
     '#type' => 'textfield',
     '#title' => t('Number of photos per photoset'),
     '#required' => TRUE,
-    '#default_value' => variable_get('flickr_photos_per_page', '30'),
+    '#default_value' => variable_get('flickr_photos_per_page', 20),
     '#description' => t('The number indicates how many photos of a photoset display in your nodes. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
     '#size' => 3,
     '#maxlength' => 3,
@@ -94,7 +94,7 @@ function flickr_admin_settings() {
   );
   $form['info_settings']['flickr_title_suppress_on_small'] = array(
     '#type' => 'textfield',
-    '#title' => t('Minimum image width to display a title caption.'),
+    '#title' => t('Minimum image width to display a title caption'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_title_suppress_on_small', '100'),
     '#description' => t('Small images have liitle space for a title caption. Replace it with the text "Flickr" that links to the photo page on Flickr to comply with their <a href="http://www.flickr.com/guidelines.gne" title="Flickr Community Guidelines">Guidelines</a>.<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
@@ -104,7 +104,7 @@ function flickr_admin_settings() {
   );
   $form['info_settings']['flickr_metadata_suppress_on_small'] = array(
     '#type' => 'textfield',
-    '#title' => t('Minimum image width to display date, location and photographer under the caption.'),
+    '#title' => t('Minimum image width to display date, location and photographer under the caption'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_metadata_suppress_on_small', '150'),
     '#description' => t('Suppress extra info on small images. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
@@ -162,8 +162,8 @@ function flickr_admin_settings() {
     $form['flickr_default_userid']['#disabled'] = TRUE;
     $form['flickr_default_userid']['#description'] .= t('Disabled until a valid API Key is set.');
   }
-// Call submit_function() on form submission.
-$form['#submit'][] = 'flickr_admin_settings_submit';
+  // Call submit_function() on form submission.
+  $form['#submit'][] = 'flickr_admin_settings_submit';
 
   return system_settings_form($form);
 }

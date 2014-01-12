@@ -362,7 +362,8 @@ function theme_flickr_photo($variables) {
     ));
   }
   else {
-    // If 'class' or 'rel' attribute are defined (overlay browser), use a caption.
+    // If 'class' or 'rel' attribute are defined (overlay browser), use a
+    // caption.
     // Final step that generates the image with a link to the bigger version and
     // a link to the Flickr page under it to comply with the TOS of Flickr.
     return '<span class="flickr-wrap">' . l($img, $url, array(
