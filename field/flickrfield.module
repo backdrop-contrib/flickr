@@ -8,6 +8,17 @@
  */
 
 /**
+ * Implements hook_help().
+ */
+function flickr_field_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#flickr_field':
+      // Return a line-break version of the README.txt.
+      return _filter_autop(file_get_contents(dirname(__FILE__) . '/README.txt'));
+  }
+}
+
+/**
  * Include css unconditionally.
  */
 function flickrfield_init() {

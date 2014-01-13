@@ -2,3 +2,4 @@ name = Flickr
 description = Flickr and Drupal integration.
 core = 7.x
 package = Flickr
+configure = admin/config/media/flickr

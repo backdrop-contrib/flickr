@@ -1,7 +1,6 @@
 name = Flickr Block
-description = Display Flickr photos and sets in blocks.
+description = Display Flickr images in blocks to show recent or random images from a user, set or group.
 core = 7.x
 package = Flickr
-
+configure = admin/structure/block
 dependencies[] = flickr
-

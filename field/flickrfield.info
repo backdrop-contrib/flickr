@@ -1,8 +1,8 @@
 name = Flickr Field
-description = Add Flickr images to content as fields.
+description = Add Flickr images or sets to content as fields.
 core = 7.x
 package = Flickr
-
+configure = admin/structure/types
 dependencies[] = flickr
 dependencies[] = field
 

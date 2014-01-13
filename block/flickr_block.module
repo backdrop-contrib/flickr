@@ -5,6 +5,17 @@
  */
 
 /**
+ * Implements hook_help().
+ */
+function flickr_block_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#flickr_block':
+      // Return a line-break version of the README.txt.
+      return _filter_autop(file_get_contents(dirname(__FILE__) . '/README.txt'));
+  }
+}
+
+/**
  * Implements hook_block_info().
  */
 function flickr_block_info() {

@@ -7,6 +7,17 @@
 require_once(drupal_get_path('module', 'flickr') . '/flickr.inc');
 
 /**
+ * Implements hook_help().
+ */
+function flickr_filter_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#flickr_filter':
+      // Return a line-break version of the README.txt.
+      return _filter_autop(file_get_contents(dirname(__FILE__) . '/README.txt'));
+  }
+}
+
+/**
  * Implements hook_filter_info().
  */
 function flickr_filter_info() {
