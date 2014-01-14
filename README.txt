@@ -19,7 +19,7 @@ corresponding Flickr page.
 
 INSTALLATION AND CONFIGURATION
 ==============================
-1.) Simply extract the download package in e.g. the sites/all/modules directory.
+1.) Extract the download package in the '/sites/all/modules directory'.
 2.) Enable the module in 'admin/modules'.
 3.) Configure the API Key and settings at '/admin/config/media/flickr'.
 4.) Allow permissions '/admin/people/permissions'.
@@ -27,8 +27,8 @@ INSTALLATION AND CONFIGURATION
 SETTINGS
 ========
 Settings are found at '/admin/config/media/flickr'. After changing many of the
-settings below, it is often required to clear the site cache to have the changes
-to take effect on existing content at admin/config/development/performance.
+settings below, it is often required to CLEAR THE SITE CACHE to have the changes
+to take effect on existing content at '/admin/config/development/performance'.
 
 API Key
 -------
@@ -97,8 +97,8 @@ Checkboxes (multiple options can be selected).
 All selected by default. This info is concatenated with '-' separators and added
 as the link 'title' attribute. HTML is stripped, double quotes are removed (it
 goes into the title="[description]" attribute) and special characters are
-decoded (© turns into ©). If the title and description are identical, only the
-title is used.
+decoded (&copy; turns into ©). If the title and description are identical, only
+the title is used.
 
 As a side note: The description is always included as the image 'title'
 attribute (shows on hover). If the description is not available the title will
@@ -115,8 +115,8 @@ caption (default settings).
 
 class
 -----
-Use 'colorbox' if you are using Colorbox.
-With Lightbox you can leave it empty.
+Use 'colorbox' if you are using Colorbox. (https://drupal.org/project/colorbox)
+With Lightbox you can leave it empty. (https://drupal.org/project/lightbox2)
 
 rel
 ---
@@ -124,6 +124,10 @@ Use 'gallery-all' if you are using Colorbox. It can be anything you want,
 really. As long there is something.
 Use 'lightbox[gallery]' if you are using Lightbox2. The part inside the square
 brackets can be anything you want but must be one word without spaces.
+
+NOTE: With Lightbox if you select an 'Automatic image handling' for Flickr
+images, you override the behaviour set here. If you don't want that, leave it
+'Disabled'. (/admin/config/user-interface/lightbox2/automatic)
 
 Image size to open
 ------------------
@@ -135,6 +139,4 @@ Defaults to -: 500 px on longest side.
 MORE INFO
 =========
 The flickr module uses XML-RPC to connect to Flickr's API and retrieve photo
-information.
-
-Flickr API Documentation: http://www.flickr.com/services/api/
+information. Flickr API Documentation: http://www.flickr.com/services/api

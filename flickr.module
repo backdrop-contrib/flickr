@@ -306,8 +306,21 @@ function theme_flickr_photo($variables) {
   $url = flickr_photo_img($photo, variable_get('flickr_opening_size', ''), $format);
   $img = flickr_img($photo, $size, $attribs);
   $img_url = flickr_photo_img($photo, $size);
-  // Get the real width of the image.
-  list($width) = getimagesize($img_url);
+  // If the image is a square we know the width (avoids to make a request).
+  switch ($size) {
+    case 's':
+      $width = '75';
+      break;
+
+    case 'q':
+      $width = '150';
+      break;
+  }
+  // If it is not a square.
+  if (!isset($width)) {
+    // Get the real width of the image.
+    list($width) = getimagesize($img_url);
+  }
   $photo_url = flickr_photo_page_url($photo['owner'], $photo['id']);
   $title = is_array($photo['title']) ? $photo['title']['_content'] : $photo['title'];
   // Image width < 100 px is too small for most titles. Can be set differently.
@@ -373,7 +386,7 @@ function theme_flickr_photo($variables) {
       'html' => TRUE,
     )) . '<span class="flickr-credit" style="width: ' . $width . 'px;">' . l($credit, $photo_url, array(
       'attributes' => array(
-        'title' => t('View on Flickr. To enlarge click pic.'),
+        'title' => t('View on Flickr. To enlarge click image.'),
         'target' => '_blank',
       ),
     )) . $metadatacaption . '</span></span>';

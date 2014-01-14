@@ -27,14 +27,15 @@ primary reprensenting image of a set and links to the Flickr Photo Set page.
 
 FIELD CONFIGURATION
 ===================
-- admin/structure/types
-- manage fields
+- Go to '/admin/structure/types'
+- Click 'manage fields'
 - Add new field > Flickr Photo or Flickr Photo Set (sub-module Flickr Sets
 should be enabled to use sets in this field)
 - Save field settings
 - Configure as desired
 - Save settings
-- admin/structure/types
-- manage display
+Then:
+- Go to '/admin/structure/types'
+- Click 'manage display'
 - Select the formatter for a Flickr field (a size)
 - Save
