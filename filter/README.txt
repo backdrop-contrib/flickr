@@ -39,6 +39,11 @@ The size parameter can be one of the following
   k - large, 2048 on longest side
   o - original image
 
+NOTE:
+For square images ('s': 75px and 'q': 150px) no real width needs to be fetched,
+giving it a performance advantage over other sizes. Recommended if you include
+many images.
+
 A default size can be specified on the Flickr settings page at
 admin/config/media/flickr. This size gets used in case the size parameter is
 omitted, for example [flickr-photo:id=230452326]. It also means you can change

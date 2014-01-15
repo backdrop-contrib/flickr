@@ -51,6 +51,10 @@ The block will display this many photos.
 Size of photos
 --------------
 Select the size of photos you'd like to display in the block.
+NOTE:
+For square images ('s': 75px and 'q': 150px) no real width needs to be fetched,
+giving it a performance advantage over other sizes. Recommended if you include
+many images.
 
 
 All blocks except 'User profile recent photosets' and 'Recent photosets from

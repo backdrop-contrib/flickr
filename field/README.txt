@@ -39,3 +39,8 @@ Then:
 - Click 'manage display'
 - Select the formatter for a Flickr field (a size)
 - Save
+
+NOTE:
+For square images ('s': 75px and 'q': 150px) no real width needs to be fetched,
+giving it a performance advantage over other sizes. Recommended if you include
+many images.
