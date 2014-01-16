@@ -112,6 +112,16 @@ function flickr_admin_settings() {
     '#size' => 3,
     '#maxlength' => 3,
   );
+  $form['info_settings']['flickr_caption_padding'] = array(
+    '#type' => 'textfield',
+    '#title' => t('What padding is applied on the caption?'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('flickr_caption_padding', '0'),
+    '#description' => t('By default the caption is as width as the image. Set a value here to make sure the caption will remain of the same width of the image when you add a padding to a boxed caption. See <a href="https://drupal.org/node/2174131#caption" title="Flickr module documentation on Drupal.org" target="_blank">Style Guide</a>.'),
+    '#field_suffix' => t('px'),
+    '#size' => 2,
+    '#maxlength' => 2,
+  );
   $form['info_settings']['flickr_info_overlay'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Info to include when enlarging the image'),
@@ -178,6 +188,7 @@ function flickr_admin_settings_validate($form, &$form_state) {
   $limit1 = trim($form_state['values']['flickr_photos_per_page']);
   $limit2 = trim($form_state['values']['flickr_title_suppress_on_small']);
   $limit3 = trim($form_state['values']['flickr_metadata_suppress_on_small']);
+  $limit4 = trim($form_state['values']['flickr_caption_padding']);
 
   if ($key && (preg_match('/^[A-Fa-f\d]{32}$/', $key) != 1)) {
     form_set_error('flickr_api_key', t('This does not appear to be a Flickr API key.'));
@@ -202,6 +213,10 @@ function flickr_admin_settings_validate($form, &$form_state) {
   // Validate the minimum width to suppress metadata caption.
   if (!is_numeric($limit3) || $limit3 < 0) {
     form_set_error('flickr_metadata_suppress_on_small', t('Set a width from 0 to 999 px.'));
+  }
+  // Validate the minimum width to suppress metadata caption.
+  if (!is_numeric($limit4) || $limit4 < 0) {
+    form_set_error('flickr_caption_padding', t('Set a padding from 0 to 99 px.'));
   }
 }
 

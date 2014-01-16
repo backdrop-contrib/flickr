@@ -476,7 +476,7 @@ function theme_flickrfield_photo($variables) {
         ),
         'absolute' => TRUE,
         'html' => TRUE,
-        )) . '<span class="flickr-credit" style="width: ' . $width . 'px;">' . l($credit, $photo_url, array(
+        )) . '<span class="flickr-credit" style="width: ' . ($width - variable_get('flickr_caption_padding', '0')) . 'px;">' . l($credit, $photo_url, array(
           'attributes' => array(
             'title' => t('View on Flickr. To enlarge click image.'),
             'target' => '_blank',
@@ -556,7 +556,7 @@ function theme_flickrfield_photoset($variables) {
             ),
             'absolute' => TRUE,
             'html' => TRUE,
-           )) . '<span class="flickr-credit" style="width: ' . $width . 'px;">' . l($credit, $photo_url, array(
+           )) . '<span class="flickr-credit" style="width: ' . ($width - variable_get('flickr_caption_padding', '0')) . 'px;">' . l($credit, $photo_url, array(
                'attributes' => array(
                  'title' => t('View on Flickr. To enlarge click image.'),
                  'target' => '_blank',
