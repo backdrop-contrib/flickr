@@ -114,10 +114,10 @@ function flickr_admin_settings() {
   );
   $form['info_settings']['flickr_caption_padding'] = array(
     '#type' => 'textfield',
-    '#title' => t('What padding is applied on the caption?'),
+    '#title' => t('What horizontal inside spacing is applied on the caption? (padding/border)'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_caption_padding', '0'),
-    '#description' => t('By default the caption is as width as the image. Set a value here to make sure the caption will remain of the same width of the image when you add a padding to a boxed caption. See <a href="https://drupal.org/node/2174131#caption" title="Flickr module documentation on Drupal.org" target="_blank">Style Guide</a>.'),
+    '#description' => t('By default the caption is as width as the image. If you add padding to a boxed caption with CSS, set a value here to make sure the caption will remain of the same width of the image. See <a href="https://drupal.org/node/2174131#caption" title="Flickr module documentation on Drupal.org" target="_blank">Style Guide</a>.<br />Only padding: 1 x horizontal caption value.<br />Padding AND border: 2 x caption value + 1x border-width.'),
     '#field_suffix' => t('px'),
     '#size' => 2,
     '#maxlength' => 2,
