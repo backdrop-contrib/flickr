@@ -232,7 +232,7 @@ function flickr_user_presave(&$edit, $account, $category) {
         ->execute();
     }
     /*
-    else if ($user_affected) {
+    elseif ($user_affected) {
       //Flickr account deleted
       drupal_set_message(t("%username's Flickr page has been deleted.", array('%username' => $account->name)));
     }
@@ -345,22 +345,73 @@ function theme_flickr_photo($variables) {
   $region = isset($info['location']['region']['_content']) ? strip_tags($info['location']['region']['_content']) . ', ' : '';
   $country = isset($info['location']['country']['_content']) ? strip_tags($info['location']['country']['_content']) : '';
   $location = !empty($country) ? ' ' . t('at') . ' ' . $neighbourhood . $locality . $region . $country : '';
+  switch ($info['license']) {
+    case '0':
+      $license = '<br />&copy; ' . t('All Rights Reserved');
+      $licenselong = '&copy; ' . t('All Rights Reserved');
+      break;
+
+    case '1':
+      $license = ' <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/" title="' . t('Creative Commons — Attribution-NonCommercial-ShareAlike 2.0 Generic — CC BY-NC-SA 2.0') . '" target="_blank"><span class="flickr-cc">cna</span></a>';
+      $licenselong = t('Creative Commons, Attribution, Non Commercial, ShareAlike');
+      break;
+
+    case '2':
+      $license = ' <a href="http://creativecommons.org/licenses/by-nc/2.0/" title="' . t('Creative Commons — Attribution-NonCommercial 2.0 Generic — CC BY-NC 2.0') . '" target="_blank"><span class="flickr-cc">cn</span></a>';
+      $licenselong = t('Creative Commons, Attribution, Non Commercial');
+      break;
+
+    case '3':
+      $license = ' <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/" title="' . t('Creative Commons — Attribution-NonCommercial-NoDerivs 2.0 Generic — CC BY-NC-ND 2.0') . '" target="_blank"><span class="flickr-cc">cnd</span></a>';
+      $licenselong = t('Creative Commons, Attribution, Non Commercial, No Derivs');
+      break;
+
+    case '4':
+      $license = ' <a href="http://creativecommons.org/licenses/by/2.0/" title="' . t('Creative Commons — Attribution 2.0 Generic — CC BY 2.0') . '" target="_blank"><span class="flickr-cc">c</span></a>';
+      $licenselong = t('Creative Commons, Attribution');
+      break;
+
+    case '5':
+      $license = ' <a href="http://creativecommons.org/licenses/by-sa/2.0/" title="' . t('Creative Commons — Attribution-ShareAlike 2.0 Generic — CC BY-SA 2.0') . '" target="_blank"><span class="flickr-cc">cs</span></a>';
+      $licenselong = t('Creative Commons, Attribution, Share Alike');
+      break;
+
+    case '6':
+      $license = ' <a href="http://creativecommons.org/licenses/by-nd/2.0/" title="' . t('Creative Commons — Attribution-NoDerivs 2.0 Generic — CC BY-ND 2.0') . '" target="_blank"><span class="flickr-cc">cd</span></a>';
+      $licenselong = t('Creative Commons, Attribution, No Derivs');
+      break;
+
+    case '7':
+      $license = '<br /><a href="http://flickr.com/commons/usage/" title="' . t('Flickr: The Commons') . '" target="_blank">No known copyright restrictions</a>';
+      $licenselong = t('No known copyright restrictions');
+      break;
+
+    case '8':
+      $license = '<br /><a href="http://www.usa.gov/copyright.shtml" title="' . t('Copyright and Other Rights Pertaining to U.S. Government Works | USA.gov') . '" target="_blank">United States Government Work</a>';
+      $licenselong = t('Copyright and Other Rights Pertaining to U.S. Government Works | USA.gov');
+      break;
+  }
+  if (variable_get('flickr_license', 0) == 0) {
+    $license = '';
+  }
   // Compose extra Flickr info as HTML to render.
   $metadata = '<br />' . $taken . $location . ' ' . t('by') . ' ' . $username;
   // Image width < 100 px is too small for most titles. Can be set differently.
   $credit = $width < variable_get('flickr_title_suppress_on_small', '100') ? t('Flickr') : $title;
   // Image width < 150 px is too small for extra info. Can be set differently.
-  $metadatacaption = $width < variable_get('flickr_metadata_suppress_on_small', '150') ? '' : $metadata;
+  $metadatacaption = $width < variable_get('flickr_metadata_suppress_on_small', '150') ? '' : $metadata . $license;
   // Determine what info goes with the enlarged version of the image.
   $overlay = variable_get('flickr_info_overlay', array(
     'title' => 'title',
     'metadata' => 'metadata',
     'description' => 'description',
+    'license' => 0,
   ));
   $overlaytitle = (gettype($overlay['title']) == 'integer') ? '' : $title . ' - ';
   $metadata = (gettype($overlay['metadata']) == 'integer') ? '' : $metadata . ' - ';
-  $description = (gettype($overlay['description']) == 'integer' || $overlaytitle == $description . ' - ') ? '' : $description;
-  $overlayhtml = $overlaytitle . $metadata . $description;
+  $description = (gettype($overlay['description']) == 'integer' || $overlaytitle == $description . ' - ') ? '' : $description . ' - ';
+  $licenselong = (gettype($overlay['license']) == 'integer') ? '' : $licenselong;
+  $overlayhtml = $overlaytitle . $metadata . $description . $licenselong;
   // Final step when NO overlay browser is used that generates the image that
   // links to the Flickr page to comply with the TOS of Flickr.
   if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) {
@@ -381,7 +432,8 @@ function theme_flickr_photo($variables) {
       'attributes' => array(
         'title' => $overlayhtml,
         'class' => array($class),
-        'rel' => $rel),
+        'rel' => $rel,
+      ),
       'absolute' => TRUE,
       'html' => TRUE,
     )) . '<span class="flickr-credit" style="width: ' . ($width - variable_get('flickr_caption_padding', '0')) . 'px;">' . l($credit, $photo_url, array(

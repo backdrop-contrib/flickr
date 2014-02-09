@@ -33,3 +33,23 @@ span.flickr-credit {
   line-height: 100%;
   font-size: 80%;
 }
+
+@media screen {
+  @font-face {
+    font-family: 'CC-ICONS';
+    font-style: normal;
+    font-weight: normal;
+    src: url('http://mirrors.creativecommons.org/presskit/cc-icons.ttf') format('truetype');
+  }
+  span.flickr-cc {
+    /*Creative commons icon font*/
+    font-family: 'CC-ICONS';
+    /*The normal size is not well recognizable*/
+    font-size: large;
+    float: right;
+    /*An equivalent to baseline shift to space icons from the line above*/
+    position: relative;
+    top: .20em;
+    margin-bottom: 5px;
+  }
+}

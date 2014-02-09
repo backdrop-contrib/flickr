@@ -104,7 +104,7 @@ function flickr_admin_settings() {
   );
   $form['info_settings']['flickr_metadata_suppress_on_small'] = array(
     '#type' => 'textfield',
-    '#title' => t('Minimum image width to display date, location and photographer under the caption'),
+    '#title' => t('Minimum image width to display date, location, photographer and optionally license info under the caption'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_metadata_suppress_on_small', '150'),
     '#description' => t('Suppress extra info on small images. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
@@ -112,12 +112,18 @@ function flickr_admin_settings() {
     '#size' => 3,
     '#maxlength' => 3,
   );
+  $form['info_settings']['flickr_license'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('License info in caption'),
+    '#default_value' => variable_get('flickr_license', 0),
+    '#description' => t("Depending on 'Minimum image width' above."),
+  );
   $form['info_settings']['flickr_caption_padding'] = array(
     '#type' => 'textfield',
     '#title' => t('What horizontal inside spacing is applied on the caption? (padding/border)'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_caption_padding', '0'),
-    '#description' => t('By default the caption is as width as the image. If you add padding to a boxed caption with CSS, set a value here to make sure the caption will remain of the same width of the image. See <a href="https://drupal.org/node/2174131#caption" title="Flickr module documentation on Drupal.org" target="_blank">Style Guide</a>.<br />Only padding: 1 x horizontal caption value.<br />Padding AND border: 2 x caption value + 1x border-width.'),
+    '#description' => t('By default the caption is as wide as the image. If you add padding to a boxed caption with CSS, set a value here to make sure the caption will remain of the same width of the image. See <a href="https://drupal.org/node/2174131#caption" title="Flickr module documentation on Drupal.org" target="_blank">Style Guide</a>.<br />Only padding: 1 x horizontal caption value.<br />Padding AND border: 2 x caption value + 1x border-width.'),
     '#field_suffix' => t('px'),
     '#size' => 2,
     '#maxlength' => 2,
@@ -129,11 +135,13 @@ function flickr_admin_settings() {
       'title' => 'title',
       'metadata' => 'metadata',
       'description' => 'description',
+      'license' => 0,
     )),
     '#options' => array(
       'title' => t('Title'),
       'metadata' => t('Date, location and photographer'),
       'description' => t('Description'),
+      'license' => t('License info'),
     ),
   );
   $form['overlay_settings'] = array(
