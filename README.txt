@@ -76,7 +76,8 @@ Small images have little space for a title caption. Replaces it with the text
 Defaults to 100 px. Set it to 0 px to always include or 999 px to always
 exclude.
 
-Minimum image width to display date, location and photographer under the caption
+Minimum image width to display date, location, photographer and optionally
+license info under the caption
 --------------------------------------------------------------------------------
 Suppress extra info on small images. After saving the configuration clear the
 cache.
@@ -87,6 +88,17 @@ width. The date is in the form of 'time ago'. The photographer's Real Name is
 used, if not available the Username. In the caption it links to the user page on
 Flickr.
 
+License info in caption
+-----------------------
+Depending on 'Minimum image width' above.
+Checkbox (not selected by default).
+Used is the nonintrusive icons font that can be found at
+http://creativecommons.org/about/downloads. It links to the corresponding
+Creative Commons human friendly info page.
+It is not necessary, but if desired you can download it, put it in your theme
+folder and substitute the default used remote source that can be found in the
+module's 'flickr.css' file.
+
 Info to include when enlarging the image in Colorbox, Lightbox or alike
 -----------------------------------------------------------------------
 Usually this info is displayed under the enlarged image.
@@ -94,11 +106,12 @@ Checkboxes (multiple options can be selected).
 - Title
 - Date, location and photographer
 - Description
-All selected by default. This info is concatenated with '-' separators and added
-as the link 'title' attribute. HTML is stripped, double quotes are removed (it
-goes into the title="[description]" attribute) and special characters are
-decoded (&copy; turns into ©). If the title and description are identical, only
-the title is used.
+- License info
+All selected by default except for 'License info'. This info is concatenated
+with '-' separators and added as the link 'title' attribute. HTML is stripped,
+double quotes are removed (it goes into the title="[description]" attribute) and
+special characters are decoded (&copy; turns into ©). If the title and
+description are identical, only the title is used.
 
 As a side note: The description is always included as the image 'title'
 attribute (shows on hover). If the description is not available the title will
