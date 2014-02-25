@@ -63,9 +63,6 @@ function flickr_sets_photosets($account, $nsid = NULL) {
   global $pager_page_array, $pager_total, $pager_total_items, $user;
 
   drupal_set_title(flickr_sets_page_title($user));
-  if (variable_get('flickr_css', 1)) {
-    drupal_add_css(drupal_get_path('module', 'flickr') . '/flickr.css');
-  }
   $uid = $account->uid;
   $nsid = $account->flickr['nsid'];
   // Set this to something else if you want multiple pagers.
@@ -102,9 +99,6 @@ function flickr_sets_photosets($account, $nsid = NULL) {
 function flickr_sets_photoset($account, $set) {
   global $pager_page_array, $pager_total, $pager_total_items, $user;
 
-  if (variable_get('flickr_css', 1)) {
-    drupal_add_css(drupal_get_path('module', 'flickr') . '/flickr.css');
-  }
   $uid = $user->uid;
   $nsid = $account->flickr['nsid'];
 

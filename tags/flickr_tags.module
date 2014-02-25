@@ -54,7 +54,9 @@ function flickr_tags_menu() {
  * Returns a given user's tags cloud.
  */
 function flickr_tags_cloud($account, $nsid = NULL) {
-  drupal_add_css(drupal_get_path('module', 'flickr_tags') . '/flickr_tags.css');
+  if (variable_get('flickr_css', 1)) {
+    drupal_add_css(drupal_get_path('module', 'flickr_tags') . '/flickr_tags.css');
+  }
   drupal_set_title(t('Flickr tags cloud - @name', array('@name' => $account->name)));
   $nsid = $account->flickr['nsid'];
   // Get tag info.
@@ -85,7 +87,9 @@ function flickr_tags_cloud($account, $nsid = NULL) {
  * Returns a given user's tags.
  */
 function flickr_tags_list($account, $nsid = NULL) {
-  drupal_add_css(drupal_get_path('module', 'flickr_tags') . '/flickr_tags.css');
+  if (variable_get('flickr_css', 1)) {
+    drupal_add_css(drupal_get_path('module', 'flickr_tags') . '/flickr_tags.css');
+  }
   drupal_set_title(t('Flickr tags list - @name', array('@name' => $account->name)));
   $nsid = $account->flickr['nsid'];
   // Get all tags.
@@ -119,7 +123,6 @@ function flickr_tags_list($account, $nsid = NULL) {
 function flickr_tags_photos($account, $tagstring) {
   global $pager_page_array, $pager_total, $pager_total_items;
 
-  drupal_add_css(drupal_get_path('module', 'flickr') . '/flickr.css');
   drupal_set_title(t('Flickr photos of @user tagged @tag', array(
     '@user' => $account->name,
     '@tag' => $tagstring,

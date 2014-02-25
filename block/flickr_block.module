@@ -359,7 +359,6 @@ function flickr_block_save($delta = '', $edit = array()) {
  * Implements hook_block_view().
  */
 function flickr_block_view($delta = '') {
-  drupal_add_css(drupal_get_path('module', 'flickr') . '/flickr.css');
   $settings = variable_get('flickr_block_' . $delta, array(
     'user_id' => '',
     'show_n' => 4,

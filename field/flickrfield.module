@@ -19,13 +19,6 @@ function flickrfield_help($path, $arg) {
 }
 
 /**
- * Include css unconditionally.
- */
-function flickrfield_init() {
-  drupal_add_css(drupal_get_path('module', 'flickr') . '/flickr.css');
-}
-
-/**
  * Implements hook_field_info().
  */
 function flickrfield_field_info() {
