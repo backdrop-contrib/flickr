@@ -336,7 +336,7 @@ function theme_flickr_photo($variables) {
   // Use title if description does not exist, else sanitize the description.
   $description = !empty($info['description']['_content']) ? str_replace('"', "'", htmlspecialchars_decode(strip_tags($info['description']['_content']))) : $title;
   // Real name if it exists or go with the username. Link to Flickr user page.
-  $username = !empty($info['owner']['realname']) ? l($info['owner']['realname'], 'http://www.flickr.com/photos/' . $info['owner']['nsid'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank'))) : l($info['owner']['username'], 'http://www.flickr.com/photos/' . $info['owner']['nsid'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank')));
+  $username = !empty($info['owner']['realname']) ? l($info['owner']['realname'], 'https://www.flickr.com/photos/' . $info['owner']['nsid'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank'))) : l($info['owner']['username'], 'https://www.flickr.com/photos/' . $info['owner']['nsid'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank')));
   // The date an image was taken formatted as 'time ago'.
   $taken = isset($info['dates']['taken']) ? format_interval(time() - strtotime($info['dates']['taken']), 1) . ' ' . t('ago') : '';
   // A bunch of geo data.
@@ -352,37 +352,37 @@ function theme_flickr_photo($variables) {
       break;
 
     case '1':
-      $license = ' <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/" title="' . t('Creative Commons — Attribution-NonCommercial-ShareAlike 2.0 Generic — CC BY-NC-SA 2.0') . '" target="_blank"><span class="flickr-cc">cna</span></a>';
+      $license = ' <a href="https://creativecommons.org/licenses/by-nc-sa/2.0/" title="' . t('Creative Commons — Attribution-NonCommercial-ShareAlike 2.0 Generic — CC BY-NC-SA 2.0') . '" target="_blank"><span class="flickr-cc">cna</span></a>';
       $licenselong = t('Creative Commons, Attribution, Non Commercial, ShareAlike');
       break;
 
     case '2':
-      $license = ' <a href="http://creativecommons.org/licenses/by-nc/2.0/" title="' . t('Creative Commons — Attribution-NonCommercial 2.0 Generic — CC BY-NC 2.0') . '" target="_blank"><span class="flickr-cc">cn</span></a>';
+      $license = ' <a href="https://creativecommons.org/licenses/by-nc/2.0/" title="' . t('Creative Commons — Attribution-NonCommercial 2.0 Generic — CC BY-NC 2.0') . '" target="_blank"><span class="flickr-cc">cn</span></a>';
       $licenselong = t('Creative Commons, Attribution, Non Commercial');
       break;
 
     case '3':
-      $license = ' <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/" title="' . t('Creative Commons — Attribution-NonCommercial-NoDerivs 2.0 Generic — CC BY-NC-ND 2.0') . '" target="_blank"><span class="flickr-cc">cnd</span></a>';
+      $license = ' <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/" title="' . t('Creative Commons — Attribution-NonCommercial-NoDerivs 2.0 Generic — CC BY-NC-ND 2.0') . '" target="_blank"><span class="flickr-cc">cnd</span></a>';
       $licenselong = t('Creative Commons, Attribution, Non Commercial, No Derivs');
       break;
 
     case '4':
-      $license = ' <a href="http://creativecommons.org/licenses/by/2.0/" title="' . t('Creative Commons — Attribution 2.0 Generic — CC BY 2.0') . '" target="_blank"><span class="flickr-cc">c</span></a>';
+      $license = ' <a href="https://creativecommons.org/licenses/by/2.0/" title="' . t('Creative Commons — Attribution 2.0 Generic — CC BY 2.0') . '" target="_blank"><span class="flickr-cc">c</span></a>';
       $licenselong = t('Creative Commons, Attribution');
       break;
 
     case '5':
-      $license = ' <a href="http://creativecommons.org/licenses/by-sa/2.0/" title="' . t('Creative Commons — Attribution-ShareAlike 2.0 Generic — CC BY-SA 2.0') . '" target="_blank"><span class="flickr-cc">cs</span></a>';
+      $license = ' <a href="https://creativecommons.org/licenses/by-sa/2.0/" title="' . t('Creative Commons — Attribution-ShareAlike 2.0 Generic — CC BY-SA 2.0') . '" target="_blank"><span class="flickr-cc">cs</span></a>';
       $licenselong = t('Creative Commons, Attribution, Share Alike');
       break;
 
     case '6':
-      $license = ' <a href="http://creativecommons.org/licenses/by-nd/2.0/" title="' . t('Creative Commons — Attribution-NoDerivs 2.0 Generic — CC BY-ND 2.0') . '" target="_blank"><span class="flickr-cc">cd</span></a>';
+      $license = ' <a href="https://creativecommons.org/licenses/by-nd/2.0/" title="' . t('Creative Commons — Attribution-NoDerivs 2.0 Generic — CC BY-ND 2.0') . '" target="_blank"><span class="flickr-cc">cd</span></a>';
       $licenselong = t('Creative Commons, Attribution, No Derivs');
       break;
 
     case '7':
-      $license = '<br /><a href="http://flickr.com/commons/usage/" title="' . t('Flickr: The Commons') . '" target="_blank">No known copyright restrictions</a>';
+      $license = '<br /><a href="https://flickr.com/commons/usage/" title="' . t('Flickr: The Commons') . '" target="_blank">No known copyright restrictions</a>';
       $licenselong = t('No known copyright restrictions');
       break;
 

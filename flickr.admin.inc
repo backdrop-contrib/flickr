@@ -97,7 +97,7 @@ function flickr_admin_settings() {
     '#title' => t('Minimum image width to display a title caption'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_title_suppress_on_small', '100'),
-    '#description' => t('Small images have liitle space for a title caption. Replace it with the text "Flickr" that links to the photo page on Flickr to comply with their <a href="http://www.flickr.com/guidelines.gne" title="Flickr Community Guidelines">Guidelines</a>.<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+    '#description' => t('Small images have liitle space for a title caption. Replace it with the text "Flickr" that links to the photo page on Flickr to comply with their <a href="https://www.flickr.com/guidelines.gne" title="Flickr Community Guidelines">Guidelines</a>.<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
     '#field_suffix' => t('px'),
     '#size' => 3,
     '#maxlength' => 3,
