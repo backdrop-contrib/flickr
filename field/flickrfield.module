@@ -564,7 +564,7 @@ function theme_flickrfield_photoset($variables) {
 
       if (arg(0) == 'node' && arg(1) == $node->nid) {
         if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) {
-          $output .= '<div class="flickr-photo-img">' . $img . '</div>';
+          $output .= '<span class="flickr-wrap">' . $img . '</span>';
         }
         else {
           // Final step that generates the image with a link to the bigger
