@@ -221,7 +221,11 @@ function flickrfield_field_formatter_info() {
     );
   }
   $formatters['photoset_flickrcomslideshow'] = array(
-    'label' => 'Embedded Flickr.com flash slideshow',
+    'label' => 'Embedded Flickr.com slideshow (Flash)',
+    'field types' => array('flickrfield_photoset'),
+  );
+  $formatters['photoset_flickrcomslideshow_simple'] = array(
+    'label' => 'Embedded Flickr.com slideshow (non Flash)',
     'field types' => array('flickrfield_photoset'),
   );
   $formatters['photoset_flickrcomsetlink'] = array(
@@ -313,6 +317,9 @@ function flickrfield_theme() {
     'flickrfield_formatter_photoset_flickrcomslideshow' => array(
       'variables' => array('element'),
     ),
+    'flickrfield_formatter_photoset_flickrcomslideshow_simple' => array(
+      'variables' => array('element'),
+    ),
     'flickrfield_formatter_photoset_flickrcomsetlink' => array(
       'variables' => array('element'),
     ),
@@ -391,7 +398,7 @@ function theme_flickrfield_formatter_photoset_primaryphoto($element) {
 }
 
 /**
- * Theme a Flickr photo set as an embedded Flickr.com flash slideshow.
+ * Theme a Flickr photo set as an embedded Flickr.com slideshow (Flash).
  */
 function theme_flickrfield_formatter_photoset_flickrcomslideshow($variables) {
   require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'flickr') . '/flickr.inc';
@@ -399,9 +406,31 @@ function theme_flickrfield_formatter_photoset_flickrcomslideshow($variables) {
     return;
   }
   $set_id = $variables['#item']['flickrid'];
-  $src = 'https://www.flickr.com/slideShow/index.gne?set_id=' . $set_id;
+  $info = flickr_photoset_get_info($set_id);
+  $user_id = $info['owner'];
   return '<div class="flickr-photoset-slideshow">'
-    . '<iframe align="center" src="' . $src . '" frameBorder="0" width="500" scrolling="no" height="500"></iframe>'
+    . '<object type="application/x-shockwave-flash" data="http://www.flickr.com/apps/slideshow/show.swf?v=71649">
+  <param name="movie" value="http://www.flickr.com/apps/slideshow/show.swf?v=71649" />
+  <param name="allowFullScreen" value="true" />
+  <param name="wmode" value="opaque" />
+  <param name="flashvars" value="offsite=true&amp;lang=en-us&amp;page_show_url=/photos/' . $user_id . '/sets/' . $set_id . '/show/&amp;page_show_back_url=/photos/' . $user_id . '/sets/' . $set_id . '/&amp;set_id=' . $set_id . '" /></object>'
+    . '</div>';
+}
+
+/**
+ * Theme a Flickr photo set as an embedded Flickr.com slideshow (non Flash).
+ */
+function theme_flickrfield_formatter_photoset_flickrcomslideshow_simple($variables) {
+  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'flickr') . '/flickr.inc';
+  if (empty($variables['#item']['flickrid'])) {
+    return;
+  }
+  $set_id = $variables['#item']['flickrid'];
+  $info = flickr_photoset_get_info($set_id);
+  $user_id = $info['owner'];
+  $src = 'http://www.flickr.com/slideShow/index.gne?group_id=&user_id=' . $user_id . '&set_id=' . $set_id . '&text=';
+  return '<div class="flickr-photoset-slideshow">'
+    . '<object type="text/html" data="' . $src . '"></object>'
     . '</div>';
 }
 
