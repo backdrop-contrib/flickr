@@ -39,7 +39,7 @@ span.flickr-credit {
     font-family: 'CC-ICONS';
     font-style: normal;
     font-weight: normal;
-    src: url('cc-icons.ttf') format('truetype');
+    src: url('http://mirrors.creativecommons.org/presskit/cc-icons.ttf') format('truetype');
   }
   span.flickr-cc {
     /*Creative commons icon font*/
