@@ -409,8 +409,8 @@ function theme_flickrfield_formatter_photoset_flickrcomslideshow($variables) {
   $info = flickr_photoset_get_info($set_id);
   $user_id = $info['owner'];
   return '<div class="flickr-photoset-slideshow">'
-    . '<object type="application/x-shockwave-flash" data="http://www.flickr.com/apps/slideshow/show.swf?v=71649">
-  <param name="movie" value="http://www.flickr.com/apps/slideshow/show.swf?v=71649" />
+    . '<object type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=71649">
+  <param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=71649" />
   <param name="allowFullScreen" value="true" />
   <param name="wmode" value="opaque" />
   <param name="flashvars" value="offsite=true&amp;lang=en-us&amp;page_show_url=/photos/' . $user_id . '/sets/' . $set_id . '/show/&amp;page_show_back_url=/photos/' . $user_id . '/sets/' . $set_id . '/&amp;set_id=' . $set_id . '" /></object>'
@@ -428,7 +428,7 @@ function theme_flickrfield_formatter_photoset_flickrcomslideshow_simple($variabl
   $set_id = $variables['#item']['flickrid'];
   $info = flickr_photoset_get_info($set_id);
   $user_id = $info['owner'];
-  $src = 'http://www.flickr.com/slideShow/index.gne?group_id=&user_id=' . $user_id . '&set_id=' . $set_id . '&text=';
+  $src = 'https://www.flickr.com/slideShow/index.gne?group_id=&user_id=' . $user_id . '&set_id=' . $set_id . '&text=';
   return '<div class="flickr-photoset-slideshow">'
     . '<object type="text/html" data="' . $src . '"></object>'
     . '</div>';
