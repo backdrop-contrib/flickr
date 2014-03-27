@@ -93,7 +93,7 @@ function flickr_filter_callback_photo($matches) {
       if (!isset($config['size'])) {
         $config['size'] = variable_get('flickr_default_size', 'm');
       }
-      return theme('flickr_filter_photo', array(
+      return theme('flickr_photo', array(
         'photo' => $photo,
         'size' => $config['size'],
         'attribs' => $attribs,
@@ -114,7 +114,7 @@ function flickr_filter_callback_photoset($matches) {
       if (!isset($config['size'])) {
         $config['size'] = variable_get('flickr_default_size', 'm');
       }
-      return theme('flickr_filter_photoset', array(
+      return theme('flickr_photoset', array(
         'photoset' => $photoset,
         'owner' => $photoset['owner'],
         'size' => $config['size'],
@@ -123,32 +123,4 @@ function flickr_filter_callback_photoset($matches) {
     }
   }
   return '';
-}
-
-/**
- * Implements hook_theme().
- */
-function flickr_filter_theme() {
-  return array(
-    'flickr_filter_photo' => array(
-      'variables' => array('photo', 'size', 'attribs'),
-    ),
-    'flickr_filter_photoset' => array(
-      'variables' => array('photoset', 'owner', 'size', 'attribs'),
-    ),
-  );
-}
-
-/**
- * Theme single photo.
- */
-function theme_flickr_filter_photo($variables) {
-  return theme('flickr_photo', $variables);
-}
-
-/**
- * Theme photoset.
- */
-function theme_flickr_filter_photoset($variables) {
-  return theme('flickr_photoset', $variables);
 }
