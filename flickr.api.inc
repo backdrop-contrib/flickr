@@ -288,7 +288,7 @@ function flickr_tags_get_list_user($nsid) {
   return FALSE;
 }
 
-// TODO: Change name to flickr_groups_pools_get_photos()?
+// TODO: Change name to flickr_groups_pools_getphotos()?
 /**
  * Returns a list of pool photos for a given group.
  *
@@ -312,7 +312,28 @@ function flickr_get_group_photos($nsid, $page = 1, $other_args = array()) {
 
   $response = flickr_request('flickr.groups.pools.getPhotos', array_merge($args, $other_args));
   if ($response) {
-    return $response['photos'];
+    return $response;
   }
   return FALSE;
+}
+
+/**
+ * Returns info about a given group.
+ *
+ * @param string $nsid
+ *   NSID of the group whose photos you want.
+ *
+ * @return array $response
+ *   Response from the flickr method flickr.groups.getInfo.
+ *   (https://www.flickr.com/services/api/flickr.groups.getInfo.html)
+ */
+function flickr_groups_getinfo($nsid, $other_args = array()) {
+  $args = array(
+    'group_id' => $nsid,
+  );
+
+  $response = flickr_request('flickr.groups.getInfo', array_merge($args, $other_args));
+  if ($response) {
+    return $response;
+  }
 }

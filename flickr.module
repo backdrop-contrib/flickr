@@ -110,6 +110,16 @@ function flickr_theme() {
         'attribs' => NULL,
       ),
     ),
+    'flickr_photoset_flickrcomslideshow' => array(
+      'variables' => array(
+        'id' => NULL,
+      ),
+    ),
+    'flickr_photoset_flickrcomslideshow_simple' => array(
+      'variables' => array(
+        'id' => NULL,
+      ),
+    ),
   );
 }
 
@@ -522,4 +532,49 @@ function theme_flickr_photoset($variables) {
       'html' => TRUE,
       ));
   }
+}
+
+/**
+ * Theme a Flickr photo set as an embedded Flickr.com slideshow (Flash).
+ */
+function theme_flickr_photoset_flickrcomslideshow($variables) {
+  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'flickr') . '/flickr.inc';
+  $id = $variables['id'];
+  if (empty($id)) {
+    return;
+  }
+  if(strpos($id, '@') !== false) {
+    return '<div class="flickr-photoset-slideshow"><object  type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=140556"><param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=140556"></param><param name="flashvars" value="offsite=true&lang=en-us&page_show_url=%2Fgroups%2F' . $id . '%2Fpool%2Fshow%2F&page_show_back_url=%2Fgroups%2F' . $id . '%2Fpool%2F&group_id=' . $id . '&jump_to=&start_index="></param><param name="allowFullScreen" value="true"><param name="wmode" value="opaque" /></param></object></div>';
+  }
+  else {
+    $info = flickr_photoset_get_info($id);
+    $user_id = $info['owner'];
+    return '<div class="flickr-photoset-slideshow"><object type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=71649">
+    <param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=71649" />
+    <param name="allowFullScreen" value="true" />
+    <param name="wmode" value="opaque" />
+    <param name="flashvars" value="offsite=true&amp;lang=en-us&amp;page_show_url=/photos/' . $user_id . '/sets/' . $id . '/show/&amp;page_show_back_url=/photos/' . $user_id . '/sets/' . $id . '/&amp;set_id=' . $id . '" /></object></div>';
+  }
+}
+
+/**
+ * Theme a Flickr photo set as an embedded Flickr.com slideshow (non Flash).
+ */
+function theme_flickr_photoset_flickrcomslideshow_simple($variables) {
+  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'flickr') . '/flickr.inc';
+  $id = $variables['id'];
+  if (empty($id)) {
+    return;
+  }
+  if(strpos($id, '@') !== false) {
+    $src = 'https://www.flickr.com/slideShow/index.gne?group_id=' . $id . '&user_id=&set_id=&text=';
+  }
+  else {
+    $info = flickr_photoset_get_info($id);
+    $user_id = $info['owner'];
+    $src = 'https://www.flickr.com/slideShow/index.gne?group_id=&user_id=' . $user_id . '&set_id=' . $id . '&text=';
+  }
+  return '<div class="flickr-photoset-slideshow">'
+    . '<object type="text/html" data="' . $src . '"></object>'
+    . '</div>';
 }

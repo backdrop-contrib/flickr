@@ -28,7 +28,7 @@ function flickr_block_info() {
   $blocks[3]['info'] = t('Recent photos from a Flickr user');
   $blocks[4]['info'] = t('Recent photosets from a Flickr user');
   $blocks[5]['info'] = t('Random photos from a Flickr user');
-  $blocks[6]['info'] = t('Recent photosfrom a Flickr group');
+  $blocks[6]['info'] = t('Recent photos from a Flickr group');
 
   // Photoset blocks.
   $blocks[7]['info'] = t('Random photos from a Flickr photoset');
@@ -197,11 +197,11 @@ function flickr_block_configure($delta = '') {
 
     // Sitewide, group.
     case 6:
-      unset($form["flickr_block_{$delta}_group_id"]);
+      unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_tag"]);
-      $form["flickr_block_{$delta}_user_id"]['#title'] = t('Show photos from this Group ID');
-      $form["flickr_block_{$delta}_user_id"]['#description'] = t('Will select photos from this group pool');
-      $form["flickr_block_{$delta}_user_id"]['#required'] = TRUE;
+      $form["flickr_block_{$delta}_group_id"]['#title'] = t('Show photos from this Group ID');
+      $form["flickr_block_{$delta}_group_id"]['#description'] = t('Will select photos from this group pool');
+      $form["flickr_block_{$delta}_group_id"]['#required'] = TRUE;
       break;
 
     // Sitewide, random.
@@ -286,7 +286,6 @@ function flickr_block_save($delta = '', $edit = array()) {
     case 3:
     case 4:
     case 5:
-    case 6:
     case 9:
       $userid = $edit["flickr_block_{$delta}_user_id"];
       if (!empty($userid)) {
@@ -320,6 +319,7 @@ function flickr_block_save($delta = '', $edit = array()) {
       ));
       break;
 
+    case 6:
     case 10:
       variable_set('flickr_block_' . $delta, array(
         'group_id' => $edit["flickr_block_{$delta}_group_id"],
@@ -427,7 +427,7 @@ function flickr_block_view($delta = '') {
 
     case 6:
       $block['subject'] = t('Flickr recent group photos');
-      $block['content'] = _flickr_block_group_recent($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media']);
+      $block['content'] = _flickr_block_group_recent($settings['group_id'], $settings['show_n'], $settings['size'], $settings['media']);
       break;
 
     case 7:
@@ -706,7 +706,7 @@ function _flickr_block_group_recent($groupid, $show_n, $size, $media) {
     'per_page' => $show_n,
     'media' => $media,
   ))) {
-    foreach ($photos['photo'] as $photo) {
+    foreach ($photos['photos']['photo'] as $photo) {
       $output .= theme('flickr_block_photo', array(
         'photo' => $photo,
         'size' => $size,

@@ -139,7 +139,7 @@ function flickrfield_field_widget_form(&$form, &$form_state, $field, $instance, 
 function flickrfield_form_process_flickrfield($element, $form_state, $form = array()) {
   $options = array();
   $options['photo_id'] = t("Photo");
-  $options['set_id'] = t("Photoset");
+  $options['id'] = t("Photoset");
   $element['type'] = array(
     '#type' => 'select',
     '#title' => t('Item Type'),
@@ -351,7 +351,7 @@ function theme_flickrfield_field_formatter($element) {
         '4' => $node,
       ));
 
-    case 'set_id':
+    case 'id':
       $photo_data = flickr_photoset_get_info($item['id']);
       $img = flickr_img($photo_data, $formatter);
       $photo_url = flickr_photoset_page_url($photo_data['owner'], $photo_data['id']);
@@ -405,16 +405,10 @@ function theme_flickrfield_formatter_photoset_flickrcomslideshow($variables) {
   if (empty($variables['#item']['flickrid'])) {
     return;
   }
-  $set_id = $variables['#item']['flickrid'];
-  $info = flickr_photoset_get_info($set_id);
-  $user_id = $info['owner'];
-  return '<div class="flickr-photoset-slideshow">'
-    . '<object type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=71649">
-  <param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=71649" />
-  <param name="allowFullScreen" value="true" />
-  <param name="wmode" value="opaque" />
-  <param name="flashvars" value="offsite=true&amp;lang=en-us&amp;page_show_url=/photos/' . $user_id . '/sets/' . $set_id . '/show/&amp;page_show_back_url=/photos/' . $user_id . '/sets/' . $set_id . '/&amp;set_id=' . $set_id . '" /></object>'
-    . '</div>';
+  $id = $variables['#item']['flickrid'];
+  return theme('flickr_photoset_flickrcomslideshow', array(
+    'id' => $id,
+  ));
 }
 
 /**
@@ -425,13 +419,10 @@ function theme_flickrfield_formatter_photoset_flickrcomslideshow_simple($variabl
   if (empty($variables['#item']['flickrid'])) {
     return;
   }
-  $set_id = $variables['#item']['flickrid'];
-  $info = flickr_photoset_get_info($set_id);
-  $user_id = $info['owner'];
-  $src = 'https://www.flickr.com/slideShow/index.gne?group_id=&user_id=' . $user_id . '&set_id=' . $set_id . '&text=';
-  return '<div class="flickr-photoset-slideshow">'
-    . '<object type="text/html" data="' . $src . '"></object>'
-    . '</div>';
+  $id = $variables['#item']['flickrid'];
+  return theme('flickr_photoset_flickrcomslideshow_simple', array(
+    'id' => $id,
+  ));
 }
 
 /**

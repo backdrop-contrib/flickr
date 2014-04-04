@@ -102,10 +102,10 @@ function flickr_sets_photoset($account, $set) {
   $uid = $user->uid;
   $nsid = $account->flickr['nsid'];
 
-  $set_id = $set['photoset']['id'];
-  $set_info = flickr_photoset_get_info($set_id);
+  $id = $set['photoset']['id'];
+  $set_info = flickr_photoset_get_info($id);
 
-  // Make sure that $nsid is the real owner of $set_id.
+  // Make sure that $nsid is the real owner of $id.
   if ($nsid != $set_info['owner']) {
     drupal_goto('flickr/' . $uid . '/sets');
   }
@@ -117,10 +117,10 @@ function flickr_sets_photoset($account, $set) {
   $per_page = variable_get('flickr_photos_per_page', 20);
 
   // Request set of photos.
-  $set_response = flickr_set_load($set_id, $pager_page_array[$element] + 1);
+  $set_response = flickr_set_load($id, $pager_page_array[$element] + 1);
 
   if (!$set_response) {
-    drupal_set_message(t("Error retrieving :setid's photosets from Flickr"), array(':setid', $set_id));
+    drupal_set_message(t("Error retrieving :setid's photosets from Flickr"), array(':setid', $id));
     return '';
   }
   elseif (!isset($set_response['photoset']['photo']) || empty($set_response['photoset']['photo'])) {

@@ -63,6 +63,14 @@ function flickr_photo_sizes() {
       'label' => 'Original',
       'description' => t('o: Original image'),
     ),
+    'x' => array(
+      'label' => 'Flash slideshow (sets only)',
+      'description' => t('x: Flash slideshow (for sets only)'),
+    ),
+    'y' => array(
+      'label' => 'Flash slideshow (sets only)',
+      'description' => t('y: Non-Flash slideshow (for sets only)'),
+    ),
   );
 };
 
