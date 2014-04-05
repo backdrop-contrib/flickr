@@ -171,7 +171,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
 }
 
 /**
- * This function will try to create a html image tag referencing the Flickr
+ * This function will try to create an html image tag referencing the Flickr
  * photo with the desired size if that size is available for this photo.
  *
  * @param string $photo

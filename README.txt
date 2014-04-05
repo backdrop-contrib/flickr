@@ -90,14 +90,19 @@ Flickr.
 
 License info in caption
 -----------------------
+To include to follow the Creative Commons Guidelines. See:
+  https://creativecommons.org/licenses/by/2.0/#deed-conditions
 Depending on 'Minimum image width' above.
 Checkbox (not selected by default).
-Used is the nonintrusive icons font that can be found at
-http://creativecommons.org/about/downloads. It links to the corresponding
-Creative Commons human friendly info page.
-It is not necessary, but if desired you can download it, put it in your theme
-folder and substitute the default used remote source that can be found in the
-module's 'flickr.css' file.
+Used is the nonintrusive icons font that can be found at:
+  http://creativecommons.org/about/downloads
+It links to the corresponding Creative Commons human friendly info page.
+It is recommended to download it, put it in your theme folder and substitute the
+default used remote source that can be found in the module's 'flickr.css' file.
+
+What horizontal inside spacing is applied on the caption? (padding/border)
+--------------------------------------------------------------------------
+See https://drupal.org/node/2174131#caption
 
 Info to include when enlarging the image in Colorbox, Lightbox or alike
 -----------------------------------------------------------------------
@@ -121,10 +126,9 @@ OVERLAY BROWSER SETTINGS (field group)
 --------------------------------------
 Colorbox, Lightbox (use the dev version) or alike.
 Leave these fields empty to link directly to the Flickr photo page instead of
-opening the bigger version of the image. It also omits the caption in that case.
-This is only done to not alter the behaviour on previous installs of the Flickr
-module. The best way of giving attribution is by using a full version of the
-caption (default settings).
+opening the bigger version of the image.
+The best way of giving attribution is by using a full version of the caption
+(default settings + license info).
 
 class
 -----
