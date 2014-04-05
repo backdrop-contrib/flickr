@@ -39,6 +39,9 @@ function flickr_block_info() {
 
   $blocks[10]['info'] = t("Random photos from a Flickr group");
   $blocks[11]['info'] = t("Random photos with a specific tag from a Flickr user");
+  for ($i = 0; $i < 12; $i++) {
+    $blocks[$i]['cache'] = DRUPAL_CACHE_GLOBAL;
+  }
   return $blocks;
 }
 
@@ -274,18 +277,137 @@ function flickr_shown_block_validate($element) {
 function flickr_block_save($delta = '', $edit = array()) {
   switch ($delta) {
     case 0:
+      variable_set('flickr_block_' . $delta, array(
+        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
+        'size' => $edit["flickr_block_{$delta}_size"],
+        'media' => $edit["flickr_block_{$delta}_media"],
+      ));
+      cache_clear_all('flickr_block_' . $delta, 'cache', TRUE);
+      break;
+
     case 1:
+      variable_set('flickr_block_' . $delta, array(
+        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
+        'size' => $edit["flickr_block_{$delta}_size"],
+        'media' => $edit["flickr_block_{$delta}_media"],
+      ));
+      cache_clear_all('flickr_block_' . $delta, 'cache', TRUE);
+      break;
+
     case 2:
       variable_set('flickr_block_' . $delta, array(
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
         'size' => $edit["flickr_block_{$delta}_size"],
         'media' => $edit["flickr_block_{$delta}_media"],
       ));
+      cache_clear_all('flickr_block_' . $delta, 'cache', TRUE);
       break;
 
     case 3:
+      $userid = $edit["flickr_block_{$delta}_user_id"];
+      if (!empty($userid)) {
+        if (!flickr_is_nsid($edit["flickr_block_{$delta}_user_id"])) {
+          if ($user = flickr_user_find_by_identifier($userid)) {
+            drupal_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $edit["flickr_block_{$delta}_user_id"], '%uid' => $user)));
+            $edit["flickr_block_{$delta}_user_id"] = $user;
+          }
+        }
+        else {
+          $info = flickr_people_get_info($edit["flickr_block_{$delta}_user_id"]);
+          drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
+
+        }
+      }
+      variable_set('flickr_block_' . $delta, array(
+        'user_id' => $edit["flickr_block_{$delta}_user_id"],
+        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
+        'size' => $edit["flickr_block_{$delta}_size"],
+        'media' => $edit["flickr_block_{$delta}_media"],
+      ));
+      $nsid = empty($edit["flickr_block_{$delta}_user_id"]) ? variable_get('flickr_default_userid', '') : $edit["flickr_block_{$delta}_user_id"];
+      cache_clear_all('flickr_block_' . $delta . '_' . $nsid, 'cache', TRUE);
+      break;
+
     case 4:
+      $userid = $edit["flickr_block_{$delta}_user_id"];
+      if (!empty($userid)) {
+        if (!flickr_is_nsid($edit["flickr_block_{$delta}_user_id"])) {
+          if ($user = flickr_user_find_by_identifier($userid)) {
+            drupal_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $edit["flickr_block_{$delta}_user_id"], '%uid' => $user)));
+            $edit["flickr_block_{$delta}_user_id"] = $user;
+          }
+        }
+        else {
+          $info = flickr_people_get_info($edit["flickr_block_{$delta}_user_id"]);
+          drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
+
+        }
+      }
+      variable_set('flickr_block_' . $delta, array(
+        'user_id' => $edit["flickr_block_{$delta}_user_id"],
+        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
+        'size' => $edit["flickr_block_{$delta}_size"],
+        'media' => $edit["flickr_block_{$delta}_media"],
+      ));
+      $nsid = empty($edit["flickr_block_{$delta}_user_id"]) ? variable_get('flickr_default_userid', '') : $edit["flickr_block_{$delta}_user_id"];
+      cache_clear_all('flickr_block_' . $delta . '_' . $nsid, 'cache', TRUE);
+      break;
+
     case 5:
+      $userid = $edit["flickr_block_{$delta}_user_id"];
+      if (!empty($userid)) {
+        if (!flickr_is_nsid($edit["flickr_block_{$delta}_user_id"])) {
+          if ($user = flickr_user_find_by_identifier($userid)) {
+            drupal_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $edit["flickr_block_{$delta}_user_id"], '%uid' => $user)));
+            $edit["flickr_block_{$delta}_user_id"] = $user;
+          }
+        }
+        else {
+          $info = flickr_people_get_info($edit["flickr_block_{$delta}_user_id"]);
+          drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
+
+        }
+      }
+      variable_set('flickr_block_' . $delta, array(
+        'user_id' => $edit["flickr_block_{$delta}_user_id"],
+        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
+        'size' => $edit["flickr_block_{$delta}_size"],
+        'media' => $edit["flickr_block_{$delta}_media"],
+      ));
+      $nsid = empty($edit["flickr_block_{$delta}_user_id"]) ? variable_get('flickr_default_userid', '') : $edit["flickr_block_{$delta}_user_id"];
+      cache_clear_all('flickr_block_' . $delta . '_' . $nsid, 'cache', TRUE);
+      break;
+
+    case 6:
+      variable_set('flickr_block_' . $delta, array(
+        'group_id' => $edit["flickr_block_{$delta}_group_id"],
+        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
+        'size' => $edit["flickr_block_{$delta}_size"],
+        'media' => $edit["flickr_block_{$delta}_media"],
+      ));
+      cache_clear_all('flickr_block_' . $delta . '_' . $edit["flickr_block_{$delta}_group_id"], 'cache', TRUE);
+      break;
+
+    case 7:
+      variable_set('flickr_block_' . $delta, array(
+        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
+        'size' => $edit["flickr_block_{$delta}_size"],
+        'media' => $edit["flickr_block_{$delta}_media"],
+        'photoset_id' => $edit["flickr_block_{$delta}_photoset"],
+      ));
+      cache_clear_all('flickr_block_' . $delta . '_' . $edit["flickr_block_{$delta}_photoset"], 'cache', TRUE);
+      break;
+
+    case 8:
+      variable_set('flickr_block_' . $delta, array(
+        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
+        'size' => $edit["flickr_block_{$delta}_size"],
+        'media' => $edit["flickr_block_{$delta}_media"],
+        'photoset_id' => $edit["flickr_block_{$delta}_photoset"],
+      ));
+      cache_clear_all('flickr_block_' . $delta . '_' . $edit["flickr_block_{$delta}_photoset"], 'cache', TRUE);
+      break;
+
     case 9:
       $userid = $edit["flickr_block_{$delta}_user_id"];
       if (!empty($userid)) {
@@ -307,19 +429,10 @@ function flickr_block_save($delta = '', $edit = array()) {
         'size' => $edit["flickr_block_{$delta}_size"],
         'media' => $edit["flickr_block_{$delta}_media"],
       ));
+      $nsid = empty($edit["flickr_block_{$delta}_user_id"]) ? variable_get('flickr_default_userid', '') : $edit["flickr_block_{$delta}_user_id"];
+      cache_clear_all('flickr_block_' . $delta . '_' . $nsid, 'cache', TRUE);
       break;
 
-    case 7:
-    case 8:
-      variable_set('flickr_block_' . $delta, array(
-        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
-        'size' => $edit["flickr_block_{$delta}_size"],
-        'media' => $edit["flickr_block_{$delta}_media"],
-        'photoset_id' => $edit["flickr_block_{$delta}_photoset"],
-      ));
-      break;
-
-    case 6:
     case 10:
       variable_set('flickr_block_' . $delta, array(
         'group_id' => $edit["flickr_block_{$delta}_group_id"],
@@ -327,6 +440,7 @@ function flickr_block_save($delta = '', $edit = array()) {
         'size' => $edit["flickr_block_{$delta}_size"],
         'media' => $edit["flickr_block_{$delta}_media"],
       ));
+      cache_clear_all('flickr_block_' . $delta . '_' . $edit["flickr_block_{$delta}_group_id"], 'cache', TRUE);
       break;
 
     case 11:
@@ -351,6 +465,8 @@ function flickr_block_save($delta = '', $edit = array()) {
         'size' => $edit["flickr_block_{$delta}_size"],
         'media' => $edit["flickr_block_{$delta}_media"],
       ));
+      $nsid = empty($edit["flickr_block_{$delta}_user_id"]) ? variable_get('flickr_default_userid', '') : $edit["flickr_block_{$delta}_user_id"];
+      cache_clear_all('flickr_block_' . $delta . '_' . $nsid . '_' . $edit["flickr_block_{$delta}_tag"], 'cache', TRUE);
       break;
   }
 }
@@ -395,15 +511,15 @@ function flickr_block_view($delta = '') {
           if (!empty($user->flickr['nsid'])) {
             if ($delta == 0) {
               $block['subject'] = t("%username's recent Flickr photos", array('%username' => $user->name));
-              $block['content'] = _flickr_block_recent($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media']);
+              $block['content'] = _flickr_block_recent($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
             }
             elseif ($delta == 1) {
               $block['subject'] = t("%username's recent Flickr photosets", array('%username' => $user->name));
-              $block['content'] = _flickr_block_photosets($user->flickr['nsid'], $settings['show_n'], $settings['size']);
+              $block['content'] = _flickr_block_photosets($user->flickr['nsid'], $settings['show_n'], $settings['size'], $delta);
             }
             elseif ($delta == 2) {
               $block['subject'] = t("%username's random Flickr photos", array('%username' => $user->name));
-              $block['content'] = _flickr_block_random($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media']);
+              $block['content'] = _flickr_block_random($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
             }
           }
         }
@@ -411,48 +527,67 @@ function flickr_block_view($delta = '') {
       break;
 
     case 3:
-      $block['subject'] = t('Flickr recent photos');
-      $block['content'] = _flickr_block_recent($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media']);
+      $info = flickr_people_get_info($settings['user_id']);
+     // Real name if it exists or go with the username. Link to Flickr user page.
+      $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank'))) : l($info['username']['_content'], $info['profileurl']['_content'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank')));
+      $block['subject'] = t("Recent Flickr photos by !username", array('!username' => $username));
+      $block['content'] = _flickr_block_recent($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
       break;
 
     case 4:
-      $block['subject'] = t('Flickr recent photosets');
-      $block['content'] = _flickr_block_photosets($settings['user_id'], $settings['show_n'], $settings['size']);
+      $info = flickr_people_get_info($settings['user_id']);
+     // Real name if it exists or go with the username. Link to Flickr user page.
+      $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank'))) : l($info['username']['_content'], $info['profileurl']['_content'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank')));
+      $block['subject'] = t("Recent Flickr photosets by !username", array('!username' => $username));
+      $block['content'] = _flickr_block_photosets($settings['user_id'], $settings['show_n'], $settings['size'], $delta);
       break;
 
     case 5:
-      $block['subject'] = t('Flickr random photos');
-      $block['content'] = _flickr_block_random($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media']);
+      $info = flickr_people_get_info($settings['user_id']);
+     // Real name if it exists or go with the username. Link to Flickr user page.
+      $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank'))) : l($info['username']['_content'], $info['profileurl']['_content'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank')));
+      $block['subject'] = t("Random Flickr photos by !username", array('!username' => $username));
+      $block['content'] = _flickr_block_random($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
       break;
 
     case 6:
-      $block['subject'] = t('Flickr recent group photos');
-      $block['content'] = _flickr_block_group_recent($settings['group_id'], $settings['show_n'], $settings['size'], $settings['media']);
+      $info = flickr_groups_getinfo($settings['group_id']);
+      $block['subject'] = t("Recent Flickr photos from the group '") . $info['group']['name']['_content'] . "'";
+      $block['content'] = _flickr_block_group_recent($settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
       break;
 
     case 7:
-      $block['subject'] = t('Flickr random photoset photos');
-      $block['content'] = _flickr_block_photoset_random($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['photoset_id']);
+      $info = flickr_photoset_get_info($settings['photoset_id']);
+      $block['subject'] = t("Random photos from the Flickr set '") . $info['title']['_content'] . "'";
+      $block['content'] = _flickr_block_photoset_random($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['photoset_id'], $delta);
       break;
 
     case 8:
-      $block['subject'] = t('Flickr recent photoset photos');
-      $block['content'] = _flickr_block_photoset_recent($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['photoset_id']);
+      $info = flickr_photoset_get_info($settings['photoset_id']);
+      $block['subject'] = t("Recent photos from the Flickr set '") . $info['title']['_content'] . "'";
+      $block['content'] = _flickr_block_photoset_recent($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['photoset_id'], $delta);
       break;
 
     case 9:
-      $block['subject'] = t('Flickr favorite public photos');
-      $block['content'] = _flickr_block_favorite_public($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media']);
+      $info = flickr_people_get_info($settings['user_id']);
+     // Real name if it exists or go with the username. Link to Flickr user page.
+      $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank'))) : l($info['username']['_content'], $info['profileurl']['_content'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank')));
+      $block['subject'] = t("!username's favorite photos from other Flickr members", array('!username' => $username));
+      $block['content'] = _flickr_block_favorite_public($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
       break;
 
     case 10:
-      $block['subject'] = t('Flickr group random photos');
-      $block['content'] = _flickr_block_group_random($settings['group_id'], $settings['show_n'], $settings['size'], $settings['media']);
+      $info = flickr_groups_getinfo($settings['group_id']);
+      $block['subject'] = t("Random Flickr photos from the group '") . $info['group']['name']['_content'] . "'";
+      $block['content'] = _flickr_block_group_random($settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
       break;
 
     case 11:
-      $block['subject'] = t('Flickr random group photos');
-      $block['content'] = _flickr_block_tag_random($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag']);
+      $info = flickr_people_get_info($settings['user_id']);
+     // Real name if it exists or go with the username. Link to Flickr user page.
+      $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank'))) : l($info['username']['_content'], $info['profileurl']['_content'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank')));
+      $block['subject'] = t("Random Flickr photos by !username tagged '", array('!username' => $username)) . $settings['tag'] . "'";
+      $block['content'] = _flickr_block_tag_random($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], $delta);
       break;
   }
   return $block;
@@ -461,18 +596,24 @@ function flickr_block_view($delta = '') {
 /**
  * Recent block.
  */
-function _flickr_block_recent($nsid, $show_n, $size, $media) {
-  $output = '';
-  if ($photos = flickr_photos_search($nsid, 1, array(
-    'per_page' => $show_n,
-    'media' => $media,
-  ))) {
-    foreach ($photos['photo'] as $photo) {
-      $output .= theme('flickr_block_photo', array(
-        'photo' => $photo,
-        'size' => $size,
-      ));
+function _flickr_block_recent($nsid, $show_n, $size, $media, $delta) {
+  if ($cache = cache_get('flickr_block_' . $delta . '_' . $nsid)) {
+    $output = $cache->data;
+  }
+  else {
+    $output = '';
+    if ($photos = flickr_photos_search($nsid, 1, array(
+      'per_page' => $show_n,
+      'media' => $media,
+    ))) {
+      foreach ($photos['photo'] as $photo) {
+        $output .= theme('flickr_block_photo', array(
+          'photo' => $photo,
+          'size' => $size,
+        ));
+      }
     }
+    cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 24) * 60 * 60));
   }
   return $output;
 }
@@ -480,16 +621,23 @@ function _flickr_block_recent($nsid, $show_n, $size, $media) {
 /**
  * Photoset block.
  */
-function _flickr_block_photosets($nsid, $show_n, $size) {
-  $photosets = flickr_photoset_get_list($nsid);
-  $output = '';
-  $to = min($show_n, count($photosets));
-  for ($i = 0; $i < $to; $i++) {
-    $output .= theme('flickr_block_photoset', array(
-      'photoset' => $photosets[$i],
-      'owner' => $nsid,
-      'size' => $size,
-    ));
+function _flickr_block_photosets($nsid, $show_n, $size, $delta) {
+  if ($cache = cache_get('flickr_block_' . $delta . '_' . $nsid)) {
+    $output = $cache->data;
+  }
+  else {
+    $photosets = flickr_photoset_get_list($nsid);
+    $output = '';
+    $to = min($show_n, count($photosets));
+    for ($i = 0; $i < $to; $i++) {
+      $output .= '<div class="flickr-block-set-title">' . $photosets[$i]['title']['_content'] . '</div>';
+      $output .= theme('flickr_block_photoset', array(
+        'photoset' => $photosets[$i],
+        'owner' => $nsid,
+        'size' => $size,
+      ));
+    }
+    cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 24) * 60 * 60));
   }
   return $output;
 }
@@ -497,39 +645,45 @@ function _flickr_block_photosets($nsid, $show_n, $size) {
 /**
  * Random from user block.
  */
-function _flickr_block_random($nsid, $show_n, $size, $media) {
-  $output = '';
-  $random_photos = array();
-  if ($photos = flickr_photos_search($nsid, 1, array(
-    'per_page' => 500,
-    'media' => $media,
-  ))) {
-    $page_count = $photos['pages'];
-    // Do not try to return more than the total number of photos.
-    $to = min($show_n, $photos['total']);
+function _flickr_block_random($nsid, $show_n, $size, $media, $delta) {
+  if ($cache = cache_get('flickr_block_' . $delta . '_' . $nsid)) {
+    $output = $cache->data;
+  }
+  else {
     $output = '';
-    for ($i = 0; $i < $to; $i++) {
-      sleep(0.125);
-      // Request a random page.
-      $photos = flickr_photos_search($nsid, rand(1, $page_count), array(
-        'per_page' => 500,
-        'media' => $media,
-      ));
-      // Select a random photo.
-      $index = rand(0, count($photos['photo']) - 1);
-      $photo_id = $photos['photo'][$index]['id'];
-      if (in_array($photo_id, $random_photos)) {
-        // Photo already added.
-        $i--;
-      }
-      else {
-        $random_photos[] = $photo_id;
-        $output .= theme('flickr_block_photo', array(
-          'photo' => $photos['photo'][$index],
-          'size' => $size,
+    $random_photos = array();
+    if ($photos = flickr_photos_search($nsid, 1, array(
+      'per_page' => 500,
+      'media' => $media,
+    ))) {
+      $page_count = $photos['pages'];
+      // Do not try to return more than the total number of photos.
+      $to = min($show_n, $photos['total']);
+      $output = '';
+      for ($i = 0; $i < $to; $i++) {
+        sleep(0.125);
+        // Request a random page.
+        $photos = flickr_photos_search($nsid, rand(1, $page_count), array(
+          'per_page' => 500,
+          'media' => $media,
         ));
+        // Select a random photo.
+        $index = rand(0, count($photos['photo']) - 1);
+        $photo_id = $photos['photo'][$index]['id'];
+        if (in_array($photo_id, $random_photos)) {
+          // Photo already added.
+          $i--;
+        }
+        else {
+          $random_photos[] = $photo_id;
+          $output .= theme('flickr_block_photo', array(
+            'photo' => $photos['photo'][$index],
+            'size' => $size,
+          ));
+        }
       }
     }
+    cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (variable_get('flickr_block_refresh_random', 24) * 60 * 60));
   }
   return $output;
 }
@@ -537,41 +691,47 @@ function _flickr_block_random($nsid, $show_n, $size, $media) {
 /**
  * Random from photoset block.
  */
-function _flickr_block_photoset_random($nsid, $show_n, $size, $media, $photoset_id) {
-  // Get information about the photoset, including the owner.
-  $info = flickr_photoset_get_info($photoset_id);
-  if (!$info) {
-    return;
+function _flickr_block_photoset_random($nsid, $show_n, $size, $media, $photoset_id, $delta) {
+  if ($cache = cache_get('flickr_block_' . $delta . '_' . $photoset_id)) {
+    $output = $cache->data;
   }
+  else {
+    // Get information about the photoset, including the owner.
+    $info = flickr_photoset_get_info($photoset_id);
+    if (!$info) {
+      return;
+    }
 
-  // Get a list of "all" the photos in the photoset. This is cached.
-  $response = flickr_request('flickr.photosets.getPhotos',
-    array(
-      'photoset_id' => $photoset_id,
-      // Get as many images as possible.
-      'per_page' => 500,
-      'extras' => 'owner',
-      'media' => $media,
-    )
-  );
-  if (!$response) {
-    return;
-  }
+    // Get a list of "all" the photos in the photoset. This is cached.
+    $response = flickr_request('flickr.photosets.getPhotos',
+      array(
+        'photoset_id' => $photoset_id,
+        // Get as many images as possible.
+        'per_page' => 500,
+        'extras' => 'owner',
+        'media' => $media,
+      )
+    );
+    if (!$response) {
+      return;
+    }
 
-  // Randomly display $show_n of them.
-  $photos = $response['photoset']['photo'];
-  shuffle($photos);
+    // Randomly display $show_n of them.
+    $photos = $response['photoset']['photo'];
+    shuffle($photos);
 
-  // We shouldn't try to return more than the total number of photos.
-  $output = '';
-  $to = min($show_n, count($photos));
-  for ($i = 0; $i < $to; $i++) {
-    // Insert owner into $photo because theme_flickr_photo needs it.
-    $photos[$i]['owner'] = $info['owner'];
-    $output .= theme('flickr_block_photo', array(
-      'photo' => $photos[$i],
-      'size' => $size,
-    ));
+    // We shouldn't try to return more than the total number of photos.
+    $output = '';
+    $to = min($show_n, count($photos));
+    for ($i = 0; $i < $to; $i++) {
+      // Insert owner into $photo because theme_flickr_photo needs it.
+      $photos[$i]['owner'] = $info['owner'];
+      $output .= theme('flickr_block_photo', array(
+        'photo' => $photos[$i],
+        'size' => $size,
+      ));
+    }
+    cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (variable_get('flickr_block_refresh_random', 24) * 60 * 60));
   }
   return $output;
 }
@@ -579,65 +739,76 @@ function _flickr_block_photoset_random($nsid, $show_n, $size, $media, $photoset_
 /**
  * Random from group block.
  */
-function _flickr_block_group_random($group_id, $show_n, $size, $media) {
-  // Get a list of "all" the photos in the group. This is cached.
-  $response = flickr_request('flickr.groups.pools.getPhotos',
-    array(
-      'group_id' => $group_id,
-      // Get as many images as possible.
-      'per_page' => 500,
-      'extras' => 'owner',
-      'media' => $media,
-    )
-  );
-  if (!$response) {
-    return;
+function _flickr_block_group_random($group_id, $show_n, $size, $media, $delta) {
+  if ($cache = cache_get('flickr_block_' . $delta . '_' . $group_id)) {
+    $output = $cache->data;
   }
+  else {
+    // Get a list of "all" the photos in the group. This is cached.
+    $response = flickr_request('flickr.groups.pools.getPhotos',
+      array(
+        'group_id' => $group_id,
+        // Get as many images as possible.
+        'per_page' => 500,
+        'extras' => 'owner',
+        'media' => $media,
+      )
+    );
+    if (!$response) {
+      return;
+    }
 
-  // Randomly display $show_n of them.
-  $photos = $response['photos']['photo'];
-  shuffle($photos);
+    // Randomly display $show_n of them.
+    $photos = $response['photos']['photo'];
+    shuffle($photos);
 
-  // We shouldn't try to return more than the total number of photos.
-  $output = '';
-  $to = min($show_n, count($photos));
-  for ($i = 0; $i < $to; $i++) {
-    $output .= theme('flickr_block_photo', array(
-      'photo' => $photos[$i],
-      'size' => $size,
-    ));
+    // We shouldn't try to return more than the total number of photos.
+    $output = '';
+    $to = min($show_n, count($photos));
+    for ($i = 0; $i < $to; $i++) {
+      $output .= theme('flickr_block_photo', array(
+        'photo' => $photos[$i],
+        'size' => $size,
+      ));
+    }
+    cache_set('flickr_block_' . $delta . '_' . $group_id, $output, 'cache', time() + (variable_get('flickr_block_refresh_random', 24) * 60 * 60));
   }
   return $output;
 }
 
-
 /**
  * Random by tag block.
  */
-function _flickr_block_tag_random($nsid, $show_n, $size, $media, $tag) {
-  // Do a photo search for the provided tag in the given user's public photos.
-  $response = flickr_request('flickr.photos.search',
-    array(
-      'user_id' => $nsid,
-      'tags' => $tag,
-      'per_page' => 500,
-      'privacy_filter' => 1,
-      'media' => $media,
-    )
-  );
+function _flickr_block_tag_random($nsid, $show_n, $size, $media, $tag, $delta) {
+ if ($cache = cache_get('flickr_block_' . $delta . '_' . $nsid . '_' . $tag)) {
+    $output = $cache->data;
+  }
+  else {
+    // Do a photo search for the provided tag in the given user's public photos.
+    $response = flickr_request('flickr.photos.search',
+      array(
+        'user_id' => $nsid,
+        'tags' => $tag,
+        'per_page' => 500,
+        'privacy_filter' => 1,
+        'media' => $media,
+      )
+    );
 
-  // Randomly display $show_n of them.
-  $photos = $response['photos']['photo'];
-  shuffle($photos);
+    // Randomly display $show_n of them.
+    $photos = $response['photos']['photo'];
+    shuffle($photos);
 
-  // We shouldn't try to return more than the total number of photos.
-  $output = '';
-  $to = min($show_n, count($photos));
-  for ($i = 0; $i < $to; $i++) {
-    $output .= theme('flickr_block_photo', array(
-      'photo' => $photos[$i],
-      'size' => $size,
-    ));
+    // We shouldn't try to return more than the total number of photos.
+    $output = '';
+    $to = min($show_n, count($photos));
+    for ($i = 0; $i < $to; $i++) {
+      $output .= theme('flickr_block_photo', array(
+        'photo' => $photos[$i],
+        'size' => $size,
+      ));
+    }
+    cache_set('flickr_block_' . $delta . '_' . $nsid . '_' . $tag, $output, 'cache', time() + (variable_get('flickr_block_refresh_random', 24) * 60 * 60));
   }
   return $output;
 }
@@ -645,54 +816,65 @@ function _flickr_block_tag_random($nsid, $show_n, $size, $media, $tag) {
 /**
  * Recent from photoset block.
  */
-function _flickr_block_photoset_recent($nsid, $show_n, $size, $media, $photoset_id) {
-  // Get information about the photoset, including the owner.
-  $info = flickr_photoset_get_info($photoset_id);
-  if (!$info) {
-    return;
+function _flickr_block_photoset_recent($nsid, $show_n, $size, $media, $photoset_id, $delta) {
+  if ($cache = cache_get('flickr_block_' . $delta . '_' . $photoset_id)) {
+    $output = $cache->data;
   }
+  else {
+    // Get information about the photoset, including the owner.
+    $info = flickr_photoset_get_info($photoset_id);
+    if (!$info) {
+      return;
+    }
 
-  $response = flickr_request('flickr.photosets.getPhotos',
-    array(
-      'photoset_id' => $photoset_id,
-      'per_page' => $show_n,
-      'extras' => 'owner',
-      'media' => $media,
-    )
-  );
+    $response = flickr_request('flickr.photosets.getPhotos',
+      array(
+        'photoset_id' => $photoset_id,
+        'per_page' => $show_n,
+        'extras' => 'owner',
+        'media' => $media,
+      )
+    );
 
-  if (!$response) {
-    return;
+    if (!$response) {
+      return;
+    }
+
+    $output = '';
+    foreach ($response['photoset']['photo'] as $photo) {
+      // Insert owner into $photo because theme_flickr_photo needs it.
+      $photo['owner'] = $info['owner'];
+      $output .= theme('flickr_block_photo', array(
+        'photo' => $photo,
+        'size' => $size,
+      ));
+    }
+    cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 24) * 60 * 60));
   }
-
-  $output = '';
-  foreach ($response['photoset']['photo'] as $photo) {
-    // Insert owner into $photo because theme_flickr_photo needs it.
-    $photo['owner'] = $info['owner'];
-    $output .= theme('flickr_block_photo', array(
-      'photo' => $photo,
-      'size' => $size,
-    ));
-  }
-
   return $output;
 }
 
 /**
  * Favorites block.
  */
-function _flickr_block_favorite_public($nsid, $show_n, $size, $media) {
-  $output = '';
-  if ($photos = flickr_favorites_get_public_list($nsid, 1, array(
-    'per_page' => $show_n,
-    'media' => $media,
-  ))) {
-    foreach ($photos['photo'] as $photo) {
-      $output .= theme('flickr_block_photo', array(
-        'photo' => $photo,
-        'size' => $size,
-      ));
+function _flickr_block_favorite_public($nsid, $show_n, $size, $media, $delta) {
+  if ($cache = cache_get('flickr_block_' . $delta . '_' . $nsid)) {
+    $output = $cache->data;
+  }
+  else {
+    $output = '';
+    if ($photos = flickr_favorites_get_public_list($nsid, 1, array(
+      'per_page' => $show_n,
+      'media' => $media,
+    ))) {
+      foreach ($photos['photo'] as $photo) {
+        $output .= theme('flickr_block_photo', array(
+          'photo' => $photo,
+          'size' => $size,
+        ));
+      }
     }
+    cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 24) * 60 * 60));
   }
   return $output;
 }
@@ -700,18 +882,24 @@ function _flickr_block_favorite_public($nsid, $show_n, $size, $media) {
 /**
  * This renders a block with photos from the selected groupid.
  */
-function _flickr_block_group_recent($groupid, $show_n, $size, $media) {
-  $output = '';
-  if ($photos = flickr_get_group_photos($groupid, 1, array(
-    'per_page' => $show_n,
-    'media' => $media,
-  ))) {
-    foreach ($photos['photos']['photo'] as $photo) {
-      $output .= theme('flickr_block_photo', array(
-        'photo' => $photo,
-        'size' => $size,
-      ));
+function _flickr_block_group_recent($group_id, $show_n, $size, $media, $delta) {
+  if ($cache = cache_get('flickr_block_' . $delta . '_' . $group_id)) {
+    $output = $cache->data;
+  }
+  else {
+    $output = '';
+    if ($photos = flickr_get_group_photos($group_id, 1, array(
+      'per_page' => $show_n,
+      'media' => $media,
+    ))) {
+      foreach ($photos['photos']['photo'] as $photo) {
+        $output .= theme('flickr_block_photo', array(
+          'photo' => $photo,
+          'size' => $size,
+        ));
+      }
     }
+    cache_set('flickr_block_' . $delta . '_' . $group_id, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 24) * 60 * 60));
   }
   return $output;
 }

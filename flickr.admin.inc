@@ -175,6 +175,31 @@ function flickr_admin_settings() {
     ),
     '#description' => t('The image size to open in the overlay browser when clicking the image. Larger sizes make navigating to next and previous pictures slower.<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
   );
+  if (module_exists('flickr_block')) {
+    $form['block_settings'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Block settings'),
+      '#description' => t('Has a perfomance impact. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+    );
+    $form['block_settings']['flickr_block_refresh_random'] = array(
+      '#type' => 'textfield',
+      '#field_prefix' => t('Refresh random blocks every'),
+      '#required' => TRUE,
+      '#default_value' => variable_get('flickr_block_refresh_random', 24),
+      '#field_suffix' => t('hours.'),
+      '#size' => 3,
+      '#maxlength' => 3,
+    );
+    $form['block_settings']['flickr_block_refresh_others'] = array(
+      '#type' => 'textfield',
+      '#field_prefix' => t('Refresh other blocks every'),
+      '#required' => TRUE,
+      '#default_value' => variable_get('flickr_block_refresh_others', 24),
+      '#field_suffix' => t('hours.'),
+      '#size' => 3,
+      '#maxlength' => 3,
+    );
+  }
   // We need an api key before we can verify usernames.
   if (!$form['flickr_api_key']['#default_value']) {
     $form['flickr_default_userid']['#disabled'] = TRUE;
@@ -197,7 +222,10 @@ function flickr_admin_settings_validate($form, &$form_state) {
   $limit2 = trim($form_state['values']['flickr_title_suppress_on_small']);
   $limit3 = trim($form_state['values']['flickr_metadata_suppress_on_small']);
   $limit4 = trim($form_state['values']['flickr_caption_padding']);
-
+  if (module_exists('flickr_block')) {
+    $limit5 = trim($form_state['values']['flickr_block_refresh_random']);
+    $limit6 = trim($form_state['values']['flickr_block_refresh_others']);
+  }
   if ($key && (preg_match('/^[A-Fa-f\d]{32}$/', $key) != 1)) {
     form_set_error('flickr_api_key', t('This does not appear to be a Flickr API key.'));
   }
@@ -225,6 +253,16 @@ function flickr_admin_settings_validate($form, &$form_state) {
   // Validate the minimum width to suppress metadata caption.
   if (!is_numeric($limit4) || $limit4 < 0) {
     form_set_error('flickr_caption_padding', t('Set a padding from 0 to 99 px.'));
+  }
+  if (module_exists('flickr_block')) {
+    // Validate refresh rate random blocks.
+    if (!is_numeric($limit5) || $limit5 < 1) {
+      form_set_error('flickr_block_refresh_random', t('Set a number from 1 to 999.'));
+    }
+    // Validate refresh rate other blocks.
+    if (!is_numeric($limit6) || $limit6 < 1) {
+      form_set_error('flickr_block_refresh_others', t('Set a number from 1 to 999.'));
+    }
   }
 }
 
