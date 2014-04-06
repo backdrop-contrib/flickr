@@ -340,7 +340,7 @@ function theme_flickr_photo($variables) {
   else {
     $credit = $title;
   }
-  // Get the Flickr image title for set data or the photo itself. Sanatize.
+  // Get the Flickr image title for set data or the photo itself. Sanitize.
   $title = is_array($photo['title']) ? str_replace('"', "'", strip_tags($photo['title']['_content'])) : $photo['title'];
   $info = flickr_photo_get_info($photo['id']);
   // Use title if description does not exist, else sanitize the description.
