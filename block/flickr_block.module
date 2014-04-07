@@ -506,55 +506,67 @@ function flickr_block_view($delta = '') {
     case 1:
     case 2:
       // Get per user nsid if necessary.
-      if (arg(0) == 'user' && ($uid = (int) arg(1))) {
-        if ($user = user_load($uid)) {
-          $username = l($user->name . t("'s"), 'https://www.flickr.com/people/' . $user->flickr['nsid'], array('attributes' => array(
+      switch (arg(0)) {
+        case 'user':
+          if ($uid = (int) arg(1)) {
+            $user = user_load($uid);
+          }
+        case 'node':
+          if (($nid = (int) arg(1)) && ((arg(2) == "" || arg(2) == 'view'))) {
+            $node = node_load($nid);
+            $user = user_load($node->uid);
+            break;
+          }
+      }
+      if (!empty($user->flickr['nsid'])) {
+        $info = flickr_people_get_info($user->flickr['nsid']);
+        $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'] . t("'s"), $info['profileurl']['_content'], array('attributes' => array(
+            'title' => t('View user on Flickr.'),
+            'target' => '_blank',
+          ))) : l($info['username']['_content'] . t("'s"), $info['profileurl']['_content'], array('attributes' => array(
             'title' => t('View user on Flickr.'),
             'target' => '_blank',
           )));
-          if (!empty($user->flickr['nsid'])) {
-            switch ($delta) {
-              case 0:
-                $recent_photos = l(t('recent Flickr photos'), 'https://www.flickr.com/photos/' . $user->flickr['nsid'], array('attributes' => array(
-                    'title' => t('View on Flickr.'),
-                    'target' => '_blank',
-                  )));
-                $map =  l(t('map'), 'https://www.flickr.com/photos/' . $user->flickr['nsid'] . '/map/', array('attributes' => array(
-                    'title' => t('View recent photos on Flickr map.'),
-                    'target' => '_blank',
-                  )));
-                $block['subject'] = $username . ' ' . $recent_photos . ' (' . $map . ')';
-                $block['content'] = _flickr_block_recent($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
-                break;
-              case 1:
-                $recent_sets = l(t('recent Flickr photos'), 'https://www.flickr.com/photos/' . $user->flickr['nsid'] . '/sets/', array('attributes' => array(
-                    'title' => t('View on Flickr.'),
-                    'target' => '_blank',
-                  )));
-                $block['subject'] = $username . ' ' . $recent_sets;
-                $block['content'] = _flickr_block_photosets($user->flickr['nsid'], $settings['show_n'], $settings['size'], $delta);
-                break;
-              case 2:
-                $photos = l(t('Flickr photos'), 'https://www.flickr.com/photos/' . $user->flickr['nsid'], array('attributes' => array(
-                    'title' => t('View Flickr photostream.'),
-                    'target' => '_blank',
-                  )));
-                $block['subject'] = t("!username random !photos", array('!username' => $username, '!photos' => $photos));
-                $block['content'] = _flickr_block_random($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
-                break;
-            }
-          }
+        switch ($delta) {
+          case 0:
+            $recent_photos = l(t('recent Flickr photos'), 'https://www.flickr.com/photos/' . $user->flickr['nsid'], array('attributes' => array(
+                'title' => t('View on Flickr.'),
+                'target' => '_blank',
+              )));
+            $map =  l(t('map'), 'https://www.flickr.com/photos/' . $user->flickr['nsid'] . '/map/', array('attributes' => array(
+                'title' => t('View recent photos on Flickr map.'),
+                'target' => '_blank',
+              )));
+            $block['subject'] = $username . ' ' . $recent_photos . ' (' . $map . ')';
+            $block['content'] = _flickr_block_recent($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
+            break;
+          case 1:
+            $recent_sets = l(t('recent Flickr sets'), 'https://www.flickr.com/photos/' . $user->flickr['nsid'] . '/sets/', array('attributes' => array(
+                'title' => t('View sets on Flickr.'),
+                'target' => '_blank',
+              )));
+            $block['subject'] = $username . ' ' . $recent_sets;
+            $block['content'] = _flickr_block_photosets($user->flickr['nsid'], $settings['show_n'], $settings['size'], $delta);
+            break;
+          case 2:
+            $photos = l(t('Flickr photos'), 'https://www.flickr.com/photos/' . $user->flickr['nsid'], array('attributes' => array(
+                'title' => t('View Flickr photostream.'),
+                'target' => '_blank',
+              )));
+            $block['subject'] = t("!username random !photos", array('!username' => $username, '!photos' => $photos));
+            $block['content'] = _flickr_block_random($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
+            break;
         }
       }
       break;
 
     case 3:
       $info = flickr_people_get_info($settings['user_id']);
-      // Real name if it exists or go with the username. Link to Flickr user page.
       $recent_photos = l(t('Recent Flickr photos'), $info['photosurl']['_content'], array('attributes' => array(
           'title' => t('View on Flickr.'),
           'target' => '_blank',
         )));
+      // Real name if it exists or go with the username. Link to Flickr user page.
       $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array(
           'title' => t('View user on Flickr.'),
           'target' => '_blank',
@@ -572,11 +584,11 @@ function flickr_block_view($delta = '') {
 
     case 4:
       $info = flickr_people_get_info($settings['user_id']);
-     // Real name if it exists or go with the username. Link to Flickr user page.
-      $recent_sets = l(t('Recent Flickr photosets'), $info['photosurl']['_content'] . 'sets/', array('attributes' => array(
+      $recent_sets = l(t('Recent Flickr sets'), $info['photosurl']['_content'] . 'sets/', array('attributes' => array(
           'title' => t('View sets on Flickr.'),
           'target' => '_blank',
         )));
+     // Real name if it exists or go with the username. Link to Flickr user page.
       $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array(
           'title' => t('View user on Flickr.'),
           'target' => '_blank',
