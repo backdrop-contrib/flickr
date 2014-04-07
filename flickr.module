@@ -354,7 +354,11 @@ function theme_flickr_photo($variables) {
   $locality = isset($info['location']['locality']['_content']) ? strip_tags($info['location']['locality']['_content']) . ', ' : '';
   $region = isset($info['location']['region']['_content']) ? strip_tags($info['location']['region']['_content']) . ', ' : '';
   $country = isset($info['location']['country']['_content']) ? strip_tags($info['location']['country']['_content']) : '';
-  $location = !empty($country) ? ' ' . t('at') . ' ' . $neighbourhood . $locality . $region . $country : '';
+  $loc = $neighbourhood . $locality . $region . $country;
+  $location = !empty($country) ? ' ' . t('at') . ' ' . l($loc, 'https://www.flickr.com/photos/' . $info['owner']['nsid'] . '/map?&location=' . $neighbourhood . $locality . $region . $country, array('attributes' => array(
+    'title' => t('View photo on Flickr map.'),
+    'target' => '_blank',
+  ))) : '';
   switch ($info['license']) {
     case '0':
       $license = '<br />&copy; ' . t('All Rights Reserved');
