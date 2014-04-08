@@ -399,7 +399,7 @@ function theme_flickrfield_formatter_photoset_flickrcomslideshow($variables) {
     return;
   }
   $id = $variables['#item']['flickrid'];
-  return theme('flickr_photoset_flickrcomslideshow', array(
+  return theme('flickr_flickrcomslideshow', array(
     'id' => $id,
   ));
 }
@@ -413,7 +413,7 @@ function theme_flickrfield_formatter_photoset_flickrcomslideshow_simple($variabl
     return;
   }
   $id = $variables['#item']['flickrid'];
-  return theme('flickr_photoset_flickrcomslideshow_simple', array(
+  return theme('flickr_flickrcomslideshow_simple', array(
     'id' => $id,
   ));
 }

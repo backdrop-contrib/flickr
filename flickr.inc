@@ -64,12 +64,12 @@ function flickr_photo_sizes() {
       'description' => t('o: Original image'),
     ),
     'x' => array(
-      'label' => 'Flash slideshow (sets only)',
-      'description' => t('x: Flash slideshow (for sets only)'),
+      'label' => 'Flash slideshow',
+      'description' => t('x: Full featured responsive slideshow (for group, set and user IDs only)'),
     ),
     'y' => array(
-      'label' => 'Flash slideshow (sets only)',
-      'description' => t('y: Non-Flash slideshow (for sets only)'),
+      'label' => 'Simple slideshow',
+      'description' => t('y: Basic responsive slideshow (for set and user IDs only)'),
     ),
   );
 };

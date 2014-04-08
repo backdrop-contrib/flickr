@@ -318,6 +318,34 @@ function flickr_get_group_photos($nsid, $page = 1, $other_args = array()) {
 }
 
 /**
+ * Returns a list of public photos for the given user.
+ *
+ * @param string $nsid
+ *   NSID of the user whose photos you want.
+ *
+ * @return array $response
+ *   Response from the flickr method flickr.people.getPublicPhotos.
+ *   (https://www.flickr.com/services/api/flickr.people.getPublicPhotos.html)
+ */
+function flickr_people_getpublicphotos($nsid, $page = 1, $other_args = array()) {
+  $args = array(
+    'user_id' => $nsid,
+    'page' => $page,
+  );
+
+  // Set per_page to flickr module default if not specified in $other_args.
+  if (!isset($other_args['per_page'])) {
+    $args['per_page'] = variable_get('flickr_photos_per_page', 20);
+  }
+
+  $response = flickr_request('flickr.people.getPublicPhotos', array_merge($args, $other_args));
+  if ($response) {
+    return $response;
+  }
+  return FALSE;
+}
+
+/**
  * Returns info about a given group.
  *
  * @param string $nsid

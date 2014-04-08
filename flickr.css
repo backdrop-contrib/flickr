@@ -54,7 +54,7 @@ span.flickr-credit {
   }
 }
 
-.flickr-photoset-slideshow {
+.flickr-slideshow {
   height: 0;
   width: 100%;
   /*Change percentage below to change ratio. Currently 16:9 (as most screens).*/
@@ -63,7 +63,7 @@ span.flickr-credit {
   position: relative;
 }
 
-.flickr-photoset-slideshow object {
+.flickr-slideshow object {
   width: 100%;
   height: 100%;
   position: absolute;

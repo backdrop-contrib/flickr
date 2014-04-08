@@ -614,7 +614,7 @@ function flickr_block_view($delta = '') {
           'title' => t('View Flickr photostream.'),
           'target' => '_blank',
         )));
-      $block['subject'] = t("Random !photos by !username", array('!photos' => $photos, '!username' => $username));
+      $block['subject'] = t("!photos by !username", array('!photos' => $photos, '!username' => $username));
       $block['content'] = _flickr_block_random($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
       break;
 
@@ -651,7 +651,7 @@ function flickr_block_view($delta = '') {
           'title' => t('View set on Flickr map.'),
           'target' => '_blank',
         )));
-      $block['subject'] = t("Random photos from Flickr set !set by !username (!map)", array('!set' => $set, '!username' => $username, '!map' => $map));
+      $block['subject'] = t("Photos from Flickr set !set by !username (!map)", array('!set' => $set, '!username' => $username, '!map' => $map));
       $block['content'] = _flickr_block_photoset_random($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['photoset_id'], $delta);
       break;
 
@@ -706,7 +706,7 @@ function flickr_block_view($delta = '') {
           'title' => t('View group photos on Flickr map.'),
           'target' => '_blank',
         )));
-      $block['subject'] = t("Random photos from Flickr group !group (!map)", array('!group' => $group, '!map' => $map));
+      $block['subject'] = t("Photos from Flickr group !group (!map)", array('!group' => $group, '!map' => $map));
       $block['content'] = _flickr_block_group_random($settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
       break;
 
@@ -730,7 +730,7 @@ function flickr_block_view($delta = '') {
           'title' => t('View tagged photos on Flickr map.'),
           'target' => '_blank',
         )));
-      $block['subject'] = t("Random !tagged  by !username (!map)", array('!username' => $username, '!tagged' => $tagged, '!map' => $map));
+      $block['subject'] = t("!tagged  by !username (!map)", array('!username' => $username, '!tagged' => $tagged, '!map' => $map));
       $block['content'] = _flickr_block_tag_random($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], $delta);
       break;
   }
@@ -745,17 +745,30 @@ function _flickr_block_recent($nsid, $show_n, $size, $media, $delta) {
     $output = $cache->data;
   }
   else {
-    $output = '';
-    if ($photos = flickr_photos_search($nsid, 1, array(
-      'per_page' => $show_n,
-      'media' => $media,
-    ))) {
-      foreach ($photos['photo'] as $photo) {
-        $output .= theme('flickr_block_photo', array(
-          'photo' => $photo,
-          'size' => $size,
+    switch ($size) {
+      case "x";
+        $output = theme('flickr_flickrcomslideshow', array(
+          'id' => $nsid,
         ));
-      }
+        break;
+      case "y";
+        $output = theme('flickr_flickrcomslideshow_simple', array(
+          'id' => $nsid,
+        ));
+        break;
+      default:
+        $output = '';
+        if ($photos = flickr_photos_search($nsid, 1, array(
+          'per_page' => $show_n,
+          'media' => $media,
+        ))) {
+          foreach ($photos['photo'] as $photo) {
+            $output .= theme('flickr_block_photo', array(
+              'photo' => $photo,
+              'size' => $size,
+            ));
+          }
+        }
     }
     cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 24) * 60 * 60));
   }
@@ -783,11 +796,24 @@ function _flickr_block_photosets($nsid, $show_n, $size, $delta) {
           'target' => '_blank',
         )));
       $output .= '<div class="flickr-block-set-title">' . $set_title . ' (' . $map . ')</div>';
-      $output .= theme('flickr_block_photoset', array(
-        'photoset' => $photosets[$i],
-        'owner' => $nsid,
-        'size' => $size,
-      ));
+      switch ($size) {
+        case "x";
+          $output .= theme('flickr_flickrcomslideshow', array(
+            'id' => $photosets[$i]['id'],
+          ));
+          break;
+        case "y";
+          $output .= theme('flickr_flickrcomslideshow_simple', array(
+            'id' => $photosets[$i]['id'],
+          ));
+          break;
+        default:
+          $output .= theme('flickr_block_photoset', array(
+            'photoset' => $photosets[$i],
+            'owner' => $nsid,
+            'size' => $size,
+          ));
+      }
     }
     cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 24) * 60 * 60));
   }
@@ -802,38 +828,53 @@ function _flickr_block_random($nsid, $show_n, $size, $media, $delta) {
     $output = $cache->data;
   }
   else {
-    $output = '';
-    $random_photos = array();
-    if ($photos = flickr_photos_search($nsid, 1, array(
-      'per_page' => 500,
-      'media' => $media,
-    ))) {
-      $page_count = $photos['pages'];
-      // Do not try to return more than the total number of photos.
-      $to = min($show_n, $photos['total']);
-      $output = '';
-      for ($i = 0; $i < $to; $i++) {
-        sleep(0.125);
-        // Request a random page.
-        $photos = flickr_photos_search($nsid, rand(1, $page_count), array(
+    switch ($size) {
+      case "x";
+        $output = theme('flickr_flickrcomslideshow', array(
+          'id' => $nsid,
+        ));
+        drupal_set_message(t("Note that slideshows don't show in random but in reverse chronological order."), 'warning');
+        break;
+      case "y";
+        $output = theme('flickr_flickrcomslideshow_simple', array(
+          'id' => $nsid,
+        ));
+        drupal_set_message(t("Note that slideshows don't show in random but in reverse chronological order."), 'warning');
+        break;
+      default:
+        $output = '';
+        $random_photos = array();
+        if ($photos = flickr_photos_search($nsid, 1, array(
           'per_page' => 500,
           'media' => $media,
-        ));
-        // Select a random photo.
-        $index = rand(0, count($photos['photo']) - 1);
-        $photo_id = $photos['photo'][$index]['id'];
-        if (in_array($photo_id, $random_photos)) {
-          // Photo already added.
-          $i--;
+        ))) {
+          $page_count = $photos['pages'];
+          // Do not try to return more than the total number of photos.
+          $to = min($show_n, $photos['total']);
+          $output = '';
+          for ($i = 0; $i < $to; $i++) {
+            sleep(0.125);
+            // Request a random page.
+            $photos = flickr_photos_search($nsid, rand(1, $page_count), array(
+              'per_page' => 500,
+              'media' => $media,
+            ));
+            // Select a random photo.
+            $index = rand(0, count($photos['photo']) - 1);
+            $photo_id = $photos['photo'][$index]['id'];
+            if (in_array($photo_id, $random_photos)) {
+              // Photo already added.
+              $i--;
+            }
+            else {
+              $random_photos[] = $photo_id;
+              $output .= theme('flickr_block_photo', array(
+                'photo' => $photos['photo'][$index],
+                'size' => $size,
+              ));
+            }
+          }
         }
-        else {
-          $random_photos[] = $photo_id;
-          $output .= theme('flickr_block_photo', array(
-            'photo' => $photos['photo'][$index],
-            'size' => $size,
-          ));
-        }
-      }
     }
     cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (variable_get('flickr_block_refresh_random', 24) * 60 * 60));
   }
@@ -848,42 +889,56 @@ function _flickr_block_photoset_random($nsid, $show_n, $size, $media, $photoset_
     $output = $cache->data;
   }
   else {
-    // Get information about the photoset, including the owner.
-    $info = flickr_photoset_get_info($photoset_id);
-    if (!$info) {
-      return;
-    }
+    switch ($size) {
+      case "x";
+        $output = theme('flickr_flickrcomslideshow', array(
+          'id' => $photoset_id,
+        ));
+        drupal_set_message(t("Note that slideshows don't show in random but in reverse chronological order."), 'warning');
+        break;
+      case "y";
+        $output = theme('flickr_flickrcomslideshow_simple', array(
+          'id' => $photoset_id,
+        ));
+        drupal_set_message(t("Note that slideshows don't show in random but in reverse chronological order."), 'warning');
+      default:
+        // Get information about the photoset, including the owner.
+        $info = flickr_photoset_get_info($photoset_id);
+        if (!$info) {
+          return;
+        }
 
-    // Get a list of "all" the photos in the photoset. This is cached.
-    $response = flickr_request('flickr.photosets.getPhotos',
-      array(
-        'photoset_id' => $photoset_id,
-        // Get as many images as possible.
-        'per_page' => 500,
-        'extras' => 'owner',
-        'media' => $media,
-      )
-    );
-    if (!$response) {
-      return;
-    }
+        // Get a list of "all" the photos in the photoset. This is cached.
+        $response = flickr_request('flickr.photosets.getPhotos',
+          array(
+            'photoset_id' => $photoset_id,
+            // Get as many images as possible.
+            'per_page' => 500,
+            'extras' => 'owner',
+            'media' => $media,
+          )
+        );
+        if (!$response) {
+          return;
+        }
 
-    // Randomly display $show_n of them.
-    $photos = $response['photoset']['photo'];
-    shuffle($photos);
+        // Randomly display $show_n of them.
+        $photos = $response['photoset']['photo'];
+        shuffle($photos);
 
-    // We shouldn't try to return more than the total number of photos.
-    $output = '';
-    $to = min($show_n, count($photos));
-    for ($i = 0; $i < $to; $i++) {
-      // Insert owner into $photo because theme_flickr_photo needs it.
-      $photos[$i]['owner'] = $info['owner'];
-      $output .= theme('flickr_block_photo', array(
-        'photo' => $photos[$i],
-        'size' => $size,
-      ));
+        // We shouldn't try to return more than the total number of photos.
+        $output = '';
+        $to = min($show_n, count($photos));
+        for ($i = 0; $i < $to; $i++) {
+          // Insert owner into $photo because theme_flickr_photo needs it.
+          $photos[$i]['owner'] = $info['owner'];
+          $output .= theme('flickr_block_photo', array(
+            'photo' => $photos[$i],
+            'size' => $size,
+          ));
+        }
     }
-    cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (variable_get('flickr_block_refresh_random', 24) * 60 * 60));
+    cache_set('flickr_block_' . $delta . '_' . $photoset_id, $output, 'cache', time() + (variable_get('flickr_block_refresh_random', 24) * 60 * 60));
   }
   return $output;
 }
@@ -896,32 +951,45 @@ function _flickr_block_group_random($group_id, $show_n, $size, $media, $delta) {
     $output = $cache->data;
   }
   else {
-    // Get a list of "all" the photos in the group. This is cached.
-    $response = flickr_request('flickr.groups.pools.getPhotos',
-      array(
-        'group_id' => $group_id,
-        // Get as many images as possible.
-        'per_page' => 500,
-        'extras' => 'owner',
-        'media' => $media,
-      )
-    );
-    if (!$response) {
-      return;
-    }
+    switch ($size) {
+      case "x";
+        $output = theme('flickr_flickrcomslideshow', array(
+          'id' => $group_id,
+        ));
+        drupal_set_message(t("Note that slideshows don't show in random but in reverse chronological order."), 'warning');
+        break;
+      case "y";
+        $output = t('Choose the Flash slideshow for group pools (size = x).');
+        drupal_set_message(t('Choose the Flash slideshow for group pools (size = x).'), 'error');
+        break;
+      default:
+        // Get a list of "all" the photos in the group. This is cached.
+        $response = flickr_request('flickr.groups.pools.getPhotos',
+          array(
+            'group_id' => $group_id,
+            // Get as many images as possible.
+            'per_page' => 500,
+            'extras' => 'owner',
+            'media' => $media,
+          )
+        );
+        if (!$response) {
+          return;
+        }
 
-    // Randomly display $show_n of them.
-    $photos = $response['photos']['photo'];
-    shuffle($photos);
+        // Randomly display $show_n of them.
+        $photos = $response['photos']['photo'];
+        shuffle($photos);
 
-    // We shouldn't try to return more than the total number of photos.
-    $output = '';
-    $to = min($show_n, count($photos));
-    for ($i = 0; $i < $to; $i++) {
-      $output .= theme('flickr_block_photo', array(
-        'photo' => $photos[$i],
-        'size' => $size,
-      ));
+        // We shouldn't try to return more than the total number of photos.
+        $output = '';
+        $to = min($show_n, count($photos));
+        for ($i = 0; $i < $to; $i++) {
+          $output .= theme('flickr_block_photo', array(
+            'photo' => $photos[$i],
+            'size' => $size,
+          ));
+        }
     }
     cache_set('flickr_block_' . $delta . '_' . $group_id, $output, 'cache', time() + (variable_get('flickr_block_refresh_random', 24) * 60 * 60));
   }
@@ -936,29 +1004,40 @@ function _flickr_block_tag_random($nsid, $show_n, $size, $media, $tag, $delta) {
     $output = $cache->data;
   }
   else {
-    // Do a photo search for the provided tag in the given user's public photos.
-    $response = flickr_request('flickr.photos.search',
-      array(
-        'user_id' => $nsid,
-        'tags' => $tag,
-        'per_page' => 500,
-        'privacy_filter' => 1,
-        'media' => $media,
-      )
-    );
+    switch ($size) {
+      case "x";
+        $output = t('You cannot choose a slideshow for this block. Select a size.');
+        drupal_set_message(t('You cannot choose a slideshow for this block.'), 'error');
+        break;
+      case "y";
+        $output = t('You cannot choose a slideshow for this block. Select a size.');
+        drupal_set_message(t('You cannot choose a slideshow for this block.'), 'error');
+        break;
+      default:
+        // Do a photo search for the provided tag in the given user's public photos.
+        $response = flickr_request('flickr.photos.search',
+          array(
+            'user_id' => $nsid,
+            'tags' => $tag,
+            'per_page' => 500,
+            'privacy_filter' => 1,
+            'media' => $media,
+          )
+        );
 
-    // Randomly display $show_n of them.
-    $photos = $response['photos']['photo'];
-    shuffle($photos);
+        // Randomly display $show_n of them.
+        $photos = $response['photos']['photo'];
+        shuffle($photos);
 
-    // We shouldn't try to return more than the total number of photos.
-    $output = '';
-    $to = min($show_n, count($photos));
-    for ($i = 0; $i < $to; $i++) {
-      $output .= theme('flickr_block_photo', array(
-        'photo' => $photos[$i],
-        'size' => $size,
-      ));
+        // We shouldn't try to return more than the total number of photos.
+        $output = '';
+        $to = min($show_n, count($photos));
+        for ($i = 0; $i < $to; $i++) {
+          $output .= theme('flickr_block_photo', array(
+            'photo' => $photos[$i],
+            'size' => $size,
+          ));
+        }
     }
     cache_set('flickr_block_' . $delta . '_' . $nsid . '_' . $tag, $output, 'cache', time() + (variable_get('flickr_block_refresh_random', 24) * 60 * 60));
   }
@@ -973,35 +1052,48 @@ function _flickr_block_photoset_recent($nsid, $show_n, $size, $media, $photoset_
     $output = $cache->data;
   }
   else {
-    // Get information about the photoset, including the owner.
-    $info = flickr_photoset_get_info($photoset_id);
-    if (!$info) {
-      return;
-    }
+    switch ($size) {
+      case "x";
+        $output = theme('flickr_flickrcomslideshow', array(
+          'id' => $photoset_id,
+        ));
+        break;
+      case "y";
+        $output = theme('flickr_flickrcomslideshow_simple', array(
+          'id' => $photoset_id,
+        ));
+        break;
+      default:
+        // Get information about the photoset, including the owner.
+        $info = flickr_photoset_get_info($photoset_id);
+        if (!$info) {
+          return;
+        }
 
-    $response = flickr_request('flickr.photosets.getPhotos',
-      array(
-        'photoset_id' => $photoset_id,
-        'per_page' => $show_n,
-        'extras' => 'owner',
-        'media' => $media,
-      )
-    );
+        $response = flickr_request('flickr.photosets.getPhotos',
+          array(
+            'photoset_id' => $photoset_id,
+            'per_page' => $show_n,
+            'extras' => 'owner',
+            'media' => $media,
+          )
+        );
 
-    if (!$response) {
-      return;
-    }
+        if (!$response) {
+          return;
+        }
 
-    $output = '';
-    foreach ($response['photoset']['photo'] as $photo) {
-      // Insert owner into $photo because theme_flickr_photo needs it.
-      $photo['owner'] = $info['owner'];
-      $output .= theme('flickr_block_photo', array(
-        'photo' => $photo,
-        'size' => $size,
-      ));
+        $output = '';
+        foreach ($response['photoset']['photo'] as $photo) {
+          // Insert owner into $photo because theme_flickr_photo needs it.
+          $photo['owner'] = $info['owner'];
+          $output .= theme('flickr_block_photo', array(
+            'photo' => $photo,
+            'size' => $size,
+          ));
+        }
     }
-    cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 24) * 60 * 60));
+    cache_set('flickr_block_' . $delta . '_' . $photoset_id, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 24) * 60 * 60));
   }
   return $output;
 }
@@ -1014,17 +1106,28 @@ function _flickr_block_favorite_public($nsid, $show_n, $size, $media, $delta) {
     $output = $cache->data;
   }
   else {
-    $output = '';
-    if ($photos = flickr_favorites_get_public_list($nsid, 1, array(
-      'per_page' => $show_n,
-      'media' => $media,
-    ))) {
-      foreach ($photos['photo'] as $photo) {
-        $output .= theme('flickr_block_photo', array(
-          'photo' => $photo,
-          'size' => $size,
-        ));
-      }
+    switch ($size) {
+      case "x";
+        $output = t('You cannot choose a slideshow for this block. Select a size.');
+        drupal_set_message(t('You cannot choose a slideshow for this block.'), 'error');
+        break;
+      case "y";
+        $output = t('You cannot choose a slideshow for this block. Select a size.');
+        drupal_set_message(t('You cannot choose a slideshow for this block.'), 'error');
+        break;
+      default:
+        $output = '';
+        if ($photos = flickr_favorites_get_public_list($nsid, 1, array(
+          'per_page' => $show_n,
+          'media' => $media,
+        ))) {
+          foreach ($photos['photo'] as $photo) {
+            $output .= theme('flickr_block_photo', array(
+              'photo' => $photo,
+              'size' => $size,
+            ));
+          }
+        }
     }
     cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 24) * 60 * 60));
   }
@@ -1039,17 +1142,29 @@ function _flickr_block_group_recent($group_id, $show_n, $size, $media, $delta) {
     $output = $cache->data;
   }
   else {
-    $output = '';
-    if ($photos = flickr_get_group_photos($group_id, 1, array(
-      'per_page' => $show_n,
-      'media' => $media,
-    ))) {
-      foreach ($photos['photos']['photo'] as $photo) {
-        $output .= theme('flickr_block_photo', array(
-          'photo' => $photo,
-          'size' => $size,
+    switch ($size) {
+      case "x";
+        $output = theme('flickr_flickrcomslideshow', array(
+          'id' => $group_id,
         ));
-      }
+        break;
+      case "y";
+        $output = t('Choose the Flash slideshow for group pools (size = x).');
+        drupal_set_message(t('Choose the Flash slideshow for group pools (size = x).'), 'error');
+        break;
+      default:
+        $output = '';
+        if ($photos = flickr_get_group_photos($group_id, 1, array(
+          'per_page' => $show_n,
+          'media' => $media,
+        ))) {
+          foreach ($photos['photos']['photo'] as $photo) {
+            $output .= theme('flickr_block_photo', array(
+              'photo' => $photo,
+              'size' => $size,
+            ));
+          }
+        }
     }
     cache_set('flickr_block_' . $delta . '_' . $group_id, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 24) * 60 * 60));
   }
