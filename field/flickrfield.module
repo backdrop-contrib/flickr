@@ -111,13 +111,11 @@ function flickrfield_element_info() {
       '#input' => TRUE,
       '#columns' => array('type', 'id', 'uid'),
       '#process' => array('flickrfield_form_process_flickrfield'),
-      // '#theme' => array('theme_flickrfield'),
     ),
     'flickrfield_flickrid' => array(
       '#input' => TRUE,
       '#columns' => array('flickrid'),
       '#process' => array('flickrfield_form_process_flickrfield_flickrid'),
-      // '#theme' => array('theme_flickrfield_flickrid'),
     ),
   );
 }
@@ -151,12 +149,16 @@ function flickrfield_form_process_flickrfield($element, $form_state, $form = arr
     '#title' => t('Item id'),
     '#default_value' => !empty($element['#value']['id']) ? $element['#value']['id'] : '',
   );
+  $idgettr = l('Find your Flickr ID.', 'http://idgettr.com/', array('attributes' => array(
+                'title' => t('Use the URL of your photostream to find the Flickr ID.'),
+                'target' => '_blank',
+              )));
   $element['nsid'] = array(
     '#type' => 'textfield',
     '#title' => t('User Id'),
     '#default_value' => !empty($element['#value']['nsid']) ? $element['#value']['nsid'] : variable_get('flickr_default_userid', ''),
     '#required' => $element['#required'],
-    '#description' => t("The user id of the Flickr user who owns the photos. If this is left blank, the sites's default user will be used. Current default id is @id.", array('@id' => variable_get('flickr_default_userid', ''))),
+    '#description' => t("The user id of the Flickr user who owns the photos. If this is left blank, the sites's default user will be used. Current default id is @id. !find_id", array('@id' => variable_get('flickr_default_userid', ''), '!find_id' => $idgettr)),
   );
   return $element;
 }
@@ -167,10 +169,9 @@ function flickrfield_form_process_flickrfield($element, $form_state, $form = arr
 function flickrfield_form_process_flickrfield_flickrid($element, $form_state, $form) {
   $element['flickrid'] = array(
     '#type' => 'textfield',
-    '#title' => !empty($element['#title']) ? $element['#title'] : '',
-    '#description' => !empty($element['#description']) ? $element['#description'] : '',
+    '#title' => t('Flickr set ID'),
+    '#description' => t("An example: In the Flickr URL <em>https://www.flickr.com/photos/98518260@N02/sets/72157634563269642</em> the Flickr set ID is the last part, <em>72157634563269642</em>."),
     '#required' => FALSE || $element['#required'],
-    '#field_prefix' => t('Flickr set ID') . ': ',
     '#default_value' => !empty($element['#value']['flickrid']) ? $element['#value']['flickrid'] : '',
     '#size' => 20,
     '#maxlength' => 20,
@@ -465,35 +466,4 @@ function theme_flickrfield_photoset_primaryphoto($variables) {
   }
   $output .= '<div class="flickr-citation">' . l(t('Source: Flickr'), $set_url) . '</div>';
   return $output;
-}
-
-/**
- * Theme for the form element.
- *
- * The form is already rendered by the child elements by the time it comes back
- * here, just group each delta grouping into its own fieldset.
- */
-function theme_flickrfield($variables) {
-  $element = $variables['0'];
-  $field = field_info_field($element['#field_name']);
-  $fieldset = array(
-    '#title' => $field['widget']['label'] . ' ' . ($element['#delta'] > 0 ? intval($element['#delta'] + 1) : ''),
-    '#value' => $element['#children'],
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
-    '#description' => $element['#description'],
-    '#attributes' => array(),
-  );
-  return theme('fieldset', $fieldset);
-}
-
-/**
- * Theme function for the Flickr ID form element.
- *
- * The textfield is already rendered by the textfield theme
- * and the html output lives in $element['#children'].
- */
-function theme_flickrfield_flickrid($variables) {
-  $element = $variables['0'];
-  return $element['#children'];
 }
