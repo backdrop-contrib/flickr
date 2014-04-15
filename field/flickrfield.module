@@ -26,7 +26,7 @@ function flickrfield_field_info() {
   return array(
     'flickrfield' => array(
       'label' => 'Flickr Photo',
-      'description' => t('Store Flickr Photo or Photoset ids and display the photos in nodes and views.'),
+      'description' => t('Store Flickr Photo or Photoset IDs and display the photos in nodes and views.'),
       'default_widget' => 'flickrfield',
       'default_formatter' => $sizes[0],
     ),
@@ -43,37 +43,40 @@ function flickrfield_field_info() {
  * Implements hook_field_schema().
  */
 function flickrfield_field_schema($field) {
-  if ($field['type'] == 'flickrfield') {
-    $columns = array(
-      'id' => array(
-        'type' => 'varchar',
-        'length' => 64,
-        'not null' => FALSE,
-        'sortable' => TRUE,
-      ),
-      'type' => array(
-        'type' => 'varchar',
-        'length' => 10,
-        'not null' => FALSE,
-        'sortable' => TRUE,
-      ),
-      'nsid' => array(
-        'type' => 'varchar',
-        'length' => 64,
-        'not null' => FALSE,
-        'sortable' => TRUE,
-      ),
-    );
-  }
-  elseif ($field['type'] == 'flickrfield_photoset') {
-    $columns = array(
-      'flickrid' => array(
-        'type' => 'varchar',
-        'length' => 64,
-        'not null' => FALSE,
-        'sortable' => TRUE,
-      ),
-    );
+  $columns = array();
+  switch ($field['type']) {
+    case 'flickrfield':
+      $columns += array(
+        'id' => array(
+          'type' => 'varchar',
+          'length' => 64,
+          'not null' => FALSE,
+          'sortable' => TRUE,
+        ),
+        'type' => array(
+          'type' => 'varchar',
+          'length' => 10,
+          'not null' => FALSE,
+          'sortable' => TRUE,
+        ),
+        'nsid' => array(
+          'type' => 'varchar',
+          'length' => 64,
+          'not null' => FALSE,
+          'sortable' => TRUE,
+        ),
+      );
+      break;
+    case 'flickrfield_photoset':
+      $columns = array(
+        'flickrid' => array(
+          'type' => 'varchar',
+          'length' => 64,
+          'not null' => FALSE,
+          'sortable' => TRUE,
+        ),
+      );
+      break;
   }
   return array('columns' => $columns);
 }
@@ -184,11 +187,13 @@ function flickrfield_form_process_flickrfield_flickrid($element, $form_state, $f
  * Implements hook_field_is_empty().
  */
 function flickrfield_field_is_empty($item, $field) {
-  if ($field['type'] == 'flickrfield') {
-    return empty($item['id']);
-  }
-  elseif ($field['type'] == 'flickrfield_photoset') {
-    return empty($item['flickrid']);
+  switch ($field['type']) {
+    case 'flickrfield':
+      return empty($item['id']);
+      break;
+    case 'flickrfield_photoset':
+       return empty($item['flickrid']);
+       break;
   }
 }
 
