@@ -35,7 +35,12 @@ function flickr_filter_info() {
  * Returns the filter information for the filter help page.
  */
 function flickr_filter_tips($filter, $format, $long = FALSE) {
-  $output = t('Insert Flickr images: [flickr-photo:id=7357144724,size=m], [flickr-photoset:id=72157594262419167,size=s], [flickr-group:id=91484156@N00] or [flickr-user:id=98518260@N02, size=y].<br />Common sizes:<br /> s : small square 75<br /> t : thumbnail, 100 on longest side<br /> q : big square 150<br /> m : small, 240 on longest side<br /> n : small, 320 on longest side<br /> - : medium, 500 on longest side<br /> x: Flash responsive slideshow (for group, set and user IDs only)<br /> y: Basic responsive slideshow (for set and user IDs only)<br /> If the wrong size is applied, check if it exists on the Flickr photo page > Actions > View all sizes.');
+  $idgettr = l('Find your Flickr user or group ID.', 'http://idgettr.com/', array('attributes' => array(
+    'title' => t('Use the URL of your group to find the Flickr ID.'),
+    'target' => '_blank',
+  )));
+
+  $output = t('Insert Flickr images: [flickr-photo:id=7357144724,size=m], [flickr-photoset:id=72157594262419167,size=s], [flickr-group:id=91484156@N00] or [flickr-user:id=98518260@N02, size=y].<br />!find_id<br />Common sizes:<br /> s : small square 75<br /> t : thumbnail, 100 on longest side<br /> q : big square 150<br /> m : small, 240 on longest side<br /> n : small, 320 on longest side<br /> - : medium, 500 on longest side<br /> x: Flash responsive slideshow (for group, set and user IDs only)<br /> y: Basic responsive slideshow (for set and user IDs only)<br /> If the wrong size is applied, check if it exists on the Flickr photo page > Actions > View all sizes.', array('!find_id' => $idgettr));
   if ($long) {
     $output .= ' ' . t('The size parameter can be one of the following:');
     $items = array();

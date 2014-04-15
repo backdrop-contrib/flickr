@@ -411,11 +411,12 @@ function flickr_set_error($message_or_response) {
 }
 
 /**
- * Display an error message to flickr admins and write an error to watchdog.
+ * Returns Flickr username or real name based on nsid.
  *
- *   Response to check.
+ * @param string $nsid
+ *   A valid Flickr numerical user ID. Should be validated before arriving here.
  *
- * @return string
+ * @return string $username
  *   HTML with a Flickr user's name that links to their Flickr profile.
  *   Real name if it exists, if not the username.
  */
