@@ -409,3 +409,24 @@ function flickr_set_error($message_or_response) {
   }
   watchdog('flickr', $message, array(), WATCHDOG_WARNING);
 }
+
+/**
+ * Display an error message to flickr admins and write an error to watchdog.
+ *
+ *   Response to check.
+ *
+ * @return string
+ *   HTML with a Flickr user's name that links to their Flickr profile.
+ *   Real name if it exists, if not the username.
+ */
+function flickr_get_username($nsid) {
+  $info = flickr_people_get_info($nsid);
+  $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array(
+            'title' => t('View user on Flickr.'),
+            'target' => '_blank',
+          ))) : l($info['username']['_content'], $info['profileurl']['_content'], array('attributes' => array(
+            'title' => t('View user on Flickr.'),
+            'target' => '_blank',
+          )));
+  return $username;
+}

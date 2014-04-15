@@ -514,15 +514,9 @@ function flickr_block_view($delta = '') {
       }
       if (!empty($user->flickr['nsid'])) {
         $info = flickr_people_get_info($user->flickr['nsid']);
-        $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array(
-            'title' => t('View user on Flickr.'),
-            'target' => '_blank',
-          ))) : l($info['username']['_content'] . t("'s"), $info['profileurl']['_content'], array('attributes' => array(
-            'title' => t('View user on Flickr.'),
-            'target' => '_blank',
-          )));
-       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-       $map =  variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), 'https://www.flickr.com/photos/' . $user->flickr['nsid'] . '/map/', array('attributes' => array(
+        $username = flickr_get_username($user->flickr['nsid']);
+        $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
+        $map =  variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), 'https://www.flickr.com/photos/' . $user->flickr['nsid'] . '/map/', array('attributes' => array(
           'title' => t('View on Flickr map.'),
           'target' => '_blank',
         ))) . ')' : '';
@@ -569,14 +563,7 @@ function flickr_block_view($delta = '') {
           'title' => t('View on Flickr.'),
           'target' => '_blank',
         )));
-      // Real name if it exists or go with the username. Link to Flickr user page.
-      $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array(
-          'title' => t('View user on Flickr.'),
-          'target' => '_blank',
-        ))) : l($info['username']['_content'], $info['profileurl']['_content'], array('attributes' => array(
-          'title' => t('View user on Flickr.'),
-          'target' => '_blank',
-        )));
+      $username = flickr_get_username($settings['user_id']);
       $map =  variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $info['photosurl']['_content'] . 'map/', array('attributes' => array(
           'title' => t('View on Flickr map.'),
           'target' => '_blank',
@@ -593,14 +580,7 @@ function flickr_block_view($delta = '') {
           'title' => t('View sets on Flickr.'),
           'target' => '_blank',
         )));
-     // Real name if it exists or go with the username. Link to Flickr user page.
-      $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array(
-          'title' => t('View user on Flickr.'),
-          'target' => '_blank',
-        ))) : l($info['username']['_content'], $info['profileurl']['_content'], array('attributes' => array(
-            'title' => t('View user on Flickr.'),
-            'target' => '_blank',
-          )));
+      $username = flickr_get_username($settings['user_id']);
       $block['subject'] = t("!recent_sets by !username", array('!recent_sets' => $recent_sets, '!username' => $username));
       $block['content'] = _flickr_block_photosets($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
       break;
@@ -609,14 +589,7 @@ function flickr_block_view($delta = '') {
     case 5:
       $info = flickr_people_get_info($settings['user_id']);
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-     // Real name if it exists or go with the username. Link to Flickr user page.
-      $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array(
-          'title' => t('View user on Flickr.'),
-          'target' => '_blank',
-        ))) : l($info['username']['_content'], $info['profileurl']['_content'], array('attributes' => array(
-          'title' => t('View user on Flickr.'),
-          'target' => '_blank',
-        )));
+      $username = flickr_get_username($settings['user_id']);
       $map =  variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $info['photosurl']['_content'] . 'map/', array('attributes' => array(
           'title' => t('View on Flickr map.'),
           'target' => '_blank',
@@ -653,15 +626,7 @@ function flickr_block_view($delta = '') {
           'title' => t('View set on Flickr.'),
           'target' => '_blank',
         )));
-      $user = flickr_people_get_info($info['owner']);
-     // Real name if it exists or go with the username. Link to Flickr user page.
-      $username = !empty($user['realname']['_content']) ? l($user['realname']['_content'], $user['profileurl']['_content'], array('attributes' => array(
-          'title' => t('View user on Flickr.'),
-          'target' => '_blank'
-        ))) : l($user['username']['_content'], $user['profileurl']['_content'], array('attributes' => array(
-            'title' => t('View user on Flickr.'),
-            'target' => '_blank'
-          )));
+      $username = flickr_get_username($info['owner']);
       $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'),'https://www.flickr.com/photos/' . $info['owner'] . '/sets/' . $settings['photoset_id'] . '/map/', array('attributes' => array(
           'title' => t('View set on Flickr map.'),
           'target' => '_blank',
@@ -678,15 +643,7 @@ function flickr_block_view($delta = '') {
           'title' => t('View set on Flickr.'),
           'target' => '_blank',
         )));
-      $user = flickr_people_get_info($info['owner']);
-     // Real name if it exists or go with the username. Link to Flickr user page.
-      $username = !empty($user['realname']['_content']) ? l($user['realname']['_content'], $user['profileurl']['_content'], array('attributes' => array(
-          'title' => t('View user on Flickr.'),
-          'target' => '_blank'
-        ))) : l($user['username']['_content'], $user['profileurl']['_content'], array('attributes' => array(
-            'title' => t('View user on Flickr.'),
-            'target' => '_blank'
-          )));
+      $username = flickr_get_username($info['owner']);
       $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'),'https://www.flickr.com/photos/' . $info['owner'] . '/sets/' . $settings['photoset_id'] . '/map/', array('attributes' => array(
           'title' => t('View set on Flickr map.'),
           'target' => '_blank',
@@ -697,21 +654,12 @@ function flickr_block_view($delta = '') {
 
     // Recent favorite public photos from a Flickr user.
     case 9:
-      $info = flickr_people_get_info($settings['user_id']);
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-     // Real name if it exists or go with the username. Link to Flickr user page.
-      $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'] . t("'s"), $info['profileurl']['_content'], array('attributes' => array(
-          'title' => t('View user on Flickr.'),
-          'target' => '_blank',
-        ))) : l($info['username']['_content'] . t("'s"), $info['profileurl']['_content'], array('attributes' => array(
-          'title' => t('View user on Flickr.'),
+      $favorites = l(t("Favorite Flickr @media", array('@media' => $media)), 'https://www.flickr.com/photos/' . $settings['user_id'] . '/favorites/', array('attributes' => array(
+          'title' => t("View favorites on Flickr from other Flickr members."),
           'target' => '_blank',
         )));
-      $favorites = l(t("favorite Flickr @media", array('@media' => $media)), 'https://www.flickr.com/photos/' . $settings['user_id'] . '/favorites/', array('attributes' => array(
-          'title' => t("View user's favorites on Flickr from other Flickr members."),
-          'target' => '_blank',
-        )));
-      $block['subject'] = $username . ' ' . $favorites;
+      $block['subject'] = $favorites;
       $block['content'] = _flickr_block_favorite_public($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
       break;
 
@@ -735,14 +683,7 @@ function flickr_block_view($delta = '') {
     case 11:
       $info = flickr_people_get_info($settings['user_id']);
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-     // Real name if it exists or go with the username. Link to Flickr user page.
-      $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array(
-          'title' => t('View user on Flickr.'),
-          'target' => '_blank',
-        ))) : l($info['username']['_content'], $info['profileurl']['_content'], array('attributes' => array(
-          'title' => t('View user on Flickr.'),
-          'target' => '_blank',
-        )));
+      $username = flickr_get_username($settings['user_id']);
       $tagged = l(t("Flickr @media tagged <em>", array('@media' => $media)) . $settings['tag'] . "</em>", 'https://www.flickr.com/photos/' . $settings['user_id'] . '/tags/' . $settings['tag'], array('attributes' => array(
           'title' => t('View tagged photos on Flickr.'),
           'target' => '_blank',
