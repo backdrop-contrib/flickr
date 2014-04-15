@@ -986,15 +986,11 @@ function _flickr_block_photoset_random($nsid, $show_n, $size, $media, $photoset_
         }
 
         // Get a list of "all" the photos in the photoset. This is cached.
-        $response = flickr_request('flickr.photosets.getPhotos',
-          array(
-            'photoset_id' => $photoset_id,
-            // Get as many images as possible.
-            'per_page' => 500,
+        $response = flickr_photosets_getphotos($photoset_id, array(
+            'per_page' => $show_n,
             'extras' => 'owner',
             'media' => $media,
-          )
-        );
+          ));
         if (!$response) {
           return;
         }
@@ -1056,14 +1052,9 @@ function _flickr_block_group_random($group_id, $show_n, $size, $media, $delta, $
 
       default:
         // Get a list of "all" the photos in the group. This is cached.
-        $response = flickr_request('flickr.groups.pools.getPhotos',
-          array(
-            'group_id' => $group_id,
-            // Get as many images as possible.
-            'per_page' => 500,
+        $response = flickr_get_group_photos($group_id, 1, array(
             'extras' => 'media',
-          )
-        );
+        ));
         $output = '';
         if (!$response) {
           return;
@@ -1315,14 +1306,9 @@ function _flickr_block_group_recent($group_id, $show_n, $size, $media, $delta, $
 
       default:
         // Get a list of "all" the photos in the group. This is cached.
-        $response = flickr_request('flickr.groups.pools.getPhotos',
-          array(
-            'group_id' => $group_id,
-            // Get as many images as possible.
-            'per_page' => 500,
+        $response = flickr_get_group_photos($group_id, 1, array(
             'extras' => 'media',
-          )
-        );
+        ));
         $output = '';
         if (!$response) {
           return;
