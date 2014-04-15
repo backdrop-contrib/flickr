@@ -332,6 +332,7 @@ function theme_flickr_photo($variables) {
     list($width) = getimagesize($img_url);
   }
   $photo_url = flickr_photo_page_url($photo['owner'], $photo['id']);
+  $info = flickr_photo_get_info($photo['id']);
   $title = is_array($photo['title']) ? $photo['title']['_content'] : $photo['title'];
   // Image width < 100 px is too small for most titles. Can be set differently.
   if ($width < variable_get('flickr_title_suppress_on_small', '100')) {
@@ -342,7 +343,8 @@ function theme_flickr_photo($variables) {
   }
   // Get the Flickr image title for set data or the photo itself. Sanitize.
   $title = is_array($photo['title']) ? str_replace('"', "'", strip_tags($photo['title']['_content'])) : $photo['title'];
-  $info = flickr_photo_get_info($photo['id']);
+  // For videos add the '(VIDEO)' to the title if it not already contains it.
+  $title .= (($info['media'] !== 'video') || (stripos($title,'video') !== false)) ? '' : ' ' . t('(VIDEO)');
   // Use title if description does not exist, else sanitize the description.
   $description = !empty($info['description']['_content']) ? str_replace('"', "'", htmlspecialchars_decode(strip_tags($info['description']['_content']))) : $title;
   // Real name if it exists or go with the username. Link to Flickr user page.
@@ -514,18 +516,24 @@ function theme_flickr_photoset($variables) {
   $photoset = $variables['photoset'];
   $owner = $variables['owner'];
   $size = $variables['size'];
+  $media = isset($variables['media']) ? $variables['media'] : 'all';
   $attribs = $variables['attribs'];
 
   if (module_exists('flickr_sets')) {
     $output = "<div class='flickr-photoset'>\n";
-    $photos = flickr_set_load($photoset['id']);
-    foreach ((array) $photos['photoset']['photo'] as $photo) {
-      // Insert owner into $photo because theme_flickr_photo needs it.
-      $photo['owner'] = $owner;
-      $output .= theme('flickr_photo', array(
-        'photo' => $photo,
-        'size' => $size,
-        ));
+    $photos = flickr_photosets_getphotos($photoset['id'], array('media' => $media));
+    if ($photos['photoset']['total']) {
+      foreach ((array) $photos['photoset']['photo'] as $photo) {
+        // Insert owner into $photo because theme_flickr_photo needs it.
+        $photo['owner'] = $owner;
+        $output .= theme('flickr_photo', array(
+          'photo' => $photo,
+          'size' => $size,
+          ));
+      }
+    }
+    else {
+      $output .= t('No media in this set.');
     }
     $output .= '</div>';
     return $output;

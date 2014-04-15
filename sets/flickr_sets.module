@@ -34,22 +34,6 @@ function flickr_sets_menu() {
 }
 
 /**
- * Get the list of photos in a set.
- */
-function flickr_set_load($sid, $page = 1) {
-  // TODO: Why this called for /flickr and does not show for admin role?
-  if (is_numeric($sid)) {
-    return flickr_request('flickr.photosets.getPhotos',
-      array(
-        'photoset_id' => $sid,
-        'page' => $page,
-        'per_page' => variable_get('flickr_photos_per_page', 20),
-      )
-    );
-  }
-}
-
-/**
  * Set a user's photosets page title.
  */
 function flickr_sets_page_title($user) {
@@ -117,7 +101,7 @@ function flickr_sets_photoset($account, $set) {
   $per_page = variable_get('flickr_photos_per_page', 20);
 
   // Request set of photos.
-  $set_response = flickr_set_load($id, $pager_page_array[$element] + 1);
+  $set_response = flickr_photosets_getphotos($id, $other_args = NULL, $pager_page_array[$element] + 1);
 
   if (!$set_response) {
     drupal_set_message(t("Error retrieving :setid's photosets from Flickr"), array(':setid', $id));

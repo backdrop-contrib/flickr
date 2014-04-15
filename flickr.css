@@ -70,3 +70,9 @@ span.flickr-credit {
   top: 0;
   left: 0;
 }
+
+.flickr-block-photosets .flickr-block-photoset {
+margin-top: 0.5em;
+padding-top: 0.5em;
+border-top: 1px solid #dfdfdf;
+}

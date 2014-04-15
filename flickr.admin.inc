@@ -179,13 +179,25 @@ function flickr_admin_settings() {
     $form['block_settings'] = array(
       '#type' => 'fieldset',
       '#title' => t('Block settings'),
-      '#description' => t('Has a perfomance impact. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+      '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
     );
+  $form['block_settings']['flickr_block_counter'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show a Flickr counter'),
+    '#default_value' => variable_get('flickr_block_counter', 1),
+    '#description' => t('Shows under the block title how many photos are displayed out of the total number available for a user, group or set on Flickr.'),
+  );
+  $form['block_settings']['flickr_block_maps'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Extra links to Flickr maps'),
+    '#default_value' => variable_get('flickr_block_maps', 1),
+    '#description' => t('Include extra links to maps available for a user, group or set on Flickr. Locations mentioned (if displayed) under individual images in any case link to corresponding Flickr user maps.'),
+  );
     $form['block_settings']['flickr_block_refresh_random'] = array(
       '#type' => 'textfield',
       '#field_prefix' => t('Refresh random blocks every'),
       '#required' => TRUE,
-      '#default_value' => variable_get('flickr_block_refresh_random', 24),
+      '#default_value' => variable_get('flickr_block_refresh_random', 21),
       '#field_suffix' => t('hours.'),
       '#size' => 3,
       '#maxlength' => 3,
@@ -194,7 +206,8 @@ function flickr_admin_settings() {
       '#type' => 'textfield',
       '#field_prefix' => t('Refresh other blocks every'),
       '#required' => TRUE,
-      '#default_value' => variable_get('flickr_block_refresh_others', 24),
+      '#default_value' => variable_get('flickr_block_refresh_others', 28),
+      '#description' => t('It is recommended to set two different refresh values to avoid all blocks refresh together. Lower values impact performance negatively. Consider to use <a href="https://drupal.org/node/1576686" title="Load Page Cache after cron Runs | Drupal.org">cache warming</a>.'),
       '#field_suffix' => t('hours.'),
       '#size' => 3,
       '#maxlength' => 3,
@@ -256,12 +269,12 @@ function flickr_admin_settings_validate($form, &$form_state) {
   }
   if (module_exists('flickr_block')) {
     // Validate refresh rate random blocks.
-    if (!is_numeric($limit5) || $limit5 < 1) {
-      form_set_error('flickr_block_refresh_random', t('Set a number from 1 to 999.'));
+    if (!is_numeric($limit5) || $limit5 < 2) {
+      form_set_error('flickr_block_refresh_random', t('Set a number from 2 to 999.'));
     }
     // Validate refresh rate other blocks.
-    if (!is_numeric($limit6) || $limit6 < 1) {
-      form_set_error('flickr_block_refresh_others', t('Set a number from 1 to 999.'));
+    if (!is_numeric($limit6) || $limit6 < 2) {
+      form_set_error('flickr_block_refresh_others', t('Set a number from 2 to 999.'));
     }
   }
 }
