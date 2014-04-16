@@ -413,10 +413,10 @@ function theme_flickr_photo($variables) {
   // Compose extra Flickr info as HTML to render.
   $metadata = $taken . $location . ' ' . t('by') . ' ' . $username;
   // Image width < 100 px is too small for most titles. Can be set differently.
-  $notitle = (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) ? '' : t('Flickr') . '<br />';
-  $credit = $width < variable_get('flickr_title_suppress_on_small', '100') ? $notitle : $title . '<br />';
+  $notitle = (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) ? '' : '<span class="flickr-no-title">' . t('Flickr') . '</span><br />';
+  $credit = $width < variable_get('flickr_title_suppress_on_small', '100') ? $notitle : '<span class="flickr-title">' . $title . '</span><br />';
   // Image width < 150 px is too small for extra info. Can be set differently.
-  $metadatacaption = $width < variable_get('flickr_metadata_suppress_on_small', '150') ? '' : $metadata . $license;
+  $metadatacaption = $width < variable_get('flickr_metadata_suppress_on_small', '150') ? '' : '<span class="flickr-metadata">' . $metadata . $license . '</span>';
   // Determine what info goes with the enlarged version of the image.
   $overlay = variable_get('flickr_info_overlay', array(
     'title' => 'title',
