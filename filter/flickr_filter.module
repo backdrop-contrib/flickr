@@ -36,7 +36,7 @@ function flickr_filter_info() {
  */
 function flickr_filter_tips($filter, $format, $long = FALSE) {
   $idgettr = l('Find your Flickr user or group ID.', 'http://idgettr.com/', array('attributes' => array(
-    'title' => t('Use the URL of your group to find the Flickr ID.'),
+    'title' => t('Use the URL of your user or group to find the Flickr ID.'),
     'target' => '_blank',
   )));
 

@@ -411,23 +411,36 @@ function flickr_set_error($message_or_response) {
 }
 
 /**
- * Returns Flickr username or real name based on nsid.
+ * Returns Flickr detialed data based on nsid.
+ * An elaboration of flickr_people_get_info.
  *
  * @param string $nsid
  *   A valid Flickr numerical user ID. Should be validated before arriving here.
  *
- * @return string $username
+ * @return array $people
  *   HTML with a Flickr user's name that links to their Flickr profile.
  *   Real name if it exists, if not the username.
  */
-function flickr_get_username($nsid) {
+function flickr_get_user_info($nsid) {
   $info = flickr_people_get_info($nsid);
-  $username = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array(
+  $people = array();
+  $people['name'] = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array(
             'title' => t('View user on Flickr.'),
             'target' => '_blank',
           ))) : l($info['username']['_content'], $info['profileurl']['_content'], array('attributes' => array(
             'title' => t('View user on Flickr.'),
             'target' => '_blank',
           )));
-  return $username;
+  $username = strip_tags($people['name']);
+  $people['photostream'] = l(t("!user on Flickr", array('!user' => $username)), $info['photosurl']['_content'], array('attributes' => array(
+            'title' => t('View Flickr photostream.'),
+            'target' => '_blank',
+          ),
+          'html' => TRUE,
+          ));
+
+  $people['photosurl'] = $info['photosurl']['_content'];
+  $people['profileurl'] = $info['profileurl']['_content'];
+  $people['count'] = $info['photos']['count']['_content'];
+  return $people;
 }
