@@ -65,7 +65,7 @@ function flickr_block_configure($delta = '') {
     'tag' => '',
     'group_id' => '',
     'photoset_id' => '',
-    'media' => 'all',
+    'media' => 'photos',
   ));
   if (!isset($settings['tag'])) {
     $settings['tag'] = '';
