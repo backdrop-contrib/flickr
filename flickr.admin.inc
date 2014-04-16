@@ -206,7 +206,7 @@ function flickr_admin_settings() {
       '#type' => 'textfield',
       '#field_prefix' => t('Refresh other blocks every'),
       '#required' => TRUE,
-      '#default_value' => variable_get('flickr_block_refresh_others', 28),
+      '#default_value' => variable_get('flickr_block_refresh_others', 30),
       '#description' => t('It is recommended to set two different refresh values to avoid all blocks refresh together. Lower values impact performance negatively. Consider to use <a href="https://drupal.org/node/1576686" title="Load Page Cache after cron Runs | Drupal.org">cache warming</a>.'),
       '#field_suffix' => t('hours.'),
       '#size' => 3,
