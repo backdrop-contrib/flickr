@@ -1,3 +1,6 @@
+The content of this file is based on the online documentation that can be found
+at https://drupal.org/node/2226579
+
 As it is most likely you want to display a series of images as an album (aka
 set), enable the submodule Flickr Sets. Sets are the most convenient way to
 organize your images. 'Sets' are better supported by the Flickr module than
