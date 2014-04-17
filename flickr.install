@@ -19,6 +19,8 @@ function flickr_uninstall() {
   variable_del('flickr_photos_per_page');
   variable_del('flickr_rel');
   variable_del('flickr_title_suppress_on_small');
+  variable_del('flickr_metadata_suppress_on_small');
+  variable_del('flickr_info_overlay');
   variable_del('flickr_caption_padding');
   variable_del('flickr_license');
 }
