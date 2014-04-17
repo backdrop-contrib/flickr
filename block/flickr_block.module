@@ -77,7 +77,7 @@ function flickr_block_configure($delta = '') {
     $settings['photoset_id'] = '';
   }
   if (!isset($settings['media'])) {
-    $settings['media'] = 'all';
+    $settings['media'] = 'photos';
   }
 
   // Define all elements of the block parameters form.
@@ -89,6 +89,7 @@ function flickr_block_configure($delta = '') {
     $info = flickr_people_get_info($default);
     $default = $info['username']['_content'];
   }
+
   // Require a user id if the site-wide default user has not been set.
   if (empty($default_userid)) {
     $form["flickr_block_{$delta}_user_id"] = array(
@@ -150,6 +151,11 @@ function flickr_block_configure($delta = '') {
     '#default_value' => $settings['media'],
     '#description' => t("Filter results by media type. Gets ignored for slideshows."),
   );
+  // A note for dynamic user blocks.
+  $form['flickr_block_note'] = array(
+  '#markup' => t("<h3>NOTE</h3><strong>The block visibility setting for 'user' blocks are not only restricted by the user in the block configuration but also by the Flickr Block module.</strong> The block only gets displayed when the first argument of the path is 'user' or 'node' and a specific uid is available.<br /><br />Below you can change the block settings to exclude 'node/*' pages or show them only on 'user/*' pages.<br /><br />You can do it also the other way around to show a block only on a node page. Fine-grain it even more by selecting only a certain content type you want to show them on, for example blog posts."),
+);
+
 
   // Build the block form - use unset to hide unwanted form elements.
   switch ($delta) {
@@ -181,11 +187,13 @@ function flickr_block_configure($delta = '') {
     // Recent favorite public photos from a Flickr user.
     case 9:
       unset($form["flickr_block_{$delta}_group_id"]);
+      unset($form['flickr_block_note']);
       break;
 
     // Recent photosets from a Flickr user.
     case 4:
       unset($form["flickr_block_{$delta}_group_id"]);
+      unset($form['flickr_block_note']);
       // Photoset, not photos.
       $form["flickr_block_{$delta}_show_n"]['#title'] = t('Show the last <em>n</em> photosets');
       $form["flickr_block_{$delta}_show_n"]['#description'] = t("The block will show this many of the user's photosets.");
@@ -196,6 +204,7 @@ function flickr_block_configure($delta = '') {
     // Random photos from a Flickr group.
     case 10:
       unset($form["flickr_block_{$delta}_user_id"]);
+      unset($form['flickr_block_note']);
       break;
 
     // Random photos from a Flickr photoset.
@@ -204,6 +213,7 @@ function flickr_block_configure($delta = '') {
     case 8:
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_group_id"]);
+      unset($form['flickr_block_note']);
       $form["flickr_block_{$delta}_photoset"] = array(
         '#type' => 'textfield',
         '#title' => t('Flickr Photoset Id'),
@@ -216,6 +226,7 @@ function flickr_block_configure($delta = '') {
     // Random photos with a specific tag from a Flickr user.
     case 11:
       unset($form["flickr_block_{$delta}_group_id"]);
+      unset($form['flickr_block_note']);
       $form["flickr_block_{$delta}_tag"] = array(
         '#type' => 'textfield',
         '#title' => t('Show photos having this tag'),
