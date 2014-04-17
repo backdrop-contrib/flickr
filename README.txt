@@ -1,3 +1,7 @@
+The content of this file is based on the online documentation that can be found
+at https://drupal.org/node/2170535
+It is recommended to read it there, as it is more detailed.
+
 NAME
 ====
 Flickr
@@ -14,6 +18,7 @@ corresponding Flickr page.
 
 - Flickr images can be displayed in blocks, within content or as fields.
 - Open Flickr photos in Colorbox, Lightbox or alike.
+- Show user/group photostreams and sets as responsive slideshows.
 - Image caption with the Flickr title, date taken, where  and by who.
 - Show the longer Flickr description on hover if it exists.
 
@@ -152,6 +157,41 @@ The image size to open in the overlay browser when clicking the image. Larger
 sizes make navigating to next and previous pictures slower. TAKE CARE, n (320px)
 and c (800px) sizes are missing on many "older" Flickr images!
 Defaults to -: 500 px on longest side.
+
+BLOCK SETTINGS (field group)
+--------------------------------------
+Only if the submodule Flickr Block is enabled.
+See the README.txt there.
+
+SIZES
+=====
+The size parameter can be one of the following:
+
+Suffix: Label:  Size:
+s Square  small square 75x75
+t Thumbnail thumbnail, 100 on longest side
+q Large Square  big square 150x150
+m Small small, 240 on longest side
+n Small 320 small, 320 on longest side
+[none]  Medium  medium, 500 on longest side
+z Medium 640  medium 640, 640 on longest side
+c Medium 800  medium 800,
+b Large large, 1024 on longest side
+o Original  original image, either a jpg, gif or png, depending on source format
+x Flash Full featured responsive slideshow (for group, set and user IDs only)
+y Non-Flash Basic responsive slideshow (for set and user IDs only)
+
+Notes
+-----
+For square images ('s': 75px and 'q': 150px) no real width needs to be fetched,
+giving it a performance advantage over other sizes. Recommended if you include
+many images.
+
+If the wrong size is applied, check if it exists on the Flickr photo page >
+Actions > View all sizes.
+
+The slideshow allows for videos to be played. Put the desired videos to show
+together in a set.
 
 MORE INFO
 =========

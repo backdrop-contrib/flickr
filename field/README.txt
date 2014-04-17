@@ -1,3 +1,7 @@
+The content of this file is based on the online documentation that can be found
+at https://drupal.org/node/2171299
+It is recommended to read it there, as it is more detailed and illustrated.
+
 NAME
 ====
 Flickr Field
@@ -7,7 +11,7 @@ OVERVIEW
 ========
 Add Flickr images or sets to content as fields:
 - can be added to entities, usually nodes
-- have several formatting options to use various sizes
+- have several formatting options to use various sizes, including slideshows
 - can be queried with the Views module.
 There are two kind of module provided Flickr fields. Only the first type is used
 for single Flickr photos. Both type of fields can be used for Flickr Photo Sets
@@ -15,21 +19,31 @@ but each in a different way.
 
 Flickr Photo
 ------------
-Store Flickr Photo or Photoset IDs and display the photos in nodes and Views. It
-displays all images of a Flickr Photo Set and links to the individual Flickr
-Photo pages. The sub-module Flickr Sets should be enabled to use sets in this
+Store Flickr Photo or Photoset IDs and display the photos in nodes and Views.
+Despite the name this field is used both for individual photos (using
+'Item Type': 'Photo') as for complete sets of photos (using 'Item Type':
+'Photoset'). The submodule Flickr Sets should be enabled to use sets in this
 field.
 
 Flickr Photo Set
 ----------------
 Field for storing a reference to a Flickr photo set. It displays only the
-primary reprensenting image of a set and links to the Flickr Photo Set page.
+primary representing image of a set or a slideshow of multiple images. To
+display multiple photos from a photoset, use the Flickr Photo field type or use
+the slideshow format.
+
+Most interesting feature of this field is the slideshow. Both a Flash and
+non-Flash version exist. Both are responsive and adapt to the available space.
+
+Full screen mode is supported, showing the largest available image that fits the
+screen on a black background (the way that most professional photographers
+prefer to showcase their work).
 
 FIELD CONFIGURATION
 ===================
 - Go to '/admin/structure/types'
 - Click 'manage fields'
-- Add new field > Flickr Photo or Flickr Photo Set (sub-module Flickr Sets
+- Add new field > Flickr Photo or Flickr Photo Set (submodule Flickr Sets
 should be enabled to use sets in this field)
 - Save field settings
 - Configure as desired
