@@ -100,6 +100,13 @@ function flickr_filter_callback_photo($matches) {
       if (!isset($config['size'])) {
         $config['size'] = variable_get('flickr_default_size', 'm');
       }
+      switch ($config['size']) {
+      case "x":
+      case "y":
+        drupal_set_message(t("You can only use a slideshow for set, user or group IDs."), 'error');
+        $config['size'] = variable_get('flickr_default_size', 'm');
+        break;
+      }
       return theme('flickr_photo', array(
         'photo' => $photo,
         'size' => $config['size'],
@@ -122,12 +129,12 @@ function flickr_filter_callback_photoset($matches) {
         $config['size'] = variable_get('flickr_default_size', 'm');
       }
       switch ($config['size']) {
-      case "x";
+      case "x":
         return theme('flickr_flickrcomslideshow', array(
           'id' => $photoset['id'],
         ));
         break;
-      case "y";
+      case "y":
         return theme('flickr_flickrcomslideshow_simple', array(
           'id' => $photoset['id'],
         ));
