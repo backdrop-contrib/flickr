@@ -90,7 +90,6 @@ function flickr_theme() {
     ),
     'flickr_photo_box' => array(
       'variables' => array(
-        'photo',
         'size' => NULL,
         'format' => NULL,
         'attribs' => NULL,
@@ -104,9 +103,6 @@ function flickr_theme() {
     ),
     'flickr_photoset' => array(
       'variables' => array(
-        'photoset',
-        'owner',
-        'size',
         'attribs' => NULL,
       ),
     ),
@@ -344,7 +340,7 @@ function theme_flickr_photo($variables) {
   // Get the Flickr image title for set data or the photo itself. Sanitize.
   $title = is_array($photo['title']) ? str_replace('"', "'", strip_tags($photo['title']['_content'])) : $photo['title'];
   // For videos add the '(VIDEO)' to the title if it not already contains it.
-  $title .= (($info['media'] !== 'video') || (stripos($title,'video') !== false)) ? '' : ' ' . t('(VIDEO)');
+  $title .= (($info['media'] !== 'video') || (stripos($title, 'video') !== FALSE)) ? '' : ' ' . t('(VIDEO)');
   // Use title if description does not exist, else sanitize the description.
   $description = !empty($info['description']['_content']) ? str_replace('"', "'", htmlspecialchars_decode(strip_tags($info['description']['_content']))) : $title;
   // Real name if it exists or go with the username. Link to Flickr user page.
@@ -357,10 +353,12 @@ function theme_flickr_photo($variables) {
   $region = isset($info['location']['region']['_content']) ? strip_tags($info['location']['region']['_content']) . ', ' : '';
   $country = isset($info['location']['country']['_content']) ? strip_tags($info['location']['country']['_content']) : '';
   $loc = $neighbourhood . $locality . $region . $country;
-  $location = !empty($country) ? ' ' . t('at') . ' ' . l($loc, 'https://www.flickr.com/photos/' . $info['owner']['nsid'] . '/map?&location=' . $neighbourhood . $locality . $region . $country, array('attributes' => array(
-    'title' => t('View photo on Flickr map.'),
-    'target' => '_blank',
-  ))) : '';
+  $location = !empty($country) ? ' ' . t('at') . ' ' . l($loc, 'https://www.flickr.com/photos/' . $info['owner']['nsid'] . '/map?&location=' . $neighbourhood . $locality . $region . $country, array(
+    'attributes' => array(
+      'title' => t('View photo on Flickr map.'),
+      'target' => '_blank',
+    ),
+  )) : '';
   switch ($info['license']) {
     case '0':
       $license = '<br />&copy; ' . t('All Rights Reserved');
@@ -446,10 +444,10 @@ function theme_flickr_photo($variables) {
     // caption.
     // Final step that generates the image with a link to the bigger version and
     // a link to the Flickr page under it to comply with the TOS of Flickr.
-   if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) {
-    $url = $photo_url;
-   }
-   return '<span class="flickr-wrap">' . l($img, $url, array(
+    if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) {
+      $url = $photo_url;
+    }
+    return '<span class="flickr-wrap">' . l($img, $url, array(
       'attributes' => array(
         'title' => $overlayhtml,
         'class' => array($class),
@@ -562,18 +560,18 @@ function theme_flickr_flickrcomslideshow($variables) {
   if (empty($id)) {
     return;
   }
-  if(strpos($id, '@') !== false) {
+  if (strpos($id, '@') !== FALSE) {
     // Check if it is a group ID.
     $info = flickr_groups_getinfo($id);
     if ($info['stat'] == 'ok') {
       return '<div class="flickr-slideshow"><object  type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=140556"><param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=140556"></param><param name="flashvars" value="offsite=true&lang=en-us&page_show_url=%2Fgroups%2F' . $id . '%2Fpool%2Fshow%2F&page_show_back_url=%2Fgroups%2F' . $id . '%2Fpool%2F&group_id=' . $id . '&jump_to=&start_index="></param><param name="allowFullScreen" value="true"><param name="wmode" value="opaque" /></param></object></div>';
-  }
+    }
     else {
-    return '<div class="flickr-slideshow"><object type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=71649">
-    <param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=71649" />
-    <param name="allowFullScreen" value="true" />
-    <param name="wmode" value="opaque" />
-    <param name="flashvars" value="offsite=tru&amp;lang=en-us&amp;page_show_url=%2Fphotos%2F' . $id . '%2Fshow&amp;user_id=' . $id . '" /></object></div>';
+      return '<div class="flickr-slideshow"><object type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=71649">
+      <param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=71649" />
+      <param name="allowFullScreen" value="true" />
+      <param name="wmode" value="opaque" />
+      <param name="flashvars" value="offsite=tru&amp;lang=en-us&amp;page_show_url=%2Fphotos%2F' . $id . '%2Fshow&amp;user_id=' . $id . '" /></object></div>';
     }
   }
   else {
@@ -596,14 +594,14 @@ function theme_flickr_flickrcomslideshow_simple($variables) {
   if (empty($id)) {
     return;
   }
-  if(strpos($id, '@') !== false) {
+  if (strpos($id, '@') !== FALSE) {
     // Check if it is a group ID.
     $info = flickr_groups_getinfo($id);
     if ($info['stat'] == 'ok') {
       $src = 'https://www.flickr.com/slideShow/index.gne?group_id=' . $id . '&user_id=&set_id=&text=';
     }
     else {
-       $src = 'https://www.flickr.com/slideShow/index.gne?group_id=&user_id=' . $id . '&set_id=&text=';
+      $src = 'https://www.flickr.com/slideShow/index.gne?group_id=&user_id=' . $id . '&set_id=&text=';
     }
   }
   else {
@@ -611,7 +609,5 @@ function theme_flickr_flickrcomslideshow_simple($variables) {
     $user_id = $info['owner'];
     $src = 'https://www.flickr.com/slideShow/index.gne?group_id=&user_id=' . $user_id . '&set_id=' . $id . '&text=';
   }
-  return '<div class="flickr-slideshow">'
-    . '<object type="text/html" data="' . $src . '"></object>'
-    . '</div>';
+  return '<div class="flickr-slideshow"><object type="text/html" data="' . $src . '"></object></div>';
 }

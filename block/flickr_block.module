@@ -129,10 +129,12 @@ function flickr_block_configure($delta = '') {
     '#default_value' => $settings['size'],
     '#description' => t("Select the size of photos you'd like to display in the block."),
   );
-  $idgettr = l('Find your Flickr group ID.', 'http://idgettr.com/', array('attributes' => array(
-                'title' => t('Use the URL of your group to find the Flickr ID.'),
-                'target' => '_blank',
-              )));
+  $idgettr = l(t('Find your Flickr group ID.'), 'http://idgettr.com/', array(
+    'attributes' => array(
+      'title' => t('Use the URL of your group to find the Flickr ID.'),
+      'target' => '_blank',
+    ),
+  ));
   $form["flickr_block_{$delta}_group_id"] = array(
     '#type' => 'textfield',
     '#title' => t('Flickr Group id'),
@@ -153,9 +155,8 @@ function flickr_block_configure($delta = '') {
   );
   // A note for dynamic user blocks.
   $form['flickr_block_note'] = array(
-  '#markup' => t("<h3>NOTE</h3><strong>The block visibility setting for 'user' blocks are not only restricted by the user in the block configuration but also by the Flickr Block module.</strong> The block only gets displayed when the first argument of the path is 'user' or 'node' and a specific uid is available.<br /><br />Below you can change the block settings to exclude 'node/*' pages or show them only on 'user/*' pages.<br /><br />You can do it also the other way around to show a block only on a node page. Fine-grain it even more by selecting only a certain content type you want to show them on, for example blog posts."),
-);
-
+    '#markup' => t("<h3>NOTE</h3><strong>The block visibility setting for 'user' blocks are not only restricted by the user in the block configuration but also by the Flickr Block module.</strong> The block only gets displayed when the first argument of the path is 'user' or 'node' and a specific uid is available.<br /><br />Below you can change the block settings to exclude 'node/*' pages or show them only on 'user/*' pages.<br /><br />You can do it also the other way around to show a block only on a node page. Fine-grain it even more by selecting only a certain content type you want to show them on, for example blog posts."),
+  );
 
   // Build the block form - use unset to hide unwanted form elements.
   switch ($delta) {
@@ -182,9 +183,9 @@ function flickr_block_configure($delta = '') {
 
     // Recent photos from a Flickr user.
     case 3:
-    // Random photos from a Flickr user.
+      // Random photos from a Flickr user.
     case 5:
-    // Recent favorite public photos from a Flickr user.
+      // Recent favorite public photos from a Flickr user.
     case 9:
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form['flickr_block_note']);
@@ -201,7 +202,7 @@ function flickr_block_configure($delta = '') {
 
     // Recent photos from a Flickr group.
     case 6:
-    // Random photos from a Flickr group.
+      // Random photos from a Flickr group.
     case 10:
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form['flickr_block_note']);
@@ -209,7 +210,7 @@ function flickr_block_configure($delta = '') {
 
     // Random photos from a Flickr photoset.
     case 7:
-    // Recent photos from a Flickr photoset.
+      // Recent photos from a Flickr photoset.
     case 8:
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_group_id"]);
@@ -233,7 +234,7 @@ function flickr_block_configure($delta = '') {
         '#default_value' => $settings['tag'],
         '#description' => t("A tag (one) you want to search for (case insensitive). Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'."),
         '#required' => TRUE,
-  );
+      );
       break;
   }
   return $form;
@@ -276,7 +277,7 @@ function flickr_block_save($delta = '', $edit = array()) {
       cache_clear_all('flickr_block_' . $delta, 'cache', TRUE);
       break;
 
-      // User recent Flickr photosets.
+    // User recent Flickr photosets.
     case 1:
       variable_set('flickr_block_' . $delta, array(
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
@@ -506,9 +507,9 @@ function flickr_block_view($delta = '') {
   switch ($delta) {
     // User recent Flickr photos.
     case 0:
-    // User recent Flickr photosets.
+      // User recent Flickr photosets.
     case 1:
-    // User random Flickr photos.
+      // User random Flickr photos.
     case 2:
       // Get per user nsid if necessary.
       switch (arg(0)) {
@@ -526,38 +527,54 @@ function flickr_block_view($delta = '') {
       if (!empty($user->flickr['nsid'])) {
         $people = flickr_get_user_info($user->flickr['nsid']);
         $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-        $map =  variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array('attributes' => array(
-          'title' => t('View on Flickr map.'),
-          'target' => '_blank',
-        ))) . ')' : '';
-       switch ($delta) {
+        $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
+          'attributes' => array(
+            'title' => t('View on Flickr map.'),
+            'target' => '_blank',
+          ),
+        )) . ')' : '';
+        switch ($delta) {
           // User recent Flickr photos.
           case 0:
-            $recent_photos = l(t('Recent Flickr @media', array('@media' => $media)), $people['photosurl'], array('attributes' => array(
+            $recent_photos = l(t('Recent Flickr @media', array('@media' => $media)), $people['photosurl'], array(
+              'attributes' => array(
                 'title' => t('View on Flickr.'),
                 'target' => '_blank',
-              )));
-            $block['subject'] = t("!recent_photos by !username !map", array('!recent_photos' => $recent_photos, '!username' => $people['name'], '!map' => $map));
+              ),
+            ));
+            $block['subject'] = t("!recent_photos by !username !map", array(
+              '!recent_photos' => $recent_photos,
+              '!username' => $people['name'],
+              '!map' => $map,
+            ));
             $block['content'] = _flickr_block_recent($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $delta, $people);
             break;
 
           // User recent Flickr photosets.
           case 1:
-            $recent_sets = l(t('Recent Flickr sets'), $people['photosurl'] . 'sets/', array('attributes' => array(
+            $recent_sets = l(t('Recent Flickr sets'), $people['photosurl'] . 'sets/', array(
+              'attributes' => array(
                 'title' => t('View sets on Flickr.'),
                 'target' => '_blank',
-              )));
+              ),
+            ));
             $block['subject'] = t("!recent_sets by !username", array('!recent_sets' => $recent_sets, '!username' => $people['name']));
             $block['content'] = _flickr_block_photosets($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
             break;
 
           // User random Flickr photos.
           case 2:
-            $photos = l(t('Flickr @media', array('@media' => $media)), $people['photosurl'], array('attributes' => array(
+            $photos = l(t('Flickr @media', array('@media' => $media)), $people['photosurl'], array(
+              'attributes' => array(
                 'title' => t('View Flickr photostream.'),
                 'target' => '_blank',
-              )));
-            $block['subject'] = t("!photos by !username !map", array('!photos' => $photos, '!username' => $people['name'], '!map' => $map));
+              ),
+            ));
+            $block['subject'] = t("!photos by !username !map", array(
+              '!photos' => $photos,
+              '!username' => $people['name'],
+              '!map' => $map,
+            ));
             $block['content'] = _flickr_block_random($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $delta, $people);
             break;
 
@@ -565,30 +582,40 @@ function flickr_block_view($delta = '') {
       }
       break;
 
-    //Recent photos from a Flickr user.
+    // Recent photos from a Flickr user.
     case 3:
       $people = flickr_get_user_info($settings['user_id']);
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      $recent_photos = l(t('Recent Flickr @media', array('@media' => $media)), $people['photosurl'], array('attributes' => array(
+      $recent_photos = l(t('Recent Flickr @media', array('@media' => $media)), $people['photosurl'], array(
+        'attributes' => array(
           'title' => t('View on Flickr.'),
           'target' => '_blank',
-        )));
-      $map =  variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array('attributes' => array(
+        ),
+      ));
+      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
+        'attributes' => array(
           'title' => t('View on Flickr map.'),
           'target' => '_blank',
-        ))) . ')' : '';
-      $block['subject'] = t("!recent_photos by !username !map", array('!recent_photos' => $recent_photos, '!username' => $people['name'], '!map' => $map));
+        ),
+      )) . ')' : '';
+      $block['subject'] = t("!recent_photos by !username !map", array(
+        '!recent_photos' => $recent_photos,
+        '!username' => $people['name'],
+        '!map' => $map,
+      ));
       $block['content'] = _flickr_block_recent($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta, $people);
       break;
 
     // Recent photosets from a Flickr user.
     case 4:
       $people = flickr_get_user_info($settings['user_id']);
-      $media = $settings['media'] == 'videos' ? ' '. t('(shows videos only)') : '';
-      $recent_sets = l(t('Recent Flickr sets@media', array('@media' => $media)), $people['photosurl'] . 'sets/', array('attributes' => array(
+      $media = $settings['media'] == 'videos' ? ' ' . t('(shows videos only)') : '';
+      $recent_sets = l(t('Recent Flickr sets@media', array('@media' => $media)), $people['photosurl'] . 'sets/', array(
+        'attributes' => array(
           'title' => t('View sets on Flickr.'),
           'target' => '_blank',
-        )));
+        ),
+      ));
       $block['subject'] = t("!recent_sets by !username", array('!recent_sets' => $recent_sets, '!username' => $people['name']));
       $block['content'] = _flickr_block_photosets($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
       break;
@@ -597,15 +624,23 @@ function flickr_block_view($delta = '') {
     case 5:
       $people = flickr_get_user_info($settings['user_id']);
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      $map =  variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array('attributes' => array(
+      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
+        'attributes' => array(
           'title' => t('View on Flickr map.'),
           'target' => '_blank',
-        ))) . ')' : '';
-      $photos = l(t('Flickr @media', array('@media' => $media)), $people['photosurl'], array('attributes' => array(
+        ),
+      )) . ')' : '';
+      $photos = l(t('Flickr @media', array('@media' => $media)), $people['photosurl'], array(
+        'attributes' => array(
           'title' => t('View Flickr photostream.'),
           'target' => '_blank',
-        )));
-      $block['subject'] = t("!photos by !username !map", array('!photos' => $photos, '!username' => $people['name'], '!map' => $map));
+        ),
+      ));
+      $block['subject'] = t("!photos by !username !map", array(
+        '!photos' => $photos,
+        '!username' => $people['name'],
+        '!map' => $map,
+      ));
       $block['content'] = _flickr_block_random($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta, $people);
       break;
 
@@ -613,15 +648,23 @@ function flickr_block_view($delta = '') {
     case 6:
       $info = flickr_groups_getinfo($settings['group_id']);
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      $group =  l($info['group']['name']['_content'], 'https://www.flickr.com/groups/' . $settings['group_id'], array('attributes' => array(
+      $group = l($info['group']['name']['_content'], 'https://www.flickr.com/groups/' . $settings['group_id'], array(
+        'attributes' => array(
           'title' => t('View group on Flickr.'),
           'target' => '_blank',
-        )));
-      $map =  variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), 'https://www.flickr.com/groups/' . $settings['group_id'] . '/pool/map', array('attributes' => array(
+        ),
+      ));
+      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), 'https://www.flickr.com/groups/' . $settings['group_id'] . '/pool/map', array(
+        'attributes' => array(
           'title' => t('View group photos on Flickr map.'),
           'target' => '_blank',
-        ))) . ')' : '';
-      $block['subject'] = t("Recent Flickr @media from the group !group !map", array('@media' => $media, '!group' => $group, '!map' => $map));
+        ),
+      )) . ')' : '';
+      $block['subject'] = t("Recent Flickr @media from the group !group !map", array(
+        '@media' => $media,
+        '!group' => $group,
+        '!map' => $map,
+      ));
       $block['content'] = _flickr_block_group_recent($settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta, $info['group']['pool_count']['_content']);
       break;
 
@@ -630,15 +673,24 @@ function flickr_block_view($delta = '') {
       $info = flickr_photoset_get_info($settings['photoset_id']);
       $people = flickr_get_user_info($info['owner']);
       $media = $settings['media'] == 'videos' ? t('Videos') : t('Photos');
-      $set = l($info['title']['_content'],$people['photosurl'] . 'sets/' . $settings['photoset_id'], array('attributes' => array(
+      $set = l($info['title']['_content'], $people['photosurl'] . 'sets/' . $settings['photoset_id'], array(
+        'attributes' => array(
           'title' => t('View set on Flickr.'),
           'target' => '_blank',
-        )));
-      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'),$people['photosurl'] . 'sets/' . $settings['photoset_id'] . '/map/', array('attributes' => array(
+        ),
+      ));
+      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'sets/' . $settings['photoset_id'] . '/map/', array(
+        'attributes' => array(
           'title' => t('View set on Flickr map.'),
           'target' => '_blank',
-        ))) . ')' : '';
-      $block['subject'] = t("@media from Flickr set !set by !username !map", array('@media' => $media, '!set' => $set, '!username' => $people['name'], '!map' => $map));
+        ),
+      )) . ')' : '';
+      $block['subject'] = t("@media from Flickr set !set by !username !map", array(
+        '@media' => $media,
+        '!set' => $set,
+        '!username' => $people['name'],
+        '!map' => $map,
+      ));
       $block['content'] = _flickr_block_photoset_random($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['photoset_id'], $delta);
       break;
 
@@ -647,25 +699,36 @@ function flickr_block_view($delta = '') {
       $info = flickr_photoset_get_info($settings['photoset_id']);
       $people = flickr_get_user_info($info['owner']);
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      $set = l($info['title']['_content'],$people['photosurl'] . 'sets/' . $settings['photoset_id'], array('attributes' => array(
+      $set = l($info['title']['_content'], $people['photosurl'] . 'sets/' . $settings['photoset_id'], array(
+        'attributes' => array(
           'title' => t('View set on Flickr.'),
           'target' => '_blank',
-        )));
-      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'),$people['photosurl'] . 'sets/' . $settings['photoset_id'] . '/map/', array('attributes' => array(
+        ),
+      ));
+      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'sets/' . $settings['photoset_id'] . '/map/', array(
+        'attributes' => array(
           'title' => t('View set on Flickr map.'),
           'target' => '_blank',
-        ))) . ')' : '';
-      $block['subject'] = t("Recent @media from Flickr set !set by !username !map", array('@media' => $media, '!set' => $set, '!username' => $people['name'], '!map' => $map));
+        ),
+      )) . ')' : '';
+      $block['subject'] = t("Recent @media from Flickr set !set by !username !map", array(
+        '@media' => $media,
+        '!set' => $set,
+        '!username' => $people['name'],
+        '!map' => $map,
+      ));
       $block['content'] = _flickr_block_photoset_recent($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['photoset_id'], $delta);
       break;
 
     // Recent favorite public photos from a Flickr user.
     case 9:
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      $favorites = l(t("Favorite Flickr @media", array('@media' => $media)), 'https://www.flickr.com/photos/' . $settings['user_id'] . '/favorites/', array('attributes' => array(
+      $favorites = l(t("Favorite Flickr @media", array('@media' => $media)), 'https://www.flickr.com/photos/' . $settings['user_id'] . '/favorites/', array(
+        'attributes' => array(
           'title' => t("View favorites on Flickr from other Flickr members."),
           'target' => '_blank',
-        )));
+        ),
+      ));
       $block['subject'] = $favorites;
       $block['content'] = _flickr_block_favorite_public($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
       break;
@@ -674,15 +737,23 @@ function flickr_block_view($delta = '') {
     case 10:
       $info = flickr_groups_getinfo($settings['group_id']);
       $media = $settings['media'] == 'videos' ? t('Videos') : t('Photos');
-      $group =  l($info['group']['name']['_content'], 'https://www.flickr.com/groups/' . $settings['group_id'], array('attributes' => array(
+      $group = l($info['group']['name']['_content'], 'https://www.flickr.com/groups/' . $settings['group_id'], array(
+        'attributes' => array(
           'title' => t('View group on Flickr.'),
           'target' => '_blank',
-        )));
-      $map =  variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), 'https://www.flickr.com/groups/' . $settings['group_id'] . '/pool/map', array('attributes' => array(
+        ),
+      ));
+      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), 'https://www.flickr.com/groups/' . $settings['group_id'] . '/pool/map', array(
+        'attributes' => array(
           'title' => t('View group photos on Flickr map.'),
           'target' => '_blank',
-        ))) . ')' : '';
-      $block['subject'] = t("@media from Flickr group !group !map", array('@media' => $media, '!group' => $group, '!map' => $map));
+        ),
+      )) . ')' : '';
+      $block['subject'] = t("@media from Flickr group !group !map", array(
+        '@media' => $media,
+        '!group' => $group,
+        '!map' => $map,
+      ));
       $block['content'] = _flickr_block_group_random($settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta, $info['group']['pool_count']['_content']);
       break;
 
@@ -690,17 +761,24 @@ function flickr_block_view($delta = '') {
     case 11:
       $people = flickr_get_user_info($settings['user_id']);
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      $tagged = l(t("Flickr @media tagged <em>", array('@media' => $media)) . $settings['tag'] . "</em>", $people['photosurl'] . 'tags/' . $settings['tag'], array('attributes' => array(
+      $tagged = l(t("Flickr @media tagged <em>", array('@media' => $media)) . $settings['tag'] . "</em>", $people['photosurl'] . 'tags/' . $settings['tag'], array(
+        'attributes' => array(
           'title' => t('View tagged photos on Flickr.'),
           'target' => '_blank',
         ),
         'html' => TRUE,
-        ));
-      $map =  variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'tags/' . $settings['tag'] . '/map/', array('attributes' => array(
+      ));
+      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'tags/' . $settings['tag'] . '/map/', array(
+        'attributes' => array(
           'title' => t('View tagged photos on Flickr map.'),
           'target' => '_blank',
-        ))) . ')' : '';
-      $block['subject'] = t("!tagged  by !username !map", array('!username' => $people['name'], '!tagged' => $tagged, '!map' => $map));
+        ),
+      )) . ')' : '';
+      $block['subject'] = t("!tagged  by !username !map", array(
+        '!username' => $people['name'],
+        '!tagged' => $tagged,
+        '!map' => $map,
+      ));
       $block['content'] = _flickr_block_tag_random($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], $delta, $people);
       break;
   }
@@ -743,12 +821,16 @@ function _flickr_block_recent($nsid, $show_n, $size, $media, $delta, $people = N
             $i++;
           }
           if ($i == 0) {
-          $output .= t('No media found !flickr.', array('!flickr' => $flickr));
+            $output .= t('No media found !flickr.', array('!flickr' => $people['photostream']));
             continue;
           }
           else {
             // A counter if set to show.
-            $count = t('@number out of @total by !flickr', array('@number' => $i, '@total' => number_format($people['count'],0,",","."), '!flickr' => $people['photostream']));
+            $count = t('@number out of @total by !flickr', array(
+              '@number' => $i,
+              '@total' => number_format($people['count'], 0, ",", "."),
+              '!flickr' => $people['photostream'],
+            ));
             $output .= variable_get('flickr_block_counter', 1) ? '<div class="flickr-counter">' . $count . '</div>' : '';
           }
         }
@@ -770,11 +852,14 @@ function _flickr_block_photosets($nsid, $show_n, $size, $media, $delta) {
     $output = '<div class="flickr-block-photosets">';
     $to = min($show_n, count($photosets));
     for ($i = 0; $i < $to; $i++) {
-      $set_title = l($photosets[$i]['title']['_content'], 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photosets[$i]['id'], array('attributes' => array(
+      $set_title = l($photosets[$i]['title']['_content'], 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photosets[$i]['id'], array(
+        'attributes' => array(
           'title' => t('View set on Flickr.'),
           'target' => '_blank',
-        )));
-      $map = l(t('map'),'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photosets[$i]['id'] . '/map/', array('attributes' => array(
+        ),
+      ));
+      $map = l(t('map'), 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photosets[$i]['id'] . '/map/', array(
+        'attributes' => array(
           'title' => t('View set on Flickr map.'),
           'target' => '_blank',
         )));
@@ -798,16 +883,19 @@ function _flickr_block_photosets($nsid, $show_n, $size, $media, $delta) {
             'owner' => $nsid,
             'size' => $size,
             'media' => $media,
-            ''
           ));
           // A counter if set to show.
-          $flickr = l(t("set on Flickr"), 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photosets[$i]['id'] . '/', array('attributes' => array(
-          'title' => t('View set on Flickr.'),
-          'target' => '_blank',
-          ),
-          'html' => TRUE,
+          $flickr = l(t("set on Flickr"), 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photosets[$i]['id'] . '/', array(
+            'attributes' => array(
+              'title' => t('View set on Flickr.'),
+              'target' => '_blank',
+            ),
+            'html' => TRUE,
           ));
-          $count = t('@total in !flickr', array('@total' => number_format($photosets[$i]['photos'],0,",","."), '!flickr' => $flickr));
+          $count = t('@total in !flickr', array(
+            '@total' => number_format($photosets[$i]['photos'], 0, ",", "."),
+            '!flickr' => $flickr,
+          ));
           $output .= variable_get('flickr_block_counter', 1) ? '<div class="flickr-counter">' . $count . '</div>' : '';
       }
       $output .= '</div>';
@@ -874,12 +962,16 @@ function _flickr_block_random($nsid, $show_n, $size, $media, $delta, $people = N
             }
           }
           if ($i == 0) {
-            $output .= t('No media found !flickr.', array('!flickr' => $flickr));
+            $output .= t('No media found !flickr.', array('!flickr' => $people['photostream']));
             continue;
           }
           else {
             // A counter if set to show.
-            $count = t('@number out of @total by !flickr', array('@number' => $i, '@total' => number_format($people['count'],0,",","."), '!flickr' => $people['photostream']));
+            $count = t('@number out of @total by !flickr', array(
+              '@number' => $i,
+              '@total' => number_format($people['count'], 0, ",", "."),
+              '!flickr' => $people['photostream'],
+            ));
             $output .= variable_get('flickr_block_counter', 1) ? '<div class="flickr-counter">' . $count . '</div>' : '';
           }
         }
@@ -949,13 +1041,18 @@ function _flickr_block_photoset_random($nsid, $show_n, $size, $media, $photoset_
         }
         else {
           // A counter if set to show.
-          $flickr = l(t("set on Flickr"), 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photoset_id, array('attributes' => array(
-            'title' => t('View set on Flickr.'),
-            'target' => '_blank',
+          $flickr = l(t("set on Flickr"), 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photoset_id, array(
+            'attributes' => array(
+              'title' => t('View set on Flickr.'),
+              'target' => '_blank',
             ),
             'html' => TRUE,
           ));
-          $count = t('@number out of @total in !flickr', array('@number' => $i, '@total' => number_format($response['photoset']['total'],0,",","."), '!flickr' => $flickr));
+          $count = t('@number out of @total in !flickr', array(
+            '@number' => $i,
+            '@total' => number_format($response['photoset']['total'], 0, ",", "."),
+            '!flickr' => $flickr,
+          ));
           $output .= variable_get('flickr_block_counter', 1) ? '<div class="flickr-counter">' . $count . '</div>' : '';
         }
     }
@@ -1003,7 +1100,7 @@ function _flickr_block_group_random($group_id, $show_n, $size, $media, $delta, $
         $j = 0;
         while ($i < $to && $j < count($photos)) {
           if ($media == $photos[$j]['media'] . 's' || $media == 'all') {
-            $output .=  theme('flickr_block_photo', array(
+            $output .= theme('flickr_block_photo', array(
               'photo' => $photos[$j],
               'size' => $size,
             ));
@@ -1021,13 +1118,18 @@ function _flickr_block_group_random($group_id, $show_n, $size, $media, $delta, $
         }
         else {
           // A counter if set to show.
-          $flickr = l(t("group on Flickr"), 'https://www.flickr.com/groups/' . $group_id, array('attributes' => array(
-          'title' => t('View group on Flickr.'),
-          'target' => '_blank',
-          ),
-          'html' => TRUE,
+          $flickr = l(t("group on Flickr"), 'https://www.flickr.com/groups/' . $group_id, array(
+            'attributes' => array(
+              'title' => t('View group on Flickr.'),
+              'target' => '_blank',
+            ),
+            'html' => TRUE,
           ));
-          $count = t('@number out of @total in !flickr', array('@number' => $i, '@total' => number_format($total,0,",","."), '!flickr' => $flickr));
+          $count = t('@number out of @total in !flickr', array(
+            '@number' => $i,
+            '@total' => number_format($total, 0, ",", "."),
+            '!flickr' => $flickr,
+          ));
           $output .= variable_get('flickr_block_counter', 1) ? '<div class="flickr-counter">' . $count . '</div>' : '';
         }
     }
@@ -1040,7 +1142,7 @@ function _flickr_block_group_random($group_id, $show_n, $size, $media, $delta, $
  * Random by tag block. Block delta:11.
  */
 function _flickr_block_tag_random($nsid, $show_n, $size, $media, $tag, $delta, $people = NULL) {
- if ($cache = cache_get('flickr_block_' . $delta . '_' . $nsid . '_' . $tag)) {
+  if ($cache = cache_get('flickr_block_' . $delta . '_' . $nsid . '_' . $tag)) {
     $output = $cache->data;
   }
   else {
@@ -1067,11 +1169,11 @@ function _flickr_block_tag_random($nsid, $show_n, $size, $media, $tag, $delta, $
           $response = $photos['photo'];
           shuffle($response);
           foreach ($response as $photo) {
-            if ($i >= $show_n && stripos($photo['tags'],$tag) !== false) {
+            if ($i >= $show_n && stripos($photo['tags'], $tag) !== FALSE) {
               $j++;
             }
-            elseif (stripos($photo['tags'],$tag) !== false) {
-              $output .=  theme('flickr_block_photo', array(
+            elseif (stripos($photo['tags'], $tag) !== FALSE) {
+              $output .= theme('flickr_block_photo', array(
                 'photo' => $photo,
                 'size' => $size,
               ));
@@ -1080,13 +1182,19 @@ function _flickr_block_tag_random($nsid, $show_n, $size, $media, $tag, $delta, $
             }
           }
           // A counter if set to show.
-          $flickr = l(t("tagged <em>@tag</em>", array('@tag' => $tag)), 'https://www.flickr.com/photos/' . $nsid . '/tags/' . $tag, array('attributes' => array(
-            'title' => t('View tagged photos on Flickr.'),
-            'target' => '_blank',
-          ),
-          'html' => TRUE,
+          $flickr = l(t("tagged <em>@tag</em>", array('@tag' => $tag)), 'https://www.flickr.com/photos/' . $nsid . '/tags/' . $tag, array(
+              'attributes' => array(
+                'title' => t('View tagged photos on Flickr.'),
+                'target' => '_blank',
+              ),
+              'html' => TRUE,
+            ));
+          $count = t('@number out of @total !flickr by !user', array(
+            '@number' => $i,
+            '@total' => number_format($j, 0, ",", "."),
+            '!flickr' => $flickr,
+            '!user' => $people['photostream'],
           ));
-          $count = t('@number out of @total !flickr by !user', array('@number' => $i, '@total' => number_format($j,0,",","."), '!flickr' => $flickr, '!user' => $people['photostream']));
           $output .= variable_get('flickr_block_counter', 1) ? '<div class="flickr-counter">' . $count . '</div>' : '';
         }
         if ($i == 0) {
@@ -1148,13 +1256,18 @@ function _flickr_block_photoset_recent($nsid, $show_n, $size, $media, $photoset_
         }
         else {
           // A counter if set to show.
-          $flickr = l(t("set on Flickr"), 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photoset_id, array('attributes' => array(
-            'title' => t('View set on Flickr.'),
-            'target' => '_blank',
+          $flickr = l(t("set on Flickr"), 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photoset_id, array(
+            'attributes' => array(
+              'title' => t('View set on Flickr.'),
+              'target' => '_blank',
             ),
             'html' => TRUE,
           ));
-          $count = t('@number out of @total in !flickr', array('@number' => $i, '@total' => number_format($response['photoset']['total'],0,",","."), '!flickr' => $flickr));
+          $count = t('@number out of @total in !flickr', array(
+            '@number' => $i,
+            '@total' => number_format($response['photoset']['total'], 0, ",", "."),
+            '!flickr' => $flickr,
+          ));
           $output .= variable_get('flickr_block_counter', 1) ? '<div class="flickr-counter">' . $count . '</div>' : '';
         }
     }
@@ -1197,11 +1310,12 @@ function _flickr_block_favorite_public($nsid, $show_n, $size, $media, $delta) {
               $i++;
             }
           }
-          $flickr = l(t("favorites on Flickr"), 'https://www.flickr.com/photos/' . $nsid . '/favorites/', array('attributes' => array(
-            'title' => t("View user's favorites on Flickr from other Flickr members."),
-            'target' => '_blank',
-          ),
-          'html' => TRUE,
+          $flickr = l(t("favorites on Flickr"), 'https://www.flickr.com/photos/' . $nsid . '/favorites/', array(
+            'attributes' => array(
+              'title' => t("View user's favorites on Flickr from other Flickr members."),
+              'target' => '_blank',
+            ),
+            'html' => TRUE,
           ));
           if ($i == 0) {
             $output .= t('No media found !flickr.', array('!flickr' => $flickr));
@@ -1209,7 +1323,11 @@ function _flickr_block_favorite_public($nsid, $show_n, $size, $media, $delta) {
           }
           else {
             // A counter if set to show.
-            $count = t('@number out of @total !flickr', array('@number' => $i, '@total' => number_format($photos['total'],0,",","."), '!flickr' => $flickr));
+            $count = t('@number out of @total !flickr', array(
+              '@number' => $i,
+              '@total' => number_format($photos['total'], 0, ",", "."),
+              '!flickr' => $flickr,
+            ));
             $output .= variable_get('flickr_block_counter', 1) ? '<div class="flickr-counter">' . $count . '</div>' : '';
           }
         }
@@ -1255,7 +1373,7 @@ function _flickr_block_group_recent($group_id, $show_n, $size, $media, $delta, $
         $j = 0;
         while ($i < $to && $j < count($photos)) {
           if ($media == $photos[$j]['media'] . 's' || $media == 'all') {
-            $output .=  theme('flickr_block_photo', array(
+            $output .= theme('flickr_block_photo', array(
               'photo' => $photos[$j],
               'size' => $size,
             ));
@@ -1273,13 +1391,18 @@ function _flickr_block_group_recent($group_id, $show_n, $size, $media, $delta, $
         }
         else {
           // A counter if set to show.
-          $flickr = l(t("group on Flickr"), 'https://www.flickr.com/groups/' . $group_id, array('attributes' => array(
-          'title' => t('View group on Flickr.'),
-          'target' => '_blank',
-          ),
-          'html' => TRUE,
+          $flickr = l(t("group on Flickr"), 'https://www.flickr.com/groups/' . $group_id, array(
+            'attributes' => array(
+              'title' => t('View group on Flickr.'),
+              'target' => '_blank',
+            ),
+            'html' => TRUE,
           ));
-          $count = t('@number out of @total in !flickr', array('@number' => $i, '@total' => number_format($total,0,",","."), '!flickr' => $flickr));
+          $count = t('@number out of @total in !flickr', array(
+            '@number' => $i,
+            '@total' => number_format($total, 0, ",", "."),
+            '!flickr' => $flickr,
+          ));
           $output .= variable_get('flickr_block_counter', 1) ? '<div class="flickr-counter">' . $count . '</div>' : '';
         }
     }

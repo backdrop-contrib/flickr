@@ -148,8 +148,6 @@ function flickr_sets_theme() {
     ),
     'flickr_sets_photoset_box' => array(
       'variables' => array(
-        'uid',
-        'photoset',
         'size' => NULL,
         'format' => NULL,
       ),

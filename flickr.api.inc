@@ -196,10 +196,10 @@ function flickr_photosets_getphotos($photoset_id, $other_args = array(), $page =
  *   (http://www.flickr.com/services/api/flickr.people.getInfo.html)
  *   or FALSE on error.
  */
-function flickr_people_get_info($nisd) {
+function flickr_people_get_info($nsid) {
   $response = flickr_request(
     'flickr.people.getInfo',
-    array('user_id' => $nisd)
+    array('user_id' => $nsid)
   );
   if ($response) {
     return $response['person'];

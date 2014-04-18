@@ -424,20 +424,25 @@ function flickr_set_error($message_or_response) {
 function flickr_get_user_info($nsid) {
   $info = flickr_people_get_info($nsid);
   $people = array();
-  $people['name'] = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array('attributes' => array(
-            'title' => t('View user on Flickr.'),
-            'target' => '_blank',
-          ))) : l($info['username']['_content'], $info['profileurl']['_content'], array('attributes' => array(
-            'title' => t('View user on Flickr.'),
-            'target' => '_blank',
-          )));
+  $people['name'] = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array(
+    'attributes' => array(
+      'title' => t('View user on Flickr.'),
+      'target' => '_blank',
+    ),
+  )) : l($info['username']['_content'], $info['profileurl']['_content'], array(
+    'attributes' => array(
+      'title' => t('View user on Flickr.'),
+      'target' => '_blank',
+    ),
+  ));
   $username = strip_tags($people['name']);
-  $people['photostream'] = l(t("!user on Flickr", array('!user' => $username)), $info['photosurl']['_content'], array('attributes' => array(
-            'title' => t('View Flickr photostream.'),
-            'target' => '_blank',
-          ),
-          'html' => TRUE,
-          ));
+  $people['photostream'] = l(t("!user on Flickr", array('!user' => $username)), $info['photosurl']['_content'], array(
+    'attributes' => array(
+      'title' => t('View Flickr photostream.'),
+      'target' => '_blank',
+    ),
+    'html' => TRUE,
+  ));
 
   $people['photosurl'] = $info['photosurl']['_content'];
   $people['profileurl'] = $info['profileurl']['_content'];

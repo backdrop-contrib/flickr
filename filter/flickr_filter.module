@@ -35,10 +35,12 @@ function flickr_filter_info() {
  * Returns the filter information for the filter help page.
  */
 function flickr_filter_tips($filter, $format, $long = FALSE) {
-  $idgettr = l('Find your Flickr user or group ID.', 'http://idgettr.com/', array('attributes' => array(
-    'title' => t('Use the URL of your user or group to find the Flickr ID.'),
-    'target' => '_blank',
-  )));
+  $idgettr = l(t('Find your Flickr user or group ID.'), 'http://idgettr.com/', array(
+    'attributes' => array(
+      'title' => t('Use the URL of your user or group to find the Flickr ID.'),
+      'target' => '_blank',
+    ),
+  ));
 
   $output = t('Insert Flickr images: [flickr-photo:id=7357144724,size=m], [flickr-photoset:id=72157594262419167,size=s], [flickr-group:id=91484156@N00] or [flickr-user:id=98518260@N02, size=y].<br />!find_id<br />Common sizes:<br /> s : small square 75<br /> t : thumbnail, 100 on longest side<br /> q : big square 150<br /> m : small, 240 on longest side<br /> n : small, 320 on longest side<br /> - : medium, 500 on longest side<br /> x: Flash responsive slideshow (for group, set and user IDs only)<br /> y: Basic responsive slideshow (for set and user IDs only)<br /> If the wrong size is applied, check if it exists on the Flickr photo page > Actions > View all sizes.', array('!find_id' => $idgettr));
   if ($long) {
@@ -101,11 +103,11 @@ function flickr_filter_callback_photo($matches) {
         $config['size'] = variable_get('flickr_default_size', 'm');
       }
       switch ($config['size']) {
-      case "x":
-      case "y":
-        drupal_set_message(t("You can only use a slideshow for set, user or group IDs."), 'error');
-        $config['size'] = variable_get('flickr_default_size', 'm');
-        break;
+        case "x":
+        case "y":
+          drupal_set_message(t("You can only use a slideshow for set, user or group IDs."), 'error');
+          $config['size'] = variable_get('flickr_default_size', 'm');
+          break;
       }
       return theme('flickr_photo', array(
         'photo' => $photo,
@@ -129,23 +131,19 @@ function flickr_filter_callback_photoset($matches) {
         $config['size'] = variable_get('flickr_default_size', 'm');
       }
       switch ($config['size']) {
-      case "x":
-        return theme('flickr_flickrcomslideshow', array(
-          'id' => $photoset['id'],
-        ));
-        break;
-      case "y":
-        return theme('flickr_flickrcomslideshow_simple', array(
-          'id' => $photoset['id'],
-        ));
-        break;
-      default:
-        return theme('flickr_photoset', array(
-          'photoset' => $photoset,
-          'owner' => $photoset['owner'],
-          'size' => $config['size'],
-          'attribs' => $attribs,
-        ));
+        case "x":
+          return theme('flickr_flickrcomslideshow', array('id' => $photoset['id']));
+
+        case "y":
+          return theme('flickr_flickrcomslideshow_simple', array('id' => $photoset['id']));
+
+        default:
+          return theme('flickr_photoset', array(
+            'photoset' => $photoset,
+            'owner' => $photoset['owner'],
+            'size' => $config['size'],
+            'attribs' => $attribs,
+          ));
       }
     }
   }
@@ -163,25 +161,9 @@ function flickr_filter_callback_group($matches) {
       if (!isset($config['size'])) {
         $config['size'] = 'x';
       }
-//      switch ($config['size']) {
-//      case "x":
-        return theme('flickr_flickrcomslideshow', array(
-          'id' => $config['id'],
-        ));
-//        break;
-//      case "y":
-//        return theme('flickr_flickrcomslideshow_simple', array(
-//          'id' => $config['id'],
-//        ));
-//        break;
-//      default:
-//        return theme('flickr_photoset', array(
-//          'photoset' => $photoset,
-//          'owner' => $photoset['owner'],
-//          'size' => $config['size'],
-//          'attribs' => $attribs,
-//        ));
-//      }
+      return theme('flickr_flickrcomslideshow', array(
+        'id' => $config['id'],
+      ));
     }
   }
   return '';
@@ -199,23 +181,16 @@ function flickr_filter_callback_user($matches) {
         $config['size'] = 'x';
       }
       switch ($config['size']) {
-      case "x":
-        return theme('flickr_flickrcomslideshow', array(
-          'id' => $config['id'],
-        ));
-        break;
-      case "y":
-        return theme('flickr_flickrcomslideshow_simple', array(
-          'id' => $config['id'],
-        ));
-        break;
-      default:
-         return theme('flickr_flickrcomslideshow', array(
-          'id' => $config['id'],
-        ));
-        drupal_set_message(t("You can only use a slideshow for a user's photostream (size = x or y)."), 'error');
-        break;
-     }
+        case "x":
+          return theme('flickr_flickrcomslideshow', array('id' => $config['id']));
+
+        case "y":
+          return theme('flickr_flickrcomslideshow_simple', array('id' => $config['id']));
+
+        default:
+          drupal_set_message(t("You can only use a slideshow for a user's photostream (size = x or y)."), 'error');
+          return theme('flickr_flickrcomslideshow', array('id' => $config['id']));
+      }
     }
   }
   return '';

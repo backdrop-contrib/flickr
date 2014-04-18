@@ -67,6 +67,7 @@ function flickrfield_field_schema($field) {
         ),
       );
       break;
+
     case 'flickrfield_photoset':
       $columns = array(
         'flickrid' => array(
@@ -152,16 +153,21 @@ function flickrfield_form_process_flickrfield($element, $form_state, $form = arr
     '#title' => t('Item id'),
     '#default_value' => !empty($element['#value']['id']) ? $element['#value']['id'] : '',
   );
-  $idgettr = l('Find your Flickr ID.', 'http://idgettr.com/', array('attributes' => array(
-                'title' => t('Use the URL of your photostream to find the Flickr ID.'),
-                'target' => '_blank',
-              )));
+  $idgettr = l(t('Find your Flickr ID.'), 'http://idgettr.com/', array(
+    'attributes' => array(
+      'title' => t('Use the URL of your photostream to find the Flickr ID.'),
+      'target' => '_blank',
+    ),
+  ));
   $element['nsid'] = array(
     '#type' => 'textfield',
     '#title' => t('User Id'),
     '#default_value' => !empty($element['#value']['nsid']) ? $element['#value']['nsid'] : variable_get('flickr_default_userid', ''),
     '#required' => $element['#required'],
-    '#description' => t("The user id of the Flickr user who owns the photos. If this is left blank, the sites's default user will be used. Current default id is @id. !find_id", array('@id' => variable_get('flickr_default_userid', ''), '!find_id' => $idgettr)),
+    '#description' => t("The user id of the Flickr user who owns the photos. If this is left blank, the sites's default user will be used. Current default id is @id. !find_id", array(
+      '@id' => variable_get('flickr_default_userid', ''),
+      '!find_id' => $idgettr,
+    )),
   );
   return $element;
 }
@@ -190,10 +196,9 @@ function flickrfield_field_is_empty($item, $field) {
   switch ($field['type']) {
     case 'flickrfield':
       return empty($item['id']);
-      break;
+
     case 'flickrfield_photoset':
-       return empty($item['flickrid']);
-       break;
+      return empty($item['flickrid']);
   }
 }
 

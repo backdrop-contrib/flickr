@@ -181,18 +181,18 @@ function flickr_admin_settings() {
       '#title' => t('Block settings'),
       '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
     );
-  $form['block_settings']['flickr_block_counter'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Show a Flickr counter'),
-    '#default_value' => variable_get('flickr_block_counter', 1),
-    '#description' => t('Shows under the block title how many photos are displayed out of the total number available for a user, group or set on Flickr.'),
-  );
-  $form['block_settings']['flickr_block_maps'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Extra links to Flickr maps'),
-    '#default_value' => variable_get('flickr_block_maps', 1),
-    '#description' => t('Include extra links to maps available for a user, group or set on Flickr. Locations mentioned (if displayed) under individual images in any case link to corresponding Flickr user maps.'),
-  );
+    $form['block_settings']['flickr_block_counter'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Show a Flickr counter'),
+      '#default_value' => variable_get('flickr_block_counter', 1),
+      '#description' => t('Shows under the block title how many photos are displayed out of the total number available for a user, group or set on Flickr.'),
+    );
+    $form['block_settings']['flickr_block_maps'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Extra links to Flickr maps'),
+      '#default_value' => variable_get('flickr_block_maps', 1),
+      '#description' => t('Include extra links to maps available for a user, group or set on Flickr. Locations mentioned (if displayed) under individual images in any case link to corresponding Flickr user maps.'),
+    );
     $form['block_settings']['flickr_block_refresh_random'] = array(
       '#type' => 'textfield',
       '#field_prefix' => t('Refresh random blocks every'),
