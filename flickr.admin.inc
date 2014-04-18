@@ -8,12 +8,18 @@
  * Implements hook_settings().
  */
 function flickr_admin_settings() {
+  $apply = l(t('https://www.flickr.com/services/apps/create/apply'), 'https://www.flickr.com/services/apps/create/apply', array(
+      'attributes' => array(
+        'title' => t('Flickr Services'),
+        'target' => '_blank',
+      ),
+  ));
   $form['flickr_api_key'] = array(
     '#type' => 'textfield',
     '#title' => t('API Key'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_api_key', ''),
-    '#description' => t('API Key from Flickr'),
+    '#description' => t("API Key from Flickr. Get an API Key at !apply.", array('!apply' => $apply)),
   );
   $form['flickr_api_secret'] = array(
     '#type' => 'textfield',
@@ -216,7 +222,7 @@ function flickr_admin_settings() {
   // We need an api key before we can verify usernames.
   if (!$form['flickr_api_key']['#default_value']) {
     $form['flickr_default_userid']['#disabled'] = TRUE;
-    $form['flickr_default_userid']['#description'] .= t('Disabled until a valid API Key is set.');
+    $form['flickr_default_userid']['#description'] .= ' ' . t('Disabled until a valid API Key is set.');
   }
   // Call submit_function() on form submission.
   $form['#submit'][] = 'flickr_admin_settings_submit';

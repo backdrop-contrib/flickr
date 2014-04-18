@@ -23,3 +23,26 @@ of it:
 - Put the videos (one or more) you want to display together in a set.
 - Show the set in the node body, a block or a Flickr field using the size x for
   a Flash slideshow or y for the non-Flash version.
+
+Disabling the Flickr Sets submodule: What happens?
+==================================================
+Only the first image of a set will be displayed in some blocks, in the photoset
+filter tag and the Flickr photo field. Those will link to the set on Flickr when
+clicking on them.
+
+Flickr Blocks affected
+----------------------
+- User recent photosets
+- Recent photosets by user
+All the others are unaffected.
+
+Flickr Filter tags affected
+---------------------------
+Only photoset tags like [flickr-photoset:id=72157634563269642,size=t]
+are affected, but not for the sizes x and y (slideshow).
+
+Flickr Field affected
+---------------------
+The Flickr Field 'photo' is only affected for the 'Item Type': 'Photoset'.
+The Flickr Field 'photoset' always displays only the primary image (except for
+slideshows), thus is unaffected.

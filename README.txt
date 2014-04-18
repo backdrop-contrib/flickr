@@ -37,7 +37,7 @@ to take effect on existing content at '/admin/config/development/performance'.
 
 API Key
 -------
-Get an API Key at http://www.flickr.com/services/apps/create/apply.
+Get an API Key at https://www.flickr.com/services/apps/create/apply
 
 API Shared Secret
 -----------------
@@ -192,6 +192,52 @@ Actions > View all sizes.
 
 The slideshow allows for videos to be played. Put the desired videos to show
 together in a set.
+
+RECOMMENDED
+===========
+If you use the Flickr Filter submodule, you might find the AutoFloat
+module useful. See https://drupal.org/project/autofloat
+
+Flickr module Style Guide. See https://drupal.org/node/2174131
+
+TROUBLESHOOTING
+===============
+Try clearing both your site (https://drupal.org/node/42055) and browser cache
+(http://www.wikihow.com/Clear-Your-Browser's-Cache).
+Use http://idgettr.com/ to find your Flickr user or group id.
+
+BEFORE posting a support request related to configuration, check the necessary
+settings in the demo at http://simplytest.me/project/demo_flickr/7.x-1.x
+Complete the installation process there (just hit Save and continue on each
+step). If at the end of the install process you get a white screen, just reload
+the page.
+
+Flickr error 100: Invalid API Key (Key has invalid format)
+----------------------------------------------------------
+Fill in some valid Flickr credentials at
+admin/config/media/flickr.
+
+Unexpected display problems occur
+---------------------------------
+It should be noted that the cascading stylesheets defined by modules are by
+default loaded before theme CSS.See Drupal API:
+http://api.drupal.org/api/drupal/includes%21common.inc/function/drupal_add_css/7
+Flickr module's style might be overwritten by the theme stylesheets. Copy and
+paste the CSS code in the flickr.css file to the bottom of your theme's custom
+CSS file or use this solution: http://k-it.ca/comment/14#comment-14
+
+'Undefined index' error after upgrade from 7.x-1.0 to a later version
+---------------------------------------------------------------------
+Re-save your block settings. See https://drupal.org/node/2089575: Undefined
+index error after upgrade.
+
+Uninstalling Flickr Field - module is not selectable because Drupal says the
+----------------------------------------------------------------------------
+fields implemented by it are being used
+---------------------------------------
+First delete all Flickr fields in use on your content types at
+admin/structure/types 'Manage fields'.
+Then run cron at admin/reports/status/run-cron
 
 MORE INFO
 =========

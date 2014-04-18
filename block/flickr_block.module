@@ -485,7 +485,7 @@ function flickr_block_view($delta = '') {
     'tag' => '',
     'group_id' => '',
     'photoset_id' => '',
-    'media' => 'all',
+    'media' => 'photos',
   ));
   if (!isset($settings['tag'])) {
     $settings['tag'] = '';
@@ -617,7 +617,7 @@ function flickr_block_view($delta = '') {
         ),
       ));
       $block['subject'] = t("!recent_sets by !username", array('!recent_sets' => $recent_sets, '!username' => $people['name']));
-      $block['content'] = _flickr_block_photosets($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
+      $block['content'] = _flickr_block_photosets($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta, $people);
       break;
 
     // Random photos from a Flickr user.
@@ -843,7 +843,7 @@ function _flickr_block_recent($nsid, $show_n, $size, $media, $delta, $people = N
 /**
  * Photoset block. Block delta: 1 and 4.
  */
-function _flickr_block_photosets($nsid, $show_n, $size, $media, $delta) {
+function _flickr_block_photosets($nsid, $show_n, $size, $media, $delta, $people = NULL) {
   if ($cache = cache_get('flickr_block_' . $delta . '_' . $nsid)) {
     $output = $cache->data;
   }
@@ -852,18 +852,18 @@ function _flickr_block_photosets($nsid, $show_n, $size, $media, $delta) {
     $output = '<div class="flickr-block-photosets">';
     $to = min($show_n, count($photosets));
     for ($i = 0; $i < $to; $i++) {
-      $set_title = l($photosets[$i]['title']['_content'], 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photosets[$i]['id'], array(
+      $set_title = l($photosets[$i]['title']['_content'], $people['photosurl'] . 'sets/' . $photosets[$i]['id'], array(
         'attributes' => array(
           'title' => t('View set on Flickr.'),
           'target' => '_blank',
         ),
       ));
-      $map = l(t('map'), 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photosets[$i]['id'] . '/map/', array(
+      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'sets/' . $photosets[$i]['id'] . '/map/', array(
         'attributes' => array(
           'title' => t('View set on Flickr map.'),
           'target' => '_blank',
-        )));
-      $output .= '<div class="flickr-block-photoset"><div class="flickr-block-set-title">' . $set_title . ' (' . $map . ')</div>';
+        ))) . ')' : '';
+      $output .= '<div class="flickr-block-photoset"><div class="flickr-block-set-title">' . $set_title . ' ' . $map . '</div>';
       switch ($size) {
         case "x";
           $output .= theme('flickr_flickrcomslideshow', array(
@@ -885,7 +885,7 @@ function _flickr_block_photosets($nsid, $show_n, $size, $media, $delta) {
             'media' => $media,
           ));
           // A counter if set to show.
-          $flickr = l(t("set on Flickr"), 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photosets[$i]['id'] . '/', array(
+          $flickr = l(t("set on Flickr"), $people['photosurl'] . 'sets/' . $photosets[$i]['id'] . '/', array(
             'attributes' => array(
               'title' => t('View set on Flickr.'),
               'target' => '_blank',
@@ -899,6 +899,16 @@ function _flickr_block_photosets($nsid, $show_n, $size, $media, $delta) {
           $output .= variable_get('flickr_block_counter', 1) ? '<div class="flickr-counter">' . $count . '</div>' : '';
       }
       $output .= '</div>';
+    }
+    if ($i == 0) {
+      $flickr = l(t("on Flickr"), $people['photosurl'] . '/sets/', array(
+        'attributes' => array(
+          'title' => t('View sets on Flickr.'),
+          'target' => '_blank',
+        ),
+        'html' => TRUE,
+      ));
+      $output .= t('No sets found !flickr.', array('!flickr' => $flickr));
     }
     $output .= '</div>';
     cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 28) * 60 * 60));

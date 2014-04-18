@@ -210,26 +210,30 @@ function flickrfield_field_formatter_info() {
   $sizes = flickr_photo_sizes();
   // Formatters for general Flickr CCK field.
   foreach ($sizes as $size => $info) {
-    $formatters[$size] = array(
-      'label' => $info['label'],
-      'field types' => array('flickrfield'),
-    );
+    if (stripos($info['label'], t('slideshow')) == FALSE) {
+      $formatters[$size] = array(
+        'label' => $info['label'],
+        'field types' => array('flickrfield'),
+      );
+    }
   }
 
   // Formatters for Flickr photoset field.
   foreach ($sizes as $size => $info) {
-    $formatters['photoset_primaryphoto_size' . $size . '_nolink'] = array(
-      'label' => t('Primary set photo at size "@size"', array('@size' => $info['label'])),
-      'field types' => array('flickrfield_photoset'),
-    );
-    $formatters['photoset_primaryphoto_size' . $size . '_linknode'] = array(
-      'label' => t('Primary set photo at size "@size" with link to node', array('@size' => $info['label'])),
-      'field types' => array('flickrfield_photoset'),
-    );
-    $formatters['photoset_primaryphoto_size' . $size . '_linkflickrcomset'] = array(
-      'label' => t('Primary set photo at size "@size" with link to set on Flickr.com', array('@size' => $info['label'])),
-      'field types' => array('flickrfield_photoset'),
-    );
+    if (stripos($info['label'], t('slideshow')) == FALSE) {
+      $formatters['photoset_primaryphoto_size' . $size . '_nolink'] = array(
+        'label' => t('Primary set photo at size "@size"', array('@size' => $info['label'])),
+        'field types' => array('flickrfield_photoset'),
+      );
+      $formatters['photoset_primaryphoto_size' . $size . '_linknode'] = array(
+        'label' => t('Primary set photo at size "@size" with link to node', array('@size' => $info['label'])),
+        'field types' => array('flickrfield_photoset'),
+      );
+      $formatters['photoset_primaryphoto_size' . $size . '_linkflickrcomset'] = array(
+        'label' => t('Primary set photo at size "@size" with link to set on Flickr.com', array('@size' => $info['label'])),
+        'field types' => array('flickrfield_photoset'),
+      );
+    }
   }
   $formatters['photoset_flickrcomslideshow'] = array(
     'label' => 'Embedded Flickr.com slideshow (Flash)',

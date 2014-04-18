@@ -514,7 +514,7 @@ function theme_flickr_photoset($variables) {
   $photoset = $variables['photoset'];
   $owner = $variables['owner'];
   $size = $variables['size'];
-  $media = isset($variables['media']) ? $variables['media'] : 'all';
+  $media = isset($variables['media']) ? $variables['media'] : 'photos';
   $attribs = $variables['attribs'];
 
   if (module_exists('flickr_sets')) {
