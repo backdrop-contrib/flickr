@@ -88,22 +88,34 @@ function flickr_admin_settings() {
       '#description' => t('A default Flickr size to use. This will be used when no size is specified, for example [flickr-photo:id=3711935987].<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
     );
   }
+  $style_doc = l(t('Flickr module Style Guide'), 'https://drupal.org/node/2174131', array(
+      'attributes' => array(
+        'title' => t('Flickr Style Guide documentation | Drupal.org'),
+        'target' => '_blank',
+      ),
+  ));
   $form['flickr_css'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use flickr.css'),
     '#default_value' => variable_get('flickr_css', 1),
-    '#description' => t('Uncheck to take care of the styling yourself in custom CSS.'),
+    '#description' => t("Uncheck to take care of the styling yourself in custom CSS.<br />Side note: Extend CSS even further with the !style_doc. If you use Flickr Filter, you might find the <a href='https://drupal.org/project/autofloat'>AutoFloat module</a> useful.", array('!style_doc' => $style_doc)),
   );
   $form['info_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Flickr info to use'),
   );
+  $attribution = l(t('proper attribution'), 'https://www.flickr.com/services/developer/attributions/', array(
+      'attributes' => array(
+        'title' => t('Flickr: The Flickr Developer Guide - Attributions'),
+        'target' => '_blank',
+      ),
+  ));
   $form['info_settings']['flickr_title_suppress_on_small'] = array(
     '#type' => 'textfield',
     '#title' => t('Minimum image width to display a title caption'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_title_suppress_on_small', '100'),
-    '#description' => t("Small images have liitle space for a title caption. Replace it with the text 'Flickr' that links to the photo page on Flickr to comply with their <a href='https://www.flickr.com/guidelines.gne' title='Flickr Community Guidelines' target='_blank'>Guidelines</a>.<br />Set it to '0 px' to always include or '999 px' to always exclude. After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>."),
+    '#description' => t("Small images have liitle space for a title caption. Replace it with the text 'Flickr' that links to the photo page on Flickr to comply with their <a href='https://www.flickr.com/guidelines.gne' title='Flickr Community Guidelines' target='_blank'>Guidelines</a>.<br />Set it to '0 px' to always include or '999 px' to always exclude. To give !attribution this should be included (space allowing). After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution)),
     '#field_suffix' => t('px'),
     '#size' => 3,
     '#maxlength' => 3,
@@ -113,7 +125,7 @@ function flickr_admin_settings() {
     '#title' => t('Minimum image width to display date, location, photographer and optionally license info under the caption'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_metadata_suppress_on_small', '150'),
-    '#description' => t("Suppress extra info on small images. Set it to '0 px' to always include or '999 px' to always exclude. After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>."),
+    '#description' => t("Suppress extra info on small images. Set it to '0 px' to always include or '999 px' to always exclude. To give !attribution this should be included (space allowing). After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution)),
     '#field_suffix' => t('px'),
     '#size' => 3,
     '#maxlength' => 3,
@@ -122,7 +134,7 @@ function flickr_admin_settings() {
     '#type' => 'checkbox',
     '#title' => t('License info in caption'),
     '#default_value' => variable_get('flickr_license', 0),
-    '#description' => t("To include to follow the <a href='https://creativecommons.org/licenses/by/2.0/#deed-conditions' target='_blank'>Creative Commons Guidelines</a>. Depends on 'Minimum image width' above. After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>."),
+    '#description' => t("To give !attribution. Depends on 'Minimum image width' above. After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution)),
   );
   $form['info_settings']['flickr_caption_padding'] = array(
     '#type' => 'textfield',
@@ -143,11 +155,12 @@ function flickr_admin_settings() {
       'description' => 'description',
       'license' => 0,
     )),
+    '#description' => t("To give !attribution all marked * should be checked. After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution)),
     '#options' => array(
-      'title' => t('Title'),
-      'metadata' => t('Date, location and photographer'),
+      'title' => t('Title *'),
+      'metadata' => t('Date, location and photographer *'),
       'description' => t('Description'),
-      'license' => t('License info'),
+      'license' => t('License info *'),
     ),
   );
   $form['overlay_settings'] = array(
