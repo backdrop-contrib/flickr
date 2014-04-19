@@ -309,6 +309,21 @@ function theme_flickr_photo($variables) {
   $size = $variables['size'];
   $format = $variables['format'];
   $attribs = $variables['attribs'];
+  // If we have a class or style containing the term 'float', prepare if so it
+  // can be applied to the 'flickr-wrapper' span element later on that includes
+  // also the caption.
+  if (isset($attribs['class'])) {
+    $class_float = (stripos($attribs['class'], 'float') !== FALSE) ? ' ' . $attribs['class'] : '';
+  }
+  else {
+    $class_float = '';
+  }
+  if (isset($attribs['style'])) {
+    $style_float = (stripos($attribs['style'], 'float') !== FALSE) ? ' style="' . $attribs['style'] . '"' : '';
+  }
+  else {
+    $style_float = '';
+  }
   $url = flickr_photo_img($photo, variable_get('flickr_opening_size', ''), $format);
   $img = flickr_img($photo, $size, $attribs);
   $img_url = flickr_photo_img($photo, $size);
@@ -430,7 +445,7 @@ function theme_flickr_photo($variables) {
   // Final step when NO overlay browser is used that generates the image that
   // links to the Flickr page to comply with the TOS of Flickr.
   if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL && $width < variable_get('flickr_title_suppress_on_small', '100') && $width < variable_get('flickr_metadata_suppress_on_small', '150')) {
-    return '<span class="flickr-wrap">' . l($img, $photo_url, array(
+    return '<span class="flickr-wrap' . $class_float . '"' . $style_float . '>' . l($img, $photo_url, array(
       'attributes' => array(
         'title' => $title,
         'target' => '_blank',
@@ -447,7 +462,7 @@ function theme_flickr_photo($variables) {
     if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) {
       $url = $photo_url;
     }
-    return '<span class="flickr-wrap">' . l($img, $url, array(
+    return '<span class="flickr-wrap' . $class_float . '"' . $style_float . '>' . l($img, $url, array(
       'attributes' => array(
         'title' => $overlayhtml,
         'class' => array($class),

@@ -72,7 +72,16 @@ span.flickr-credit {
 }
 
 .flickr-block-photosets .flickr-block-photoset {
-margin-top: 0.5em;
-padding-top: 0.5em;
-border-top: 1px solid #dfdfdf;
+  margin-top: 0.5em;
+  padding-top: 0.5em;
+  border-top: 1px solid #dfdfdf;
+}
+
+span.floatleft {
+  float: left; /* LTR */
+  margin: 5px 5px 0 0; /* LTR */
+}
+span.floatright {
+  float: right; /* LTR */
+  margin: 5px 0 0 10px; /* LTR */
 }

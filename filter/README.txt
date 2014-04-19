@@ -46,11 +46,26 @@ the size of all images without a specified size on the site in one go.
 More info at https://www.flickr.com/services/api/misc.urls.html and
 https://www.flickr.com/help/faq/search/?q=sizes
 
-Adding a class or style value
------------------------------
-To pass classes or styles the syntax has to look like:
-[flickr-photo:id=9247386562, size=m, class=foo bar, style=float:left;]
-Thus without quotes.
-Try to avoid inline styling to float your images. Use the AutoFloat module
-instead (https://drupal.org/project/autofloat) or use a custom class
-and target it with CSS.
+Float photos
+------------
+If a class or style parameter in the Flickr Filter tag
+contains the term 'float' (case insensitive) it will be applied to the flickr-
+wrapper span element that includes also the caption. Some CSS is added to target
+by default the classes 'floatleft' and 'floatright'.
+
+Use:
+[flickr-photo:id=9247386562, class=floatleft]
+This is prefered as it avoids inline styling.
+
+Also this will work:
+[flickr-photo:id=9247388074, size=m, style=float:right;]
+
+If you enable the AutoFloat module (recommended), it should precede over the
+existing 'floatleft' and 'floatright' classes found, but not over the inline
+styles. Thus inline styling is a way to 'overwrite' AutoFloat's behaviour.
+
+Adding multiple 'class' or 'style' values
+-----------------------------------------
+To pass multiple classes or styles the syntax has to look like: [flickr-
+photo:id=9247386562, size=m, class=foo bar, style=float:left; border:solid 2px;]
+Thus without quotes, but with semicolons between styles.
