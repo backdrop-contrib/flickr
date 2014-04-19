@@ -81,9 +81,26 @@ Small images have little space for a title caption. Replaces it with the text
 Defaults to 100 px. Set it to 0 px to always include or 999 px to always
 exclude.
 
+The presence of a caption is solely reliant on the values of the configuration
+fields:
+- Minimum image width to display a title caption * (default: '100 px')
+- Minimum image width to display date, location, photographer and optionally
+  license info under the caption * (default: '150 px') (see point below)
+
+The text 'Flickr' gets added as a caption that links to the correspondend Flickr
+photo page if:
+- clicking the image links to a bigger version of it, using lightbox/colorbox or
+  not, AND
+- the title caption that links to the Flickr photo page is suppressed (depending
+on the size).
+
+Setting a 'class' or 'rel' value in the 'overlay browser settings'
+(colorbox/lightbox), even one that is not valid, always links the image to a
+bigger version of it.
+
 Minimum image width to display date, location, photographer and optionally
 license info under the caption
---------------------------------------------------------------------------------
+--------------------------------------------------------------------------
 Suppress extra info on small images. After saving the configuration clear the
 cache.
 Defaults to 150 px. Set it to 0 px to always include or 999 px to always
@@ -232,9 +249,8 @@ Re-save your block settings. See https://drupal.org/node/2089575: Undefined
 index error after upgrade.
 
 Uninstalling Flickr Field - module is not selectable because Drupal says the
-----------------------------------------------------------------------------
 fields implemented by it are being used
----------------------------------------
+----------------------------------------------------------------------------
 First delete all Flickr fields in use on your content types at
 admin/structure/types 'Manage fields'.
 Then run cron at admin/reports/status/run-cron
