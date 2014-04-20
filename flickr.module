@@ -344,6 +344,7 @@ function theme_flickr_photo($variables) {
   }
   $photo_url = flickr_photo_page_url($photo['owner'], $photo['id']);
   $info = flickr_photo_get_info($photo['id']);
+  $people = flickr_get_user_info($info['owner']['nsid']);
   $title = is_array($photo['title']) ? $photo['title']['_content'] : $photo['title'];
   // Image width < 100 px is too small for most titles. Can be set differently.
   if ($width < variable_get('flickr_title_suppress_on_small', '100')) {
@@ -358,8 +359,9 @@ function theme_flickr_photo($variables) {
   $title .= (($info['media'] !== 'video') || (stripos($title, 'video') !== FALSE)) ? '' : ' ' . t('(VIDEO)');
   // Use title if description does not exist, else sanitize the description.
   $description = !empty($info['description']['_content']) ? str_replace('"', "'", htmlspecialchars_decode(strip_tags($info['description']['_content']))) : $title;
-  // Real name if it exists or go with the username. Link to Flickr user page.
-  $username = !empty($info['owner']['realname']) ? l($info['owner']['realname'], 'https://www.flickr.com/photos/' . $info['owner']['nsid'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank'))) : l($info['owner']['username'], 'https://www.flickr.com/photos/' . $info['owner']['nsid'], array('attributes' => array('title' => t('View user on Flickr.'), 'target' => '_blank')));
+  // Real name if it exists else the username. Link to Flickr profile page.
+  // Replace with $people['photostream'] if you want to link to the photostream.
+  $username = $people['name'];
   // The date an image was taken formatted as 'time ago'.
   $taken = isset($info['dates']['taken']) ? format_interval(time() - strtotime($info['dates']['taken']), 1) . ' ' . t('ago') : '';
   // A bunch of geo data.
