@@ -166,7 +166,7 @@ function flickr_photos_access($account) {
 }
 
 /**
- * Flickr photos.
+ * Flickr photos (as shown on a user profile).
  */
 function flickr_photos($user = NULL) {
   global $pager_page_array, $pager_total, $pager_total_items;
@@ -484,7 +484,7 @@ function theme_flickr_photo($variables) {
 }
 
 /**
- * Theme Flickr photo box.
+ * Theme Flickr photo box on a profile page.
  */
 function theme_flickr_photo_box($variables) {
   $photo = $variables['photo'];
@@ -506,7 +506,7 @@ function theme_flickr_photo_box($variables) {
 }
 
 /**
- * Theme Flickr photos.
+ * Theme Flickr photos on a profile page.
  */
 function theme_flickr_photos($variables) {
   $photos = $variables['photos'];
@@ -544,6 +544,8 @@ function theme_flickr_photoset($variables) {
         $output .= theme('flickr_photo', array(
           'photo' => $photo,
           'size' => $size,
+          'format' => NULL,
+          'attribs' => $attribs,
           ));
       }
     }
