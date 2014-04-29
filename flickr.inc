@@ -449,3 +449,164 @@ function flickr_get_user_info($nsid) {
   $people['count'] = $info['photos']['count']['_content'];
   return $people;
 }
+
+/**
+ * Random from photoset. Used by block 7 and random Filter photoset-id.
+ */
+function _flickr_photoset_random($nsid, $show_n, $size, $media, $photoset_id, $delta = NULL) {
+  $cache = cache_get('flickr_block_' . $delta . '_' . $photoset_id);
+  // If $delta is a number it is a block that could be cached.
+  if ($cache && is_numeric($delta)) {
+    $output = $cache->data;
+  }
+  else {
+    switch ($size) {
+      case "x";
+        $output = theme('flickr_flickrcomslideshow', array(
+          'id' => $photoset_id,
+        ));
+        drupal_set_message(t("Note that slideshows don't show in random but in reverse chronological order and ignore number and media settings."), 'warning');
+        break;
+
+      case "y";
+        $output = theme('flickr_flickrcomslideshow_simple', array(
+          'id' => $photoset_id,
+        ));
+        drupal_set_message(t("Note that slideshows don't show in random but in reverse chronological order and ignore number and media settings."), 'warning');
+        break;
+
+      default:
+        $output = '';
+        // Get information about the photoset, including the owner.
+        $info = flickr_photoset_get_info($photoset_id);
+        if (!$info) {
+          return;
+        }
+
+        // Get a list of "all" the photos in the photoset. This is cached.
+        $response = flickr_photosets_getphotos($photoset_id, array(
+            'per_page' => 500,
+            'extras' => 'owner',
+            'media' => $media,
+          ));
+        if (!$response) {
+          return;
+        }
+
+        // Randomly display $show_n of them.
+        $photos = $response['photoset']['photo'];
+        shuffle($photos);
+        // We shouldn't try to return more than the total number of photos.
+        $to = min($show_n, count($photos));
+        for ($i = 0; $i < $to; $i++) {
+          // Insert owner into $photo because theme_flickr_photo needs it.
+          $photos[$i]['owner'] = $info['owner'];
+          $output .= theme('flickr_block_photo', array(
+            'photo' => $photos[$i],
+            'size' => $size,
+          ));
+        }
+        if ($i == 0) {
+          $output .= t('No media found in the set posted on Flickr.');
+          continue;
+        }
+        else {
+          // A counter if set to show.
+          $flickr = l(t("set on Flickr"), 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photoset_id, array(
+            'attributes' => array(
+              'title' => t('View set on Flickr.'),
+              'target' => '_blank',
+            ),
+            'html' => TRUE,
+          ));
+          $count = t('@number out of @total in !flickr', array(
+            '@number' => $i,
+            '@total' => number_format($response['photoset']['total'], 0, ",", "."),
+            '!flickr' => $flickr,
+          ));
+          // If $delta is non numeric allow counter override from filter module.
+          $output .= ((variable_get('flickr_block_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-counter">' . $count . '</div>' : '';
+        }
+    }
+    if (!is_null($delta)) {
+      cache_set('flickr_block_' . $delta . '_' . $photoset_id, $output, 'cache', time() + (variable_get('flickr_block_refresh_random', 23) * 60 * 60));
+    }
+  }
+  return $output;
+}
+
+/**
+ * Recent from photoset. Used by block 8 and not random Filter photoset-id.
+ */
+function _flickr_photoset_recent($nsid, $show_n, $size, $media, $photoset_id, $delta = NULL) {
+  $cache = cache_get('flickr_block_' . $delta . '_' . $photoset_id);
+  // If $delta is a number it is a block that could be cached.
+  if ($cache && is_numeric($delta)) {
+    $output = $cache->data;
+  }
+  else {
+    switch ($size) {
+      case "x";
+        $output = theme('flickr_flickrcomslideshow', array(
+          'id' => $photoset_id,
+        ));
+        drupal_set_message(t("Note that slideshows ignore number and media settings."), 'warning');
+        break;
+
+      case "y";
+        $output = theme('flickr_flickrcomslideshow_simple', array(
+          'id' => $photoset_id,
+        ));
+        drupal_set_message(t("Note that slideshows ignore number and media settings."), 'warning');
+        break;
+
+      default:
+        $output = '';
+        $response = flickr_photosets_getphotos($photoset_id, array(
+            'per_page' => $show_n,
+            'media' => $media,
+          ));
+
+        if (!$response) {
+          return;
+        }
+        // Only show the counter if the number of items is inferior to the total
+        // available on Flickr.
+        $i = 0;
+        foreach ($response['photoset']['photo'] as $photo) {
+          // Insert owner into $photo because theme_flickr_photo needs it.
+          $photo['owner'] = $response['photoset']['owner'];
+          $output .= theme('flickr_block_photo', array(
+            'photo' => $photo,
+            'size' => $size,
+          ));
+          $i++;
+        }
+        if ($i == 0) {
+          $output .= t('No media found in the set posted on Flickr.');
+          continue;
+        }
+        else {
+          // A counter if set to show.
+          $flickr = l(t("set on Flickr"), 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photoset_id, array(
+            'attributes' => array(
+              'title' => t('View set on Flickr.'),
+              'target' => '_blank',
+            ),
+            'html' => TRUE,
+          ));
+          $count = t('@number out of @total in !flickr', array(
+            '@number' => $i,
+            '@total' => number_format($response['photoset']['total'], 0, ",", "."),
+            '!flickr' => $flickr,
+          ));
+          // If $delta is non numeric allow counter override from filter module.
+          $output .= ((variable_get('flickr_block_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-counter">' . $count . '</div>' : '';
+        }
+    }
+    if (!is_null($delta)) {
+      cache_set('flickr_block_' . $delta . '_' . $photoset_id, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 31) * 60 * 60));
+    }
+  }
+  return $output;
+}

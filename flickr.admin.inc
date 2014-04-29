@@ -65,7 +65,7 @@ function flickr_admin_settings() {
     '#title' => t('Number of photos per photoset'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_photos_per_page', 20),
-    '#description' => t('The number indicates how many photos of a photoset display in your nodes. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+    '#description' => t('The number indicates how many photos of a photoset display in your nodes if no number is specified. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
     '#size' => 3,
     '#maxlength' => 3,
   );
@@ -85,7 +85,7 @@ function flickr_admin_settings() {
         'c' => t('c: 800 px on longest side (!)'),
         'b' => t('b: 1024 px on longest side'),
       ),
-      '#description' => t('A default Flickr size to use. This will be used when no size is specified, for example [flickr-photo:id=3711935987].<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+      '#description' => t('A default Flickr size to use if no size is specified, for example [flickr-photo:id=3711935987].<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
     );
   }
   $style_doc = l(t('Flickr module Style Guide'), 'https://drupal.org/node/2174131', array(
@@ -204,7 +204,7 @@ function flickr_admin_settings() {
       '#type' => 'checkbox',
       '#title' => t('Show a Flickr counter'),
       '#default_value' => variable_get('flickr_block_counter', 1),
-      '#description' => t('Shows under the block title how many photos are displayed out of the total number available for a user, group or set on Flickr.'),
+      '#description' => t('Shows how many photos are displayed out of the total number available for a user, group or set on Flickr. Can be overridden by the filter tag, eg. [flickr-photoset:id=72157634563269642,count=false]'),
     );
     $form['block_settings']['flickr_block_maps'] = array(
       '#type' => 'checkbox',
