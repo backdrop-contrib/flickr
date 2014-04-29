@@ -172,13 +172,13 @@ function flickr_admin_settings() {
     '#type' => 'textfield',
     '#title' => t('class'),
     '#default_value' => variable_get('flickr_class', ''),
-    '#description' => t('For example: <em>colorbox</em>'),
+    '#description' => t('For example: <em>colorbox</em>. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
   );
   $form['overlay_settings']['flickr_rel'] = array(
     '#type' => 'textfield',
     '#title' => t('rel'),
     '#default_value' => variable_get('flickr_rel', ''),
-    '#description' => t('For example: <em>gallery-all</em> or <em>lightbox[gallery]</em>'),
+    '#description' => t('For example: <em>gallery-all</em> or <em>lightbox[gallery]</em>. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
   );
   $form['overlay_settings']['flickr_opening_size'] = array(
     '#type' => 'select',
