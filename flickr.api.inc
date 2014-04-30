@@ -313,7 +313,7 @@ function flickr_get_group_photos($nsid, $page = 1, $other_args = array()) {
 
   // Set per_page to flickr module default if not specified in $other_args.
   if (!isset($other_args['per_page'])) {
-//    $args['per_page'] = variable_get('flickr_photos_per_page', 20);
+    $args['per_page'] = variable_get('flickr_photos_per_page', 20);
   }
 
   $response = flickr_request('flickr.groups.pools.getPhotos', array_merge($args, $other_args));
