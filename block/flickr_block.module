@@ -760,6 +760,9 @@ function flickr_block_view($delta = '') {
           $tags = '';
         }
       }
+      else {
+        $tags = '';
+      }
       // The used tags with a space forced after the comma and the last
       // one replaced by 'or'.
       $tagged = (empty($tags)) ? '' : l(t("tagged <em>") . preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags)) . "</em>", $people['photosurl'] . 'tags/' . $tags, array(
