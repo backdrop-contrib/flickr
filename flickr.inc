@@ -453,84 +453,120 @@ function flickr_get_user_info($nsid) {
 /**
  * Media from photoset. Used by blocks 7, 8 and text filter photoset-id.
  */
-function _flickr_photoset($nsid, $show_n, $size, $media, $photoset_id, $delta = NULL, $random = 0) {
-  $cache = cache_get('flickr_block_' . $delta . '_' . $photoset_id . '_' . $random);
+function _flickr_photoset($photoset_id, $show_n, $size, $media, $tags, $delta = NULL, $random = 0) {
+  $cache = cache_get('flickr_block_' . $delta . '_' . $photoset_id . '_' . $tags . '_' . $random);
   // If $delta is a number it is a block that could be cached.
   if ($cache && is_numeric($delta)) {
     $output = $cache->data;
   }
   else {
     switch ($size) {
-      case "x";
+      case "x":
         $output = theme('flickr_flickrcomslideshow', array(
           'id' => $photoset_id,
         ));
-        drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number and media settings."), 'warning');
+        drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, tags and media settings."), 'warning');
         break;
 
-      case "y";
+      case "y":
         $output = theme('flickr_flickrcomslideshow_simple', array(
           'id' => $photoset_id,
         ));
-        drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number and media settings."), 'warning');
+        drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, tags and media settings."), 'warning');
         break;
 
       default:
         $output = '';
         // Get information about the photoset, including the owner.
         $info = flickr_photoset_get_info($photoset_id);
+        $people = flickr_get_user_info($info['owner']);
         if (!$info) {
           return;
         }
-
         // Get a list of "all" the photos in the photoset. This is cached.
         $response = flickr_photosets_getphotos($photoset_id, array(
             'per_page' => 500,
-            'extras' => 'owner',
+            'extras' => 'owner, tags',
             'media' => $media,
           ));
         if (!$response) {
           return;
         }
-
         $photos = $response['photoset']['photo'];
         if ($random == 1) {
           shuffle($photos);
         }
         // We shouldn't try to return more than the total number of photos.
         $to = min($show_n, count($photos));
-        for ($i = 0; $i < $to; $i++) {
-          // Insert owner into $photo because theme_flickr_photo needs it.
-          $photos[$i]['owner'] = $info['owner'];
-          $output .= theme('flickr_photo', array(
-            'photo' => $photos[$i],
-            'size' => $size,
-          ));
-        }
-        if ($i == 0) {
-          $output .= t('No media found in the set posted on Flickr.');
-          continue;
+        $i = 0;
+        $j = 0;
+        $terms = is_array($tags) ? $tags : explode(",", $tags);
+        if (empty($tags)) {
+          foreach ($photos as $photo) {
+            if ($i < $show_n) {
+              // Insert owner into $photo because theme_flickr_photo needs it.
+              $photo['owner'] = $info['owner'];
+              $output .= theme('flickr_photo', array(
+                'photo' => $photo,
+                'size' => $size,
+              ));
+              $i++;
+              $j++;
+            }
+          }
         }
         else {
-          // A counter if set to show.
-          $flickr = l(t("set on Flickr"), 'https://www.flickr.com/photos/' . $nsid . '/sets/' . $photoset_id, array(
+          foreach ($terms as $term) {
+            foreach ($photos as $key => $photo) {
+              if ($i >= $show_n && stripos($photo['tags'], $term) !== FALSE) {
+                $j++;
+              }
+              elseif (stripos($photo['tags'], $term) !== FALSE) {
+                // Insert owner into $photo because theme_flickr_photo needs it.
+                $photo['owner'] = $info['owner'];
+                $output .= theme('flickr_photo', array(
+                  'photo' => $photo,
+                  'size' => $size,
+                ));
+                // Avoid this image gets repeated by removing it from the
+                // array.
+                unset($photos[$key]);
+                $i++;
+                $j++;
+              }
+            }
+          }
+        }
+        // A counter if set to show.
+        // The used tags with a space forced after the comma and the last
+        // one replaced by 'or'. In the link all whitespace is removed.
+        $flickr = (!empty($tags)) ? l(t("tagged <em>@tag</em>", array(
+          '@tag' => preg_replace('/(.*),/', '$1 ' . t('or'), preg_replace("/,([^\s])/", ", $1", $tags)))), $people['photosurl'] . 'tags/' . $tags, array(
+            'attributes' => array(
+              'title' => t('View tagged photos on Flickr.'),
+              'target' => '_blank',
+            ),
+            'html' => TRUE,
+          )) : '';
+        $set_title = l($info['title']['_content'], $people['photosurl'] . 'sets/' . $photoset_id, array(
             'attributes' => array(
               'title' => t('View set on Flickr.'),
               'target' => '_blank',
             ),
             'html' => TRUE,
           ));
-          $count = t('@number out of @total in !flickr', array(
-            '@number' => $i,
-            '@total' => number_format($response['photoset']['total'], 0, ",", "."),
-            '!flickr' => $flickr,
-          ));
-          // If $delta is non numeric allow counter override from filter module.
-          $output .= ((variable_get('flickr_block_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-counter">' . $count . '</div>' : '';
-        }
+        $total = (empty($tags)) ? (int) $people['count'] : $j;
+        $count = t('@number out of @total in set !set_title !flickr by !user', array(
+          '@number' => $i,
+          '@total' => number_format($total, 0, ",", "."),
+          '!set_title' => $set_title,
+          '!flickr' => $flickr,
+          '!user' => $people['photostream'],
+        ));
+        $output .= ((variable_get('flickr_block_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-counter">' . $count . '</div>' : '';
     }
     if (is_numeric($delta)) {
-      cache_set('flickr_block_' . $delta . '_' . $photoset_id . '_' . $random, $output, 'cache', time() + (variable_get('flickr_block_refresh_random', 23) * 60 * 60));
+      cache_set('flickr_block_' . $delta . '_' . $photoset_id . '_' . $tags . '_' . $random, $output, 'cache', time() + (variable_get('flickr_block_refresh_random', 23) * 60 * 60));
     }
   }
   return $output;
@@ -547,14 +583,14 @@ function _flickr_user($nsid, $show_n, $size, $media, $tags, $delta, $people = NU
   }
   else {
     switch ($size) {
-      case "x";
+      case "x":
         $output = theme('flickr_flickrcomslideshow', array(
           'id' => $nsid,
         ));
         drupal_set_message(t("Note that slideshows show in reverse chronological order and ignore number, tags and media settings."), 'warning');
         break;
 
-      case "y";
+      case "y":
         $output = theme('flickr_flickrcomslideshow_simple', array(
           'id' => $nsid,
         ));
