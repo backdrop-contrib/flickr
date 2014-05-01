@@ -472,7 +472,7 @@ function _flickr_photoset($nsid, $show_n, $size, $media, $photoset_id, $delta = 
         $output = theme('flickr_flickrcomslideshow_simple', array(
           'id' => $photoset_id,
         ));
-        drupal_set_message(t("Note that slideshows reverse chronological order (newest first) and ignore number and media settings."), 'warning');
+        drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number and media settings."), 'warning');
         break;
 
       default:

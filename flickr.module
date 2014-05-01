@@ -345,13 +345,100 @@ function theme_flickr_photo($variables) {
   $photo_url = flickr_photo_page_url($photo['owner'], $photo['id']);
   $info = flickr_photo_get_info($photo['id']);
   $people = flickr_get_user_info($info['owner']['nsid']);
-  $title = is_array($photo['title']) ? $photo['title']['_content'] : $photo['title'];
-  // Image width < 100 px is too small for most titles. Can be set differently.
-  if ($width < variable_get('flickr_title_suppress_on_small', '100')) {
-    $credit = t('Flickr');
+  switch ($info['license']) {
+    case '0':
+      $license = ' <span class="flickr-copyright">' . l('©', 'http://en.wikipedia.org/wiki/Copyright', array(
+        'attributes' => array(
+          'title' => t('All Rights Reserved'),
+          'target' => '_blank',
+        ),
+        'html' => TRUE,
+      )) . '</span>';
+      $licenselong = '&copy; ' . t('All Rights Reserved') . '</span>';
+      break;
+
+    case '1':
+      $license = ' <span class="flickr-cc">' . l('cna', 'https://creativecommons.org/licenses/by-nc-sa/2.0/', array(
+        'attributes' => array(
+          'title' => t('Creative Commons — Attribution-NonCommercial-ShareAlike 2.0 Generic — CC BY-NC-SA 2.0'),
+          'target' => '_blank',
+        ),
+      )) . '</span>';
+      $licenselong = t('Creative Commons, Attribution, Non Commercial, ShareAlike');
+      break;
+
+    case '2':
+      $license = ' <span class="flickr-cc">' . l('cn', 'https://creativecommons.org/licenses/by-nc/2.0/', array(
+        'attributes' => array(
+          'title' => t('Creative Commons — Attribution-NonCommercial 2.0 Generic — CC BY-NC 2.0'),
+          'target' => '_blank',
+        ),
+      )) . '</span>';
+      $licenselong = t('Creative Commons, Attribution, Non Commercial');
+      break;
+
+    case '3':
+      $license = ' <span class="flickr-cc">' . l('cnd', 'https://creativecommons.org/licenses/by-nc-nd/2.0/', array(
+        'attributes' => array(
+          'title' => t('Creative Commons — Attribution-NonCommercial-NoDerivs 2.0 Generic — CC BY-NC-ND 2.0'),
+          'target' => '_blank',
+        ),
+      )) . '</span>';
+      $licenselong = t('Creative Commons, Attribution, Non Commercial, No Derivs');
+      break;
+
+    case '4':
+      $license = ' <span class="flickr-cc">' . l('c', 'https://creativecommons.org/licenses/by/2.0/', array(
+        'attributes' => array(
+          'title' => t('Creative Commons — Attribution 2.0 Generic — CC BY 2.0'),
+          'target' => '_blank',
+        ),
+      )) . '</span>';
+      $licenselong = t('Creative Commons, Attribution');
+      break;
+
+    case '5':
+      $license = ' <span class="flickr-cc">' . l('cs', 'https://creativecommons.org/licenses/by-sa/2.0/', array(
+        'attributes' => array(
+          'title' => t('Creative Commons — Attribution-ShareAlike 2.0 Generic — CC BY-SA 2.0'),
+          'target' => '_blank',
+        ),
+      )) . '</span>';
+      $licenselong = t('Creative Commons, Attribution, Share Alike');
+      break;
+
+    case '6':
+      $license = ' <span class="flickr-cc">' . l('cd', 'https://creativecommons.org/licenses/by-nd/2.0/', array(
+        'attributes' => array(
+          'title' => t('Creative Commons — Attribution-NoDerivs 2.0 Generic — CC BY-ND 2.0'),
+          'target' => '_blank',
+        ),
+      )) . '</span>';
+      $licenselong = t('Creative Commons, Attribution, No Derivs');
+      break;
+
+    case '7':
+      $license = ' <span class="flickr-cc">' . l('p', 'https://flickr.com/commons/usage/', array(
+        'attributes' => array(
+          'title' => t('Public Domain - No known copyright restrictions'),
+          'target' => '_blank',
+        ),
+      )) . '</span>';
+      $licenselong = t('Public Domain, no known copyright restrictions');
+      break;
+
+    case '8':
+      $license = '<br />' . l(t('United States Government Work'), 'http://www.usa.gov/copyright.shtml', array(
+        'attributes' => array(
+          'title' => t('Copyright and Other Rights Pertaining to U.S. Government Works | USA.gov'),
+          'target' => '_blank',
+        ),
+      ));
+      $licenselong = t('Copyright and Other Rights Pertaining to U.S. Government Works | USA.gov');
+      break;
   }
-  else {
-    $credit = $title;
+  if (variable_get('flickr_license', 0) == 0) {
+    $license = '';
   }
   // Get the Flickr image title for set data or the photo itself. Sanitize.
   $title = is_array($photo['title']) ? str_replace('"', "'", strip_tags($photo['title']['_content'])) : $photo['title'];
@@ -376,62 +463,23 @@ function theme_flickr_photo($variables) {
       'target' => '_blank',
     ),
   )) : '';
-  switch ($info['license']) {
-    case '0':
-      $license = '<br />&copy; ' . t('All Rights Reserved');
-      $licenselong = '&copy; ' . t('All Rights Reserved');
-      break;
-
-    case '1':
-      $license = ' <a href="https://creativecommons.org/licenses/by-nc-sa/2.0/" title="' . t('Creative Commons — Attribution-NonCommercial-ShareAlike 2.0 Generic — CC BY-NC-SA 2.0') . '" target="_blank"><span class="flickr-cc">cna</span></a>';
-      $licenselong = t('Creative Commons, Attribution, Non Commercial, ShareAlike');
-      break;
-
-    case '2':
-      $license = ' <a href="https://creativecommons.org/licenses/by-nc/2.0/" title="' . t('Creative Commons — Attribution-NonCommercial 2.0 Generic — CC BY-NC 2.0') . '" target="_blank"><span class="flickr-cc">cn</span></a>';
-      $licenselong = t('Creative Commons, Attribution, Non Commercial');
-      break;
-
-    case '3':
-      $license = ' <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/" title="' . t('Creative Commons — Attribution-NonCommercial-NoDerivs 2.0 Generic — CC BY-NC-ND 2.0') . '" target="_blank"><span class="flickr-cc">cnd</span></a>';
-      $licenselong = t('Creative Commons, Attribution, Non Commercial, No Derivs');
-      break;
-
-    case '4':
-      $license = ' <a href="https://creativecommons.org/licenses/by/2.0/" title="' . t('Creative Commons — Attribution 2.0 Generic — CC BY 2.0') . '" target="_blank"><span class="flickr-cc">c</span></a>';
-      $licenselong = t('Creative Commons, Attribution');
-      break;
-
-    case '5':
-      $license = ' <a href="https://creativecommons.org/licenses/by-sa/2.0/" title="' . t('Creative Commons — Attribution-ShareAlike 2.0 Generic — CC BY-SA 2.0') . '" target="_blank"><span class="flickr-cc">cs</span></a>';
-      $licenselong = t('Creative Commons, Attribution, Share Alike');
-      break;
-
-    case '6':
-      $license = ' <a href="https://creativecommons.org/licenses/by-nd/2.0/" title="' . t('Creative Commons — Attribution-NoDerivs 2.0 Generic — CC BY-ND 2.0') . '" target="_blank"><span class="flickr-cc">cd</span></a>';
-      $licenselong = t('Creative Commons, Attribution, No Derivs');
-      break;
-
-    case '7':
-      $license = '<br /><a href="https://flickr.com/commons/usage/" title="' . t('Flickr: The Commons') . '" target="_blank">No known copyright restrictions</a>';
-      $licenselong = t('No known copyright restrictions');
-      break;
-
-    case '8':
-      $license = '<br /><a href="http://www.usa.gov/copyright.shtml" title="' . t('Copyright and Other Rights Pertaining to U.S. Government Works | USA.gov') . '" target="_blank">United States Government Work</a>';
-      $licenselong = t('Copyright and Other Rights Pertaining to U.S. Government Works | USA.gov');
-      break;
-  }
-  if (variable_get('flickr_license', 0) == 0) {
-    $license = '';
-  }
   // Compose extra Flickr info as HTML to render.
   $metadata = $taken . $location . ' ' . t('by') . ' ' . $username;
-  // Image width < 100 px is too small for most titles. Can be set differently.
-  $notitle = (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) ? '' : '<span class="flickr-no-title">' . t('Flickr') . '</span><br />';
-  $credit = $width < variable_get('flickr_title_suppress_on_small', '100') ? $notitle : '<span class="flickr-title">' . $title . '</span><br />';
   // Image width < 150 px is too small for extra info. Can be set differently.
   $metadatacaption = $width < variable_get('flickr_metadata_suppress_on_small', '150') ? '' : '<span class="flickr-metadata">' . $metadata . $license . '</span>';
+  // Image width < 100 px is too small for most titles. Can be set differently.
+  if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) {
+    $notitle = '';
+  }
+  else {
+    // To give best possible attribution given the small space, display license
+    // icon if set to show.
+    $notitle = '<span class="flickr-no-title">' . t('Flickr') . '</span> ';
+    if ($width < variable_get('flickr_metadata_suppress_on_small', '150')) {
+      $metadatacaption = $license;
+    }
+  }
+  $credit = $width < variable_get('flickr_title_suppress_on_small', '100') ? $notitle : '<span class="flickr-title">' . $title . '</span><br />';
   // Determine what info goes with the enlarged version of the image.
   $overlay = variable_get('flickr_info_overlay', array(
     'title' => 'title',

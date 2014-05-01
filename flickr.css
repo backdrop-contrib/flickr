@@ -41,9 +41,7 @@ span.flickr-credit {
     font-weight: normal;
     src: url('http://mirrors.creativecommons.org/presskit/cc-icons.ttf') format('truetype');
   }
-  span.flickr-cc {
-    /*Creative commons icon font*/
-    font-family: 'CC-ICONS';
+  span.flickr-cc, span.flickr-copyright {
     /*The normal size is not well recognizable*/
     font-size: large;
     float: right;
@@ -51,6 +49,15 @@ span.flickr-credit {
     position: relative;
     top: .20em;
     margin-bottom: 5px;
+  }
+  span.flickr-cc {
+    /*Creative commons icon font*/
+    font-family: 'CC-ICONS';
+  }
+  /* Necessary to make the copyright symbol most similar to the cc-icons.*/
+  span.flickr-copyright {
+    font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
+    font-weight: bold;
   }
 }
 
