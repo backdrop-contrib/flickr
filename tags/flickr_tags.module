@@ -4,8 +4,6 @@
  * The Flickr tags module.
  */
 
-require_once(drupal_get_path('module', 'flickr') . '/flickr.inc');
-
 /**
  * Implements hook_menu().
  */

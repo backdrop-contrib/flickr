@@ -4,7 +4,7 @@
  * The Flickr module.
  */
 
-require_once(drupal_get_path('module', 'flickr') . '/flickr.inc');
+require_once 'flickr.inc';
 
 /**
  * Implements hook_help().

@@ -5,4 +5,3 @@ package = Flickr
 configure = admin/structure/types
 dependencies[] = flickr
 dependencies[] = field
-
