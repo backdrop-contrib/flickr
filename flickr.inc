@@ -711,7 +711,6 @@ function _flickr_group($group_id, $show_n, $size, $media, $tags, $delta, $total 
           $i = 0;
           $j = 0;
           $response = $photos['photos']['photo'];
-          dsm($response);
           if ($random == 1) {
             shuffle($response);
           }
@@ -763,7 +762,7 @@ function _flickr_group($group_id, $show_n, $size, $media, $tags, $delta, $total 
             ),
             'html' => TRUE,
           ));
-          $total = (empty($tags)) ? (int) $info['pool_count']['_content'] : $j;
+          $total = (empty($tags)) ? (int) $info['group']['pool_count']['_content'] : $j;
           $count = t('@number out of @total !tagsfrom the Flickr group !flickr', array(
             '@number' => $i,
             '@total' => number_format($total, 0, ",", "."),
