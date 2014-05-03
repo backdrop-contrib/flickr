@@ -25,21 +25,22 @@ function flickr_block_info() {
   $blocks[2]['info'] = t("User (node author) random Flickr photos tagged as term from node");
 
   // Site wide blocks.
-  $blocks[3]['info'] = t('Recent photos from a Flickr user');
-  $blocks[4]['info'] = t('Recent photosets from a Flickr user');
-  $blocks[5]['info'] = t('Random photos from a Flickr user');
-  $blocks[6]['info'] = t('Recent photos from a Flickr group');
+  $blocks[3]['info'] = t('Recent photos from a Flickr user tagged as term from node');
+  $blocks[4]['info'] = t('Recent photosets from a Flickr');
+  $blocks[5]['info'] = t('Random photos from a Flickr user tagged as term from node');
+  $blocks[6]['info'] = t('Recent photos from a Flickr group tagged as term from node');
 
   // Photoset blocks.
   $blocks[7]['info'] = t('Random photos tagged as term from node from a Flickr photoset');
   $blocks[8]['info'] = t('Recent photos tagged as term from node from a Flickr photoset');
 
   // Returns a list of favorite public photos for the given user.
-  $blocks[9]['info'] = t("Recent favorite public photos from a Flickr user");
+  $blocks[9]['info'] = t("Recent favorite public photos from a Flickr user tagged as term from node");
 
-  $blocks[10]['info'] = t("Random photos from a Flickr group");
+  $blocks[10]['info'] = t("Random photos from a Flickr group tagged as term from node");
   $blocks[11]['info'] = t("Random photos with a specific tag from a Flickr user");
-  for ($i = 0; $i < 12; $i++) {
+  $blocks[12]['info'] = t("Random favorite public photos from a Flickr user tagged as term from node");
+  for ($i = 0; $i < 13; $i++) {
     $blocks[$i]['cache'] = DRUPAL_CACHE_GLOBAL;
   }
   return $blocks;
@@ -168,6 +169,16 @@ function flickr_block_configure($delta = '') {
     '#default_value' => $settings['media'],
     '#description' => t("Filter results by media type. Gets ignored for slideshows."),
   );
+  if (module_exists('taxonomy')) {
+    $form["flickr_block_{$delta}_vocab"] = array(
+      '#type'          => 'select',
+      '#title'         => t('Filter by vocabulary'),
+      '#position'      => 'left',
+      '#options'       => $checklist_vocab_array,
+      '#default_value' => $settings['vocab'],
+      '#description'   => t("Limit the Flickr images to those that have a Flickr tag similar to the terms found for the node on the page the block is displayed on of a specific vocabulary. Case insensitive, matches any one tag (OR) or part of it.<br />Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'). Use taxonomy terms without spaces in the vocabulary dedicated to Flickr.<br />For your content type, adjust the <em>Help text</em> of the used taxonomy field accordingly (e.g. at <em>admin/structure/types/manage/article/fields/field_tags</em>). The recommended widget type is <em>Autocomplete term widget (tagging)</em> with an <em>unlimited number of values</em>. I not already in use, the default existing vocabulary <em>Tags</em> can be used which is already configured right by default. Set <em>Tags</em> as a <em>Term reference</em> field on your content type and it works out-of-the-box.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>."),
+    );
+  }
   // A note for dynamic user blocks.
   $form['flickr_block_note'] = array(
     '#markup' => t("<h3>NOTE</h3><strong>The block visibility setting for 'user' blocks are not only restricted by the user in the block configuration but also by the Flickr Block module.</strong> The block only gets displayed when the first argument of the path is 'user' or 'node' and a specific uid is available.<br /><br />Below you can change the block settings to exclude 'node/*' pages or show them only on 'user/*' pages.<br /><br />You can do it also the other way around to show a block only on a node page. Fine-grain it even more by selecting only a certain content type you want to show them on, for example blog posts."),
@@ -180,6 +191,9 @@ function flickr_block_configure($delta = '') {
     case 1:
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_group_id"]);
+      if (module_exists('taxonomy')) {
+        unset($form["flickr_block_{$delta}_vocab"]);
+      }
       // Photoset, not photos.
       $form["flickr_block_{$delta}_show_n"]['#title'] = t('Show the last <em>n</em> photosets');
       $form["flickr_block_{$delta}_show_n"]['#description'] = t("The block will show this many of the user's photosets.");
@@ -190,24 +204,15 @@ function flickr_block_configure($delta = '') {
     case 2:
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_group_id"]);
-      if (module_exists('taxonomy')) {
-        $form["flickr_block_{$delta}_vocab"] = array(
-          '#type'             => 'select',
-          '#title'            => t('Filter by vocabulary'),
-          '#position'         => 'left',
-          '#options'          => $checklist_vocab_array,
-          '#default_value'    => $settings['vocab'],
-          '#description'      => t("Limit the Flickr images to those that have a Flickr tag similar to the terms found for the node the block is displayed on of a specific vocabulary. Case insensitive, matches any one tag (OR) or part of it.<br />Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'). Use taxonomy terms without spaces in the vocabulary dedicated to Flickr.<br />For your content type, adjust the <em>Help text</em> of the used taxonomy field accordingly (e.g. at <em>admin/structure/types/manage/article/fields/field_tags</em>). The recommended widget type is <em>Autocomplete term widget (tagging)</em> with an <em>unlimited number of values</em>."),
-        );
-      }
       break;
 
     // Recent photos from a Flickr user.
     case 3:
       // Random photos from a Flickr user.
     case 5:
-      // Recent favorite public photos from a Flickr user.
+      // Favorite public photos from a Flickr user.
     case 9:
+    case 12:
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form['flickr_block_note']);
       break;
@@ -216,7 +221,10 @@ function flickr_block_configure($delta = '') {
     case 4:
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form['flickr_block_note']);
-      // Photoset, not photos.
+      if (module_exists('taxonomy')) {
+        unset($form["flickr_block_{$delta}_vocab"]);
+      }
+      // Photosets, not photos.
       $form["flickr_block_{$delta}_show_n"]['#title'] = t('Show the last <em>n</em> photosets');
       $form["flickr_block_{$delta}_show_n"]['#description'] = t("The block will show this many of the user's photosets.");
       break;
@@ -243,22 +251,15 @@ function flickr_block_configure($delta = '') {
         '#description' => t("The id of a Flickr photoset."),
         '#required' => TRUE,
       );
-      if (module_exists('taxonomy')) {
-        $form["flickr_block_{$delta}_vocab"] = array(
-          '#type'             => 'select',
-          '#title'            => t('Filter by vocabulary'),
-          '#position'         => 'left',
-          '#options'          => $checklist_vocab_array,
-          '#default_value'    => $settings['vocab'],
-          '#description'      => t("Limit the Flickr images to those that have a Flickr tag similar to the terms found for the node the block is displayed on of a specific vocabulary. Case insensitive, matches any one tag (OR) or part of it.<br />Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'). Use taxonomy terms without spaces in the vocabulary dedicated to Flickr.<br />For your content type, adjust the <em>Help text</em> of the used taxonomy field accordingly (e.g. at <em>admin/structure/types/manage/article/fields/field_tags</em>). The recommended widget type is <em>Autocomplete term widget (tagging)</em> with an <em>unlimited number of values</em>."),
-        );
-      }
       break;
 
     // Random photos with a specific tag from a Flickr user.
     case 11:
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form['flickr_block_note']);
+      if (module_exists('taxonomy')) {
+        unset($form["flickr_block_{$delta}_vocab"]);
+      }
       $form["flickr_block_{$delta}_tag"] = array(
         '#type' => 'textfield',
         '#title' => t('Show photos having this tag'),
@@ -311,27 +312,21 @@ function flickr_block_save($delta = '', $edit = array()) {
     // User Flickr photos.
     case 0:
     case 2:
-      if (module_exists('taxonomy')) {
-        variable_set('flickr_block_' . $delta, array(
-          'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
-          'size' => $edit["flickr_block_{$delta}_size"],
-          'media' => $edit["flickr_block_{$delta}_media"],
-          'vocab' => (int) $edit["flickr_block_{$delta}_vocab"],
-        ));
-      }
-      else {
-        variable_set('flickr_block_' . $delta, array(
-          'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
-          'size' => $edit["flickr_block_{$delta}_size"],
-          'media' => $edit["flickr_block_{$delta}_media"],
-          'vocab' => 0,
-        ));
-      }
+      $vocab = module_exists('taxonomy') ? (int) $edit["flickr_block_{$delta}_vocab"] : 0;
+      variable_set('flickr_block_' . $delta, array(
+        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
+        'size' => $edit["flickr_block_{$delta}_size"],
+        'media' => $edit["flickr_block_{$delta}_media"],
+        'vocab' => $vocab,
+      ));
       cache_clear_all('flickr_block_' . $delta, 'cache', TRUE);
       break;
 
-    // Recent photos from a Flickr user.
+    // Photos from a Flickr user.
     case 3:
+    case 5:
+    case 9:
+    case 12:
       $userid = $edit["flickr_block_{$delta}_user_id"];
       if (!empty($userid)) {
         if (!flickr_is_nsid($edit["flickr_block_{$delta}_user_id"])) {
@@ -346,11 +341,13 @@ function flickr_block_save($delta = '', $edit = array()) {
 
         }
       }
+      $vocab = module_exists('taxonomy') ? (int) $edit["flickr_block_{$delta}_vocab"] : 0;
       variable_set('flickr_block_' . $delta, array(
         'user_id' => $edit["flickr_block_{$delta}_user_id"],
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
         'size' => $edit["flickr_block_{$delta}_size"],
         'media' => $edit["flickr_block_{$delta}_media"],
+        'vocab' => $vocab,
       ));
       $nsid = empty($edit["flickr_block_{$delta}_user_id"]) ? variable_get('flickr_default_userid', '') : $edit["flickr_block_{$delta}_user_id"];
       cache_clear_all('flickr_block_' . $delta . '_' . $nsid, 'cache', TRUE);
@@ -382,46 +379,24 @@ function flickr_block_save($delta = '', $edit = array()) {
       cache_clear_all('flickr_block_' . $delta . '_' . $nsid, 'cache', TRUE);
       break;
 
-    // Random photos from a Flickr user.
-    case 5:
-      $userid = $edit["flickr_block_{$delta}_user_id"];
-      if (!empty($userid)) {
-        if (!flickr_is_nsid($edit["flickr_block_{$delta}_user_id"])) {
-          if ($user = flickr_user_find_by_identifier($userid)) {
-            drupal_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $edit["flickr_block_{$delta}_user_id"], '%uid' => $user)));
-            $edit["flickr_block_{$delta}_user_id"] = $user;
-          }
-        }
-        else {
-          $info = flickr_people_get_info($edit["flickr_block_{$delta}_user_id"]);
-          drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
-
-        }
-      }
-      variable_set('flickr_block_' . $delta, array(
-        'user_id' => $edit["flickr_block_{$delta}_user_id"],
-        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
-        'size' => $edit["flickr_block_{$delta}_size"],
-        'media' => $edit["flickr_block_{$delta}_media"],
-      ));
-      $nsid = empty($edit["flickr_block_{$delta}_user_id"]) ? variable_get('flickr_default_userid', '') : $edit["flickr_block_{$delta}_user_id"];
-      cache_clear_all('flickr_block_' . $delta . '_' . $nsid, 'cache', TRUE);
-      break;
-
-    // Recent photos from a Flickr group.
+    // Photos from a Flickr group.
     case 6:
+    case 10:
+      $vocab = module_exists('taxonomy') ? (int) $edit["flickr_block_{$delta}_vocab"] : 0;
       variable_set('flickr_block_' . $delta, array(
         'group_id' => $edit["flickr_block_{$delta}_group_id"],
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
         'size' => $edit["flickr_block_{$delta}_size"],
         'media' => $edit["flickr_block_{$delta}_media"],
+        'vocab' => $vocab,
       ));
       cache_clear_all('flickr_block_' . $delta . '_' . $edit["flickr_block_{$delta}_group_id"], 'cache', TRUE);
       break;
 
-    // Random photos from a Flickr photoset.
+    // Photos from a Flickr photoset.
     case 7:
     case 8:
+      $vocab = module_exists('taxonomy') ? (int) $edit["flickr_block_{$delta}_vocab"] : 0;
       variable_set('flickr_block_' . $delta, array(
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
         'size' => $edit["flickr_block_{$delta}_size"],
@@ -430,55 +405,6 @@ function flickr_block_save($delta = '', $edit = array()) {
         'vocab' => (int) $edit["flickr_block_{$delta}_vocab"],
       ));
       cache_clear_all('flickr_block_' . $delta . '_' . $edit["flickr_block_{$delta}_photoset"], 'cache', TRUE);
-      break;
-
-    // Recent photos from a Flickr photoset.
-    case 18:
-      variable_set('flickr_block_' . $delta, array(
-        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
-        'size' => $edit["flickr_block_{$delta}_size"],
-        'media' => $edit["flickr_block_{$delta}_media"],
-        'photoset_id' => $edit["flickr_block_{$delta}_photoset"],
-        'vocab' => (int) $edit["flickr_block_{$delta}_vocab"],
-      ));
-      cache_clear_all('flickr_block_' . $delta . '_' . $edit["flickr_block_{$delta}_photoset"], 'cache', TRUE);
-      break;
-
-    // Recent favorite public photos from a Flickr user.
-    case 9:
-      $userid = $edit["flickr_block_{$delta}_user_id"];
-      if (!empty($userid)) {
-        if (!flickr_is_nsid($edit["flickr_block_{$delta}_user_id"])) {
-          if ($user = flickr_user_find_by_identifier($userid)) {
-            drupal_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $edit["flickr_block_{$delta}_user_id"], '%uid' => $user)));
-            $edit["flickr_block_{$delta}_user_id"] = $user;
-          }
-        }
-        else {
-          $info = flickr_people_get_info($edit["flickr_block_{$delta}_user_id"]);
-          drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
-
-        }
-      }
-      variable_set('flickr_block_' . $delta, array(
-        'user_id' => $edit["flickr_block_{$delta}_user_id"],
-        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
-        'size' => $edit["flickr_block_{$delta}_size"],
-        'media' => $edit["flickr_block_{$delta}_media"],
-      ));
-      $nsid = empty($edit["flickr_block_{$delta}_user_id"]) ? variable_get('flickr_default_userid', '') : $edit["flickr_block_{$delta}_user_id"];
-      cache_clear_all('flickr_block_' . $delta . '_' . $nsid, 'cache', TRUE);
-      break;
-
-    // Random photos from a Flickr group.
-    case 10:
-      variable_set('flickr_block_' . $delta, array(
-        'group_id' => $edit["flickr_block_{$delta}_group_id"],
-        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
-        'size' => $edit["flickr_block_{$delta}_size"],
-        'media' => $edit["flickr_block_{$delta}_media"],
-      ));
-      cache_clear_all('flickr_block_' . $delta . '_' . $edit["flickr_block_{$delta}_group_id"], 'cache', TRUE);
       break;
 
     // Random photos with a specific tag from a Flickr user.
@@ -638,15 +564,51 @@ function flickr_block_view($delta = '') {
       }
       break;
 
-    // Recent photos from a Flickr user.
+    // Photos from a Flickr user.
     case 3:
+    case 5:
+      $recent = $delta == 5 ? '' : 'Recent ';
+      $random = $delta == 5 ? 1 : 0;
       $people = flickr_get_user_info($settings['user_id']);
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      $recent_photos = l(t('Recent Flickr @media', array('@media' => $media)), $people['photosurl'], array(
+      $photos = l(t('@recentFlickr @media', array('@recent' => $recent, '@media' => $media)), $people['photosurl'], array(
         'attributes' => array(
-          'title' => t('View on Flickr.'),
+          'title' => t('View Flickr photostream.'),
           'target' => '_blank',
         ),
+      ));
+      if (($nid = (int) arg(1)) && ((arg(2) == "" || arg(2) == 'view'))) {
+        $node = node_load($nid);
+        if (module_exists('taxonomy')) {
+          $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
+          $terms = (!empty($settings['vocab'])) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+          if (!empty($terms)) {
+            $i = 0;
+            foreach ($terms['#items'] as $item) {
+              $tags[$i] = $terms['#items'][$i]['taxonomy_term']->name;
+              $i++;
+            }
+            $tags = implode(",", $tags);
+          }
+          else {
+            $tags = '';
+          }
+        }
+        else {
+          $tags = '';
+        }
+      }
+      else {
+        $tags = '';
+      }
+      // The used tags with a space forced after the comma and the last
+      // one replaced by 'or'.
+      $tagged = (empty($tags)) ? '' : l(t("tagged <em>") . preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags)) . "</em>", $people['photosurl'] . 'tags/' . $tags, array(
+        'attributes' => array(
+          'title' => t('View tagged photos on Flickr.'),
+          'target' => '_blank',
+        ),
+        'html' => TRUE,
       ));
       $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
         'attributes' => array(
@@ -654,12 +616,13 @@ function flickr_block_view($delta = '') {
           'target' => '_blank',
         ),
       )) . ')' : '';
-      $block['subject'] = t("!recent_photos by !username !map", array(
-        '!recent_photos' => $recent_photos,
+      $block['subject'] = t("!photos !tagsby !username !map", array(
+        '!photos' => $photos,
+        '!tags' => $tagged . ' ',
         '!username' => $people['name'],
         '!map' => $map,
       ));
-      $block['content'] = _flickr_user($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], '', $delta, $people);
+      $block['content'] = _flickr_user($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random);
       break;
 
     // Recent photosets from a Flickr user.
@@ -676,34 +639,41 @@ function flickr_block_view($delta = '') {
       $block['content'] = _flickr_block_photosets($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta, $people);
       break;
 
-    // Random photos from a Flickr user.
-    case 5:
-      $people = flickr_get_user_info($settings['user_id']);
-      $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
-        'attributes' => array(
-          'title' => t('View on Flickr map.'),
-          'target' => '_blank',
-        ),
-      )) . ')' : '';
-      $photos = l(t('Flickr @media', array('@media' => $media)), $people['photosurl'], array(
-        'attributes' => array(
-          'title' => t('View Flickr photostream.'),
-          'target' => '_blank',
-        ),
-      ));
-      $block['subject'] = t("!photos by !username !map", array(
-        '!photos' => $photos,
-        '!username' => $people['name'],
-        '!map' => $map,
-      ));
-      $block['content'] = _flickr_user($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], '', $delta, $people, 1);
-      break;
-
-    // Recent photos from a Flickr group.
+    // Photos from a Flickr group.
     case 6:
+    case 10:
+      $recent = $delta == 10 ? '' : 'Recent ';
+      $random = $delta == 10 ? 1 : 0;
       $info = flickr_groups_getinfo($settings['group_id']);
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
+      $photos = t('@recentFlickr @media', array('@recent' => $recent, '@media' => $media));
+      if (($nid = (int) arg(1)) && ((arg(2) == "" || arg(2) == 'view'))) {
+        $node = node_load($nid);
+        if (module_exists('taxonomy')) {
+          $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
+          $terms = (!empty($settings['vocab'])) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+          if (!empty($terms)) {
+            $i = 0;
+            foreach ($terms['#items'] as $item) {
+              $tags[$i] = $terms['#items'][$i]['taxonomy_term']->name;
+              $i++;
+            }
+            $tags = implode(",", $tags);
+          }
+          else {
+            $tags = '';
+          }
+        }
+        else {
+          $tags = '';
+        }
+      }
+      else {
+        $tags = '';
+      }
+      // The used tags with a space forced after the comma and the last
+      // one replaced by 'or'.
+      $tagged = (empty($tags)) ? '' : t("tagged <em>") . preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags)) . "</em>";
       $group = l($info['group']['name']['_content'], 'https://www.flickr.com/groups/' . $settings['group_id'], array(
         'attributes' => array(
           'title' => t('View group on Flickr.'),
@@ -716,18 +686,20 @@ function flickr_block_view($delta = '') {
           'target' => '_blank',
         ),
       )) . ')' : '';
-      $block['subject'] = t("Recent Flickr @media from the group !group !map", array(
-        '@media' => $media,
+      $block['subject'] = t("!photos !tagsfrom the group !group !map", array(
+        '!photos' => $photos,
+        '!tags' => $tagged . ' ',
         '!group' => $group,
         '!map' => $map,
       ));
-      $block['content'] = _flickr_group($settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], '', $delta, $info['group']['pool_count']['_content']);
+      $block['content'] = _flickr_group($settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $info['group']['pool_count']['_content'], $random);
       break;
 
     // Photos from a Flickr photoset.
     case 7:
     case 8:
       $recent = $delta == 7 ? '' : 'Recent ';
+      $random = $delta == 7 ? 1 : 0;
       $info = flickr_photoset_get_info($settings['photoset_id']);
       $people = flickr_get_user_info($info['owner']);
       $media = $settings['media'] == 'videos' ? t('Videos') : t('Photos');
@@ -782,77 +754,64 @@ function flickr_block_view($delta = '') {
           'target' => '_blank',
         ),
       )) . ')' : '';
-      $block['subject'] = t("!photos !tags from Flickr set !set by !username !map", array(
-              '!photos' => $photos,
-        '!tags' => $tagged,
+      $block['subject'] = t("!photos !tagsfrom Flickr set !set by !username !map", array(
+        '!photos' => $photos,
+        '!tags' => $tagged . ' ',
         '!set' => $set,
         '!username' => $people['name'],
         '!map' => $map,
       ));
-      $block['content'] = _flickr_photoset($settings['photoset_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, 1);
+      $block['content'] = _flickr_photoset($settings['photoset_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random);
       break;
 
-    // Recent photos from a Flickr photoset.
-    case 18:
-      $info = flickr_photoset_get_info($settings['photoset_id']);
-      $people = flickr_get_user_info($info['owner']);
-      $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      $set = l($info['title']['_content'], $people['photosurl'] . 'sets/' . $settings['photoset_id'], array(
-        'attributes' => array(
-          'title' => t('View set on Flickr.'),
-          'target' => '_blank',
-        ),
-      ));
-      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'sets/' . $settings['photoset_id'] . '/map/', array(
-        'attributes' => array(
-          'title' => t('View set on Flickr map.'),
-          'target' => '_blank',
-        ),
-      )) . ')' : '';
-      $block['subject'] = t("Recent @media from Flickr set !set by !username !map", array(
-        '@media' => $media,
-        '!set' => $set,
-        '!username' => $people['name'],
-        '!map' => $map,
-      ));
-      $block['content'] = _flickr_photoset($info['owner'], $settings['show_n'], $settings['size'], $settings['media'], $settings['photoset_id'], $delta);
-      break;
-
-    // Recent favorite public photos from a Flickr user.
+    // Favorite public photos from a Flickr user.
     case 9:
+    case 12:
+      $recent = $delta == 12 ? '' : 'Recent ';
+      $random = $delta == 12 ? 1 : 0;
+      $people = flickr_get_user_info($settings['user_id']);
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      $favorites = l(t("Favorite Flickr @media", array('@media' => $media)), 'https://www.flickr.com/photos/' . $settings['user_id'] . '/favorites/', array(
+      $photos = l(t('@recentFlickr @media from favorites', array('@recent' => $recent, '@media' => $media)), $people['photosurl'] . 'favorites/', array(
+        'attributes' => array(
+          'title' => t('View favorites on Flickr from other Flickr members.'),
+          'target' => '_blank',
+        ),
+      ));
+      if (($nid = (int) arg(1)) && ((arg(2) == "" || arg(2) == 'view'))) {
+        $node = node_load($nid);
+        if (module_exists('taxonomy')) {
+          $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
+          $terms = (!empty($settings['vocab'])) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+          if (!empty($terms)) {
+            $i = 0;
+            foreach ($terms['#items'] as $item) {
+              $tags[$i] = $terms['#items'][$i]['taxonomy_term']->name;
+              $i++;
+            }
+            $tags = implode(",", $tags);
+          }
+          else {
+            $tags = '';
+          }
+        }
+        else {
+          $tags = '';
+        }
+      }
+      else {
+        $tags = '';
+      }
+      // The used tags with a space forced after the comma and the last
+      // one replaced by 'or'.
+      $tagged = (empty($tags)) ? '' : t("tagged <em>") . preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags)) . "</em>";
+      $favorites = l(t("Favorite Flickr @media", array('@media' => $media)), $people['photosurl'] . 'favorites/', array(
         'attributes' => array(
           'title' => t("View favorites on Flickr from other Flickr members."),
           'target' => '_blank',
         ),
       ));
-      $block['subject'] = $favorites;
-      $block['content'] = _flickr_block_favorite_public($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta);
-      break;
-
-    // Random photos from a Flickr group.
-    case 10:
-      $info = flickr_groups_getinfo($settings['group_id']);
-      $media = $settings['media'] == 'videos' ? t('Videos') : t('Photos');
-      $group = l($info['group']['name']['_content'], 'https://www.flickr.com/groups/' . $settings['group_id'], array(
-        'attributes' => array(
-          'title' => t('View group on Flickr.'),
-          'target' => '_blank',
-        ),
-      ));
-      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), 'https://www.flickr.com/groups/' . $settings['group_id'] . '/pool/map', array(
-        'attributes' => array(
-          'title' => t('View group photos on Flickr map.'),
-          'target' => '_blank',
-        ),
-      )) . ')' : '';
-      $block['subject'] = t("@media from Flickr group !group !map", array(
-        '@media' => $media,
-        '!group' => $group,
-        '!map' => $map,
-      ));
-      $block['content'] = _flickr_group($settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], '', $delta, $info['group']['pool_count']['_content'], 1);
+      $block['subject'] = $photos . ' ' . $tagged;
+      $block['content'] = _flickr_block_favorite_public($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random);
       break;
 
     // Random photos with a specific tag from a Flickr user.
@@ -964,8 +923,8 @@ function _flickr_block_photosets($nsid, $show_n, $size, $media, $delta, $people 
 /**
  * Favorites block. Block delta: 9.
  */
-function _flickr_block_favorite_public($nsid, $show_n, $size, $media, $delta) {
-  if ($cache = cache_get('flickr_block_' . $delta . '_' . $nsid)) {
+function _flickr_block_favorite_public($nsid, $show_n, $size, $media, $tags, $delta, $random = 0) {
+  if ($cache = cache_get('flickr_block_' . $delta . '_' . $nsid . '_' . $tags . '_' . $random)) {
     $output = $cache->data;
   }
   else {
@@ -981,43 +940,76 @@ function _flickr_block_favorite_public($nsid, $show_n, $size, $media, $delta) {
         break;
 
       default:
+        $people = flickr_get_user_info($nsid);
         $output = '';
         if ($photos = flickr_favorites_get_public_list($nsid, 1, array(
-          'per_page' => $show_n,
+          'per_page' => 500,
         ))) {
           $i = 0;
-          foreach ($photos['photo'] as $photo) {
-            if ($media == $photo['media'] . 's' || $media == 'all') {
-              $output .= theme('flickr_photo', array(
-                'photo' => $photo,
-                'size' => $size,
-              ));
-              $i++;
+          $j = 0;
+          $response = $photos['photo'];
+          if ($random == 1) {
+            shuffle($response);
+          }
+          $terms = is_array($tags) ? $tags : explode(",", $tags);
+          if (empty($tags)) {
+            foreach ($response as $photo) {
+              if ($i < $show_n && $media == $photo['media'] . 's') {
+                $output .= theme('flickr_photo', array(
+                  'photo' => $photo,
+                  'size' => $size,
+                ));
+                $i++;
+                $j++;
+              }
+              else {
+                $j++;
+              }
             }
           }
-          $flickr = l(t("favorites on Flickr"), 'https://www.flickr.com/photos/' . $nsid . '/favorites/', array(
+          else {
+            foreach ($response as $key => $photo) {
+              foreach ($terms as $term) {
+                if ($i >= $show_n && stripos($photo['tags'], $term) !== FALSE) {
+                  $j++;
+                }
+                elseif (stripos($photo['tags'], $term) !== FALSE && $media == $photo['media'] . 's') {
+                  $output .= theme('flickr_photo', array(
+                    'photo' => $photo,
+                    'size' => $size,
+                  ));
+                  // Avoid this image gets repeated by removing it from the
+                  // array.
+                  unset($response[$key]);
+                  $i++;
+                  $j++;
+                }
+              }
+            }
+          }
+          // A counter if set to show.
+          // The used tags with a space forced after the comma and the last
+          // one replaced by 'or'. In the link all whitespace is removed.
+          $flickr = (!empty($tags)) ? t("tagged <em>@tag</em> from", array(
+            '@tag' => preg_replace('/(.*),/', '$1 ' . t('or'), preg_replace("/,([^\s])/", ", $1", $tags)))) : '';
+          $favorites = l(t('favorites'), $people['photosurl'] . 'favorites/', array(
             'attributes' => array(
-              'title' => t("View user's favorites on Flickr from other Flickr members."),
+              'title' => t('View favorites on Flickr from other Flickr members.'),
               'target' => '_blank',
             ),
-            'html' => TRUE,
           ));
-          if ($i == 0) {
-            $output .= t('No media found !flickr.', array('!flickr' => $flickr));
-            continue;
-          }
-          else {
-            // A counter if set to show.
-            $count = t('@number out of @total !flickr', array(
-              '@number' => $i,
-              '@total' => number_format($photos['total'], 0, ",", "."),
-              '!flickr' => $flickr,
-            ));
-            $output .= variable_get('flickr_block_counter', 1) ? '<div class="flickr-counter">' . $count . '</div>' : '';
-          }
+          $total = (empty($tags)) ? (int) $photos['total'] : $j;
+          $count = t('@number out of @total !flickr !favorites by !user', array(
+            '@number' => $i,
+            '@total' => number_format($total, 0, ",", "."),
+            '!flickr' => $flickr,
+            '!favorites' => $favorites,
+            '!user' => $people['name'],
+          ));
+          $output .= ((variable_get('flickr_block_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-counter">' . $count . '</div>' : '';
         }
     }
-    cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 31) * 60 * 60));
+    cache_set('flickr_block_' . $delta . '_' . $nsid . '_' . $tags . '_' . $random, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 31) * 60 * 60));
   }
   return $output;
 }

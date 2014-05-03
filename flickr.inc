@@ -516,8 +516,8 @@ function _flickr_photoset($photoset_id, $show_n, $size, $media, $tags, $delta = 
           }
         }
         else {
-          foreach ($terms as $term) {
-            foreach ($photos as $key => $photo) {
+          foreach ($photos as $key => $photo) {
+            foreach ($terms as $term) {
               if ($i >= $show_n && stripos($photo['tags'], $term) !== FALSE) {
                 $j++;
               }
@@ -563,6 +563,7 @@ function _flickr_photoset($photoset_id, $show_n, $size, $media, $tags, $delta = 
           '!flickr' => $flickr,
           '!user' => $people['photostream'],
         ));
+        // Note the $delta value is abused for counter override from filter.
         $output .= ((variable_get('flickr_block_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-counter">' . $count . '</div>' : '';
     }
     if (is_numeric($delta)) {
@@ -575,7 +576,7 @@ function _flickr_photoset($photoset_id, $show_n, $size, $media, $tags, $delta = 
 /**
  * User media by tags. Used by blocks 2, 5, 11 and text filter user-id.
  */
-function _flickr_user($nsid, $show_n, $size, $media, $tags, $delta, $people = NULL, $random = 0) {
+function _flickr_user($nsid, $show_n, $size, $media, $tags, $delta, $random = 0) {
   $cache = cache_get('flickr_block_' . $delta . '_' . $nsid . '_' . $tags . '_' . $random);
   // If $delta is a number it is a block that could be cached.
   if ($cache && is_numeric($delta)) {
@@ -598,6 +599,7 @@ function _flickr_user($nsid, $show_n, $size, $media, $tags, $delta, $people = NU
         break;
 
       default:
+        $people = flickr_get_user_info($nsid);
         $output = '';
         if ($photos = flickr_photos_search($nsid, 1, array(
           'per_page' => 500,
@@ -624,8 +626,8 @@ function _flickr_user($nsid, $show_n, $size, $media, $tags, $delta, $people = NU
             }
           }
           else {
-            foreach ($terms as $term) {
-              foreach ($response as $key => $photo) {
+            foreach ($response as $key => $photo) {
+              foreach ($terms as $term) {
                 if ($i >= $show_n && stripos($photo['tags'], $term) !== FALSE) {
                   $j++;
                 }
@@ -661,6 +663,7 @@ function _flickr_user($nsid, $show_n, $size, $media, $tags, $delta, $people = NU
             '!flickr' => $flickr,
             '!user' => $people['photostream'],
           ));
+          // Note the $delta value is abused for counter override from filter.
           $output .= ((variable_get('flickr_block_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-counter">' . $count . '</div>' : '';
         }
         if ($i == 0) {
@@ -699,80 +702,79 @@ function _flickr_group($group_id, $show_n, $size, $media, $tags, $delta, $total 
         break;
 
       default:
-        // Get a list of "all" the photos in the group. This is cached.
-        $response = flickr_get_group_photos($group_id, 1, array(
-            'per_page' => 500,
-            'extras' => 'tags,media',
-        ));
+        $info = flickr_groups_getinfo($group_id);
         $output = '';
-        if (!$response) {
-          return;
-        }
-        $photos = $response['photos']['photo'];
-        if ($random == 1) {
-          shuffle($photos);
-        }
-        // We shouldn't try to return more than the total number of photos.
-        $to = min($show_n, count($photos));
-        $i = 0;
-        $j = 0;
-        $terms = is_array($tags) ? $tags : explode(",", $tags);
-        if (empty($tags)) {
-          while ($i < $to && $j < count($photos)) {
-            if ($media == $photos[$j]['media'] . 's' || $media == 'all') {
-              $output .= theme('flickr_photo', array(
-                'photo' => $photos[$j],
-                'size' => $size,
-              ));
-              $i++;
-              $j++;
-            }
-            else {
-              $output .= '';
-              $j++;
-            }
+        // Get a list of "all" the photos in the group. This is cached.
+        if ($photos = flickr_get_group_photos($group_id, 1, array(
+          'per_page' => 500,
+        ))) {
+          $i = 0;
+          $j = 0;
+          $response = $photos['photos']['photo'];
+          if ($random == 1) {
+            shuffle($response);
           }
-        }
-        else {
-          foreach ($terms as $term) {
-            while ($i < $to && $j < count($photos)) {
-              if (($media == $photos[$j]['media'] . 's' || $media == 'all') && stripos($photos[$j]['tags'], $term) !== FALSE) {
+          $terms = is_array($tags) ? $tags : explode(",", $tags);
+          if (empty($tags)) {
+            foreach ($response as $photo) {
+              if ($i < $show_n && ($media == 'all' || $media == $photo['media'] . 's')) {
                 $output .= theme('flickr_photo', array(
-                  'photo' => $photos[$j],
+                  'photo' => $photo,
                   'size' => $size,
                 ));
-                // Avoid this image gets repeated by removing it from the
-                // array.
-                unset($photos[$j]);
                 $i++;
                 $j++;
               }
               else {
-                $output .= '';
                 $j++;
               }
             }
           }
-        }
-        if ($i == 0) {
-          $output .= t('No media found in the last @count posted on Flickr.', array('@count' => count($photos)));
-          continue;
-        }
-        else {
+          else {
+            foreach ($response as $key => $photo) {
+              foreach ($terms as $term) {
+                if ($i >= $show_n && stripos($photo['tags'], $term) !== FALSE) {
+                  $j++;
+                }
+                elseif (stripos($photo['tags'], $term) !== FALSE && ($media == 'all' || $media == $photo['media'] . 's')) {
+                  $output .= theme('flickr_photo', array(
+                    'photo' => $photo,
+                    'size' => $size,
+                  ));
+                  // Avoid this image gets repeated by removing it from the
+                  // array.
+                  unset($response[$key]);
+                  $i++;
+                  $j++;
+                }
+              }
+            }
+          }
           // A counter if set to show.
-          $flickr = l(t("group on Flickr"), 'https://www.flickr.com/groups/' . $group_id, array(
+          // The used tags with a space forced after the comma and the last
+          // one replaced by 'or'. In the link all whitespace is removed.
+          $tagged = (!empty($tags)) ? t("tagged <em>@tag</em>", array(
+            '@tag' => preg_replace('/(.*),/', '$1 ' . t('or'), preg_replace("/,([^\s])/", ", $1", $tags)))) . ' ' : '';
+          $flickr = l($info['group']['name']['_content'], 'https://www.flickr.com/groups/' . $group_id, array(
             'attributes' => array(
               'title' => t('View group on Flickr.'),
               'target' => '_blank',
             ),
             'html' => TRUE,
           ));
-          $count = t('@number out of @total in !flickr', array(
+          $total = (empty($tags)) ? (int) $info['pool_count']['_content'] : $j;
+          $count = t('@number out of @total !tagsfrom the Flickr group !flickr', array(
             '@number' => $i,
             '@total' => number_format($total, 0, ",", "."),
+            '!tags' => $tagged,
             '!flickr' => $flickr,
           ));
-          $output .= variable_get('flickr_block_counter', 1) ? '<div class="flickr-counter">' . $count . '</div>' : '';
+          // Note the $delta value is abused for counter override from filter.
+          $output .= ((variable_get('flickr_block_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-counter">' . $count . '</div>' : '';
+        }
+        if ($i == 0) {
+          $output .= t('No media found in the last @count posted on Flickr.', array('@count' => count($photos)));
+          continue;
         }
     }
     if (is_numeric($delta)) {
