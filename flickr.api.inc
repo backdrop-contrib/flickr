@@ -94,7 +94,7 @@ function flickr_favorites_get_public_list($nsid, $page = 1, $other_args = array(
   $args = array(
     'user_id' => $nsid,
     'page' => $page,
-    'extras' => 'tags,media',
+    'extras' => 'license,geo,tags,views,media',
   );
 
   // Set per_page to flickr module default if not specified in $other_args.
@@ -309,7 +309,7 @@ function flickr_get_group_photos($nsid, $page = 1, $other_args = array()) {
   $args = array(
     'group_id' => $nsid,
     'page' => $page,
-    'extras' => 'tags,media',
+    'extras' => 'license,geo,tags,views,media',
   );
 
   // Set per_page to flickr module default if not specified in $other_args.

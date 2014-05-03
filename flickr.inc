@@ -486,7 +486,7 @@ function _flickr_photoset($photoset_id, $show_n, $size, $media, $tags, $delta = 
         // Get a list of "all" the photos in the photoset. This is cached.
         $response = flickr_photosets_getphotos($photoset_id, array(
             'per_page' => 500,
-            'extras' => 'owner, tags',
+            'extras' => 'license,geo,tags,views',
             'media' => $media,
           ));
         if (!$response) {
@@ -603,7 +603,7 @@ function _flickr_user($nsid, $show_n, $size, $media, $tags, $delta, $random = 0)
         $output = '';
         if ($photos = flickr_photos_search($nsid, 1, array(
           'per_page' => 500,
-          'extras' => 'tags',
+          'extras' => 'license,geo,tags,views',
           'media' => $media,
         ))) {
           $i = 0;
@@ -711,6 +711,7 @@ function _flickr_group($group_id, $show_n, $size, $media, $tags, $delta, $total 
           $i = 0;
           $j = 0;
           $response = $photos['photos']['photo'];
+          dsm($response);
           if ($random == 1) {
             shuffle($response);
           }
