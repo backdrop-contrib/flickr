@@ -243,6 +243,13 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
   if (empty($title) == 'title') {
     $title = $photo['title'];
   }
+  $overlay = variable_get('flickr_info_overlay', array(
+    'title' => 'title',
+    'metadata' => 'metadata',
+    'description' => 'description',
+    'license' => 0,
+  ));
+  $title = (gettype($overlay['description']) == 'integer') ? $photo['title'] : $title;
   if (module_exists('jcaption') && (variable_get('flickr_class') != NULL || variable_get('flickr_rel') != NULL)) {
     $title = '';
   }

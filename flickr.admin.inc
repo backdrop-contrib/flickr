@@ -159,7 +159,7 @@ function flickr_admin_settings() {
     '#options' => array(
       'title' => t('Title *'),
       'metadata' => t('Date, location and photographer *'),
-      'description' => t('Description'),
+      'description' => t("Description, applies also on the text that shows on mouseover (the image 'title' attribute)"),
       'license' => t('License info *'),
     ),
   );
