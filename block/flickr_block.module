@@ -557,7 +557,7 @@ function flickr_block_view($delta = '') {
               '!map' => $map,
             ));
             $random = $delta == 2 ? 1 : 0;
-            $block['content'] = _flickr_user($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $people, $random);
+            $block['content'] = _flickr_user($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random);
             break;
 
         }
@@ -838,7 +838,7 @@ function flickr_block_view($delta = '') {
         '!tagged' => $tagged,
         '!map' => $map,
       ));
-      $block['content'] = _flickr_user($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], $delta, $people, 1);
+      $block['content'] = _flickr_user($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], $delta, 1);
       break;
   }
   return $block;
