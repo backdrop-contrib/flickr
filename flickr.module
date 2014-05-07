@@ -560,7 +560,7 @@ function theme_flickr_photos($variables) {
   $photos = $variables['photos'];
 
   $output = theme('pager');
-  $output .= "<div class='flickr-album'>\n";
+  $output .= "<div class='flickr-photoset'>\n";
   foreach ($photos['photo'] as $photo) {
     $output .= theme('flickr_photo_box', array(
       'photo' => $photo,
@@ -583,7 +583,7 @@ function theme_flickr_photoset($variables) {
   $attribs = $variables['attribs'];
 
   if (module_exists('flickr_sets')) {
-    $output = "<div class='flickr-album'>\n";
+    $output = "<div class='flickr-photoset'>\n";
     $photos = flickr_photosets_getphotos($photoset['id'], array('media' => $media));
     if ($photos['photoset']['total']) {
       foreach ((array) $photos['photoset']['photo'] as $photo) {
@@ -607,7 +607,7 @@ function theme_flickr_photoset($variables) {
     $img = flickr_img($photoset, $size, $attribs);
     $output = theme('pager');
     $photo_url = flickr_photoset_page_url($owner, $photoset['id']);
-    $output .= "<div class='flickr-album'>\n";
+    $output .= "<div class='flickr-photoset'>\n";
     $title = is_array($photoset['title']) ? $photoset['title']['_content'] : $photoset['title'];
     return l($img, $photo_url, array(
       'attributes' => array(

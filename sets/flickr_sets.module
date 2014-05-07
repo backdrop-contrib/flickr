@@ -187,7 +187,7 @@ function theme_flickr_sets_photoset($variables) {
   $set_info = $variables['set_info'];
 
   $output = theme('pager', array('quantity' => variable_get('flickr_photos_per_page', 20)));
-  $output .= "<div class='flickr-album'>\n";
+  $output .= "<div class='flickr-photoset'>\n";
   foreach ((array) $photo_arr['photoset']['photo'] as $photo) {
     // Insert owner into $photo because
     // theme_flickr_photo_box/flickr_photo_page_url needs it.

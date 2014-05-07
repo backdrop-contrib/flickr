@@ -190,7 +190,7 @@ function flickr_filter_callback_photoset($matches) {
       $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
     }
     $config['random'] = $config['random'] == 'true' ? 1 : 0;
-    $output = "<div class='flickr-album'>\n";
+    $output = "<div class='flickr-photoset'>\n";
     // Choose between 'recent' or 'random' based on 'random' parameter.
     // We abuse the $delta parameter to override default of counter display.
     $output .= _flickr_album('photoset', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], $config['count'], $config['random'], $config['heading']);
@@ -233,7 +233,7 @@ function flickr_filter_callback_group($matches) {
         $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
       }
       $config['random'] = $config['random'] == 'true' ? 1 : 0;
-      $output = "<div class='flickr-album'>\n";
+      $output = "<div class='flickr-photoset'>\n";
       // Choose between 'recent' or 'random' based on 'random' parameter.
       // We abuse the $delta parameter to override default of counter display.
       $output .= _flickr_album('group', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], $config['count'], $config['random'], $config['heading']);
@@ -277,7 +277,7 @@ function flickr_filter_callback_user($matches) {
       $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
     }
     $config['random'] = $config['random'] == 'true' ? 1 : 0;
-    $output = "<div class='flickr-album'>\n";
+    $output = "<div class='flickr-photoset'>\n";
     // Choose between 'recent' or 'random' based on 'random' parameter.
     // We abuse the $delta parameter to override default of counter display.
     $output .= _flickr_album('user', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], $config['count'], $config['random'], $config['heading']);
