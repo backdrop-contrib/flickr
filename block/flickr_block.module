@@ -510,17 +510,10 @@ function flickr_block_view($delta = '') {
           }
       }
       if (!empty($user->flickr['nsid'])) {
-        $people = flickr_get_user_info($user->flickr['nsid']);
-        $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-        $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
-          'attributes' => array(
-            'title' => t('View on Flickr map.'),
-            'target' => '_blank',
-          ),
-        )) . ')' : '';
         switch ($delta) {
           // User recent Flickr photosets.
           case 1:
+            $people = flickr_get_user_info($user->flickr['nsid']);
             $recent_sets = l(t('Recent Flickr sets'), $people['photosurl'] . 'sets/', array(
               'attributes' => array(
                 'title' => t('View sets on Flickr.'),
@@ -534,30 +527,9 @@ function flickr_block_view($delta = '') {
           // User Flickr photos.
           case 0:
           case 2:
-            $recent = $delta == 2 ? '' : 'Recent ';
-            $photos = l(t('@recentFlickr @media', array('@recent' => $recent, '@media' => $media)), $people['photosurl'], array(
-              'attributes' => array(
-                'title' => t('View Flickr photostream.'),
-                'target' => '_blank',
-              ),
-            ));
-            // The used tags with a space forced after the comma and the last
-            // one replaced by 'or'.
-            $tagged = (empty($tags)) ? '' : l(t("tagged <em>") . preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags)) . "</em>", $people['photosurl'] . 'tags/' . $tags, array(
-              'attributes' => array(
-                'title' => t('View tagged photos on Flickr.'),
-                'target' => '_blank',
-              ),
-              'html' => TRUE,
-            ));
-            $block['subject'] = t("!photos !tags by !username !map", array(
-              '!photos' => $photos,
-              '!tags' => $tagged,
-              '!username' => $people['name'],
-              '!map' => $map,
-            ));
             $random = $delta == 2 ? 1 : 0;
-            $block['content'] = _flickr_user($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random);
+            $block['subject'] = NULL;
+            $block['content'] = _flickr_album('user', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random, 'h2');
             break;
 
         }
@@ -567,16 +539,7 @@ function flickr_block_view($delta = '') {
     // Photos from a Flickr user.
     case 3:
     case 5:
-      $recent = $delta == 5 ? '' : 'Recent ';
       $random = $delta == 5 ? 1 : 0;
-      $people = flickr_get_user_info($settings['user_id']);
-      $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      $photos = l(t('@recentFlickr @media', array('@recent' => $recent, '@media' => $media)), $people['photosurl'], array(
-        'attributes' => array(
-          'title' => t('View Flickr photostream.'),
-          'target' => '_blank',
-        ),
-      ));
       if (($nid = (int) arg(1)) && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
@@ -603,26 +566,8 @@ function flickr_block_view($delta = '') {
       }
       // The used tags with a space forced after the comma and the last
       // one replaced by 'or'.
-      $tagged = (empty($tags)) ? '' : l(t("tagged <em>") . preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags)) . "</em>", $people['photosurl'] . 'tags/' . $tags, array(
-        'attributes' => array(
-          'title' => t('View tagged photos on Flickr.'),
-          'target' => '_blank',
-        ),
-        'html' => TRUE,
-      ));
-      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
-        'attributes' => array(
-          'title' => t('View on Flickr map.'),
-          'target' => '_blank',
-        ),
-      )) . ')' : '';
-      $block['subject'] = t("!photos !tagsby !username !map", array(
-        '!photos' => $photos,
-        '!tags' => $tagged . ' ',
-        '!username' => $people['name'],
-        '!map' => $map,
-      ));
-      $block['content'] = _flickr_user($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random);
+      $block['subject'] = NULL;
+      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random, 'h2');
       break;
 
     // Recent photosets from a Flickr user.
@@ -642,11 +587,7 @@ function flickr_block_view($delta = '') {
     // Photos from a Flickr group.
     case 6:
     case 10:
-      $recent = $delta == 10 ? '' : 'Recent ';
       $random = $delta == 10 ? 1 : 0;
-      $info = flickr_groups_getinfo($settings['group_id']);
-      $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      $photos = t('@recentFlickr @media', array('@recent' => $recent, '@media' => $media));
       if (($nid = (int) arg(1)) && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
@@ -671,44 +612,14 @@ function flickr_block_view($delta = '') {
       else {
         $tags = '';
       }
-      // The used tags with a space forced after the comma and the last
-      // one replaced by 'or'.
-      $tagged = (empty($tags)) ? '' : t("tagged <em>") . preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags)) . "</em>";
-      $group = l($info['group']['name']['_content'], 'https://www.flickr.com/groups/' . $settings['group_id'], array(
-        'attributes' => array(
-          'title' => t('View group on Flickr.'),
-          'target' => '_blank',
-        ),
-      ));
-      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), 'https://www.flickr.com/groups/' . $settings['group_id'] . '/pool/map', array(
-        'attributes' => array(
-          'title' => t('View group photos on Flickr map.'),
-          'target' => '_blank',
-        ),
-      )) . ')' : '';
-      $block['subject'] = t("!photos !tagsfrom the group !group !map", array(
-        '!photos' => $photos,
-        '!tags' => $tagged . ' ',
-        '!group' => $group,
-        '!map' => $map,
-      ));
-      $block['content'] = _flickr_group($settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $info['group']['pool_count']['_content'], $random);
+      $block['subject'] = NULL;
+      $block['content'] = _flickr_album('group', $settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random, variable_get('flickr_block_heading', 'h2'));
       break;
 
     // Photos from a Flickr photoset.
     case 7:
     case 8:
-      $recent = $delta == 7 ? '' : 'Recent ';
       $random = $delta == 7 ? 1 : 0;
-      $info = flickr_photoset_get_info($settings['photoset_id']);
-      $people = flickr_get_user_info($info['owner']);
-      $media = $settings['media'] == 'videos' ? t('Videos') : t('Photos');
-      $photos = l(t('@recentFlickr @media', array('@recent' => $recent, '@media' => $media)), $people['photosurl'], array(
-        'attributes' => array(
-          'title' => t('View Flickr photostream.'),
-          'target' => '_blank',
-        ),
-      ));
       if (($nid = (int) arg(1)) && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
@@ -733,35 +644,8 @@ function flickr_block_view($delta = '') {
       else {
         $tags = '';
       }
-      // The used tags with a space forced after the comma and the last
-      // one replaced by 'or'.
-      $tagged = (empty($tags)) ? '' : l(t("tagged <em>") . preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags)) . "</em>", $people['photosurl'] . 'tags/' . $tags, array(
-        'attributes' => array(
-          'title' => t('View tagged photos on Flickr.'),
-          'target' => '_blank',
-        ),
-        'html' => TRUE,
-      ));
-      $set = l($info['title']['_content'], $people['photosurl'] . 'sets/' . $settings['photoset_id'], array(
-        'attributes' => array(
-          'title' => t('View set on Flickr.'),
-          'target' => '_blank',
-        ),
-      ));
-      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'sets/' . $settings['photoset_id'] . '/map/', array(
-        'attributes' => array(
-          'title' => t('View set on Flickr map.'),
-          'target' => '_blank',
-        ),
-      )) . ')' : '';
-      $block['subject'] = t("!photos !tagsfrom Flickr set !set by !username !map", array(
-        '!photos' => $photos,
-        '!tags' => $tagged . ' ',
-        '!set' => $set,
-        '!username' => $people['name'],
-        '!map' => $map,
-      ));
-      $block['content'] = _flickr_photoset($settings['photoset_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random);
+      $block['subject'] = NULL;
+      $block['content'] = _flickr_album('photoset', $settings['photoset_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random, 'h2');
       break;
 
     // Favorite public photos from a Flickr user.
@@ -816,29 +700,8 @@ function flickr_block_view($delta = '') {
 
     // Random photos with a specific tag from a Flickr user.
     case 11:
-      $people = flickr_get_user_info($settings['user_id']);
-      $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      // The used tags with a space forced after the comma and the last one
-      // replaced by 'or'. In the link all whitespace is removed.
-      $tagged = l(t("Flickr @media tagged <em>", array('@media' => $media)) . preg_replace('/(.*),/', '$1 ' . t('or'), preg_replace("/,([^\s])/", ", $1", $settings['tag'])) . "</em>", $people['photosurl'] . 'tags/' . $settings['tag'], array(
-        'attributes' => array(
-          'title' => t('View tagged photos on Flickr.'),
-          'target' => '_blank',
-        ),
-        'html' => TRUE,
-      ));
-      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'tags/' . $settings['tag'] . '/map/', array(
-        'attributes' => array(
-          'title' => t('View tagged photos on Flickr map.'),
-          'target' => '_blank',
-        ),
-      )) . ')' : '';
-      $block['subject'] = t("!tagged  by !username !map", array(
-        '!username' => $people['name'],
-        '!tagged' => $tagged,
-        '!map' => $map,
-      ));
-      $block['content'] = _flickr_user($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], $delta, 1);
+      $block['subject'] = NULL;
+      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], $delta, 1, 'h2');
       break;
   }
   return $block;
@@ -862,7 +725,7 @@ function _flickr_block_photosets($nsid, $show_n, $size, $media, $delta, $people 
           'target' => '_blank',
         ),
       ));
-      $map = variable_get('flickr_block_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'sets/' . $photosets[$i]['id'] . '/map/', array(
+      $map = variable_get('flickr_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'sets/' . $photosets[$i]['id'] . '/map/', array(
         'attributes' => array(
           'title' => t('View set on Flickr map.'),
           'target' => '_blank',
@@ -900,7 +763,7 @@ function _flickr_block_photosets($nsid, $show_n, $size, $media, $delta, $people 
             '@total' => number_format($photosets[$i]['photos'], 0, ",", "."),
             '!flickr' => $flickr,
           ));
-          $output .= variable_get('flickr_block_counter', 1) ? '<div class="flickr-counter">' . $count . '</div>' : '';
+          $output .= variable_get('flickr_counter', 1) ? '<div class="flickr-counter">' . $count . '</div>' : '';
       }
       $output .= '</div>';
     }
@@ -1006,7 +869,7 @@ function _flickr_block_favorite_public($nsid, $show_n, $size, $media, $tags, $de
             '!favorites' => $favorites,
             '!user' => $people['name'],
           ));
-          $output .= ((variable_get('flickr_block_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-counter">' . $count . '</div>' : '';
+          $output .= ((variable_get('flickr_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-counter">' . $count . '</div>' : '';
         }
     }
     cache_set('flickr_block_' . $delta . '_' . $nsid . '_' . $tags . '_' . $random, $output, 'cache', time() + (variable_get('flickr_block_refresh_others', 31) * 60 * 60));

@@ -163,6 +163,18 @@ function flickr_admin_settings() {
       'license' => t('License info *'),
     ),
   );
+  $form['info_settings']['flickr_maps'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Extra links to Flickr maps'),
+    '#default_value' => variable_get('flickr_maps', 1),
+    '#description' => t('Include extra links to maps available for a user, group or set on Flickr. Locations mentioned (if displayed) under individual images link to corresponding Flickr user maps in any case, indepedent of the setting here.'),
+  );
+  $form['info_settings']['flickr_counter'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show a Flickr counter'),
+    '#default_value' => variable_get('flickr_counter', 1),
+    '#description' => t('Shows how many photos are displayed out of the total number available for a user, group or set on Flickr. Can be overridden by the filter tag, eg. [flickr-photoset:id=72157634563269642,count=false]'),
+  );
   $form['overlay_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Overlay browser settings'),
@@ -200,18 +212,15 @@ function flickr_admin_settings() {
       '#title' => t('Block settings'),
       '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
     );
-    $form['block_settings']['flickr_block_counter'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Show a Flickr counter'),
-      '#default_value' => variable_get('flickr_block_counter', 1),
-      '#description' => t('Shows how many photos are displayed out of the total number available for a user, group or set on Flickr. Can be overridden by the filter tag, eg. [flickr-photoset:id=72157634563269642,count=false]'),
-    );
-    $form['block_settings']['flickr_block_maps'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Extra links to Flickr maps'),
-      '#default_value' => variable_get('flickr_block_maps', 1),
-      '#description' => t('Include extra links to maps available for a user, group or set on Flickr. Locations mentioned (if displayed) under individual images in any case link to corresponding Flickr user maps.'),
-    );
+  $form['block_settings']['flickr_block_heading'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Wrap the album title in HTML heading tag (only for blocks)'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('flickr_block_heading', 'h2'),
+    '#description' => t("Default: 'h2'. Use 'p' for no style or 'none' to not display a title."),
+    '#size' => 4,
+    '#maxlength' => 4,
+  );
     $form['block_settings']['flickr_block_refresh_random'] = array(
       '#type' => 'textfield',
       '#field_prefix' => t('Refresh random blocks every'),

@@ -20,7 +20,7 @@ function flickr_filter_help($path, $arg) {
  */
 function flickr_filter_info() {
   $filters['flickr_filter'] = array(
-    'title' => t('Flickr linker'),
+    'title' => t('Flickr Filter'),
     'description' => t('Allows you to Insert Flickr images: [flickr-photo:id=7357144724,size=m], [flickr-photoset:id=72157634563269642,size=s,num=8,media=all,random=true, count=false], [flickr-group:id=91484156@N00, size=q, num=8, tags=southsea, media=all, random=true, count=false] or [flickr-user:id=98518260@N02, size=q, num=8, tags=kids/men, media=all, random=true, count=false].'),
     'process callback' => 'flickr_filter',
     'tips callback' => 'flickr_filter_tips',
@@ -44,8 +44,36 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
       'title' => t('Go to Flickr configuration page'),
     ),
   ));
-  $count = variable_get('flickr_block_counter', 1) ? 'true' : 'false';
-  $output = t("Insert Flickr images: [<strong>flickr-photo:id</strong>=7357144724, size=m], [<strong>flickr-photoset:id</strong>=72157634563269642, size=s, num=8, tags=kids/men, media=all, random=true, count=false], [<strong>flickr-group:id</strong>=91484156@N00, size=q, num=8, tags=southsea, media=all, random=true, count=false] or [<strong>flickr-user:id</strong>=98518260@N02, size=q, num=8, tags=kids/men, media=all, random=true, count=false].<br />!find_id Ommiting parameters the following <strong>default values</strong> will be used: <strong><em>size=@default_size</em></strong> (!config). Only for sets: <strong><em>num=@default_number</em></strong> (!config), <strong><em>media=photos</em></strong>, <strong><em>random=false</em></strong>, <strong><em>count=@default_count</em></strong> (!config).<br />Adding <strong><em>tags</em></strong> filters Flickr photos to those that are tagged as such, even partially and case insensitive (e.g. <em>'Beach'</em> matches <em>'beachtrip'</em>. Note that Flickr removes any whitespace from tags (e.g. <em>'Victoria park'</em> becomes <em>'victoriapark'</em>. Multiple tags should be seperated by a slash (/) and matches all photos that are tagged with at least one of those (OR).<br /><strong>Float single photos</strong>: Use [flickr-photo:id=9247386562, class=floatright], [flickr-photo:id=9247388074, size=m, style=float:left;] or use the <a href='https://drupal.org/project/autofloat'>AutoFloat module</a>.<br />Common sizes:<br /> s : small square 75<br /> t : thumbnail, 100 on longest side<br /> q : big square 150<br /> m : small, 240 on longest side<br /> n : small, 320 on longest side<br /> - : medium, 500 on longest side<br /> x: Flash responsive slideshow (for group, set and user IDs only)<br /> y: Basic responsive slideshow (for set and user IDs only)<br /> If the wrong size is applied, check if it exists on the Flickr photo page > Actions > View all sizes.", array(
+  $count = variable_get('flickr_counter', 1) ? 'true' : 'false';
+  $output = t("Insert Flickr images:
+<ul>
+<li>[flickr-<strong>photo</strong>:id=7357144724, size=m]</li>
+<li>[flickr-<strong>photoset</strong>:id=72157634563269642, size=s, num=8, tags=kids/men, media=all, random=true, count=false]</li>
+<li>[flickr-<strong>group</strong>:id=91484156@N00, size=q, num=8, tags=southsea, media=all, random=true, count=false]</li>
+<li>[flickr-<strong>user</strong>:id=lolandese1, size=q, num=8, tags=kids/men, media=all, random=true, count=false].</li>
+</ul>
+Adding tags filters Flickr photos to those that are tagged as such, even partially and case insensitive (e.g. 'Beach' matches 'beachtrip'. Note that Flickr removes any whitespace from tags (e.g. 'Victoria park' becomes 'victoriapark'. Multiple tags should be seperated by a slash (/) and matches all photos that are tagged with at least one of those (OR).<br />
+Float single photos: Use [flickr-photo:id=9247386562, <strong>class=floatright</strong>], [flickr-photo:id=9247388074, size=m, <strong>style=float:left;</strong>] or use the AutoFloat module.
+Sizes:<br />
+s : small square 75<br />
+t : thumbnail, 100 on longest side<br />
+q : big square 150<br />
+m : small, 240 on longest side<br />
+n : small, 320 on longest side<br />
+- : medium, 500 on longest side<br />
+x: Flash responsive slideshow (for group, set and user IDs only)<br />
+y: Basic responsive slideshow (for set and user IDs only)<br />
+If the wrong size is applied, check if it exists on the Flickr photo page > Actions > View all sizes.<br /><br />
+Parameters:<br />
+<strong>id=</strong> !find_id For a user Flickr the ID number, Flickr username or email.<br />
+<strong>size=q</strong> : Display size big square (150px). The sizes x and y display a slideshow and ignore number, media, tags and random settings. Default: size=@default_size (!config).<br />
+<strong>num=4</strong> : Display 4 photos. Default: num=@default_number (!config).<br />
+<strong>media=all</strong> : Display both photos and videos. Default: media=photos<br />
+<strong>tags=kids,men</strong> : Display all set, group or user photos that contains atleast one of the indicated tags.<br />
+<strong>heading=h2</strong> : Wraps the album title in HTML tags. Use p to apply no style or none to suppress the title. Default heading=p<br />
+<strong>random=false</strong> : Display the newest photos first (reverse cronological order). Default: random=false<br />
+<strong>count=false</strong> : Suppress display of the counter under the album (e.g. 5 out of 124 on Flickr). Default: count=@default_count (!config).<br />
+Ommiting parameters the default values will be used.", array(
     '!find_id' => $idgettr,
     '@default_size' => variable_get('flickr_default_size', 'm'),
     '@default_number' => variable_get('flickr_photos_per_page', 20),
@@ -149,6 +177,9 @@ function flickr_filter_callback_photoset($matches) {
     if (!isset($config['random'])) {
       $config['random'] = 'false';
     }
+    if (!isset($config['heading'])) {
+      $config['heading'] = 'p';
+    }
     if (!isset($config['tags'])) {
       $config['tags'] = '';
     }
@@ -156,13 +187,13 @@ function flickr_filter_callback_photoset($matches) {
       $config['tags'] = str_replace("/", ",", $config['tags']);
     }
     if (!isset($config['count'])) {
-      $config['count'] = variable_get('flickr_block_counter', 1) ? 'true' : 'false';
+      $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
     }
     $config['random'] = $config['random'] == 'true' ? 1 : 0;
-    $output = "<div class='flickr-photoset'>\n";
+    $output = "<div class='flickr-album'>\n";
     // Choose between 'recent' or 'random' based on 'random' parameter.
-    // We abuse $delta parameter to override preference of counter display.
-    $output .= _flickr_photoset($config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], $config['count'], $config['random']);
+    // We abuse the $delta parameter to override default of counter display.
+    $output .= _flickr_album('photoset', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], $config['count'], $config['random'], $config['heading']);
     $output .= '</div>';
     return $output;
   }
@@ -189,6 +220,9 @@ function flickr_filter_callback_group($matches) {
       if (!isset($config['random'])) {
         $config['random'] = 'false';
       }
+      if (!isset($config['heading'])) {
+        $config['heading'] = 'p';
+      }
       if (!isset($config['tags'])) {
         $config['tags'] = '';
       }
@@ -196,13 +230,13 @@ function flickr_filter_callback_group($matches) {
         $config['tags'] = str_replace("/", ",", $config['tags']);
       }
       if (!isset($config['count'])) {
-        $config['count'] = variable_get('flickr_block_counter', 1) ? 'true' : 'false';
+        $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
       }
       $config['random'] = $config['random'] == 'true' ? 1 : 0;
-      $output = "<div class='flickr-photoset'>\n";
+      $output = "<div class='flickr-album'>\n";
       // Choose between 'recent' or 'random' based on 'random' parameter.
-      // We abuse $delta parameter to override preference of counter display.
-      $output .= _flickr_group($config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], $config['count'], $info['group']['pool_count']['_content'], $config['random']);
+      // We abuse the $delta parameter to override default of counter display.
+      $output .= _flickr_album('group', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], $config['count'], $config['random'], $config['heading']);
       $output .= '</div>';
       return $output;
     }
@@ -217,6 +251,7 @@ function flickr_filter_callback_user($matches) {
   list($config, $attribs) = flickr_filter_split_config($matches[1]);
 
   if (isset($config['id'])) {
+    $config['id'] = flickr_user_find_by_identifier($config['id']);
     if (!isset($config['size'])) {
       $config['size'] = variable_get('flickr_default_size', 'm');
     }
@@ -229,6 +264,9 @@ function flickr_filter_callback_user($matches) {
     if (!isset($config['random'])) {
       $config['random'] = 'false';
     }
+    if (!isset($config['heading'])) {
+      $config['heading'] = 'p';
+    }
     if (!isset($config['tags'])) {
       $config['tags'] = '';
     }
@@ -236,13 +274,13 @@ function flickr_filter_callback_user($matches) {
       $config['tags'] = str_replace("/", ",", $config['tags']);
     }
     if (!isset($config['count'])) {
-      $config['count'] = variable_get('flickr_block_counter', 1) ? 'true' : 'false';
+      $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
     }
     $config['random'] = $config['random'] == 'true' ? 1 : 0;
-    $output = "<div class='flickr-photoset'>\n";
+    $output = "<div class='flickr-album'>\n";
     // Choose between 'recent' or 'random' based on 'random' parameter.
-    // We abuse $delta parameter to override preference of counter display.
-    $output .= _flickr_user($config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], $config['count'], $config['random']);
+    // We abuse the $delta parameter to override default of counter display.
+    $output .= _flickr_album('user', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], $config['count'], $config['random'], $config['heading']);
     $output .= '</div>';
     return $output;
   }
