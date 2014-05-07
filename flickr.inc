@@ -640,7 +640,10 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
             break;
 
           case 'group':
+            // If only one tag exists, use it to circumvent the 500 limit.
+            $tags1 = (strpos($tags,',')) ? '' : $tags;
             $response = flickr_get_group_photos($id, 1, array(
+              'tags' => $tags1,
               'per_page' => 500,
               'extras' => 'license,geo,tags,views,media',
             ));
@@ -652,6 +655,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
 
           case 'user':
             $response = flickr_photos_search($id, 1, array(
+              'tags' => $tags,
               'per_page' => 500,
               'extras' => 'license,geo,tags,views,media',
               'media' => $media,

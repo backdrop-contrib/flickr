@@ -52,7 +52,6 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
 <li>[flickr-<strong>group</strong>:id=91484156@N00, size=q, num=8, tags=southsea, media=all, random=true, count=false]</li>
 <li>[flickr-<strong>user</strong>:id=lolandese1, size=q, num=8, tags=kids/men, media=all, random=true, count=false].</li>
 </ul>
-Adding tags filters Flickr photos to those that are tagged as such, even partially and case insensitive (e.g. 'Beach' matches 'beachtrip'. Note that Flickr removes any whitespace from tags (e.g. 'Victoria park' becomes 'victoriapark'. Multiple tags should be seperated by a slash (/) and matches all photos that are tagged with at least one of those (OR).<br />
 Float single photos: Use [flickr-photo:id=9247386562, <strong>class=floatright</strong>], [flickr-photo:id=9247388074, size=m, <strong>style=float:left;</strong>] or use the AutoFloat module.
 Sizes:<br />
 s : small square 75<br />
@@ -69,7 +68,7 @@ Parameters:<br />
 <strong>size=q</strong> : Display size big square (150px). The sizes x and y display a slideshow and ignore number, media, tags and random settings. Default: size=@default_size (!config).<br />
 <strong>num=4</strong> : Display 4 photos. Default: num=@default_number (!config).<br />
 <strong>media=all</strong> : Display both photos and videos. Default: media=photos<br />
-<strong>tags=kids,men</strong> : Display all set, group or user photos that contains atleast one of the indicated tags.<br />
+<strong>tags=kids/men</strong> : Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets even partial. Multiple tags for groups will only query the last 500 photos on Flickr. Note that Flickr removes any whitespace from tags (e.g. 'Victoria park' becomes 'victoriapark'). Multiple tags should be seperated by a slash (/).<br />
 <strong>heading=h2</strong> : Wraps the album title in HTML tags. Use p to apply no style or none to suppress the title. Default heading=p<br />
 <strong>random=false</strong> : Display the newest photos first (reverse cronological order). Default: random=false<br />
 <strong>count=false</strong> : Suppress display of the counter under the album (e.g. 5 out of 124 on Flickr). Default: count=@default_count (!config).<br />
