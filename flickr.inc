@@ -536,7 +536,8 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
     ));
     // The used tags with a space forced after the comma and the last
     // one replaced by 'or'.
-    $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : l(t("tagged <em>") . preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags)) . "</em>", $people['photosurl'] . 'tags/' . $tags, array(
+    $tags1 = preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags));
+    $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : l(t('tagged ') . '<span class="flickr-tags">' . $tags1 . '</span>', $people['photosurl'] . 'tags/' . $tags, array(
       'attributes' => array(
         'title' => t('View tagged photos on Flickr.'),
         'target' => '_blank',
@@ -566,7 +567,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
             'target' => '_blank',
           ),
         ));
-        $output .= $heading == 'none' ? '' : '<' . $heading . '>' . t("!photos !tagsfrom Flickr set !set by !username !map", array(
+        $output .= $heading == 'none' ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tagsfrom Flickr set !set by !username !map", array(
           '!photos' => $photos,
           '!tags' => $tagged . ' ',
           '!set' => $set,
@@ -596,9 +597,9 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
             'target' => '_blank',
           ),
         ));
-        $output .= $heading == 'none' ? '' : '<' . $heading . '>' . t("!photos !tags from the group !group !map", array(
+        $output .= $heading == 'none' ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tags from the group !group !map", array(
           '!photos' => strip_tags($photos),
-          '!tags' => strip_tags($tagged) . ' ',
+          '!tags' => 'tagged <span class="flickr-tags">' . $tags1 . '</span> ',
           '!group' => $group,
           '!map' => $map,
         )) . '</' . $heading . '>';
@@ -635,7 +636,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
           ),
           'html' => TRUE,
         ));
-        $output .= $heading == 'none' ? '' : '<' . $heading . '>' . t("!photos !tags by !username !map", array(
+        $output .= $heading == 'none' ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tags by !username !map", array(
           '!photos' => $photos,
           '!tags' => $tagged . ' ',
           '!username' => $people['name'],
@@ -662,6 +663,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
         break;
 
       default:
+        $output .= '<div class="flickr-album">';
         // Get a list of "all" the photos. This is cached.
         switch ($type) {
           case 'photoset':
@@ -750,6 +752,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
             }
           }
         }
+        $output .= '</div>';
         // A counter if set to show.
         switch ($type) {
           case 'photoset':
@@ -771,7 +774,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
           '!flickr' => $flickr,
         ));
         // Note the $delta value is abused for counter override from filter.
-        $output .= ((variable_get('flickr_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-counter">' . $count . '</div>' : '';
+        $output .= ((variable_get('flickr_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-album-counter">' . $count . '</div>' : '';
     }
     $output .= '</div>';
     if (is_numeric($delta)) {

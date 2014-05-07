@@ -92,3 +92,7 @@ span.floatright {
   float: right; /* LTR */
   margin: 5px 0 0 10px; /* LTR */
 }
+
+span.flickr-tags {
+  font-style: italic;
+}
