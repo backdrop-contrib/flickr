@@ -458,6 +458,42 @@ function flickr_get_user_info($nsid) {
 }
 
 /**
+ * Returns the type of ID. User, group or photoset.
+ * If is has no @ it is a set, if flickr_groups_getinfo returns 'ok', it is a
+ * group. This is not a validation function.
+ *
+ * @param string $nsid
+ *   A valid Flickr ID. Should be validated before arriving here.
+ *
+ * @return string
+ *   'user', 'group' or 'photoset'
+ */
+function flickr_get_id_type($id) {
+  // If it contains a '@' it is likely a group or user ID.
+  if (strpos($id, '@') !== FALSE) {
+    $info = flickr_groups_getinfo($id);
+    if ($info['stat'] == 'ok') {
+      // If the function works, it is a group ID.
+      return 'group';
+    }
+    elseif (flickr_user_find_by_identifier($id)) {
+      // If it doesn't, it is likely a user ID.
+      return 'user';
+    }
+  }
+  elseif (is_numeric($id)) {
+      return 'photoset';
+  }
+  if (flickr_user_find_by_identifier($id)) {
+      return 'user';
+  }
+  $message = t('A valid Flickr ID could not be found');
+  drupal_set_message($message, 'error');
+  watchdog('flickr', $message, array(), WATCHDOG_WARNING);
+  return FALSE;
+}
+
+/**
  * Render multiple photos as an album.
  */
 function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL, $random = 0, $heading = 'p') {
@@ -467,6 +503,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
     $output = $cache->data;
   }
   else {
+    $output = '<div class="flickr-photoset">';
     $recent = $random == 1 ? '' : 'Recent ';
     // Get information about the photoset, including the owner.
     switch ($type) {
@@ -529,7 +566,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
             'target' => '_blank',
           ),
         ));
-        $output = $heading == 'none' ? '' : '<' . $heading . '>' . t("!photos !tagsfrom Flickr set !set by !username !map", array(
+        $output .= $heading == 'none' ? '' : '<' . $heading . '>' . t("!photos !tagsfrom Flickr set !set by !username !map", array(
           '!photos' => $photos,
           '!tags' => $tagged . ' ',
           '!set' => $set,
@@ -559,7 +596,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
             'target' => '_blank',
           ),
         ));
-        $output = $heading == 'none' ? '' : '<' . $heading . '>' . t("!photos !tags from the group !group !map", array(
+        $output .= $heading == 'none' ? '' : '<' . $heading . '>' . t("!photos !tags from the group !group !map", array(
           '!photos' => strip_tags($photos),
           '!tags' => strip_tags($tagged) . ' ',
           '!group' => $group,
@@ -598,7 +635,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
           ),
           'html' => TRUE,
         ));
-        $output = $heading == 'none' ? '' : '<' . $heading . '>' . t("!photos !tags by !username !map", array(
+        $output .= $heading == 'none' ? '' : '<' . $heading . '>' . t("!photos !tags by !username !map", array(
           '!photos' => $photos,
           '!tags' => $tagged . ' ',
           '!username' => $people['name'],
@@ -610,7 +647,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
       case "x":
         // Info about set and owner is displayed in slideshow itself. If you
         // want a header nonetheless, use concatenation (.=).
-        $output = theme('flickr_flickrcomslideshow', array(
+        $output .= theme('flickr_flickrcomslideshow', array(
           'id' => $id,
         ));
         drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, tags and media settings."), 'warning');
@@ -736,6 +773,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
         // Note the $delta value is abused for counter override from filter.
         $output .= ((variable_get('flickr_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-counter">' . $count . '</div>' : '';
     }
+    $output .= '</div>';
     if (is_numeric($delta)) {
       $refresh = $random == 1 ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
       cache_set('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . $random, $output, 'cache', time() + $refresh * 60 * 60);

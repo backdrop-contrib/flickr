@@ -367,7 +367,9 @@ function flickr_groups_getinfo($nsid, $other_args = array()) {
     'group_id' => $nsid,
   );
 
-  $response = flickr_request('flickr.groups.getInfo', array_merge($args, $other_args));
+  // $return_errors = TRUE avoids error messages when we abuse this function to
+  // determine betweeen a group and user ID.
+  $response = flickr_request('flickr.groups.getInfo', array_merge($args, $other_args), $cacheable = FALSE, $return_errors = TRUE);
   if ($response) {
     return $response;
   }

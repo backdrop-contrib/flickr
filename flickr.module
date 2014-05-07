@@ -627,29 +627,27 @@ function theme_flickr_flickrcomslideshow($variables) {
   if (empty($id)) {
     return;
   }
-  if (strpos($id, '@') !== FALSE) {
-    // Check if it is a group ID.
-    $info = flickr_groups_getinfo($id);
-    if ($info['stat'] == 'ok') {
-      return '<div class="flickr-slideshow"><object  type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=140556"><param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=140556"></param><param name="flashvars" value="offsite=true&lang=en-us&page_show_url=%2Fgroups%2F' . $id . '%2Fpool%2Fshow%2F&page_show_back_url=%2Fgroups%2F' . $id . '%2Fpool%2F&group_id=' . $id . '&jump_to=&start_index="></param><param name="allowFullScreen" value="true"><param name="wmode" value="opaque" /></param></object></div>';
-    }
-    else {
+  switch (flickr_get_id_type($id)) {
+    case 'photoset':
+      $info = flickr_photoset_get_info($id);
+      $user_id = $info['owner'];
+      return '<div class="flickr-slideshow"><object type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=71649">
+    <param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=71649" />
+    <param name="allowFullScreen" value="true" />
+    <param name="wmode" value="opaque" />
+    <param name="flashvars" value="offsite=true&amp;lang=en-us&amp;page_show_url=/photos/' . $user_id . '/sets/' . $id . '/show/&amp;page_show_back_url=/photos/' . $user_id . '/sets/' . $id . '/&amp;set_id=' . $id . '" /></object></div>';
+
+    case 'user':
       return '<div class="flickr-slideshow"><object type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=71649">
       <param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=71649" />
       <param name="allowFullScreen" value="true" />
       <param name="wmode" value="opaque" />
       <param name="flashvars" value="offsite=tru&amp;lang=en-us&amp;page_show_url=%2Fphotos%2F' . $id . '%2Fshow&amp;user_id=' . $id . '" /></object></div>';
-    }
+
+    case 'group':
+      return '<div class="flickr-slideshow"><object  type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=140556"><param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=140556"></param><param name="flashvars" value="offsite=true&lang=en-us&page_show_url=%2Fgroups%2F' . $id . '%2Fpool%2Fshow%2F&page_show_back_url=%2Fgroups%2F' . $id . '%2Fpool%2F&group_id=' . $id . '&jump_to=&start_index="></param><param name="allowFullScreen" value="true"><param name="wmode" value="opaque" /></param></object></div>';
   }
-  else {
-    $info = flickr_photoset_get_info($id);
-    $user_id = $info['owner'];
-    return '<div class="flickr-slideshow"><object type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=71649">
-    <param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=71649" />
-    <param name="allowFullScreen" value="true" />
-    <param name="wmode" value="opaque" />
-    <param name="flashvars" value="offsite=true&amp;lang=en-us&amp;page_show_url=/photos/' . $user_id . '/sets/' . $id . '/show/&amp;page_show_back_url=/photos/' . $user_id . '/sets/' . $id . '/&amp;set_id=' . $id . '" /></object></div>';
-  }
+  return;
 }
 
 /**
@@ -661,20 +659,20 @@ function theme_flickr_flickrcomslideshow_simple($variables) {
   if (empty($id)) {
     return;
   }
-  if (strpos($id, '@') !== FALSE) {
-    // Check if it is a group ID.
-    $info = flickr_groups_getinfo($id);
-    if ($info['stat'] == 'ok') {
-      $src = 'https://www.flickr.com/slideShow/index.gne?group_id=' . $id . '&user_id=&set_id=&text=';
-    }
-    else {
+  switch (flickr_get_id_type($id)) {
+    case 'photoset':
+      $info = flickr_photoset_get_info($id);
+      $user_id = $info['owner'];
+      $src = 'https://www.flickr.com/slideShow/index.gne?group_id=&user_id=' . $user_id . '&set_id=' . $id . '&text=';
+      break;
+
+    case 'user':
       $src = 'https://www.flickr.com/slideShow/index.gne?group_id=&user_id=' . $id . '&set_id=&text=';
-    }
-  }
-  else {
-    $info = flickr_photoset_get_info($id);
-    $user_id = $info['owner'];
-    $src = 'https://www.flickr.com/slideShow/index.gne?group_id=&user_id=' . $user_id . '&set_id=' . $id . '&text=';
+      break;
+
+    case 'group':
+      $src = 'https://www.flickr.com/slideShow/index.gne?group_id=' . $id . '&user_id=&set_id=&text=';
+      break;
   }
   return '<div class="flickr-slideshow"><object type="text/html" data="' . $src . '"></object></div>';
 }

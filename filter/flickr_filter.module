@@ -50,7 +50,7 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
 <li>[flickr-<strong>photo</strong>:id=7357144724, size=m]</li>
 <li>[flickr-<strong>photoset</strong>:id=72157634563269642, size=s, num=8, tags=kids/men, media=all, random=true, count=false]</li>
 <li>[flickr-<strong>group</strong>:id=91484156@N00, size=q, num=8, tags=southsea, media=all, random=true, count=false]</li>
-<li>[flickr-<strong>user</strong>:id=lolandese1, size=q, num=8, tags=kids/men, media=all, random=true, count=false].</li>
+<li>[flickr-<strong>user</strong>:id=lolandese1, size=q, num=8, tags=kids/men, media=all, random=true, count=false]</li>
 </ul>
 Float single photos: Use [flickr-photo:id=9247386562, <strong>class=floatright</strong>], [flickr-photo:id=9247388074, size=m, <strong>style=float:left;</strong>] or use the AutoFloat module.
 Sizes:<br />
@@ -95,9 +95,9 @@ Ommiting parameters the default values will be used.", array(
  */
 function flickr_filter($text, $filter) {
   $text = preg_replace_callback('/\[flickr-photo:(.+?)\]/', 'flickr_filter_callback_photo', $text);
-  $text = preg_replace_callback('/\[flickr-photoset:(.+?)\]/', 'flickr_filter_callback_photoset', $text);
-  $text = preg_replace_callback('/\[flickr-group:(.+?)\]/', 'flickr_filter_callback_group', $text);
-  $text = preg_replace_callback('/\[flickr-user:(.+?)\]/', 'flickr_filter_callback_user', $text);
+  $text = preg_replace_callback('/\[flickr-photoset:(.+?)\]/', 'flickr_filter_callback_album', $text);
+  $text = preg_replace_callback('/\[flickr-group:(.+?)\]/', 'flickr_filter_callback_album', $text);
+  $text = preg_replace_callback('/\[flickr-user:(.+?)\]/', 'flickr_filter_callback_album', $text);
   return $text;
 }
 
@@ -143,7 +143,7 @@ function flickr_filter_callback_photo($matches) {
       switch ($config['size']) {
         case "x":
         case "y":
-          drupal_set_message(t("You can only use a slideshow for set, user or group IDs."), 'error');
+          drupal_set_message(t("Do not use a slideshow for a single image."), 'error');
           $config['size'] = variable_get('flickr_default_size', 'm');
           break;
       }
@@ -158,99 +158,12 @@ function flickr_filter_callback_photo($matches) {
 }
 
 /**
- * Filter callback for a photoset.
- */
-function flickr_filter_callback_photoset($matches) {
-  list($config, $attribs) = flickr_filter_split_config($matches[1]);
-
-  if (isset($config['id'])) {
-    if (!isset($config['size'])) {
-      $config['size'] = variable_get('flickr_default_size', 'm');
-    }
-    if (!isset($config['num'])) {
-      $config['num'] = variable_get('flickr_photos_per_page', 20);
-    }
-    if (!isset($config['media'])) {
-      $config['media'] = 'photos';
-    }
-    if (!isset($config['random'])) {
-      $config['random'] = 'false';
-    }
-    if (!isset($config['heading'])) {
-      $config['heading'] = 'p';
-    }
-    if (!isset($config['tags'])) {
-      $config['tags'] = '';
-    }
-    else {
-      $config['tags'] = str_replace("/", ",", $config['tags']);
-    }
-    if (!isset($config['count'])) {
-      $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
-    }
-    $config['random'] = $config['random'] == 'true' ? 1 : 0;
-    $output = "<div class='flickr-photoset'>\n";
-    // Choose between 'recent' or 'random' based on 'random' parameter.
-    // We abuse the $delta parameter to override default of counter display.
-    $output .= _flickr_album('photoset', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], $config['count'], $config['random'], $config['heading']);
-    $output .= '</div>';
-    return $output;
-  }
-  return '';
-}
-
-/**
- * Filter callback for a group.
- */
-function flickr_filter_callback_group($matches) {
-  list($config, $attribs) = flickr_filter_split_config($matches[1]);
-
-  if (isset($config['id'])) {
-    if ($info = flickr_groups_getinfo($config['id'])) {
-      if (!isset($config['size'])) {
-        $config['size'] = variable_get('flickr_default_size', 'm');
-      }
-      if (!isset($config['num'])) {
-        $config['num'] = variable_get('flickr_photos_per_page', 20);
-      }
-      if (!isset($config['media'])) {
-        $config['media'] = 'photos';
-      }
-      if (!isset($config['random'])) {
-        $config['random'] = 'false';
-      }
-      if (!isset($config['heading'])) {
-        $config['heading'] = 'p';
-      }
-      if (!isset($config['tags'])) {
-        $config['tags'] = '';
-      }
-      else {
-        $config['tags'] = str_replace("/", ",", $config['tags']);
-      }
-      if (!isset($config['count'])) {
-        $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
-      }
-      $config['random'] = $config['random'] == 'true' ? 1 : 0;
-      $output = "<div class='flickr-photoset'>\n";
-      // Choose between 'recent' or 'random' based on 'random' parameter.
-      // We abuse the $delta parameter to override default of counter display.
-      $output .= _flickr_album('group', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], $config['count'], $config['random'], $config['heading']);
-      $output .= '</div>';
-      return $output;
-    }
-  }
-  return '';
-}
-
-/**
  * Filter callback for a user.
  */
-function flickr_filter_callback_user($matches) {
+function flickr_filter_callback_album($matches) {
   list($config, $attribs) = flickr_filter_split_config($matches[1]);
 
   if (isset($config['id'])) {
-    $config['id'] = flickr_user_find_by_identifier($config['id']);
     if (!isset($config['size'])) {
       $config['size'] = variable_get('flickr_default_size', 'm');
     }
@@ -275,12 +188,13 @@ function flickr_filter_callback_user($matches) {
     if (!isset($config['count'])) {
       $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
     }
-    $config['random'] = $config['random'] == 'true' ? 1 : 0;
-    $output = "<div class='flickr-photoset'>\n";
     // Choose between 'recent' or 'random' based on 'random' parameter.
-    // We abuse the $delta parameter to override default of counter display.
-    $output .= _flickr_album('user', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], $config['count'], $config['random'], $config['heading']);
-    $output .= '</div>';
+    // Note that we abuse the $delta parameter pass the random value to override
+    // the default of the counter display.
+    $config['random'] = $config['random'] == 'true' ? 1 : 0;
+    $type = flickr_get_id_type($config['id']);
+    $config['id'] = $type == 'user' ? flickr_user_find_by_identifier($config['id']) : $config['id'];
+    $output = _flickr_album($type, $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], $config['count'], $config['random'], $config['heading']);
     return $output;
   }
   return '';
