@@ -69,25 +69,6 @@ function flickr_admin_settings() {
     '#size' => 3,
     '#maxlength' => 3,
   );
-  if (module_exists('flickr_filter')) {
-    $form['flickr_default_size'] = array(
-      '#type' => 'select',
-      '#title' => t('Default size'),
-      '#default_value' => variable_get('flickr_default_size', 'm'),
-      '#options' => array(
-        's' => t('s: 75 px square'),
-        't' => t('t: 100 px on longest side'),
-        'q' => t('q: 150 px square'),
-        'm' => t('m: 240 px on longest side'),
-        'n' => t('n: 320 px on longest side (!)'),
-        '-' => t('-: 500 px on longest side'),
-        'z' => t('z: 640 px on longest side'),
-        'c' => t('c: 800 px on longest side (!)'),
-        'b' => t('b: 1024 px on longest side'),
-      ),
-      '#description' => t('A default Flickr size to use if no size is specified, for example [flickr-photo:id=3711935987].<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
-    );
-  }
   $style_doc = l(t('Flickr module Style Guide'), 'https://drupal.org/node/2174131', array(
       'attributes' => array(
         'title' => t('Flickr Style Guide documentation | Drupal.org'),
@@ -175,6 +156,74 @@ function flickr_admin_settings() {
     '#default_value' => variable_get('flickr_counter', 1),
     '#description' => t('Shows how many photos are displayed out of the total number available for a user, group or set on Flickr. Can be overridden by the filter tag, eg. [flickr-photoset:id=72157634563269642,count=false]'),
   );
+  if (module_exists('flickr_filter')) {
+    $form['filter_settings'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Filter settings'),
+      '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+    );
+    $form['filter_settings']['flickr_filter_heading'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Wrap the album title in an HTML heading tag (only for the text filter)'),
+      '#required' => TRUE,
+      '#default_value' => variable_get('flickr_filter_heading', 'p'),
+      '#description' => t("Use 'p' for no style, 'h3' for a heading or 'none' to not display a title."),
+      '#size' => 4,
+      '#maxlength' => 4,
+    );
+    $form['filter_settings']['flickr_default_size'] = array(
+      '#type' => 'select',
+      '#title' => t('Default size'),
+      '#default_value' => variable_get('flickr_default_size', 'm'),
+      '#options' => array(
+        's' => t('s: 75 px square'),
+        't' => t('t: 100 px on longest side'),
+        'q' => t('q: 150 px square'),
+        'm' => t('m: 240 px on longest side'),
+        'n' => t('n: 320 px on longest side (!)'),
+        '-' => t('-: 500 px on longest side'),
+        'z' => t('z: 640 px on longest side'),
+        'c' => t('c: 800 px on longest side (!)'),
+        'b' => t('b: 1024 px on longest side'),
+      ),
+      '#description' => t('A default Flickr size to use if no size is specified, for example [flickr-photo:id=3711935987].<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+    );
+  }
+  if (module_exists('flickr_block')) {
+    $form['block_settings'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Block settings'),
+      '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+    );
+    $form['block_settings']['flickr_block_heading'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Wrap the album title in an HTML heading tag (only for blocks)'),
+      '#required' => TRUE,
+      '#default_value' => variable_get('flickr_block_heading', 'h2'),
+      '#description' => t("Use 'p' for no style, 'h2' for a heading or 'none' to not display a title."),
+      '#size' => 4,
+      '#maxlength' => 4,
+    );
+    $form['block_settings']['flickr_block_refresh_random'] = array(
+      '#type' => 'textfield',
+      '#field_prefix' => t('Refresh random blocks every'),
+      '#required' => TRUE,
+      '#default_value' => variable_get('flickr_block_refresh_random', 23),
+      '#field_suffix' => t('hours.'),
+      '#size' => 3,
+      '#maxlength' => 3,
+    );
+    $form['block_settings']['flickr_block_refresh_others'] = array(
+      '#type' => 'textfield',
+      '#field_prefix' => t('Refresh other blocks every'),
+      '#required' => TRUE,
+      '#default_value' => variable_get('flickr_block_refresh_others', 31),
+      '#description' => t('It is recommended to set two different refresh values to avoid all blocks refresh together. Lower values impact performance negatively. Consider to use <a href="https://drupal.org/node/1576686" title="Load Page Cache after cron Runs | Drupal.org">cache warming</a>.'),
+      '#field_suffix' => t('hours.'),
+      '#size' => 3,
+      '#maxlength' => 3,
+    );
+  }
   $form['overlay_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Overlay browser settings'),
@@ -197,50 +246,17 @@ function flickr_admin_settings() {
     '#title' => t('Image size to open'),
     '#default_value' => variable_get('flickr_opening_size', ''),
     '#options' => array(
+      'q' => t('q: 150 px square'),
       'm' => t('m: 240 px on longest side'),
       'n' => t('n: 320 px on longest side (!)'),
       '' => t('-: 500 px on longest side'),
       'z' => t('z: 640 px on longest side'),
       'c' => t('c: 800 px on longest side (!)'),
       'b' => t('b: 1024 px on longest side'),
+      'h' => t('h: 1600 px on longest side'),
     ),
     '#description' => t('The image size to open in the overlay browser when clicking the image. Larger sizes make navigating to next and previous pictures slower.<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
   );
-  if (module_exists('flickr_block')) {
-    $form['block_settings'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Block settings'),
-      '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
-    );
-  $form['block_settings']['flickr_block_heading'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Wrap the album title in HTML heading tag (only for blocks)'),
-    '#required' => TRUE,
-    '#default_value' => variable_get('flickr_block_heading', 'h2'),
-    '#description' => t("Default: 'h2'. Use 'p' for no style or 'none' to not display a title."),
-    '#size' => 4,
-    '#maxlength' => 4,
-  );
-    $form['block_settings']['flickr_block_refresh_random'] = array(
-      '#type' => 'textfield',
-      '#field_prefix' => t('Refresh random blocks every'),
-      '#required' => TRUE,
-      '#default_value' => variable_get('flickr_block_refresh_random', 23),
-      '#field_suffix' => t('hours.'),
-      '#size' => 3,
-      '#maxlength' => 3,
-    );
-    $form['block_settings']['flickr_block_refresh_others'] = array(
-      '#type' => 'textfield',
-      '#field_prefix' => t('Refresh other blocks every'),
-      '#required' => TRUE,
-      '#default_value' => variable_get('flickr_block_refresh_others', 31),
-      '#description' => t('It is recommended to set two different refresh values to avoid all blocks refresh together. Lower values impact performance negatively. Consider to use <a href="https://drupal.org/node/1576686" title="Load Page Cache after cron Runs | Drupal.org">cache warming</a>.'),
-      '#field_suffix' => t('hours.'),
-      '#size' => 3,
-      '#maxlength' => 3,
-    );
-  }
   // We need an api key before we can verify usernames.
   if (!$form['flickr_api_key']['#default_value']) {
     $form['flickr_default_userid']['#disabled'] = TRUE;

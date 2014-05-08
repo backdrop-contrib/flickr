@@ -10,9 +10,8 @@
 function flickr_block_uninstall() {
   variable_del("flickr_block_refresh_random");
   variable_del("flickr_block_refresh_others");
-  variable_del('flickr_counter');
-  variable_del('flickr_maps');
-  foreach (range(0, 11) as $delta) {
+  variable_del('flickr_block_heading');
+  foreach (range(0, 12) as $delta) {
     variable_del("flickr_block_{$delta}");
   }
 }

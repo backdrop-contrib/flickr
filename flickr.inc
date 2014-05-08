@@ -496,18 +496,22 @@ function flickr_get_id_type($id) {
 /**
  * Render multiple photos as an album.
  */
-function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL, $random = 0, $heading = 'p') {
+function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL, $random = 0, $heading = 'p', $min_title = NULL, $min_metadata = NULL) {
   $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . $random);
   // If $delta is a number it is a block that could be cached.
   if ($cache && is_numeric($delta)) {
     $output = $cache->data;
   }
+
+  // In any other case we generate an album, including a heading and counter.
   else {
+    $min_title = is_null($min_title) ? variable_get('flickr_title_suppress_on_small', '100') : $min_title;
+    $min_metadata = is_null($min_metadata) ? variable_get('flickr_metadata_suppress_on_small', '150') : $min_metadata;
     $output = '<div class="flickr-photoset">';
     $recent = $random == 1 ? '' : 'Recent ';
-    // Get information about the photoset, including the owner.
+    // Get information about the album, including the owner if needed later on.
     switch ($type) {
-      case 'photoset':
+      case "photoset":
         $info = flickr_photoset_get_info($id);
         $people = flickr_get_user_info($info['owner']);
         if (!$info) {
@@ -515,7 +519,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
         }
         break;
 
-      case 'group':
+      case "group":
         $info = flickr_groups_getinfo($id);
         if (!$info) {
           return;
@@ -526,6 +530,8 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
         $people = flickr_get_user_info($id);
         break;
     }
+
+    // Set some variables for all album types.
     $media_type = $media == 'videos' ? t('videos') : t('photos');
     $people['photosurl'] = isset($people['photosurl']) ? $people['photosurl'] : 'https://www.flickr.com/groups/' . $id . '/';
     $photos = l(t('@recentFlickr @media', array('@recent' => $recent, '@media' => $media_type)), $people['photosurl'], array(
@@ -544,8 +550,10 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
       ),
       'html' => TRUE,
     ));
+
+    // Generate an album heading depending on type.
     switch ($type) {
-      case 'photoset':
+      case "photoset":
         $set = l($info['title']['_content'], $people['photosurl'] . 'sets/' . $id, array(
           'attributes' => array(
             'title' => t('View set on Flickr.'),
@@ -576,7 +584,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
         )) . '</' . $heading . '>';
         break;
 
-      case 'group':
+      case "group":
         $map = variable_get('flickr_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
           'attributes' => array(
             'title' => t('View group photos on Flickr map.'),
@@ -599,9 +607,35 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
         ));
         $output .= $heading == 'none' ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tags from the group !group !map", array(
           '!photos' => strip_tags($photos),
-          '!tags' => 'tagged <span class="flickr-tags">' . $tags1 . '</span> ',
+          '!tags' => t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ',
           '!group' => $group,
           '!map' => $map,
+        )) . '</' . $heading . '>';
+        break;
+
+      case "favorites":
+        $flickr = l(t('on Flickr'), $people['photosurl'] . 'favorites/', array(
+          'attributes' => array(
+            'title' => t("View favorites of @name made by others.", array(
+              '@name' => strip_tags($people['name']),
+            )),
+            'target' => '_blank',
+          ),
+        ));
+        $favorites = l(t('favorites'), $people['photosurl'] . 'favorites/', array(
+          'attributes' => array(
+            'title' => t("View favorites of @name made by others.", array(
+              '@name' => strip_tags($people['name']),
+            )),
+            'target' => '_blank',
+          ),
+        ));
+        $tags1 = (!empty($tags)) ? t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ' : '';
+        $output .= $heading == 'none' ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tags from the !favorites of !username", array(
+          '!photos' => strip_tags($photos),
+          '!tags' => $tags1,
+          '!favorites' => $favorites,
+          '!username' => $people['name'],
         )) . '</' . $heading . '>';
         break;
 
@@ -643,30 +677,54 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
           '!map' => $map,
         )) . '</' . $heading . '>';
         break;
-      }
+    }
+
+    // Generate the album itself, depending on size and type.
     switch ($size) {
       case "x":
-        // Info about set and owner is displayed in slideshow itself. If you
-        // want a header nonetheless, use concatenation (.=).
-        $output .= theme('flickr_flickrcomslideshow', array(
-          'id' => $id,
-        ));
-        drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, tags and media settings."), 'warning');
+        switch ($type) {
+          case "favorites":
+            $output .= t('You cannot choose a slideshow for this block. Select a size.');
+            drupal_set_message(t('You cannot choose a slideshow for this block.'), 'error');
+            break;
+
+          default:
+            // Info about set and owner is displayed in slideshow itself. If you
+            // want a header nonetheless, use concatenation (.=).
+            $output .= theme('flickr_flickrcomslideshow', array(
+              'id' => $id,
+            ));
+            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, tags and media settings."), 'warning');
+            break;
+        }
         break;
 
       case "y":
-        $output .= ($type == 'group') ? t('Choose the Flash slideshow for group pools (size = x).') : theme('flickr_flickrcomslideshow_simple', array(
-          'id' => $id,
-        ));
-        $message = ($type == 'group') ? t('Choose the Flash slideshow for group pools (size = x).') : t("Note that slideshows show in reverse chronological order (newest first) and ignore number, tags and media settings.");
-        drupal_set_message($message, 'warning');
+        switch ($type) {
+          case "favorites":
+            $output .= t('You cannot choose a slideshow for this block. Select a size.');
+            drupal_set_message(t('You cannot choose a slideshow for this block.'), 'error');
+            break;
+
+          case "group":
+            $output .= t('Choose the Flash slideshow for group pools (size = x).');
+            drupal_set_message(t('Choose the Flash slideshow for group pools (size = x).'), 'error');
+            break;
+
+          default:
+            $output .= theme('flickr_flickrcomslideshow_simple', array(
+              'id' => $id,
+            ));
+            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, tags and media settings."), 'warning');
+            break;
+        }
         break;
 
       default:
         $output .= '<div class="flickr-album">';
         // Get a list of "all" the photos. This is cached.
         switch ($type) {
-          case 'photoset':
+          case "photoset":
             $response = flickr_photosets_getphotos($id, array(
                 'per_page' => 500,
                 'extras' => 'license,geo,tags,views,media',
@@ -678,7 +736,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
             $photos = $response['photoset']['photo'];
             break;
 
-          case 'group':
+          case "group":
             // If only one tag exists, use it to circumvent the 500 limit.
             $tags1 = (strpos($tags,',')) ? '' : $tags;
             $response = flickr_get_group_photos($id, 1, array(
@@ -692,7 +750,18 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
             $photos = $response['photos']['photo'];
             break;
 
-          case 'user':
+          case "favorites":
+            $response = flickr_favorites_get_public_list($id, 1, array(
+              'per_page' => 500,
+              'extras' => 'license,geo,tags,views,media',
+            ));
+            if (!$response) {
+              return;
+            }
+            $photos = $response['photo'];
+            break;
+
+          case "user":
             $response = flickr_photos_search($id, 1, array(
               'tags' => $tags,
               'per_page' => 500,
@@ -724,6 +793,8 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
               $output .= theme('flickr_photo', array(
                 'photo' => $photo,
                 'size' => $size,
+                'min_title' => $min_title,
+                'min_metadata' => $min_metadata,
               ));
               $i++;
               $j++;
@@ -742,6 +813,8 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
                 $output .= theme('flickr_photo', array(
                   'photo' => $photo,
                   'size' => $size,
+                  'min_title' => $min_title,
+                  'min_metadata' => $min_metadata,
                 ));
                 // Avoid this image gets repeated by removing it from the
                 // array.
@@ -753,14 +826,19 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
           }
         }
         $output .= '</div>';
+
         // A counter if set to show.
         switch ($type) {
-          case 'photoset':
+          case "photoset":
             $total = ($media == 'videos') ? $info['count_videos'] : $info['count_photos'] + $info['count_videos'];
             break;
 
-         case 'group':
+         case "group":
             $total = $info['group']['pool_count']['_content'];
+            break;
+
+         case "favorites":
+            $total = $response['total'];
             break;
 
           default:

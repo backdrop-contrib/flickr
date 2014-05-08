@@ -86,6 +86,8 @@ function flickr_theme() {
         'size' => NULL,
         'format' => NULL,
         'attribs' => NULL,
+        'min_title' => variable_get('flickr_title_suppress_on_small', '100'),
+        'min_metadata' => variable_get('flickr_metadata_suppress_on_small', '150'),
       ),
     ),
     'flickr_photo_box' => array(
@@ -104,6 +106,8 @@ function flickr_theme() {
     'flickr_photoset' => array(
       'variables' => array(
         'attribs' => NULL,
+        'min_title' => variable_get('flickr_title_suppress_on_small', '100'),
+        'min_metadata' => variable_get('flickr_metadata_suppress_on_small', '150'),
       ),
     ),
     'flickr_flickrcomslideshow' => array(
@@ -309,6 +313,8 @@ function theme_flickr_photo($variables) {
   $size = $variables['size'];
   $format = $variables['format'];
   $attribs = $variables['attribs'];
+  $min_title = $variables['min_title'];
+  $min_metadata = $variables['min_metadata'];
   // If we have a class or style containing the term 'float', prepare if so it
   // can be applied to the 'flickr-wrapper' span element later on that includes
   // also the caption.
@@ -466,7 +472,7 @@ function theme_flickr_photo($variables) {
   // Compose extra Flickr info as HTML to render.
   $metadata = $taken . $location . ' ' . t('by') . ' ' . $username;
   // Image width < 150 px is too small for extra info. Can be set differently.
-  $metadatacaption = $width < variable_get('flickr_metadata_suppress_on_small', '150') ? '' : '<span class="flickr-metadata">' . $metadata . $license . '</span>';
+  $metadatacaption = $width < $min_metadata ? '' : '<span class="flickr-metadata">' . $metadata . $license . '</span>';
   // Image width < 100 px is too small for most titles. Can be set differently.
   if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) {
     $notitle = '';
@@ -475,11 +481,11 @@ function theme_flickr_photo($variables) {
     // To give best possible attribution given the small space, display license
     // icon if set to show.
     $notitle = '<span class="flickr-no-title">' . t('Flickr') . '</span> ';
-    if ($width < variable_get('flickr_metadata_suppress_on_small', '150')) {
+    if ($width < $min_metadata) {
       $metadatacaption = $license;
     }
   }
-  $credit = $width < variable_get('flickr_title_suppress_on_small', '100') ? $notitle : '<span class="flickr-title">' . $title . '</span><br />';
+  $credit = $width < $min_title ? $notitle : '<span class="flickr-title">' . $title . '</span><br />';
   // Determine what info goes with the enlarged version of the image.
   $overlay = variable_get('flickr_info_overlay', array(
     'title' => 'title',
@@ -494,7 +500,7 @@ function theme_flickr_photo($variables) {
   $overlayhtml = $overlaytitle . $metadata . $description . $licenselong;
   // Final step when NO overlay browser is used that generates the image that
   // links to the Flickr page to comply with the TOS of Flickr.
-  if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL && $width < variable_get('flickr_title_suppress_on_small', '100') && $width < variable_get('flickr_metadata_suppress_on_small', '150')) {
+  if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL && $width < $min_title && $width < $min_metadata) {
     return '<span class="flickr-wrap' . $class_float . '"' . $style_float . '>' . l($img, $photo_url, array(
       'attributes' => array(
         'title' => $title,
@@ -581,6 +587,8 @@ function theme_flickr_photoset($variables) {
   $size = $variables['size'];
   $media = isset($variables['media']) ? $variables['media'] : 'photos';
   $attribs = $variables['attribs'];
+  $min_title = $variables['min_title'];
+  $min_metadata = $variables['min_metadata'];
 
   if (module_exists('flickr_sets')) {
     $output = "<div class='flickr-photoset'>\n";
@@ -594,6 +602,8 @@ function theme_flickr_photoset($variables) {
           'size' => $size,
           'format' => NULL,
           'attribs' => $attribs,
+          'min_title' => $variables['min_title'],
+          'min_metadata' => $variables['min_metadata'],
           ));
       }
     }
