@@ -603,9 +603,10 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
             'target' => '_blank',
           ),
         ));
+        $tags1 = (!empty($tags)) ? '<span class="flickr-tags-wrap">' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> </span>' : '';
         $output .= $heading == 'none' ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tags from the group !group !map", array(
           '!photos' => strip_tags($photos),
-          '!tags' => '<span class="flickr-tags-wrap">' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> </span>',
+          '!tags' => $tags1,
           '!group' => $group,
           '!map' => $map,
         )) . '</' . $heading . '>';
