@@ -541,7 +541,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
     // The used tags with a space forced after the comma and the last
     // one replaced by 'or'.
     $tags1 = preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags));
-    $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : l(t('tagged ') . '<span class="flickr-tags">' . $tags1 . '</span>', $people['photosurl'] . 'tags/' . $tags, array(
+    $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : '<span class="flickr-tags-wrap">' . l(t('tagged ') . '<span class="flickr-tags">' . $tags1 . '</span></span>', $people['photosurl'] . 'tags/' . $tags, array(
       'attributes' => array(
         'title' => t('View tagged photos on Flickr.'),
         'target' => '_blank',
@@ -605,7 +605,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
         ));
         $output .= $heading == 'none' ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tags from the group !group !map", array(
           '!photos' => strip_tags($photos),
-          '!tags' => t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ',
+          '!tags' => '<span class="flickr-tags-wrap">' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> </span>',
           '!group' => $group,
           '!map' => $map,
         )) . '</' . $heading . '>';
@@ -628,7 +628,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
             'target' => '_blank',
           ),
         ));
-        $tags1 = (!empty($tags)) ? t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ' : '';
+        $tags1 = (!empty($tags)) ? '<span class="flickr-tags-wrap">' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> </span>' : '';
         $output .= $heading == 'none' ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tags from the !favorites of !username", array(
           '!photos' => strip_tags($photos),
           '!tags' => $tags1,
