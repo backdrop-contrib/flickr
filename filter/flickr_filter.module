@@ -47,14 +47,14 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
   $count = variable_get('flickr_counter', 1) ? 'true' : 'false';
   $output = t("Insert Flickr images:
 <ul>
-<li>[flickr-<strong>photo</strong>:id=7357144724, size=m]</li>
+<li>[flickr-<strong>photo</strong>:id=7357144724, size=m, minmetadata=999]</li>
 <li>[flickr-<strong>photoset</strong>:id=72157634563269642, size=s, num=8, tags=kids/men, media=all, random=true, count=false]</li>
 <li>[flickr-<strong>group</strong>:id=91484156@N00, size=q, num=8, tags=flowers, media=all, random=true, count=false, mintitle=999]</li>
 <li>[flickr-<strong>user</strong>:id=lolandese1, size=q, num=6, tags=kids/men, media=all, random=true, count=false]</li>
 <li>[flickr-<strong>favorites</strong>:id=lolandese, size=q, num=4, tags=tomosborn/people, media=all, random=true, count=false]</li>
 </ul>
 Float single photos: Use [flickr-photo:id=9247386562, <strong>class=floatright</strong>], [flickr-photo:id=9247388074, size=m, <strong>style=float:left;</strong>] or use the AutoFloat module.
-Sizes:<br />
+Common sizes:<br />
 s : small square 75<br />
 t : thumbnail, 100 on longest side<br />
 q : big square 150<br />
@@ -147,6 +147,12 @@ function flickr_filter_callback_photo($matches) {
       if (!isset($config['size'])) {
         $config['size'] = variable_get('flickr_default_size', 'm');
       }
+      if (!isset($config['mintitle'])) {
+        $config['mintitle'] = variable_get('flickr_title_suppress_on_small', '100');
+      }
+      if (!isset($config['minmetadata'])) {
+        $config['minmetadata'] = variable_get('flickr_metadata_suppress_on_small', '150');
+      }
       switch ($config['size']) {
         case "x":
         case "y":
@@ -158,6 +164,8 @@ function flickr_filter_callback_photo($matches) {
         'photo' => $photo,
         'size' => $config['size'],
         'attribs' => $attribs,
+        'min_title' => $config['mintitle'],
+        'min_metadata' => $config['minmetadata'],
       ));
     }
   }
