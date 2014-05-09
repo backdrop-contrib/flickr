@@ -520,7 +520,7 @@ function theme_flickr_photo($variables) {
     }
     return '<span class="flickr-wrap' . $class_float . '"' . $style_float . '>' . l($img, $url, array(
       'attributes' => array(
-        'title' => $overlayhtml . 'hello<br /><a href="#"">View on Flickr.</a>',
+        'title' => $overlayhtml,
         'class' => array($class),
         'rel' => $rel,
         'target' => '_blank',
