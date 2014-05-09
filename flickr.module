@@ -18,9 +18,9 @@ function flickr_help($path, $arg) {
 }
 
 /**
- * Implements hook_init().
+ * Implements hook_page_build().
  */
-function flickr_init() {
+function flickr_page_build(&$page) {
   // Determine the setting to use flickr.css or not.
   if (variable_get('flickr_css', 1)) {
     drupal_add_css(drupal_get_path('module', 'flickr') . '/flickr.css', array(
@@ -520,7 +520,7 @@ function theme_flickr_photo($variables) {
     }
     return '<span class="flickr-wrap' . $class_float . '"' . $style_float . '>' . l($img, $url, array(
       'attributes' => array(
-        'title' => $overlayhtml,
+        'title' => $overlayhtml . 'hello<br /><a href="#"">View on Flickr.</a>',
         'class' => array($class),
         'rel' => $rel,
         'target' => '_blank',
