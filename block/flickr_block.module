@@ -38,9 +38,13 @@ function flickr_block_info() {
   $blocks[9]['info'] = t("Recent favorite public photos from a Flickr user tagged as term from node");
 
   $blocks[10]['info'] = t("Random photos from a Flickr group tagged as term from node");
-  $blocks[11]['info'] = t("Random photos with a specific tag from a Flickr user");
+  $blocks[11]['info'] = t("Random photos with a specific tags from a Flickr user");
   $blocks[12]['info'] = t("Random favorite public photos from a Flickr user tagged as term from node");
-  for ($i = 0; $i < 13; $i++) {
+
+  $blocks[13]['info'] = t("User (node author) recent Flickr favorites tagged as term from node");
+  $blocks[14]['info'] = t("User (node author) random Flickr favorites tagged as term from node");
+
+  for ($i = 0; $i < 15; $i++) {
     $blocks[$i]['cache'] = DRUPAL_CACHE_GLOBAL;
   }
   return $blocks;
@@ -238,9 +242,11 @@ function flickr_block_configure($delta = '') {
       $form["flickr_block_{$delta}_show_n"]['#description'] = t("The block will show this many of the user's photosets.");
       break;
 
-    // User random Flickr photos.
+    // User Flickr photos.
     case 0:
     case 2:
+    case 13:
+    case 14:
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form["flickr_block_{$delta}_photoset"]);
@@ -369,6 +375,8 @@ function flickr_block_save($delta = '', $edit = array()) {
     // User Flickr photos.
     case 0:
     case 2:
+    case 13:
+    case 14:
       $vocab = module_exists('taxonomy') ? (int) $edit["flickr_block_{$delta}_vocab"] : 0;
       variable_set('flickr_block_' . $delta, array(
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
@@ -548,12 +556,12 @@ function flickr_block_view($delta = '') {
   $block = array();
 
   switch ($delta) {
-    // User recent Flickr photos.
+    // User Flickr photos.
     case 0:
-      // User recent Flickr photosets.
     case 1:
-      // User random Flickr photos.
     case 2:
+    case 13:
+    case 14:
       // Get per user nsid if necessary.
       switch (arg(0)) {
         case 'user':
@@ -610,6 +618,13 @@ function flickr_block_view($delta = '') {
             $block['content'] = _flickr_album('user', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
             break;
 
+          // User favorite Flickr photos.
+          case 13:
+          case 14:
+            $random = $delta == 14 ? 1 : 0;
+            $block['subject'] = NULL;
+            $block['content'] = _flickr_album('favorites', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+            break;
         }
       }
       break;
