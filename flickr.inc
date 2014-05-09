@@ -230,8 +230,6 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
       }
       if (isset($image_size)) {
         $img_url = $image_size['source'];
-        $attributes['height'] = $image_size['height'];
-        $attributes['width'] = $image_size['width'];
       }
     }
     else {

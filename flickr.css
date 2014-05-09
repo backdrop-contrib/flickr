@@ -96,3 +96,7 @@ span.floatright {
 span.flickr-tags {
   font-style: italic;
 }
+
+.flickr-wrap, .flickr-wrap img, .flickr-wrap .flickr-credit {
+  max-width: 100%;
+}
