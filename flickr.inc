@@ -497,7 +497,7 @@ function flickr_get_id_type($id) {
 function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $delta = NULL, $random = 0, $heading = 'p', $min_title = NULL, $min_metadata = NULL) {
   $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags);
   // If $delta is a number it is a block that could be cached.
-  if ($cache && is_numeric($delta)) {
+  if ($cache && is_numeric($delta) && module_exists('flickr_block')) {
     $output = $cache->data;
   }
 
@@ -686,8 +686,8 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
       case "x":
         switch ($type) {
           case "favorites":
-            $output .= t('You cannot choose a slideshow for this block. Select a size.');
-            drupal_set_message(t('You cannot choose a slideshow for this block.'), 'error');
+            $output .= t('You cannot choose a slideshow for an album of favorites. Select a size.');
+            drupal_set_message(t('You cannot choose a slideshow for an album of favorites.'), 'error');
             break;
 
           default:
@@ -704,13 +704,13 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
       case "y":
         switch ($type) {
           case "favorites":
-            $output .= t('You cannot choose a slideshow for this block. Select a size.');
-            drupal_set_message(t('You cannot choose a slideshow for this block.'), 'error');
+            $output .= t('You cannot choose a slideshow for an album of favorites. Select a size.');
+            drupal_set_message(t('You cannot choose a slideshow for an album of favorites.'), 'error');
             break;
 
           case "group":
-            $output .= t('Choose the Flash slideshow for group pools (size = x).');
-            drupal_set_message(t('Choose the Flash slideshow for group pools (size = x).'), 'error');
+            $output .= t('Choose the Flash slideshow for group pool albums (size = x).');
+            drupal_set_message(t('Choose the Flash slideshow for group pool albums (size = x).'), 'error');
             break;
 
           default:
@@ -882,10 +882,12 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
         }
         $output .= '</div>';
 
-        // Hide the block if empty if set on the configuration page.
-        if ($i == 0 && variable_get('flickr_block_hide_empty', 0)) {
-          $output = '';
-          return $output;
+        if (module_exists('flickr_block')) {
+          // Hide the block if empty if set on the configuration page.
+          if ($i == 0 && variable_get('flickr_block_hide_empty', 0)) {
+            $output = '';
+            return $output;
+          }
         }
 
         // A counter if set to show.
@@ -916,7 +918,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
         $output .= ((variable_get('flickr_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-album-counter">' . $count . '</div>' : '';
     }
     $output .= '</div>';
-    if (is_numeric($delta)) {
+    if (is_numeric($delta) && module_exists('flickr_block')) {
       $refresh = $random == 1 ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
       cache_set('flickr_block_' . $delta . '_' . $id . '_' . $tags, $output, 'cache', time() + $refresh * 60 * 60);
     }
