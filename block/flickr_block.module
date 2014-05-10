@@ -188,7 +188,7 @@ function flickr_block_configure($delta = '') {
       '#position'      => 'left',
       '#options'       => $checklist_vocab_array,
       '#default_value' => $settings['vocab'],
-      '#description'   => t("Limit the Flickr images to those that have a Flickr tag similar to the terms found for the node on the page the block is displayed on of a specific vocabulary. Case insensitive, matches any tag, for photosets even partial. Multiple tags for groups will only query the last 500 photos on Flickr. Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'). Use taxonomy terms without spaces in the vocabulary dedicated to Flickr.<br />For your content type, adjust the <em>Help text</em> of the used taxonomy field accordingly (e.g. at <em>admin/structure/types/manage/article/fields/field_tags</em>). The recommended widget type is <em>Autocomplete term widget (tagging)</em> with an <em>unlimited number of values</em>. I not already in use, the default existing vocabulary <em>Tags</em> can be used which is already configured right by default. Set <em>Tags</em> as a <em>Term reference</em> field on your content type and it works out-of-the-box.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>."),
+      '#description'   => t("Limit the Flickr images to those that have a Flickr tag similar to the terms found for the node on the page the block is displayed on of a specific vocabulary. Case insensitive, matches any tag, for photosets even partial. Multiple tags for groups will only query the last 500 photos on Flickr. Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'). Use taxonomy terms without spaces in the vocabulary dedicated to Flickr.<br />For your content type, adjust the <em>Help text</em> of the used taxonomy field accordingly (e.g. at <em>admin/structure/types/manage/article/fields/field_tags</em>). The recommended widget type is <em>Autocomplete term widget (tagging)</em> with an <em>unlimited number of values</em>. I not already in use, the default existing vocabulary <em>Tags</em> can be used which is already configured right by default. Set <em>Tags</em> as a <em>Term reference</em> field on your content type and it works out-of-the-box.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>.<br />Note that if you add this <em>term reference</em> field to user profiles at <em>admin/config/people/accounts/fields</em> it will filter additionally on it. E.g. a user can set individually that from their account only photos tagged <em>'website'</em> should be used to embed, indepedent from other used tags. Does apply only on user blocks, except for favorites."),
     );
   }
   // Override default settings to force or suppress the display of the caption
@@ -509,7 +509,7 @@ function flickr_block_save($delta = '', $edit = array()) {
         'min_metadata' => $edit["flickr_block_{$delta}_min_metadata"],
       ));
       $nsid = empty($edit["flickr_block_{$delta}_user_id"]) ? variable_get('flickr_default_userid', '') : $edit["flickr_block_{$delta}_user_id"];
-      cache_clear_all('flickr_block_' . $delta . '_' . $nsid . '_' . $edit["flickr_block_{$delta}_tag"], 'cache', TRUE);
+      cache_clear_all('flickr_block_' . $delta . '_' . $nsid, 'cache', TRUE);
       break;
   }
 }
@@ -567,19 +567,50 @@ function flickr_block_view($delta = '') {
         case 'user':
           if ($uid = (int) arg(1)) {
             $user = user_load($uid);
-            $tags = '';
+            if (module_exists('taxonomy')) {
+              $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
+              $terms_user = (!empty($settings['vocab'])) ? field_view_field('user', $user, 'field_' . $taxonomy->machine_name) : '';
+              if (!empty($terms_user)) {
+                $i = 0;
+                foreach ($terms_user['#items'] as $item) {
+                  $tags[$i] = $terms_user['#items'][$i]['taxonomy_term']->name;
+                  $i++;
+                }
+                $tags_user = implode(",", $tags);
+              }
+              else {
+                $tags_user = '';
+              }
+            }
+            else {
+              $tags_user = '';
+            }
+            $tags = 'from_user_page';
           }
+          break;
+
         case 'node':
           if (($nid = (int) arg(1)) && ((arg(2) == "" || arg(2) == 'view'))) {
             $node = node_load($nid);
             $user = user_load($node->uid);
             if (module_exists('taxonomy')) {
               $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
-              $terms = (!empty($settings['vocab'])) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
-              if (!empty($terms)) {
+              $terms_user = (!empty($settings['vocab'])) ? field_view_field('user', $user, 'field_' . $taxonomy->machine_name) : '';
+              if (!empty($terms_user)) {
                 $i = 0;
-                foreach ($terms['#items'] as $item) {
-                  $tags[$i] = $terms['#items'][$i]['taxonomy_term']->name;
+                foreach ($terms_user['#items'] as $item) {
+                  $tags_user[$i] = $terms_user['#items'][$i]['taxonomy_term']->name;
+                  $i++;
+                }
+              }
+              else {
+                $tags_user = '';
+              }
+              $terms_node = (!empty($settings['vocab'])) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+              if (!empty($terms_node)) {
+                $i = 0;
+                foreach ($terms_node['#items'] as $item) {
+                  $tags[$i] = $terms_node['#items'][$i]['taxonomy_term']->name;
                   $i++;
                 }
                 $tags = implode(",", $tags);
@@ -589,10 +620,14 @@ function flickr_block_view($delta = '') {
               }
             }
             else {
+              $tags_user = '';
               $tags = '';
             }
-            break;
           }
+          break;
+
+        default:
+          return;
       }
       if (!empty($user->flickr['nsid'])) {
         switch ($delta) {
@@ -615,7 +650,7 @@ function flickr_block_view($delta = '') {
           case 2:
             $random = $delta == 2 ? 1 : 0;
             $block['subject'] = NULL;
-            $block['content'] = _flickr_album('user', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+            $block['content'] = _flickr_album('user', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $tags_user, $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
             break;
 
           // User favorite Flickr photos.
@@ -623,7 +658,7 @@ function flickr_block_view($delta = '') {
           case 14:
             $random = $delta == 14 ? 1 : 0;
             $block['subject'] = NULL;
-            $block['content'] = _flickr_album('favorites', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+            $block['content'] = _flickr_album('favorites', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
             break;
         }
       }
@@ -660,7 +695,7 @@ function flickr_block_view($delta = '') {
       // The used tags with a space forced after the comma and the last
       // one replaced by 'or'.
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
       break;
 
     // Recent photosets from a Flickr user.
@@ -707,7 +742,7 @@ function flickr_block_view($delta = '') {
         $tags = '';
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('group', $settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+      $block['content'] = _flickr_album('group', $settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
       break;
 
     // Photos from a Flickr photoset.
@@ -739,7 +774,7 @@ function flickr_block_view($delta = '') {
         $tags = '';
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('photoset', $settings['photoset_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+      $block['content'] = _flickr_album('photoset', $settings['photoset_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
       break;
 
     // Favorite public photos from a Flickr user.
@@ -772,14 +807,14 @@ function flickr_block_view($delta = '') {
         $tags = '';
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('favorites', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+      $block['content'] = _flickr_album('favorites', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
       break;
 
     // Random photos with a specific tag from a Flickr user.
     case 11:
       $random = 1;
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
       break;
   }
   return $block;

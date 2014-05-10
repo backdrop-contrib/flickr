@@ -480,10 +480,10 @@ function flickr_get_id_type($id) {
     }
   }
   elseif (is_numeric($id)) {
-      return 'photoset';
+    return 'photoset';
   }
   if (flickr_user_find_by_identifier($id)) {
-      return 'user';
+    return 'user';
   }
   $message = t('A valid Flickr ID could not be found');
   drupal_set_message($message, 'error');
@@ -494,8 +494,8 @@ function flickr_get_id_type($id) {
 /**
  * Render multiple photos as an album.
  */
-function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL, $random = 0, $heading = 'p', $min_title = NULL, $min_metadata = NULL) {
-  $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . $random);
+function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $delta = NULL, $random = 0, $heading = 'p', $min_title = NULL, $min_metadata = NULL) {
+  $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags);
   // If $delta is a number it is a block that could be cached.
   if ($cache && is_numeric($delta)) {
     $output = $cache->data;
@@ -503,6 +503,9 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
 
   // In any other case we generate an album, including a heading and counter.
   else {
+    // We don't want the same cache output for the profile of uid=1 and node=1.
+    $from_profile = ($tags == 'from_user_page') ? $tags : '';
+    $tags = ($tags == 'from_user_page') ? '' : $tags;
     $min_title = is_null($min_title) ? variable_get('flickr_title_suppress_on_small', '100') : $min_title;
     $min_metadata = is_null($min_metadata) ? variable_get('flickr_metadata_suppress_on_small', '150') : $min_metadata;
     $output = '<div class="flickr-photoset">';
@@ -541,7 +544,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
     // The used tags with a space forced after the comma and the last
     // one replaced by 'or'.
     $tags1 = preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags));
-    $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : '<span class="flickr-tags-wrap">' . l(t('tagged ') . '<span class="flickr-tags">' . $tags1 . '</span></span>', $people['photosurl'] . 'tags/' . $tags, array(
+    $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : '<span class="flickr-tags-wrap">' . l(t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span></span>', $people['photosurl'] . 'tags/' . $tags, array(
       'attributes' => array(
         'title' => t('View tagged photos on Flickr.'),
         'target' => '_blank',
@@ -639,7 +642,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
         break;
 
       default:
-        if (!empty($tags) && strpos($tags,',') == false) {
+        if (!empty($tags) && strpos($tags, ',') == FALSE) {
           $map = variable_get('flickr_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'tags/' . $tags . '/map/', array(
             'attributes' => array(
               'title' => t('View tagged photos on Flickr map.'),
@@ -648,12 +651,12 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
           )) . ')' : '';
         }
         else {
-            $map = variable_get('flickr_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
-              'attributes' => array(
-                'title' => t('View user photos on Flickr map.'),
-                'target' => '_blank',
-              ),
-            )) . ')' : '';
+          $map = variable_get('flickr_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
+            'attributes' => array(
+              'title' => t('View user photos on Flickr map.'),
+              'target' => '_blank',
+            ),
+          )) . ')' : '';
         }
         $flickr = (empty($tags)) ? l(t('on Flickr'), $people['photosurl'], array(
           'attributes' => array(
@@ -664,7 +667,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
           ),
         )) : l(t("on Flickr"), $people['photosurl'] . 'tags/' . $tags, array(
           'attributes' => array(
-            'title' => t('Tagged ') . preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags)) . '.',
+            'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags)) . '.',
             'target' => '_blank',
           ),
           'html' => TRUE,
@@ -737,7 +740,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
 
           case "group":
             // If only one tag exists, use it to circumvent the 500 limit.
-            $tags1 = (strpos($tags,',')) ? '' : $tags;
+            $tags1 = (strpos($tags, ',')) ? '' : $tags;
             $response = flickr_get_group_photos($id, 1, array(
               'tags' => $tags1,
               'per_page' => 500,
@@ -761,8 +764,9 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
             break;
 
           case "user":
+            $tags_user_string = is_array($tags_user) ? implode(",", $tags_user) : $tags_user;
             $response = flickr_photos_search($id, 1, array(
-              'tags' => $tags,
+              'tags' => trim($tags . ',' . $tags_user_string, ','),
               'per_page' => 500,
               'extras' => 'license,geo,tags,views,media',
               'media' => $media,
@@ -783,8 +787,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
         $to = min($show_n, count($photos));
         $i = 0;
         $j = 0;
-        $terms = is_array($tags) ? $tags : explode(",", $tags);
-        if (empty($tags)) {
+        if (empty($tags)  && empty($tags_user)) {
           foreach ($photos as $photo) {
             if ($i < $show_n && ($media == 'all' || $media == $photo['media'] . 's')) {
               // Insert owner into $photo because theme_flickr_photo needs it.
@@ -800,7 +803,33 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
             }
           }
         }
-        else {
+        elseif (empty($tags)) {
+          foreach ($photos as $key => $photo) {
+            $tags_user = !is_array($tags_user) ? explode(",", $tags_user) : $tags_user;
+            foreach ($tags_user as $term) {
+              if ($i >= $show_n && stripos($photo['tags'], $term) !== FALSE) {
+                $j++;
+              }
+              elseif (stripos($photo['tags'], $term) !== FALSE && ($media == 'all' || $media == $photo['media'] . 's')) {
+                // Insert owner into $photo because theme_flickr_photo needs it.
+                $photo['owner'] = $type == 'photoset' ? $info['owner'] : $photo['owner'];
+                $output .= theme('flickr_photo', array(
+                  'photo' => $photo,
+                  'size' => $size,
+                  'min_title' => $min_title,
+                  'min_metadata' => $min_metadata,
+                ));
+                // Avoid this image gets repeated by removing it from the
+                // array.
+                unset($photos[$key]);
+                $i++;
+                $j++;
+              }
+            }
+          }
+        }
+        elseif (empty($tags_user)) {
+          $terms = is_array($tags) ? $tags : explode(",", $tags);
           foreach ($photos as $key => $photo) {
             foreach ($terms as $term) {
               if ($i >= $show_n && stripos($photo['tags'], $term) !== FALSE) {
@@ -824,6 +853,34 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
             }
           }
         }
+        else {
+          $terms = is_array($tags) ? $tags : explode(",", $tags);
+          foreach ($photos as $key => $photo) {
+            foreach ($tags_user as $tag) {
+              foreach ($terms as $term) {
+                if ($i >= $show_n && stripos($photo['tags'], $term) !== FALSE && stripos($photo['tags'], $tag) !== FALSE) {
+                  $j++;
+                }
+                elseif (stripos($photo['tags'], $term) !== FALSE && stripos($photo['tags'], $tag) !== FALSE && ($media == 'all' || $media == $photo['media'] . 's')) {
+                  // Insert owner into $photo because theme_flickr_photo needs
+                  // it.
+                  $photo['owner'] = $type == 'photoset' ? $info['owner'] : $photo['owner'];
+                  $output .= theme('flickr_photo', array(
+                    'photo' => $photo,
+                    'size' => $size,
+                    'min_title' => $min_title,
+                    'min_metadata' => $min_metadata,
+                  ));
+                  // Avoid this image gets repeated by removing it from the
+                  // array.
+                  unset($photos[$key]);
+                  $i++;
+                  $j++;
+                }
+              }
+            }
+          }
+        }
         $output .= '</div>';
 
         // A counter if set to show.
@@ -832,11 +889,11 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
             $total = ($media == 'videos') ? $info['count_videos'] : $info['count_photos'] + $info['count_videos'];
             break;
 
-         case "group":
+          case "group":
             $total = $info['group']['pool_count']['_content'];
             break;
 
-         case "favorites":
+          case "favorites":
             $total = $response['total'];
             break;
 
@@ -856,7 +913,9 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $delta = NULL,
     $output .= '</div>';
     if (is_numeric($delta)) {
       $refresh = $random == 1 ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
-      cache_set('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . $random, $output, 'cache', time() + $refresh * 60 * 60);
+      // We don't want the same cache output for the profile uid=1 and node=1.
+      $tags = ($from_profile == 'from_user_page') ? $from_profile : $tags;
+      cache_set('flickr_block_' . $delta . '_' . $id . '_' . $tags, $output, 'cache', time() + $refresh * 60 * 60);
     }
   }
   return $output;
