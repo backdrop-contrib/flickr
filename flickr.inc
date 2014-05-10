@@ -882,6 +882,12 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
         }
         $output .= '</div>';
 
+        // Hide the block if empty if set on the configuration page.
+        if ($i == 0 && variable_get('flickr_block_hide_empty', 0)) {
+          $output = '';
+          return $output;
+        }
+
         // A counter if set to show.
         switch ($type) {
           case "photoset":

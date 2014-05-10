@@ -195,6 +195,12 @@ function flickr_admin_settings() {
       '#title' => t('Block settings'),
       '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
     );
+    $form['block_settings']['flickr_block_hide_empty'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Hide empty blocks (no media found)'),
+      '#default_value' => variable_get('flickr_block_hide_empty', 0),
+      '#description' => t("Uncheck to see the block title and to access the contextual links. That little wheel you see when you hover over blocks to edit them in place."),
+    );
     $form['block_settings']['flickr_block_heading'] = array(
       '#type' => 'textfield',
       '#title' => t('Wrap the album title in an HTML heading tag (only for blocks)'),
