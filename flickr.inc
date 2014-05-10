@@ -503,13 +503,13 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
 
   // In any other case we generate an album, including a heading and counter.
   else {
-    // We don't want the same cache output for the profile of uid=1 and node=1.
-    $from_profile = ($tags == 'from_user_page') ? $tags : '';
-    $tags = ($tags == 'from_user_page') ? '' : $tags;
     $min_title = is_null($min_title) ? variable_get('flickr_title_suppress_on_small', '100') : $min_title;
     $min_metadata = is_null($min_metadata) ? variable_get('flickr_metadata_suppress_on_small', '150') : $min_metadata;
     $output = '<div class="flickr-photoset">';
     $recent = $random == 1 ? '' : 'Recent ';
+    // Merge the user profile terms with the terms from the node.
+    $tags_user_string = is_array($tags_user) ? implode(",", $tags_user) : $tags_user;
+    $tags_combined = trim($tags . ',' . $tags_user_string, ',');
     // Get information about the album, including the owner if needed later on.
     switch ($type) {
       case "photoset":
@@ -764,9 +764,8 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
             break;
 
           case "user":
-            $tags_user_string = is_array($tags_user) ? implode(",", $tags_user) : $tags_user;
             $response = flickr_photos_search($id, 1, array(
-              'tags' => trim($tags . ',' . $tags_user_string, ','),
+              'tags' => $tags_combined,
               'per_page' => 500,
               'extras' => 'license,geo,tags,views,media',
               'media' => $media,
@@ -913,8 +912,6 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
     $output .= '</div>';
     if (is_numeric($delta)) {
       $refresh = $random == 1 ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
-      // We don't want the same cache output for the profile uid=1 and node=1.
-      $tags = ($from_profile == 'from_user_page') ? $from_profile : $tags;
       cache_set('flickr_block_' . $delta . '_' . $id . '_' . $tags, $output, 'cache', time() + $refresh * 60 * 60);
     }
   }

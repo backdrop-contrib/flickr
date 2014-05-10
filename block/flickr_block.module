@@ -641,6 +641,8 @@ function flickr_block_view($delta = '') {
                 'target' => '_blank',
               ),
             ));
+            // Only if on a node page use it's terms.
+            $tags = (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
             $block['subject'] = t("!recent_sets by !username", array('!recent_sets' => $recent_sets, '!username' => $people['name']));
             $block['content'] = _flickr_block_photosets($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
             break;
@@ -648,6 +650,8 @@ function flickr_block_view($delta = '') {
           // User Flickr photos.
           case 0:
           case 2:
+            // Only if on a node page use it's terms.
+            $tags = (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
             $random = $delta == 2 ? 1 : 0;
             $block['subject'] = NULL;
             $block['content'] = _flickr_album('user', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $tags_user, $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
@@ -656,6 +660,8 @@ function flickr_block_view($delta = '') {
           // User favorite Flickr photos.
           case 13:
           case 14:
+            // Only if on a node page use it's terms.
+            $tags = (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
             $random = $delta == 14 ? 1 : 0;
             $block['subject'] = NULL;
             $block['content'] = _flickr_album('favorites', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
@@ -668,7 +674,7 @@ function flickr_block_view($delta = '') {
     case 3:
     case 5:
       $random = $delta == 5 ? 1 : 0;
-      if (($nid = (int) arg(1)) && ((arg(2) == "" || arg(2) == 'view'))) {
+      if (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
@@ -717,7 +723,7 @@ function flickr_block_view($delta = '') {
     case 6:
     case 10:
       $random = $delta == 10 ? 1 : 0;
-      if (($nid = (int) arg(1)) && ((arg(2) == "" || arg(2) == 'view'))) {
+      if (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
@@ -749,7 +755,7 @@ function flickr_block_view($delta = '') {
     case 7:
     case 8:
       $random = $delta == 7 ? 1 : 0;
-      if (($nid = (int) arg(1)) && ((arg(2) == "" || arg(2) == 'view'))) {
+      if (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
@@ -782,7 +788,7 @@ function flickr_block_view($delta = '') {
     case 12:
       $random = $delta == 12 ? 1 : 0;
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      if (($nid = (int) arg(1)) && ((arg(2) == "" || arg(2) == 'view'))) {
+      if (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
