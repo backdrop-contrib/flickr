@@ -188,7 +188,7 @@ function flickr_block_configure($delta = '') {
       '#position'      => 'left',
       '#options'       => $checklist_vocab_array,
       '#default_value' => $settings['vocab'],
-      '#description'   => t("Limit the Flickr images to those that have a Flickr tag similar to the terms found for the node on the page the block is displayed on of a specific vocabulary. Case insensitive, matches any tag, for photosets even partial. Multiple tags for groups will only query the last 500 photos on Flickr. Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'). Use taxonomy terms without spaces in the vocabulary dedicated to Flickr.<br />For your content type, adjust the <em>Help text</em> of the used taxonomy field accordingly (e.g. at <em>admin/structure/types/manage/article/fields/field_tags</em>). The recommended widget type is <em>Autocomplete term widget (tagging)</em> with an <em>unlimited number of values</em>. I not already in use, the default existing vocabulary <em>Tags</em> can be used which is already configured right by default. Set <em>Tags</em> as a <em>Term reference</em> field on your content type and it works out-of-the-box.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>.<br />Note that if you add this <em>term reference</em> field to user profiles at <em>admin/config/people/accounts/fields</em> it will filter additionally on it. E.g. a user can set individually that from their account only photos tagged <em>'website'</em> should be used to embed, indepedent from other used tags. Does apply only on user blocks, except for favorites."),
+      '#description'   => t("Limit the Flickr images to those that have a Flickr tag identical to the terms found for the node on the page the block is displayed on of a specific vocabulary. Case insensitive, matches any tag, for photosets even partial. Multiple tags for groups will only query the last 500 photos on Flickr. For user blocks the Flickr account of the node author will be queried. Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'). Use taxonomy terms without spaces in the vocabulary dedicated to Flickr.<br />For your content type, adjust the <em>Help text</em> of the used taxonomy field accordingly (e.g. at <em>admin/structure/types/manage/article/fields/field_tags</em>). The recommended widget type is <em>Autocomplete term widget (tagging)</em> with an <em>unlimited number of values</em>. If not already in use, the default existing vocabulary <em>Tags</em> can be used which is already configured right by default. Set <em>Tags</em> as a <em>Term reference</em> field on your content type and it works out-of-the-box.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>.<br />Note that if you add this <em>term reference</em> field to user profiles at <em>admin/config/people/accounts/fields</em> it will filter additionally on it for user blocks. E.g. a user can set individually that from their account only photos tagged <em>'website'</em> should be used to embed, indepedent from other used tags. Does apply only on user blocks, except for favorites."),
     );
   }
   // Override default settings to force or suppress the display of the caption
@@ -654,7 +654,7 @@ function flickr_block_view($delta = '') {
             $tags = (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
             $random = $delta == 2 ? 1 : 0;
             $block['subject'] = NULL;
-            $block['content'] = _flickr_album('user', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $tags_user, $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+            $block['content'] = _flickr_album('user', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $tags_user, $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
             break;
 
           // User favorite Flickr photos.
@@ -664,7 +664,7 @@ function flickr_block_view($delta = '') {
             $tags = (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
             $random = $delta == 14 ? 1 : 0;
             $block['subject'] = NULL;
-            $block['content'] = _flickr_album('favorites', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+            $block['content'] = _flickr_album('favorites', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
             break;
         }
       }
@@ -701,7 +701,7 @@ function flickr_block_view($delta = '') {
       // The used tags with a space forced after the comma and the last
       // one replaced by 'or'.
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
       break;
 
     // Recent photosets from a Flickr user.
@@ -748,7 +748,7 @@ function flickr_block_view($delta = '') {
         $tags = '';
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('group', $settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+      $block['content'] = _flickr_album('group', $settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
       break;
 
     // Photos from a Flickr photoset.
@@ -780,7 +780,7 @@ function flickr_block_view($delta = '') {
         $tags = '';
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('photoset', $settings['photoset_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+      $block['content'] = _flickr_album('photoset', $settings['photoset_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
       break;
 
     // Favorite public photos from a Flickr user.
@@ -813,7 +813,7 @@ function flickr_block_view($delta = '') {
         $tags = '';
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('favorites', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+      $block['content'] = _flickr_album('favorites', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
       break;
 
     // Random photos with a specific tag from a Flickr user.

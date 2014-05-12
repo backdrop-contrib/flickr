@@ -494,8 +494,9 @@ function flickr_get_id_type($id) {
 /**
  * Render multiple photos as an album.
  */
-function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $delta = NULL, $random = 0, $heading = 'p', $min_title = NULL, $min_metadata = NULL) {
-  $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags);
+function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $delta = NULL, $random = 0, $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0) {
+  // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
+  $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page());
   // If $delta is a number it is a block that could be cached.
   if ($cache && is_numeric($delta) && module_exists('flickr_block')) {
     $output = $cache->data;
@@ -786,7 +787,10 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
         $to = min($show_n, count($photos));
         $i = 0;
         $j = 0;
-        if (empty($tags)  && empty($tags_user)) {
+        if ($vocab_isset != 0 && empty($tags) && (arg(0) == 'node' && is_numeric(arg(1)) && (arg(2) == '' || arg(2) == 'view'))) {
+          $output .= t('Post has no Flickr tags specified.');
+        }
+        elseif (empty($tags)  && empty($tags_user)) {
           foreach ($photos as $photo) {
             if ($i < $show_n && ($media == 'all' || $media == $photo['media'] . 's')) {
               // Insert owner into $photo because theme_flickr_photo needs it.
@@ -920,7 +924,9 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
     $output .= '</div>';
     if (is_numeric($delta) && module_exists('flickr_block')) {
       $refresh = $random == 1 ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
-      cache_set('flickr_block_' . $delta . '_' . $id . '_' . $tags, $output, 'cache', time() + $refresh * 60 * 60);
+      // drupal_is_front_page() is added because it also can have
+      // arg(0) == 'node'.
+      cache_set('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
     }
   }
   return $output;
