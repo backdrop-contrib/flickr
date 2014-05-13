@@ -52,8 +52,8 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
 <li>[flickr-<strong>group</strong>:id=91484156@N00, size=q, num=8, tags=flowers, media=all, random=true, count=false, mintitle=999, minmetadata=999, heading=none]</li>
 <li>[flickr-<strong>user</strong>:id=lolandese1, size=q, num=6, tags=kids/men, media=all, random=true, count=false, mintitle=999, minmetadata=999, heading=none]</li>
 <li>[flickr-<strong>favorites</strong>:id=lolandese, size=q, num=4, tags=tomosborn/people, media=all, random=true, count=false, mintitle=999, minmetadata=999, heading=none]</li>
-</ul>
-Float single photos: Use [flickr-photo:id=9247386562, <strong>class=floatright</strong>], [flickr-photo:id=9247388074, size=m, <strong>style=float:left;</strong>] or use the AutoFloat module.<br /><br />
+</ul><br />
+Float single photos: Use [flickr-photo:id=9247386562, <strong>class=floatright</strong>], [flickr-photo:id=9247388074, <strong>style=float:left;</strong>] or use the AutoFloat module.<br /><br />
 Common sizes:<br />
 s : small square 75<br />
 t : thumbnail, 100 on longest side<br />
@@ -63,19 +63,19 @@ n : small, 320 on longest side<br />
 - : medium, 500 on longest side<br />
 x: Flash responsive slideshow (for group, set and user IDs only)<br />
 y: Basic responsive slideshow (for set and user IDs only)<br />
-If the wrong size is applied, check if it exists on the Flickr photo page > Actions > View all sizes.<br /><br />
+<strong>If the wrong size is applied, check if it exists on the Flickr photo page > Actions > View all sizes.</strong><br /><br />
 Parameters:<br />
-<strong>id=</strong> !find_id For a user Flickr the ID number, Flickr username or email.<br />
+<strong>id=</strong> !find_id For a user Flickr the ID number, alias, Flickr username or email. Omit to use CC licensed Public photos.<br />
 <strong>size=q</strong> : Display size big square (150px). The sizes x and y display a slideshow and ignore number, media, tags and random settings. Default: size=@default_size (!config).<br />
 <strong>num=4</strong> : Display 4 photos. Default: num=@default_number (!config).<br />
 <strong>media=all</strong> : Display both photos and videos. Default: media=photos<br />
-<strong>tags=kids/men</strong> : Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets even partial. Multiple tags for groups will only query the last 500 photos on Flickr. Note that Flickr removes any whitespace from tags (e.g. 'Victoria park' becomes 'victoriapark'). Multiple tags should be seperated by a slash (/).<br />
+<strong>tags=kids/men</strong> : <strong>Seperate multiple tags with a slash (/).</strong> Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets even partial.<br /> Multiple tags for groups will only query the last 500 photos on Flickr. Note that Flickr removes any whitespace from tags (e.g. 'Victoria park' becomes 'victoriapark').<br />
 <strong>heading=h3</strong> : Wraps the album title in HTML tags. Use 'p' to apply no style or 'none' to suppress the title. Default heading=@default_count (!config).<br />
 <strong>random=false</strong> : Display the newest photos first (reverse cronological order). Default: random=false<br />
 <strong>count=false</strong> : Suppress display of the counter under the album (e.g. 5 out of 124 on Flickr). Default: count=@default_count (!config).<br />
 <strong>mintitle=999</strong> : Suppress display of the title in the photo captions for images below a width of 999 px. Default: mintitle=@default_mintitle (!config).<br />
 <strong>minmetadata=999</strong> : Suppress display of the metadata in the photo captions for images below a width of 999 px. Default: minmetadata=@default_minmetadata (!config).<br />
-Ommiting parameters the default values will be used.", array(
+Omit parameters to use the default values.", array(
   '!find_id' => $idgettr,
   '@default_size' => variable_get('flickr_default_size', 'm'),
   '@default_number' => variable_get('flickr_photos_per_page', 20),
@@ -84,7 +84,7 @@ Ommiting parameters the default values will be used.", array(
   '@default_heading' => variable_get('flickr_filter_heading', 'p'),
   '@default_count' => $count,
   '!config' => $config,
-));
+  ));
   if ($long) {
     $output .= ' ' . t('The size parameter can be one of the following:');
     $items = array();
@@ -178,47 +178,47 @@ function flickr_filter_callback_photo($matches) {
 function flickr_filter_callback_album($matches) {
   list($config, $attribs) = flickr_filter_split_config($matches[1]);
 
-  if (isset($config['id'])) {
-    if (!isset($config['size'])) {
-      $config['size'] = variable_get('flickr_default_size', 'm');
-    }
-    if (!isset($config['num'])) {
-      $config['num'] = variable_get('flickr_photos_per_page', 20);
-    }
-    if (!isset($config['media'])) {
-      $config['media'] = 'photos';
-    }
-    if (!isset($config['random'])) {
-      $config['random'] = 'false';
-    }
-    if (!isset($config['heading'])) {
-      $config['heading'] = variable_get('flickr_filter_heading', 'p');
-    }
-    if (!isset($config['tags'])) {
-      $config['tags'] = '';
-    }
-    else {
-      $config['tags'] = str_replace("/", ",", $config['tags']);
-    }
-    if (!isset($config['count'])) {
-      $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
-    }
-    if (!isset($config['mintitle'])) {
-      $config['mintitle'] = variable_get('flickr_title_suppress_on_small', '100');
-    }
-    if (!isset($config['minmetadata'])) {
-      $config['minmetadata'] = variable_get('flickr_metadata_suppress_on_small', '150');
-    }
-    // Choose between 'recent' or 'random' based on 'random' parameter.
-    // Note that we abuse the $delta parameter pass the random value to override
-    // the default of the counter display.
-    $config['random'] = $config['random'] == 'true' ? 1 : 0;
-    $type = flickr_get_id_type($config['id']);
-    $config['id'] = $type == 'user' ? flickr_user_find_by_identifier($config['id']) : $config['id'];
-    $output = _flickr_album($type, $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], '', $config['count'], $config['random'], $config['heading'], $config['mintitle'], $config['minmetadata']);
-    return $output;
+  if (!isset($config['id'])) {
+    $config['id'] = '';
   }
-  return '';
+  if (!isset($config['size'])) {
+    $config['size'] = variable_get('flickr_default_size', 'm');
+  }
+  if (!isset($config['num'])) {
+    $config['num'] = variable_get('flickr_photos_per_page', 20);
+  }
+  if (!isset($config['media'])) {
+    $config['media'] = 'photos';
+  }
+  if (!isset($config['random'])) {
+    $config['random'] = 'false';
+  }
+  if (!isset($config['heading'])) {
+    $config['heading'] = variable_get('flickr_filter_heading', 'p');
+  }
+  if (!isset($config['tags'])) {
+    $config['tags'] = '';
+  }
+  else {
+    $config['tags'] = str_replace("/", ",", $config['tags']);
+  }
+  if (!isset($config['count'])) {
+    $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
+  }
+  if (!isset($config['mintitle'])) {
+    $config['mintitle'] = variable_get('flickr_title_suppress_on_small', '100');
+  }
+  if (!isset($config['minmetadata'])) {
+    $config['minmetadata'] = variable_get('flickr_metadata_suppress_on_small', '150');
+  }
+  // Choose between 'recent' or 'random' based on 'random' parameter.
+  // Note that we abuse the $delta parameter pass the random value to override
+  // the default of the counter display.
+  $config['random'] = $config['random'] == 'true' ? 1 : 0;
+  $type = flickr_get_id_type($config['id']);
+  $config['id'] = $type == 'user' ? flickr_user_find_by_identifier($config['id']) : $config['id'];
+  $output = _flickr_album($type, $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], '', $config['count'], $config['random'], $config['heading'], $config['mintitle'], $config['minmetadata']);
+  return $output;
 }
 
 /**

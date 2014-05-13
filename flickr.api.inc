@@ -62,10 +62,22 @@ function flickr_photo_get_sizes($photo_id) {
  *   (http://www.flickr.com/services/api/flickr.photos.search.html)
  */
 function flickr_photos_search($nsid, $page = 1, $other_args = array()) {
-  $args = array(
-    'user_id' => $nsid,
-    'page' => $page,
-  );
+  // The user ID that gets returned from flickr_user_find_by_identifier('').
+  if ($nsid == '39873962@N08') {
+    $args = array(
+      'user_id' => '',
+      'tag_mode' => 'all',
+      'license' => '1,2,3,4,5,6,7',
+      'sort' => 'relevance',
+      'page' => $page,
+    );
+  }
+  else {
+    $args = array(
+      'user_id' => $nsid,
+      'page' => $page,
+    );
+  }
   // Set per_page to flickr module default if not specified in $other_args.
   if (!isset($other_args['per_page'])) {
     $args['per_page'] = variable_get('flickr_photos_per_page', 20);
@@ -224,6 +236,31 @@ function flickr_user_find_by_username($username) {
   );
   if ($response) {
     return $response['user'];
+  }
+  return FALSE;
+}
+
+/**
+ * Return a user's NSID, given their alias.
+ *
+ * @param string $alias
+ *   Username to look for.
+ *
+ * @return array
+ *   Response from the flickr method flickr.people.findByUsername.
+ *   (http://www.flickr.com/services/api/flickr.people.findByUsername.html)
+ */
+function flickr_user_find_by_alias($alias) {
+  $response = flickr_request(
+    'flickr.urls.lookupUser',
+    array('url' => 'https://www.flickr.com/photos/' . $alias),
+    $cacheable = FALSE,
+    $return_errors = TRUE
+  );
+  if ($response) {
+    if ($response['stat'] == 'ok') {
+      return $response['user'];
+    }
   }
   return FALSE;
 }

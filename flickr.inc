@@ -353,10 +353,12 @@ function flickr_user_find_by_identifier($identifier) {
   if (valid_email_address($identifier) && ($user = flickr_user_find_by_email($identifier))) {
     return $user['nsid'];
   }
+  if ($user = flickr_user_find_by_alias($identifier)) {
+    return $user['id'];
+  }
   if ($user = flickr_user_find_by_username($identifier)) {
     return $user['nsid'];
   }
-
   return FALSE;
 }
 
@@ -507,7 +509,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
     $min_title = is_null($min_title) ? variable_get('flickr_title_suppress_on_small', '100') : $min_title;
     $min_metadata = is_null($min_metadata) ? variable_get('flickr_metadata_suppress_on_small', '150') : $min_metadata;
     $output = '<div class="flickr-photoset">';
-    $recent = $random == 1 ? '' : 'Recent ';
+    $recent = ($random == 1 || $id == '39873962@N08') ? '' : t('Recent') . ' ';
     // Merge the user profile terms with the terms from the node.
     $tags_user_string = is_array($tags_user) ? implode(",", $tags_user) : $tags_user;
     $tags_combined = trim($tags . ',' . $tags_user_string, ',');
@@ -536,6 +538,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
     // Set some variables for all album types.
     $media_type = $media == 'videos' ? t('videos') : t('photos');
     $people['photosurl'] = isset($people['photosurl']) ? $people['photosurl'] : 'https://www.flickr.com/groups/' . $id . '/';
+    $people['photosurl'] = $id == '39873962@N08' ? 'https://www.flickr.com/photos/' : $people['photosurl'];
     $photos = l(t('@recentFlickr @media', array('@recent' => $recent, '@media' => $media_type)), $people['photosurl'], array(
       'attributes' => array(
         'title' => t('View Flickr photostream.'),
@@ -543,8 +546,9 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
       ),
     ));
     // The used tags with a space forced after the comma and the last
-    // one replaced by 'or'.
-    $tags1 = preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags));
+    // one replaced by 'or' ('and' for public photos).
+    $conjunction = $id == '39873962@N08' ? t('and') : t('or');
+    $tags1 = preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tags));
     $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : '<span class="flickr-tags-wrap">' . l(t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span></span>', $people['photosurl'] . 'tags/' . $tags, array(
       'attributes' => array(
         'title' => t('View tagged photos on Flickr.'),
@@ -668,17 +672,16 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
           ),
         )) : l(t("on Flickr"), $people['photosurl'] . 'tags/' . $tags, array(
           'attributes' => array(
-            'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . t('or'), str_replace(',', ', ', $tags)) . '.',
+            'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tags)) . '.',
             'target' => '_blank',
           ),
           'html' => TRUE,
         ));
-        $output .= $heading == 'none' ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tags by !username !map", array(
-          '!photos' => $photos,
-          '!tags' => $tagged . ' ',
-          '!username' => $people['name'],
-          '!map' => $map,
-        )) . '</' . $heading . '>';
+        $username = $id == '39873962@N08' ? '' : ' ' . t('by') . ' ' . $people['name'];
+        $map = $id == '39873962@N08' ? '' : $map;
+        $pre_output = $id == '39873962@N08' ? strip_tags($photos) . ' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ' . strip_tags($username . ' ' . $map) : $photos . ' '  . $tagged . ' ' . $username . ' ' . $map;
+        $pre_output = ($id == '39873962@N08' && empty($tags)) ? 'Provide some tags.' : $pre_output;
+        $output .= $heading == 'none' ? '' : '<' . $heading . ' class="flickr-album-heading">' . $pre_output . '</' . $heading . '>';
         break;
     }
 
@@ -831,11 +834,12 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
             }
           }
         }
-        elseif (empty($tags_user)) {
+        elseif (empty($tags_user) || empty($id)) {
           $terms = is_array($tags) ? $tags : explode(",", $tags);
+          $done = 0;
           foreach ($photos as $key => $photo) {
             foreach ($terms as $term) {
-              if ($i >= $show_n && stripos($photo['tags'], $term) !== FALSE) {
+              if (($i >= $show_n && stripos($photo['tags'], $term) !== FALSE) || ($photo['id'] == $done && stripos($photo['tags'], $term) !== FALSE)) {
                 $j++;
               }
               elseif (stripos($photo['tags'], $term) !== FALSE && ($media == 'all' || $media == $photo['media'] . 's')) {
@@ -848,8 +852,10 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
                   'min_metadata' => $min_metadata,
                 ));
                 // Avoid this image gets repeated by removing it from the
-                // array.
+                // array AND "remembering" the processed photo ID if it is twice
+                // in the array (public photos with multiple tags).
                 unset($photos[$key]);
+                $done = $photo['id'];
                 $i++;
                 $j++;
               }
@@ -919,7 +925,9 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
           '!flickr' => $flickr,
         ));
         // Note the $delta value is abused for counter override from filter.
-        $output .= ((variable_get('flickr_counter', 1) && $delta != 'false') || $delta == 'true') ? '<div class="flickr-album-counter">' . $count . '</div>' : '';
+        // If the total found > max query (500), omit the counter.
+        $terms = isset($terms) ? $terms : 1;
+        $output .= (((variable_get('flickr_counter', 1) && $delta != 'false') || $delta == 'true') && $j < (500 * count($terms))) ? '<div class="flickr-album-counter">' . $count . '</div>' : '';
     }
     $output .= '</div>';
     if (is_numeric($delta) && module_exists('flickr_block')) {

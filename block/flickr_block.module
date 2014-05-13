@@ -26,7 +26,7 @@ function flickr_block_info() {
 
   // Site wide blocks.
   $blocks[3]['info'] = t('Recent photos from a Flickr user tagged as term from node');
-  $blocks[4]['info'] = t('Recent photosets from a Flickr');
+  $blocks[4]['info'] = t('Recent photosets from a Flickr user');
   $blocks[5]['info'] = t('Random photos from a Flickr user tagged as term from node');
   $blocks[6]['info'] = t('Recent photos from a Flickr group tagged as term from node');
 
@@ -111,7 +111,7 @@ function flickr_block_configure($delta = '') {
       '#title' => t('Flickr User ID'),
       '#default_value' => $default,
       '#required' => TRUE,
-      '#description' => t("A Flickr user ID (ID number, username or email). Note that the sites's default Flickr user ID has not been set."),
+      '#description' => t("A Flickr user ID (ID number, alias, username or email). Note that the sites's default Flickr user ID has not been set."),
       '#element_validate' => array('flickr_userid_block_validate'),
     );
   }
@@ -121,7 +121,7 @@ function flickr_block_configure($delta = '') {
       '#type' => 'textfield',
       '#title' => t('Flickr User ID'),
       '#default_value' => $default,
-      '#description' => t("A Flickr user ID (ID number, username or email). If this is left blank, the sites's default user will be used. The current default Flickr user is") . " '<em>" . $info['username']['_content'] . "</em>'.",
+      '#description' => t("A Flickr user ID (ID number, alias, username or email). If this is left blank, the sites's default user will be used. The current default Flickr user is") . " '<em>" . $info['username']['_content'] . "</em>'.",
       '#element_validate' => array('flickr_userid_block_validate'),
     );
   }
@@ -252,11 +252,27 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_photoset"]);
       break;
 
-    // Recent photos from a Flickr user.
+    // Photos from a Flickr user.
     case 3:
-      // Random photos from a Flickr user.
     case 5:
-      // Favorite public photos from a Flickr user.
+      unset($form["flickr_block_{$delta}_group_id"]);
+      unset($form["flickr_block_{$delta}_photoset"]);
+      unset($form['flickr_block_note']);
+      if (empty($default_userid)) {
+        $form["flickr_block_{$delta}_user_id"]['#description'] = t("A Flickr user ID (ID number, alias, username or email). Leave empty to use CC licensed Public photos.");
+      }
+      else {
+        $config = l(t('Flickr settings'), 'admin/config/media/flickr/', array(
+          'attributes' => array(
+            'title' => t('Go to Flickr configuration page'),
+          ),
+        ));
+        $form["flickr_block_{$delta}_user_id"]['#description'] = t("A Flickr user ID (ID number, alias, username or email). If this is left blank, the sites's default user will be used. The current default Flickr user is") . " '<em>" . $info['username']['_content'] . "</em>'.<br />" . t("To use CC licensed Public photos instead, empty the field <em>Default Flickr User ID</em> in the !config.", array('!config' => $config));
+      }
+      $form["flickr_block_{$delta}_user_id"]['#required'] = FALSE;
+      break;
+
+    // Favorite public photos from a Flickr user.
     case 9:
     case 12:
       unset($form["flickr_block_{$delta}_group_id"]);
@@ -303,6 +319,18 @@ function flickr_block_configure($delta = '') {
       if (module_exists('taxonomy')) {
         unset($form["flickr_block_{$delta}_vocab"]);
       }
+      if (empty($default_userid)) {
+        $form["flickr_block_{$delta}_user_id"]['#description'] = t("A Flickr user ID (ID number, alias, username or email). Leave empty to use CC licensed Public photos.");
+      }
+      else {
+        $config = l(t('Flickr settings'), 'admin/config/media/flickr/', array(
+          'attributes' => array(
+            'title' => t('Go to Flickr configuration page'),
+          ),
+        ));
+        $form["flickr_block_{$delta}_user_id"]['#description'] = t("A Flickr user ID (ID number, alias, username or email). If this is left blank, the sites's default user will be used. The current default Flickr user is") . " '<em>" . $info['username']['_content'] . "</em>'.<br />" . t("To use CC licensed Public photos instead, empty the field <em>Default Flickr User ID</em> in the !config.", array('!config' => $config));
+      }
+      $form["flickr_block_{$delta}_user_id"]['#required'] = FALSE;
       $form["flickr_block_{$delta}_tag"] = array(
         '#type' => 'textfield',
         '#title' => t('Show photos having this tag'),
@@ -533,6 +561,9 @@ function flickr_block_view($delta = '') {
   if (!isset($settings['tag'])) {
     $settings['tag'] = '';
   }
+  if (!isset($settings['user_id'])) {
+    $settings['user_id'] = '';
+  }
   if (!isset($settings['group_id'])) {
     $settings['group_id'] = '';
   }
@@ -642,7 +673,7 @@ function flickr_block_view($delta = '') {
               ),
             ));
             // Only if on a node page use it's terms.
-            $tags = (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
+            $tags = (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
             $block['subject'] = t("!recent_sets by !username", array('!recent_sets' => $recent_sets, '!username' => $people['name']));
             $block['content'] = _flickr_block_photosets($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
             break;
@@ -651,7 +682,7 @@ function flickr_block_view($delta = '') {
           case 0:
           case 2:
             // Only if on a node page use it's terms.
-            $tags = (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
+            $tags = (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
             $random = $delta == 2 ? 1 : 0;
             $block['subject'] = NULL;
             $block['content'] = _flickr_album('user', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $tags_user, $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
@@ -661,7 +692,7 @@ function flickr_block_view($delta = '') {
           case 13:
           case 14:
             // Only if on a node page use it's terms.
-            $tags = (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
+            $tags = (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
             $random = $delta == 14 ? 1 : 0;
             $block['subject'] = NULL;
             $block['content'] = _flickr_album('favorites', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $random, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
@@ -674,7 +705,7 @@ function flickr_block_view($delta = '') {
     case 3:
     case 5:
       $random = $delta == 5 ? 1 : 0;
-      if (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) {
+      if (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
@@ -723,7 +754,7 @@ function flickr_block_view($delta = '') {
     case 6:
     case 10:
       $random = $delta == 10 ? 1 : 0;
-      if (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) {
+      if (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
@@ -755,7 +786,7 @@ function flickr_block_view($delta = '') {
     case 7:
     case 8:
       $random = $delta == 7 ? 1 : 0;
-      if (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) {
+      if (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
@@ -788,7 +819,7 @@ function flickr_block_view($delta = '') {
     case 12:
       $random = $delta == 12 ? 1 : 0;
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
-      if (($nid = (int) arg(1)) && arg(0) =='node' && ((arg(2) == "" || arg(2) == 'view'))) {
+      if (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);

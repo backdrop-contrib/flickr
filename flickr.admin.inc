@@ -37,7 +37,7 @@ function flickr_admin_settings() {
     '#type' => 'textfield',
     '#title' => t('Default Flickr User ID'),
     '#default_value' => $default,
-    '#description' => t('An, optional, default Flickr user (ID number, username or email). This will be used when no user is specified.'),
+    '#description' => t('An, optional, default Flickr user (ID number, username or email). This will be used when no user is specified.<br />Leave empty if you intend to use Public Flickr photos when not specifying a Flickr user ID.'),
   );
   $times = array(
     900,
