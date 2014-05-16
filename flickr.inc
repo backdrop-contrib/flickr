@@ -538,7 +538,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
     // Set some variables for all album types.
     $media_type = $media == 'videos' ? t('videos') : t('photos');
     $people['photosurl'] = isset($people['photosurl']) ? $people['photosurl'] : 'https://www.flickr.com/groups/' . $id . '/';
-    $people['photosurl'] = $id == '39873962@N08' ? 'https://www.flickr.com/photos/' : $people['photosurl'];
+    $people['photosurl'] = $id == '39873962@N08' ? 'https://www.flickr.com/search/?sort=relevance&text=' : $people['photosurl'];
     $photos = l(t('@recentFlickr @media', array('@recent' => $recent, '@media' => $media_type)), $people['photosurl'], array(
       'attributes' => array(
         'title' => t('View Flickr photostream.'),
@@ -677,6 +677,13 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
           ),
           'html' => TRUE,
         ));
+        $flickr = $id == '39873962@N08' ? l(t("on Flickr"), $people['photosurl'] . str_replace(",", " ", $tags), array(
+          'attributes' => array(
+            'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tags)) . '.',
+            'target' => '_blank',
+          ),
+          'html' => TRUE,
+        )) : $flickr;
         $username = $id == '39873962@N08' ? '' : ' ' . t('by') . ' ' . $people['name'];
         $map = $id == '39873962@N08' ? '' : $map;
         $pre_output = $id == '39873962@N08' ? strip_tags($photos) . ' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ' . strip_tags($username . ' ' . $map) : $photos . ' '  . $tagged . ' ' . $username . ' ' . $map;

@@ -442,6 +442,13 @@ function theme_flickr_photo($variables) {
       ));
       $licenselong = t('Copyright and Other Rights Pertaining to U.S. Government Works | USA.gov');
       break;
+
+    default:
+      // Some deleted Flickr photos can still result within a query but lack
+      // license info in that case.
+      $license = '';
+      $licenselong = '';
+      break;
   }
   if (variable_get('flickr_license', 0) == 0) {
     $license = '';
@@ -481,9 +488,7 @@ function theme_flickr_photo($variables) {
     // To give best possible attribution given the small space, display license
     // icon if set to show.
     $notitle = '<span class="flickr-no-title">' . t('Flickr') . '</span> ';
-    if ($width < $min_metadata) {
-      $metadatacaption = $license;
-    }
+    $metadatacaption = $width < $min_metadata ? $license : $metadatacaption;
   }
   $credit = $width < $min_title ? $notitle : '<span class="flickr-title">' . $title . '</span><br />';
   // Determine what info goes with the enlarged version of the image.
