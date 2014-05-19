@@ -637,7 +637,6 @@ function theme_flickr_photoset($variables) {
  * Theme a Flickr photo set as an embedded Flickr.com slideshow (Flash).
  */
 function theme_flickr_flickrcomslideshow($variables) {
-  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'flickr') . '/flickr.inc';
   $id = $variables['id'];
   if (empty($id)) {
     return;
@@ -669,7 +668,6 @@ function theme_flickr_flickrcomslideshow($variables) {
  * Theme a Flickr photo set as an embedded Flickr.com slideshow (non Flash).
  */
 function theme_flickr_flickrcomslideshow_simple($variables) {
-  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'flickr') . '/flickr.inc';
   $id = $variables['id'];
   if (empty($id)) {
     return;

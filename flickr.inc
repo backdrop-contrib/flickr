@@ -200,7 +200,7 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
     $attributes['class'] = NULL;
   }
 
-  // photoset's use primary instead of id to specify the image.
+  // Photoset's use primary instead of id to specify the image.
   if (isset($photo['primary'])) {
     $id = $photo['primary'];
     $attributes['class'] = implode(' ', array(
@@ -216,25 +216,19 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
     ));
   }
 
-  if ($size == 's') {
-    $attributes['height'] = $attributes['width'] = 75;
-    $img_url = flickr_photo_img($photo, $size);
+  $image_sizes = flickr_photo_get_sizes($id);
+  if ($image_sizes) {
+    foreach ($image_sizes as $image_size) {
+      if ($image_size['label'] == $sizes[$size]['label']) {
+        break;
+      }
+    }
+    if (isset($image_size)) {
+      $img_url = $image_size['source'];
+    }
   }
   else {
-    $image_sizes = flickr_photo_get_sizes($id);
-    if ($image_sizes) {
-      foreach ($image_sizes as $image_size) {
-        if ($image_size['label'] == $sizes[$size]['label']) {
-          break;
-        }
-      }
-      if (isset($image_size)) {
-        $img_url = $image_size['source'];
-      }
-    }
-    else {
-      $img_url = flickr_photo_img($photo, $size);
-    }
+    $img_url = flickr_photo_img($photo, $size);
   }
   $info = !is_array($photo['title']) ? flickr_photo_get_info($photo['id']) : '';
   $title = is_array($photo['title']) ? str_replace('"', "'", htmlspecialchars_decode(strip_tags($photo['description']['_content']))) : str_replace('"', "'", htmlspecialchars_decode(strip_tags($info['description']['_content'])));
