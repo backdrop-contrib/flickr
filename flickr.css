@@ -100,3 +100,12 @@ span.flickr-tags {
 .flickr-wrap, .flickr-wrap img, .flickr-wrap .flickr-credit {
   max-width: 100%;
 }
+
+div.flickr-photoset {
+clear: both;
+}
+
+span.flickr-empty {
+margin: 10px;
+display: inline-block;
+}

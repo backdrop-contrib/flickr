@@ -160,13 +160,22 @@ function flickr_filter_callback_photo($matches) {
           $config['size'] = variable_get('flickr_default_size', 'm');
           break;
       }
-      return theme('flickr_photo', array(
-        'photo' => $photo,
-        'size' => $config['size'],
-        'attribs' => $attribs,
-        'min_title' => $config['mintitle'],
-        'min_metadata' => $config['minmetadata'],
-      ));
+      $sizes = flickr_photo_sizes();
+      if (flickr_in_array_r($sizes[$config['size']]['label'], flickr_photo_get_sizes($photo['id']))) {
+        return theme('flickr_photo', array(
+          'photo' => $photo,
+          'size' => $config['size'],
+          'attribs' => $attribs,
+          'min_title' => $config['mintitle'],
+          'min_metadata' => $config['minmetadata'],
+        ));
+      }
+      else {
+        // Generate an "empty" image of the requested size containing a message.
+        $string = $sizes[$config['size']]['description'];
+        preg_match("/\d*px/", $string, $matches);
+        return '<span class="flickr-wrap" style="width: ' . $matches[0] . '; height: ' . $matches[0] . '; border:solid 1px;"><span class="flickr-empty">' . t('The requested image size is not available for this photo on Flickr (uploaded when this size was not offered yet). Try another size or re-upload this photo on Flickr.') . '</span></span>';
+      }
     }
   }
   return '';

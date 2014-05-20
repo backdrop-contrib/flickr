@@ -315,9 +315,9 @@ function theme_flickr_photo($variables) {
   $attribs = $variables['attribs'];
   $min_title = $variables['min_title'];
   $min_metadata = $variables['min_metadata'];
-  // If we have a class or style containing the term 'float', prepare if so it
-  // can be applied to the 'flickr-wrapper' span element later on that includes
-  // also the caption.
+  // If we have a class or style containing the term 'float', prepare it to be
+  // added to the 'flickr-wrapper' span element later on that includes also the
+  // caption.
   if (isset($attribs['class'])) {
     $class_float = (stripos($attribs['class'], 'float') !== FALSE) ? ' ' . $attribs['class'] : '';
   }

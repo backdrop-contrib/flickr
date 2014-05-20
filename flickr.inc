@@ -21,43 +21,43 @@ function flickr_photo_sizes() {
     ),
     't' => array(
       'label' => 'Thumbnail',
-      'description' => t('t: 100 px on longest side'),
+      'description' => t('t: 100px on longest side'),
     ),
     'q' => array(
       'label' => 'Large Square',
-      'description' => t('q: 150 px square'),
+      'description' => t('q: 150px square'),
     ),
     'm' => array(
       'label' => 'Small',
-      'description' => t('m: 240 px on longest side'),
+      'description' => t('m: 240px on longest side'),
     ),
     'n' => array(
       'label' => 'Small 320',
-      'description' => t('n: 320 px on longest side'),
+      'description' => t('n: 320px on longest side'),
     ),
     '-' => array(
       'label' => 'Medium',
-      'description' => t('-: 500 px on longest side'),
+      'description' => t('-: 500px on longest side'),
     ),
     'z' => array(
       'label' => 'Medium 640',
-      'description' => t('z: 640 px on longest side'),
+      'description' => t('z: 640px on longest side'),
     ),
     'c' => array(
       'label' => 'Medium 800',
-      'description' => t('c: 800 px on longest side'),
+      'description' => t('c: 800px on longest side'),
     ),
     'b' => array(
       'label' => 'Large',
-      'description' => t('b: 1024 px on longest side'),
+      'description' => t('b: 1024px on longest side'),
     ),
     'h' => array(
       'label' => 'Large 1600',
-      'description' => t('h: 1600 px on longest side'),
+      'description' => t('h: 1600px on longest side'),
     ),
     'k' => array(
       'label' => 'Large 2048',
-      'description' => t('k: 2048 px on longest side'),
+      'description' => t('k: 2048px on longest side'),
     ),
     'o' => array(
       'label' => 'Original',
@@ -500,6 +500,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
 
   // In any other case we generate an album, including a heading and counter.
   else {
+    $sizes = flickr_photo_sizes();
     $min_title = is_null($min_title) ? variable_get('flickr_title_suppress_on_small', '100') : $min_title;
     $min_metadata = is_null($min_metadata) ? variable_get('flickr_metadata_suppress_on_small', '150') : $min_metadata;
     $output = '<div class="flickr-photoset">';
@@ -791,25 +792,36 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
         $to = min($show_n, count($photos));
         $i = 0;
         $j = 0;
+        $k = 0;
+        // No Flickr tags specified and on a node page.
         if ($vocab_isset != 0 && empty($tags) && (arg(0) == 'node' && is_numeric(arg(1)) && (arg(2) == '' || arg(2) == 'view'))) {
           $output .= t('Post has no Flickr tags specified.');
         }
+        // No Flickr tags specified, not on a node page, thus show all.
         elseif (empty($tags)  && empty($tags_user)) {
           foreach ($photos as $photo) {
             if ($i < $show_n && ($media == 'all' || $media == $photo['media'] . 's')) {
               // Insert owner into $photo because theme_flickr_photo needs it.
               $photo['owner'] = $type == 'photoset' ? $info['owner'] : $photo['owner'];
-              $output .= theme('flickr_photo', array(
-                'photo' => $photo,
-                'size' => $size,
-                'min_title' => $min_title,
-                'min_metadata' => $min_metadata,
-              ));
-              $i++;
+              // Check if the requested size is available on Flickr.
+              if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
+                $output .= theme('flickr_photo', array(
+                  'photo' => $photo,
+                  'size' => $size,
+                  'min_title' => $min_title,
+                  'min_metadata' => $min_metadata,
+                ));
+                $i++;
+              }
+              else {
+                $output .= '';
+                $k++;
+              }
               $j++;
             }
           }
         }
+        // Filter on Flickr tags specified in user account.
         elseif (empty($tags)) {
           foreach ($photos as $key => $photo) {
             $tags_user = !is_array($tags_user) ? explode(",", $tags_user) : $tags_user;
@@ -820,21 +832,29 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
               elseif (stripos($photo['tags'], $term) !== FALSE && ($media == 'all' || $media == $photo['media'] . 's')) {
                 // Insert owner into $photo because theme_flickr_photo needs it.
                 $photo['owner'] = $type == 'photoset' ? $info['owner'] : $photo['owner'];
-                $output .= theme('flickr_photo', array(
-                  'photo' => $photo,
-                  'size' => $size,
-                  'min_title' => $min_title,
-                  'min_metadata' => $min_metadata,
-                ));
+                // Check if the requested size is available on Flickr.
+                if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
+                  $output .= theme('flickr_photo', array(
+                    'photo' => $photo,
+                    'size' => $size,
+                    'min_title' => $min_title,
+                    'min_metadata' => $min_metadata,
+                  ));
+                  $i++;
+                }
+                else {
+                  $output .= '';
+                  $k++;
+                }
                 // Avoid this image gets repeated by removing it from the
                 // array.
                 unset($photos[$key]);
-                $i++;
                 $j++;
               }
             }
           }
         }
+        // Filter on Flickr tags as terms.
         elseif (empty($tags_user) || empty($id)) {
           $terms = is_array($tags) ? $tags : explode(",", $tags);
           $done = 0;
@@ -846,23 +866,32 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
               elseif (stripos($photo['tags'], $term) !== FALSE && ($media == 'all' || $media == $photo['media'] . 's')) {
                 // Insert owner into $photo because theme_flickr_photo needs it.
                 $photo['owner'] = $type == 'photoset' ? $info['owner'] : $photo['owner'];
-                $output .= theme('flickr_photo', array(
-                  'photo' => $photo,
-                  'size' => $size,
-                  'min_title' => $min_title,
-                  'min_metadata' => $min_metadata,
-                ));
+                // Check if the requested size is available on Flickr.
+                if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
+                  $output .= theme('flickr_photo', array(
+                    'photo' => $photo,
+                    'size' => $size,
+                    'min_title' => $min_title,
+                    'min_metadata' => $min_metadata,
+                  ));
+                  $i++;
+                }
+                else {
+                  $output .= '';
+                  $k++;
+                }
                 // Avoid this image gets repeated by removing it from the
                 // array AND "remembering" the processed photo ID if it is twice
                 // in the array (public photos with multiple tags).
                 unset($photos[$key]);
                 $done = $photo['id'];
-                $i++;
                 $j++;
               }
             }
           }
         }
+        // Filter on Flickr tags as  terms AND Flickr tags specified in user
+        // account.
         else {
           $terms = is_array($tags) ? $tags : explode(",", $tags);
           foreach ($photos as $key => $photo) {
@@ -875,21 +904,31 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
                   // Insert owner into $photo because theme_flickr_photo needs
                   // it.
                   $photo['owner'] = $type == 'photoset' ? $info['owner'] : $photo['owner'];
-                  $output .= theme('flickr_photo', array(
-                    'photo' => $photo,
-                    'size' => $size,
-                    'min_title' => $min_title,
-                    'min_metadata' => $min_metadata,
-                  ));
+                  // Check if the requested size is available on Flickr.
+                  if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
+                    $output .= theme('flickr_photo', array(
+                      'photo' => $photo,
+                      'size' => $size,
+                      'min_title' => $min_title,
+                      'min_metadata' => $min_metadata,
+                    ));
+                    $i++;
+                  }
+                  else {
+                    $output .= '';
+                    $k++;
+                  }
                   // Avoid this image gets repeated by removing it from the
                   // array.
                   unset($photos[$key]);
-                  $i++;
                   $j++;
                 }
               }
             }
           }
+        }
+        if ($k > 0) {
+          drupal_set_message($k . ' ' . t("photos were skipped because the requested image size is not available on Flickr (uploaded when this size was not offered yet). To include them, use another size or re-upload these photos on Flickr."), 'warning');
         }
         $output .= '</div>';
 
@@ -939,4 +978,29 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
     }
   }
   return $output;
+}
+
+/**
+ * Returns TRUE if a value is found in a multidimensional array.
+ * See http://stackoverflow.com/a/4128377
+ *
+ * @param string $needle
+ *   The value to be matched.
+ *
+ * @param array $haystack
+ *   The array to match.
+ *
+ * @param bool $strict
+ *   If set to TRUE also check the types of the needle in the haystack.
+ *
+ * @return bool
+ *   TRUE if match found.
+  */
+function flickr_in_array_r($needle, $haystack, $strict = FALSE) {
+  foreach ($haystack as $item) {
+    if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && flickr_in_array_r($needle, $item, $strict))) {
+      return TRUE;
+    }
+  }
+  return FALSE;
 }
