@@ -33,9 +33,9 @@ function flickr_filter_info() {
  * Returns the filter information for the filter help page.
  */
 function flickr_filter_tips($filter, $format, $long = FALSE) {
-  $idgettr = l(t('Find your Flickr user or group ID.'), 'http://idgettr.com/', array(
+  $idgettr = l(t('Find a Flickr group ID.'), 'http://idgettr.com/', array(
     'attributes' => array(
-      'title' => t('Use the URL of your user or group to find the Flickr ID.'),
+      'title' => t('Use the URL of your group to find the Flickr ID.'),
       'target' => '_blank',
     ),
   ));
@@ -63,19 +63,20 @@ n : small, 320 on longest side<br />
 - : medium, 500 on longest side<br />
 x: Flash responsive slideshow (for group, set and user IDs only)<br />
 y: Basic responsive slideshow (for set and user IDs only)<br />
-<strong>If the wrong size is applied, check if it exists on the Flickr photo page > Actions > View all sizes.</strong><br /><br />
-Parameters:<br />
-<strong>id=</strong> !find_id For a user Flickr the ID number, alias, Flickr username or email. Omit to use CC licensed Public photos.<br />
+<strong>TAKE CARE, n (320px) and c (800px) sizes are missing on many \"older\" Flickr images! Check if it exists on the Flickr photo page > Actions > View all sizes.</strong><br /><br />
+Parameter examples (omit parameters to use the default values):<br />
+<strong>id=lolandese1</strong> A photo, photoset, user or group ID. Omit to use CC licensed Public photos. !find_id<br />&nbsp;&nbsp;Valid input for a user: numeric ID (the one that contains '@'), alias (from URL if it exists), Flickr username or the user's email.<br />
+<strong>class=floatleft foo bar</strong> : Note that no quotes are used and a space to separate multiple classes.<br />
+<strong>style=float:left; border:solid 2px;</strong> : Note that no quotes are used, but with a semicolons between styles.<br />
 <strong>size=q</strong> : Display size big square (150px). The sizes x and y display a slideshow and ignore number, media, tags and random settings. Default: size=@default_size (!config).<br />
-<strong>num=4</strong> : Display 4 photos. Default: num=@default_number (!config).<br />
+<strong>num=4</strong> : Display 4 photos. Default: num=@default_number (!config).<br />&nbsp;&nbsp;If set to 1, the single image will behave as such. Heading and counter will be omitted, and float might apply. Used to display a single changing random or recent image.<br />
 <strong>media=all</strong> : Display both photos and videos. Default: media=photos<br />
-<strong>tags=kids/men</strong> : <strong>Seperate multiple tags with a slash (/).</strong> Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets even partial.<br /> Multiple tags for groups will only query the last 500 photos on Flickr. Note that Flickr removes any whitespace from tags (e.g. 'Victoria park' becomes 'victoriapark').<br />
-<strong>heading=h3</strong> : Wraps the album title in HTML tags. Use 'p' to apply no style or 'none' to suppress the title. Default heading=@default_count (!config).<br />
+<strong>tags=kids/men</strong> : <strong>Separate multiple tags with a slash (/).</strong> Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets even partial.<br />&nbsp;&nbsp;Multiple tags for groups will only query the last 500 photos on Flickr. Note that Flickr removes any whitespace from tags (e.g. 'Victoria park' becomes 'victoriapark').<br />
+<strong>heading=h3</strong> : Wraps the album title in HTML tags. Use 'p' to apply no style or 'none' to suppress the title. Default heading=@default_heading (!config).<br />
 <strong>random=false</strong> : Display the newest photos first (reverse cronological order). Default: random=false<br />
-<strong>count=false</strong> : Suppress display of the counter under the album (e.g. 5 out of 124 on Flickr). Default: count=@default_count (!config).<br />
+<strong>count=false</strong> : Suppress display of the counter under the album (e.g. <em>5 out of 124 on Flickr</em>). Default: count=@default_count (!config).<br />
 <strong>mintitle=999</strong> : Suppress display of the title in the photo captions for images below a width of 999 px. Default: mintitle=@default_mintitle (!config).<br />
-<strong>minmetadata=999</strong> : Suppress display of the metadata in the photo captions for images below a width of 999 px. Default: minmetadata=@default_minmetadata (!config).<br />
-Omit parameters to use the default values.", array(
+<strong>minmetadata=999</strong> : Suppress display of the metadata in the photo captions for images below a width of 999 px. Default: minmetadata=@default_minmetadata (!config).", array(
   '!find_id' => $idgettr,
   '@default_size' => variable_get('flickr_default_size', 'm'),
   '@default_number' => variable_get('flickr_photos_per_page', 20),

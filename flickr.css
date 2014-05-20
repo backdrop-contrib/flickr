@@ -22,7 +22,7 @@
   height: 130px;
 }
 
-span.flickr-wrap {
+span.flickr-wrap, span.flickr-photoset-single {
   display: inline-block;
   vertical-align: top;
   margin: 0 5px 5px 0;
@@ -102,10 +102,10 @@ span.flickr-tags {
 }
 
 div.flickr-photoset {
-clear: both;
+  clear: both;
 }
 
 span.flickr-empty {
-margin: 10px;
-display: inline-block;
+  margin: 10px;
+  display: inline-block;
 }

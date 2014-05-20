@@ -275,8 +275,11 @@ function flickr_photo_img($photo, $size = NULL, $format = NULL) {
   // photoset's use primary instead of id to specify the image.
   $id = isset($photo['primary']) ? $photo['primary'] : $photo['id'];
   $secret = $photo['secret'];
+  $suffix = $size ? "_$size." : '.';
+  $suffix = $size == '-' ? '.' : $suffix;
+  $extension = $size == 'o' ? $format : 'jpg';
 
-  return "https://farm{$farm}.static.flickr.com/{$server}/{$id}_{$secret}" . ($size ? "_$size." : '.') . ($size == 'o' ? $format : 'jpg');
+  return "https://farm{$farm}.static.flickr.com/{$server}/{$id}_{$secret}" . $suffix . $extension;
 }
 
 /**
@@ -503,7 +506,12 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
     $sizes = flickr_photo_sizes();
     $min_title = is_null($min_title) ? variable_get('flickr_title_suppress_on_small', '100') : $min_title;
     $min_metadata = is_null($min_metadata) ? variable_get('flickr_metadata_suppress_on_small', '150') : $min_metadata;
-    $output = '<div class="flickr-photoset">';
+    if ($show_n > 1 || is_numeric($delta)) {
+      $output = '<div class="flickr-photoset">';
+    }
+    else {
+      $output = '<span class="flickr-photoset-single">';
+    }
     $recent = ($random == 1 || $id == '39873962@N08') ? '' : t('Recent') . ' ';
     // Merge the user profile terms with the terms from the node.
     $tags_user_string = is_array($tags_user) ? implode(",", $tags_user) : $tags_user;
@@ -531,7 +539,12 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
     }
 
     // Set some variables for all album types.
-    $media_type = $media == 'videos' ? t('videos') : t('photos');
+    if ($show_n > 1) {
+      $media_type = $media == 'videos' ? t('videos') : t('photos');
+    }
+    else {
+      $media_type = $media == 'videos' ? t('video') : t('photo');
+    }
     $people['photosurl'] = isset($people['photosurl']) ? $people['photosurl'] : 'https://www.flickr.com/groups/' . $id . '/';
     $people['photosurl'] = $id == '39873962@N08' ? 'https://www.flickr.com/search/?sort=relevance&text=' : $people['photosurl'];
     $photos = l(t('@recentFlickr @media', array('@recent' => $recent, '@media' => $media_type)), $people['photosurl'], array(
@@ -576,7 +589,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
             'target' => '_blank',
           ),
         ));
-        $output .= $heading == 'none' ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tagsfrom Flickr set !set by !username !map", array(
+        $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tagsfrom Flickr set !set by !username !map", array(
           '!photos' => $photos,
           '!tags' => $tagged . ' ',
           '!set' => $set,
@@ -607,7 +620,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
           ),
         ));
         $tags1 = (!empty($tags)) ? '<span class="flickr-tags-wrap">' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> </span>' : '';
-        $output .= $heading == 'none' ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tags from the group !group !map", array(
+        $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tags from the group !group !map", array(
           '!photos' => strip_tags($photos),
           '!tags' => $tags1,
           '!group' => $group,
@@ -633,7 +646,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
           ),
         ));
         $tags1 = (!empty($tags)) ? '<span class="flickr-tags-wrap">' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> </span>' : '';
-        $output .= $heading == 'none' ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tags from the !favorites of !username", array(
+        $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tags from the !favorites of !username", array(
           '!photos' => strip_tags($photos),
           '!tags' => $tags1,
           '!favorites' => $favorites,
@@ -683,7 +696,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
         $map = $id == '39873962@N08' ? '' : $map;
         $pre_output = $id == '39873962@N08' ? strip_tags($photos) . ' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ' . strip_tags($username . ' ' . $map) : $photos . ' '  . $tagged . ' ' . $username . ' ' . $map;
         $pre_output = ($id == '39873962@N08' && empty($tags)) ? 'Provide some tags.' : $pre_output;
-        $output .= $heading == 'none' ? '' : '<' . $heading . ' class="flickr-album-heading">' . $pre_output . '</' . $heading . '>';
+        $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . $pre_output . '</' . $heading . '>';
         break;
     }
 
@@ -967,9 +980,14 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
         // Note the $delta value is abused for counter override from filter.
         // If the total found > max query (500), omit the counter.
         $terms = isset($terms) ? $terms : 1;
-        $output .= (((variable_get('flickr_counter', 1) && $delta != 'false') || $delta == 'true') && $j < (500 * count($terms))) ? '<div class="flickr-album-counter">' . $count . '</div>' : '';
+        $output .= (((variable_get('flickr_counter', 1) && $delta != 'false') || $delta == 'true') && $j < (500 * count($terms)) && ($show_n > 1 || is_numeric($delta))) ? '<div class="flickr-album-counter">' . $count . '</div>' : '';
     }
-    $output .= '</div>';
+    if ($show_n > 1 || is_numeric($delta)) {
+      $output .= '</div>';
+    }
+    else {
+      $output .= '</span>';
+    }
     if (is_numeric($delta) && module_exists('flickr_block')) {
       $refresh = $random == 1 ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
       // drupal_is_front_page() is added because it also can have
@@ -982,7 +1000,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
 
 /**
  * Returns TRUE if a value is found in a multidimensional array.
- * See http://stackoverflow.com/a/4128377
+ * See http://stackoverflow.com/a/4128377.
  *
  * @param string $needle
  *   The value to be matched.
@@ -995,7 +1013,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
  *
  * @return bool
  *   TRUE if match found.
-  */
+ */
 function flickr_in_array_r($needle, $haystack, $strict = FALSE) {
   foreach ($haystack as $item) {
     if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && flickr_in_array_r($needle, $item, $strict))) {
