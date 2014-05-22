@@ -51,12 +51,12 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
     ),
   ));
   $count = variable_get('flickr_counter', 1) ? 'true' : 'false';
-  $output = t("Insert a <strong>Flickr photo</strong>. Working example:
+  $output = t("Insert a <strong>Flickr photo</strong>. A working example:
   <ul>
-    <li>[flickr-<strong>photo</strong>:id=7357144724, size=m, mintitle=999, minmetadata=999] (takes only the parameters <em>id, class, style, size, mintitle</em> and <em>minmetadata</em>)</li>
+    <li>[flickr-<strong>photo</strong>:id=7357144724, size=m, mintitle=999, minmetadata=999] (accepts only the parameters <em>id, class, style, size, mintitle</em> and <em>minmetadata</em>)</li>
   </ul>
   To float single photos use [flickr-photo:id=9247386562, <strong>class=floatright</strong>], [flickr-photo:id=9247388074, <strong>style=float:left;</strong>] or use the !autofloat (recommended).<br /><br />
-  Insert a <strong>Flickr album</strong>. A working examples:
+  Insert a <strong>Flickr album</strong>. Working examples:
   <ul>
     <li>[flickr-<strong>photoset</strong>:id=72157634563269642, size=s, num=8, tags=kids/men, media=all, random=true, count=false, mintitle=999, minmetadata=999, heading=none]</li>
     <li>[flickr-<strong>group</strong>:id=91484156@N00, size=q, num=8, tags=flowers, media=all, random=true, count=false, mintitle=999, minmetadata=999, heading=none]</li>
@@ -83,17 +83,17 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
     </tr>
   </table>
   n (320px) and c (800px) sizes are missing on \"older\" Flickr images. Photos with non existing sizes will be skipped in albums.<br /><br />
-  <strong>Parameter examples</strong> (omit parameters to use the default values):<br />
+  <strong>Parameter examples</strong> (omit a parameter to use the default value):<br />
   <strong>id=lolandese1</strong> : A photo, set, user or group ID. Omit user ID to grab CC licensed public photos. <strong>Default: id=@default_userid</strong> (!config). Do NOT set a default ID if you intend to use public photos.<br />&nbsp;&nbsp;!find_id Valid input for a user: numeric ID (the one that contains a '@'), alias (from URL if it exists), Flickr username or the user's email.<br />
   <strong>class=floatleft foo bar</strong> : Note that no quotes are used and a space to separate multiple classes.<br />
   <strong>style=float:left; border:solid 2px;</strong> : Note that no quotes are used, but with a semicolons between styles.<br />
   <strong>size=q</strong> : Big square (150px). The sizes x and y display a slideshow and ignore number, media, tags and random settings. <strong>Default single photo: size=@default_size, album photo: size=@default_size_album</strong> (both !config).<br />
-  <strong>num=4</strong> : Display 4 photos. <strong>Default: num=@default_number</strong> (!config).<br />&nbsp;&nbsp;If set to 1, the single image will behave as such. Heading and counter will be omitted, and float might apply. Used to display a single changing random or recent image.<br />
-  <strong>media=all</strong> : Display both photos and videos. <strong>Default: media=photos</strong><br />
-  <strong>tags=kids/men</strong> : <strong>Separate multiple tags with a slash (/).</strong> Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets even partial.<br />&nbsp;&nbsp;Multiple tags for groups will only query the last 500 photos on Flickr. Note that Flickr removes any whitespace from tags (e.g. 'Victoria park' becomes 'victoriapark').<br />
-  <strong>heading=h3</strong> : Wraps the album title in HTML tags. Use 'p' to apply no style or 'none' to suppress the title. <strong>Default heading=@default_heading</strong> (!config).<br />
-  <strong>random=false</strong> : Display the newest photos first (reverse cronological order). <strong>Default: random=false</strong><br />
-  <strong>count=false</strong> : Suppress display of the counter under the album (e.g. <em>5 out of 124 on Flickr</em>). <strong>Default: count=@default_count</strong> (!config).<br />
+  <strong>num=4</strong> : Display 4 photos. <strong>Default: num=@default_number</strong> (!config). For albums only.<br />&nbsp;&nbsp;If set to 1, the single image will behave as such. Heading and counter will be omitted, and float might apply. Used to display a single changing random or recent image.<br />
+  <strong>media=all</strong> : Display both photos and videos. <strong>Default: media=photos</strong>. For albums only.<br />
+  <strong>tags=kids/men</strong> : <strong>Separate multiple tags with a slash (/).</strong> Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets even partial.<br />&nbsp;&nbsp;Multiple tags for groups will only query the last 500 photos on Flickr. Note that Flickr removes any whitespace from tags (e.g. 'Victoria park' becomes 'victoriapark'). For albums only.<br />
+  <strong>heading=h3</strong> : Wraps the album title in HTML tags. Use 'p' to apply no style or 'none' to suppress the title. <strong>Default heading=@default_heading</strong> (!config). For albums only.<br />
+  <strong>random=false</strong> : Display the newest photos first (reverse cronological order). <strong>Default: random=false</strong>. For albums only.<br />
+  <strong>count=false</strong> : Suppress display of the counter under the album (e.g. <em>5 out of 124 on Flickr</em>). <strong>Default: count=@default_count</strong> (!config). For albums only.<br />
   <strong>mintitle=999</strong> : Suppress display of the title in the photo captions for images below a width of 999 px. <strong>Default: mintitle=@default_mintitle</strong> (!config).<br />
   <strong>minmetadata=999</strong> : Suppress display of the metadata in the photo captions for images below a width of 999 px. <strong>Default: minmetadata=@default_minmetadata</strong> (!config).", array(
     '!autofloat' => $autofloat,
