@@ -33,6 +33,12 @@ function flickr_filter_info() {
  * Returns the filter information for the filter help page.
  */
 function flickr_filter_tips($filter, $format, $long = FALSE) {
+  $autofloat = l(t('AutoFloat module'), 'https://drupal.org/project/autofloat/', array(
+    'attributes' => array(
+      'title' => t('AutoFloat | Drupal.org'),
+      'target' => '_blank',
+    ),
+  ));
   $idgettr = l(t('Find a Flickr group ID.'), 'http://idgettr.com/', array(
     'attributes' => array(
       'title' => t('Use the URL of your group to find the Flickr ID.'),
@@ -53,7 +59,7 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
 <li>[flickr-<strong>user</strong>:id=lolandese1, size=q, num=6, tags=kids/men, media=all, random=true, count=false, mintitle=999, minmetadata=999, heading=none]</li>
 <li>[flickr-<strong>favorites</strong>:id=lolandese, size=q, num=4, tags=tomosborn/people, media=all, random=true, count=false, mintitle=999, minmetadata=999, heading=none]</li>
 </ul><br />
-Float single photos: Use [flickr-photo:id=9247386562, <strong>class=floatright</strong>], [flickr-photo:id=9247388074, <strong>style=float:left;</strong>] or use the AutoFloat module.<br /><br />
+Float single photos: Use [flickr-photo:id=9247386562, <strong>class=floatright</strong>], [flickr-photo:id=9247388074, <strong>style=float:left;</strong>] or use the !autofloat.<br /><br />
 Common sizes:<br />
 s : small square 75<br />
 t : thumbnail, 100 on longest side<br />
@@ -65,10 +71,10 @@ x: Flash responsive slideshow (for group, set and user IDs only)<br />
 y: Basic responsive slideshow (for set and user IDs only)<br />
 <strong>TAKE CARE, n (320px) and c (800px) sizes are missing on many \"older\" Flickr images! Check if it exists on the Flickr photo page > Actions > View all sizes.</strong><br /><br />
 Parameter examples (omit parameters to use the default values):<br />
-<strong>id=lolandese1</strong> A photo, photoset, user or group ID. Omit to use CC licensed Public photos. !find_id<br />&nbsp;&nbsp;Valid input for a user: numeric ID (the one that contains '@'), alias (from URL if it exists), Flickr username or the user's email.<br />
+<strong>id=lolandese1</strong> A photo, photoset, user or group ID. Omit to use CC licensed Public photos. !find_id<br />&nbsp;&nbsp;Valid input for a user: numeric ID (the one that contains a '@'), alias (from URL if it exists), Flickr username or the user's email.<br />
 <strong>class=floatleft foo bar</strong> : Note that no quotes are used and a space to separate multiple classes.<br />
 <strong>style=float:left; border:solid 2px;</strong> : Note that no quotes are used, but with a semicolons between styles.<br />
-<strong>size=q</strong> : Display size big square (150px). The sizes x and y display a slideshow and ignore number, media, tags and random settings. Default: size=@default_size (!config).<br />
+<strong>size=q</strong> : Big square (150px). The sizes x and y display a slideshow and ignore number, media, tags and random settings. Default single photo: size=@default_size, album photo: size=@default_size_album (both !config).<br />
 <strong>num=4</strong> : Display 4 photos. Default: num=@default_number (!config).<br />&nbsp;&nbsp;If set to 1, the single image will behave as such. Heading and counter will be omitted, and float might apply. Used to display a single changing random or recent image.<br />
 <strong>media=all</strong> : Display both photos and videos. Default: media=photos<br />
 <strong>tags=kids/men</strong> : <strong>Separate multiple tags with a slash (/).</strong> Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets even partial.<br />&nbsp;&nbsp;Multiple tags for groups will only query the last 500 photos on Flickr. Note that Flickr removes any whitespace from tags (e.g. 'Victoria park' becomes 'victoriapark').<br />
@@ -77,9 +83,11 @@ Parameter examples (omit parameters to use the default values):<br />
 <strong>count=false</strong> : Suppress display of the counter under the album (e.g. <em>5 out of 124 on Flickr</em>). Default: count=@default_count (!config).<br />
 <strong>mintitle=999</strong> : Suppress display of the title in the photo captions for images below a width of 999 px. Default: mintitle=@default_mintitle (!config).<br />
 <strong>minmetadata=999</strong> : Suppress display of the metadata in the photo captions for images below a width of 999 px. Default: minmetadata=@default_minmetadata (!config).", array(
+  '!autofloat' => $autofloat,
   '!find_id' => $idgettr,
-  '@default_size' => variable_get('flickr_default_size', 'm'),
-  '@default_number' => variable_get('flickr_photos_per_page', 20),
+  '@default_size' => variable_get('flickr_filter_default_size', 'm'),
+  '@default_size_album' => variable_get('flickr_default_size_album', 'q'),
+  '@default_number' => variable_get('flickr_photos_per_page', 6),
   '@default_mintitle' => variable_get('flickr_title_suppress_on_small', '100'),
   '@default_minmetadata' => variable_get('flickr_metadata_suppress_on_small', '150'),
   '@default_heading' => variable_get('flickr_filter_heading', 'p'),
@@ -146,7 +154,7 @@ function flickr_filter_callback_photo($matches) {
   if (isset($config['id'])) {
     if ($photo = flickr_photo_get_info($config['id'])) {
       if (!isset($config['size'])) {
-        $config['size'] = variable_get('flickr_default_size', 'm');
+        $config['size'] = variable_get('flickr_filter_default_size', 'm');
       }
       if (!isset($config['mintitle'])) {
         $config['mintitle'] = variable_get('flickr_title_suppress_on_small', '100');
@@ -158,7 +166,7 @@ function flickr_filter_callback_photo($matches) {
         case "x":
         case "y":
           drupal_set_message(t("Do not use a slideshow for a single image."), 'error');
-          $config['size'] = variable_get('flickr_default_size', 'm');
+          $config['size'] = variable_get('flickr_filter_default_size', 'm');
           break;
       }
       $sizes = flickr_photo_sizes();
@@ -192,10 +200,10 @@ function flickr_filter_callback_album($matches) {
     $config['id'] = '';
   }
   if (!isset($config['size'])) {
-    $config['size'] = variable_get('flickr_default_size', 'm');
+    $config['size'] = NULL;
   }
   if (!isset($config['num'])) {
-    $config['num'] = variable_get('flickr_photos_per_page', 20);
+    $config['num'] = NULL;
   }
   if (!isset($config['media'])) {
     $config['media'] = 'photos';
@@ -216,10 +224,10 @@ function flickr_filter_callback_album($matches) {
     $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
   }
   if (!isset($config['mintitle'])) {
-    $config['mintitle'] = variable_get('flickr_title_suppress_on_small', '100');
+    $config['mintitle'] = NULL;
   }
   if (!isset($config['minmetadata'])) {
-    $config['minmetadata'] = variable_get('flickr_metadata_suppress_on_small', '150');
+    $config['minmetadata'] = NULL;
   }
   // Choose between 'recent' or 'random' based on 'random' parameter.
   // Note that we abuse the $delta parameter pass the random value to override
@@ -239,10 +247,10 @@ function flickr_filter_callback_favorites($matches) {
 
   if (isset($config['id'])) {
     if (!isset($config['size'])) {
-      $config['size'] = variable_get('flickr_default_size', 'm');
+      $config['size'] = NULL;
     }
     if (!isset($config['num'])) {
-      $config['num'] = variable_get('flickr_photos_per_page', 20);
+      $config['num'] = NULL;
     }
     if (!isset($config['media'])) {
       $config['media'] = 'photos';
@@ -263,10 +271,10 @@ function flickr_filter_callback_favorites($matches) {
       $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
     }
     if (!isset($config['mintitle'])) {
-      $config['mintitle'] = variable_get('flickr_title_suppress_on_small', '100');
+      $config['mintitle'] = NULL;
     }
     if (!isset($config['minmetadata'])) {
-      $config['minmetadata'] = variable_get('flickr_metadata_suppress_on_small', '150');
+      $config['minmetadata'] = NULL;
     }
     // Choose between 'recent' or 'random' based on 'random' parameter.
     // Note that we abuse the $delta parameter pass the random value to override

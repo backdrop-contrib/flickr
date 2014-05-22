@@ -13,7 +13,7 @@ function flickr_uninstall() {
   variable_del('flickr_cache_duration');
   variable_del('flickr_class');
   variable_del('flickr_css');
-  variable_del('flickr_default_size');
+  variable_del('flickr_default_size_album');
   variable_del('flickr_default_userid');
   variable_del('flickr_opening_size');
   variable_del('flickr_photos_per_page');

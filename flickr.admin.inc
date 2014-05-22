@@ -37,7 +37,7 @@ function flickr_admin_settings() {
     '#type' => 'textfield',
     '#title' => t('Default Flickr User ID'),
     '#default_value' => $default,
-    '#description' => t('An, optional, default Flickr user (ID number, username or email). This will be used when no user is specified.<br />Leave empty if you intend to use Public Flickr photos when not specifying a Flickr user ID.'),
+    '#description' => t('An, optional, default Flickr user (ID number, alias, username or email). This will be used when no user is specified.<br />Leave empty if you intend to use Public Flickr photos when not specifying a Flickr user ID.'),
   );
   $times = array(
     900,
@@ -62,12 +62,29 @@ function flickr_admin_settings() {
   );
   $form['flickr_photos_per_page'] = array(
     '#type' => 'textfield',
-    '#title' => t('Number of photos per photoset'),
+    '#title' => t('Number of photos per album'),
     '#required' => TRUE,
-    '#default_value' => variable_get('flickr_photos_per_page', 20),
+    '#default_value' => variable_get('flickr_photos_per_page', 6),
     '#description' => t('The number indicates how many photos of a photoset display in your nodes if no number is specified. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
     '#size' => 3,
     '#maxlength' => 3,
+  );
+  $form['flickr_default_size_album'] = array(
+    '#type' => 'select',
+    '#title' => t('Default size for photos in an album'),
+    '#default_value' => variable_get('flickr_default_size_album', 'q'),
+    '#options' => array(
+      's' => t('s: 75 px square'),
+      't' => t('t: 100 px on longest side'),
+      'q' => t('q: 150 px square'),
+      'm' => t('m: 240 px on longest side'),
+      'n' => t('n: 320 px on longest side (!)'),
+      '-' => t('-: 500 px on longest side'),
+      'z' => t('z: 640 px on longest side'),
+      'c' => t('c: 800 px on longest side (!)'),
+      'b' => t('b: 1024 px on longest side'),
+    ),
+    '#description' => t('A default Flickr size to use if no size is specified, for example [flickr-photoset:id=72157634563269642].<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
   );
   $style_doc = l(t('Flickr module Style Guide'), 'https://drupal.org/node/2174131', array(
       'attributes' => array(
@@ -148,13 +165,13 @@ function flickr_admin_settings() {
     '#type' => 'checkbox',
     '#title' => t('Extra links to Flickr maps'),
     '#default_value' => variable_get('flickr_maps', 1),
-    '#description' => t('Include extra links to maps available for a user, group or set on Flickr. Locations mentioned (if displayed) under individual images link to corresponding Flickr user maps in any case, indepedent of the setting here.'),
+    '#description' => t('Include extra links to maps available for a user, group or set on Flickr. Locations mentioned (if displayed) under individual images link to corresponding Flickr user maps in any case, independent on the setting here.'),
   );
   $form['info_settings']['flickr_counter'] = array(
     '#type' => 'checkbox',
     '#title' => t('Show a Flickr counter'),
     '#default_value' => variable_get('flickr_counter', 1),
-    '#description' => t('Shows how many photos are displayed out of the total number available for a user, group or set on Flickr. Can be overridden by the filter tag, eg. [flickr-photoset:id=72157634563269642,count=false]'),
+    '#description' => t('Shows how many photos are displayed out of the total number available for a user, group, set or tags on Flickr. Can be overridden by the filter tag, eg. [flickr-photoset:id=72157634563269642,count=false]'),
   );
   if (module_exists('flickr_filter')) {
     $form['filter_settings'] = array(
@@ -162,19 +179,10 @@ function flickr_admin_settings() {
       '#title' => t('Filter settings'),
       '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
     );
-    $form['filter_settings']['flickr_filter_heading'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Wrap the album title in an HTML heading tag (only for the text filter)'),
-      '#required' => TRUE,
-      '#default_value' => variable_get('flickr_filter_heading', 'p'),
-      '#description' => t("Use 'p' for no style, 'h3' for a heading or 'none' to not display a title."),
-      '#size' => 4,
-      '#maxlength' => 4,
-    );
-    $form['filter_settings']['flickr_default_size'] = array(
+    $form['filter_settings']['flickr_filter_default_size'] = array(
       '#type' => 'select',
-      '#title' => t('Default size'),
-      '#default_value' => variable_get('flickr_default_size', 'm'),
+      '#title' => t('Default size for single photos'),
+      '#default_value' => variable_get('flickr_filter_default_size', 'm'),
       '#options' => array(
         's' => t('s: 75 px square'),
         't' => t('t: 100 px on longest side'),
@@ -187,6 +195,15 @@ function flickr_admin_settings() {
         'b' => t('b: 1024 px on longest side'),
       ),
       '#description' => t('A default Flickr size to use if no size is specified, for example [flickr-photo:id=3711935987].<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+    );
+    $form['filter_settings']['flickr_filter_heading'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Wrap the album title in an HTML heading tag (only for the text filter)'),
+      '#required' => TRUE,
+      '#default_value' => variable_get('flickr_filter_heading', 'p'),
+      '#description' => t("Use 'p' for no style, e.g. 'h3' for a heading or 'none' to not display an album title."),
+      '#size' => 4,
+      '#maxlength' => 4,
     );
   }
   if (module_exists('flickr_block')) {
@@ -206,7 +223,7 @@ function flickr_admin_settings() {
       '#title' => t('Wrap the album title in an HTML heading tag (only for blocks)'),
       '#required' => TRUE,
       '#default_value' => variable_get('flickr_block_heading', 'h2'),
-      '#description' => t("Use 'p' for no style, 'h2' for a heading or 'none' to not display a title."),
+      '#description' => t("Use 'p' for no style, e.g. 'h2' for a heading or 'none' to not display an album title."),
       '#size' => 4,
       '#maxlength' => 4,
     );

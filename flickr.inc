@@ -493,7 +493,7 @@ function flickr_get_id_type($id) {
 /**
  * Render multiple photos as an album.
  */
-function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $delta = NULL, $random = 0, $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0) {
+function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $random = 0, $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0) {
   // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
   $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page());
   // If $delta is a number it is a block that could be cached.
@@ -504,6 +504,8 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
   // In any other case we generate an album, including a heading and counter.
   else {
     $sizes = flickr_photo_sizes();
+    $show_n = is_null($show_n) ? variable_get('flickr_photos_per_page', 6) : $show_n;
+    $size = is_null($size) ? variable_get('flickr_default_size_album', 'q') : $size;
     $min_title = is_null($min_title) ? variable_get('flickr_title_suppress_on_small', '100') : $min_title;
     $min_metadata = is_null($min_metadata) ? variable_get('flickr_metadata_suppress_on_small', '150') : $min_metadata;
     if ($show_n > 1 || is_numeric($delta)) {
@@ -941,7 +943,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
           }
         }
         if ($k > 0) {
-          drupal_set_message($k . ' ' . t("photos were skipped because the requested image size is not available on Flickr (uploaded when this size was not offered yet). To include them, use another size or re-upload these photos on Flickr."), 'warning');
+          drupal_set_message($k . ' ' . t("photos were skipped because the requested image size is not available on Flickr. They were uploaded when this size was not offered yet. To include them, use another size or re-upload your photos on Flickr."), 'warning');
         }
         $output .= '</div>';
 
@@ -977,7 +979,7 @@ function _flickr_album($type, $id, $show_n, $size, $media, $tags, $tags_user, $d
           '@total' => number_format($total, 0, ",", "."),
           '!flickr' => $flickr,
         ));
-        // Note the $delta value is abused for counter override from filter.
+        // Note the $delta value is 'abused' for counter override from filter.
         // If the total found > max query (500), omit the counter.
         $terms = isset($terms) ? $terms : 1;
         $output .= (((variable_get('flickr_counter', 1) && $delta != 'false') || $delta == 'true') && $j < (500 * count($terms)) && ($show_n > 1 || is_numeric($delta))) ? '<div class="flickr-album-counter">' . $count . '</div>' : '';
