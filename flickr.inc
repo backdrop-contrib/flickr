@@ -493,7 +493,7 @@ function flickr_get_id_type($id) {
 /**
  * Render multiple photos as an album.
  */
-function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $random = 0, $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0) {
+function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'random', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0) {
   // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
   $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page());
   // If $delta is a number it is a block that could be cached.
@@ -514,7 +514,19 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     else {
       $output = '<span class="flickr-photoset-single">';
     }
-    $recent = ($random == 1 || $id == '39873962@N08') ? '' : t('Recent') . ' ';
+    switch ($sort) {
+      case 'recent':
+        $order = t('Recent') . ' ';
+        break;
+
+      case 'views':
+        $order = t('Most viewed') . ' ';
+        break;
+
+      default:
+        $order = t('Random') . ' ';
+        break;
+    }
     // Merge the user profile terms with the terms from the node.
     $tags_user_string = is_array($tags_user) ? implode(",", $tags_user) : $tags_user;
     $tags_combined = trim($tags . ',' . $tags_user_string, ',');
@@ -549,7 +561,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     }
     $people['photosurl'] = isset($people['photosurl']) ? $people['photosurl'] : 'https://www.flickr.com/groups/' . $id . '/';
     $people['photosurl'] = $id == '39873962@N08' ? 'https://www.flickr.com/search/?sort=relevance&text=' : $people['photosurl'];
-    $photos = l(t('@recentFlickr @media', array('@recent' => $recent, '@media' => $media_type)), $people['photosurl'], array(
+    $photos = l(t('@orderFlickr @media', array('@order' => $order, '@media' => $media_type)), $people['photosurl'], array(
       'attributes' => array(
         'title' => t('View Flickr photostream.'),
         'target' => '_blank',
@@ -800,8 +812,17 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           default:
             return;
         }
-        if ($random == 1) {
-          shuffle($photos);
+        switch ($sort) {
+          case 'recent':
+            break;
+
+          case 'views':
+            usort($photos, 'sortByPopularity');
+            break;
+
+          default:
+            shuffle($photos);
+            break;
         }
         // We shouldn't try to return more than the total number of photos.
         $to = min($show_n, count($photos));
@@ -991,7 +1012,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
       $output .= '</span>';
     }
     if (is_numeric($delta) && module_exists('flickr_block')) {
-      $refresh = $random == 1 ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
+      $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
       // drupal_is_front_page() is added because it also can have
       // arg(0) == 'node'.
       cache_set('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
@@ -1023,4 +1044,15 @@ function flickr_in_array_r($needle, $haystack, $strict = FALSE) {
     }
   }
   return FALSE;
+}
+
+/**
+ * Puts an array in descending order on the key 'views' which in this case is
+ * the number of views on Flickr (used as a measure for popularity).
+ *
+ * Call this function with e.g. 'usort($photos, 'sortByPopularity')'.
+ * See http://stackoverflow.com/a/2699159.
+ */
+function sortByPopularity($a, $b) {
+  return $b['views'] - $a['views'];
 }
