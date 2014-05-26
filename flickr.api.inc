@@ -63,7 +63,7 @@ function flickr_photo_get_sizes($photo_id) {
  */
 function flickr_photos_search($nsid, $page = 1, $other_args = array()) {
   // The user ID that gets returned from flickr_user_find_by_identifier('').
-  if ($nsid == '39873962@N08') {
+  if ($nsid == '39873962@N08' || empty($nsid)) {
     $args = array(
       'user_id' => '',
       'tag_mode' => 'all',

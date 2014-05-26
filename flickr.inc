@@ -497,7 +497,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
   // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
   $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page());
   // If $delta is a number it is a block that could be cached.
-  if ($cache && is_numeric($delta) && module_exists('flickr_block')) {
+  if ($cache && is_numeric($delta)) {
     $output = $cache->data;
   }
 
@@ -548,6 +548,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         break;
 
       default:
+        $id = (empty($id) || $id == 'public') ? '39873962@N08' : $id;
         $people = flickr_get_user_info($id);
         break;
     }
@@ -569,7 +570,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     ));
     // The used tags with a space forced after the comma and the last
     // one replaced by 'or' ('and' for public photos).
-    $conjunction = $id == '39873962@N08' ? t('and') : t('or');
+    $conjunction = ($id == '39873962@N08' || empty($id)) ? t('and') : t('or');
     $tags1 = preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tags));
     $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : '<span class="flickr-tags-wrap">' . l(t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span></span>', $people['photosurl'] . 'tags/' . $tags, array(
       'attributes' => array(
@@ -699,17 +700,17 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           ),
           'html' => TRUE,
         ));
-        $flickr = $id == '39873962@N08' ? l(t("on Flickr"), $people['photosurl'] . str_replace(",", " ", $tags), array(
+        $flickr = ($id == '39873962@N08' || empty($id)) ? l(t("on Flickr"), $people['photosurl'] . str_replace(",", " ", $tags), array(
           'attributes' => array(
             'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tags)) . '.',
             'target' => '_blank',
           ),
           'html' => TRUE,
         )) : $flickr;
-        $username = $id == '39873962@N08' ? '' : ' ' . t('by') . ' ' . $people['name'];
-        $map = $id == '39873962@N08' ? '' : $map;
-        $pre_output = $id == '39873962@N08' ? strip_tags($photos) . ' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ' . strip_tags($username . ' ' . $map) : $photos . ' '  . $tagged . ' ' . $username . ' ' . $map;
-        $pre_output = ($id == '39873962@N08' && empty($tags)) ? 'Provide some tags.' : $pre_output;
+        $username = ($id == '39873962@N08' || empty($id)) ? '' : ' ' . t('by') . ' ' . $people['name'];
+        $map = ($id == '39873962@N08' || empty($id)) ? '' : $map;
+        $pre_output = ($id == '39873962@N08' || empty($id)) ? strip_tags($photos) . ' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ' . strip_tags($username . ' ' . $map) : $photos . ' '  . $tagged . ' ' . $username . ' ' . $map;
+        $pre_output = (($id == '39873962@N08' || empty($id)) && empty($tags)) ? 'Provide some tags.' : $pre_output;
         $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . $pre_output . '</' . $heading . '>';
         break;
     }
@@ -814,6 +815,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         }
         switch ($sort) {
           case 'recent':
+            usort($photos, 'sortByID');
             break;
 
           case 'views':
@@ -926,7 +928,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             }
           }
         }
-        // Filter on Flickr tags as  terms AND Flickr tags specified in user
+        // Filter on Flickr tags as terms AND Flickr tags specified in user
         // account.
         else {
           $terms = is_array($tags) ? $tags : explode(",", $tags);
@@ -1055,4 +1057,15 @@ function flickr_in_array_r($needle, $haystack, $strict = FALSE) {
  */
 function sortByPopularity($a, $b) {
   return $b['views'] - $a['views'];
+}
+
+/**
+ * Puts an array in descending order on the key 'id' which will put it in
+ * reverse chronological order (newest first).
+ *
+ * Call this function with e.g. 'usort($photos, 'sortByID')'.
+ * See http://stackoverflow.com/a/2699159.
+ */
+function sortByID($a, $b) {
+  return $b['id'] - $a['id'];
 }
