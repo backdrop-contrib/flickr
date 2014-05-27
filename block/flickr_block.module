@@ -174,8 +174,11 @@ function flickr_block_configure($delta = '') {
     '#type' => 'select',
     '#options' => array(
       'random' => t('Random'),
-      'recent' => t('Recent (newest first)'),
+      'taken' => t('Recently taken (newest first)'),
+      'uploaded' => t('Recently uploaded (newest first)'),
+      'id' => t('Descending on photo ID (an alternative newest first)'),
       'views' => t('Number of photo views on Flickr (popularity)'),
+      'unsorted' => t('Unsorted, as delivered by the Flickr API response'),
     ),
     '#title' => t('Sort order'),
     '#default_value' => $settings['sort'],
@@ -314,25 +317,32 @@ function flickr_block_configure($delta = '') {
       $form["flickr_block_{$delta}_show_n"]['#description'] = t("The block will show this many of the user's photosets.");
       break;
 
-    // Recent photos from a Flickr group.
+    // Photos from a Flickr group.
     case 6:
-      // Random photos from a Flickr group.
     case 10:
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_photoset"]);
       unset($form['flickr_block_note']);
+      $form["flickr_block_{$delta}_sort"]['#options'] = array(
+        'random' => t('Random'),
+        'taken' => t('Recently taken (newest first)'),
+        'uploaded' => t('Recently uploaded (newest first)'),
+        'added' => t('Recently added to group (newest first)'),
+        'id' => t('Descending on photo ID (an alternative newest first)'),
+        'views' => t('Number of photo views on Flickr (popularity)'),
+        'unsorted' => t('Unsorted, as delivered by the Flickr API response'),
+      );
       break;
 
-    // Random photos from a Flickr photoset.
+    // Photos from a Flickr photoset.
     case 7:
-      // Recent photos from a Flickr photoset.
     case 8:
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form['flickr_block_note']);
       break;
 
-    // Random photos with a specific tag from a Flickr user.
+    // Photos with a specific tag from a Flickr user.
     case 11:
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form["flickr_block_{$delta}_photoset"]);

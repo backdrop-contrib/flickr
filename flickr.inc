@@ -517,17 +517,31 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     else {
       $output = '<span class="flickr-photoset-single">';
     }
+    // The text to prepend to an album title.
     switch ($sort) {
-      case 'recent':
-        $order = t('Recent') . ' ';
+      case 'added':
+        $order = t('Recently added') . ' ';
+        break;
+
+      case 'taken':
+        $order = t('Recently taken') . ' ';
+        break;
+
+      case 'uploaded':
+        $order = t('Recently uploaded') . ' ';
         break;
 
       case 'views':
         $order = t('Most viewed') . ' ';
         break;
 
-      default:
+      case 'random':
         $order = t('Random') . ' ';
+        break;
+
+      // In case 'unsorted' or 'id'.
+      default:
+        $order = t('Recent') . ' ';
         break;
     }
     // Merge the user profile terms with the terms from the node.
@@ -767,7 +781,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           case "photoset":
             $response = flickr_photosets_getphotos($id, array(
                 'per_page' => 500,
-                'extras' => 'license,geo,tags,views,media',
+                'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
                 'media' => $media,
             ));
             if (!$response) {
@@ -782,7 +796,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             $response = flickr_get_group_photos($id, 1, array(
               'tags' => $tags1,
               'per_page' => 500,
-              'extras' => 'license,geo,tags,views,media',
+              'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
             ));
             if (!$response) {
               return;
@@ -793,7 +807,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           case "favorites":
             $response = flickr_favorites_get_public_list($id, 1, array(
               'per_page' => 500,
-              'extras' => 'license,geo,tags,views,media',
+              'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
             ));
             if (!$response) {
               return;
@@ -805,7 +819,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             $response = flickr_photos_search($id, 1, array(
               'tags' => $tags_combined,
               'per_page' => 500,
-              'extras' => 'license,geo,tags,views,media',
+              'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
               'media' => $media,
             ));
             if (!$response) {
@@ -818,16 +832,33 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             return;
         }
         switch ($sort) {
-          case 'recent':
+          case 'id':
             usort($photos, 'sortByID');
+            break;
+
+          case 'taken':
+            usort($photos, 'sortByTaken');
+            break;
+
+          case 'uploaded':
+            usort($photos, 'sortByUpload');
+            break;
+
+          // Only for group albums.
+          case 'added':
+            usort($photos, 'sortByAdded');
             break;
 
           case 'views':
             usort($photos, 'sortByPopularity');
             break;
 
-          default:
+          case 'random':
             shuffle($photos);
+            break;
+
+          // In case 'unsorted'.
+          default:
             break;
         }
         // We shouldn't try to return more than the total number of photos.
@@ -1053,23 +1084,27 @@ function flickr_in_array_r($needle, $haystack, $strict = FALSE) {
 }
 
 /**
- * Puts an array in descending order on the key 'views' which in this case is
- * the number of views on Flickr (used as a measure for popularity).
+ * Puts an array in descending order on the used key.
  *
  * Call this function with e.g. 'usort($photos, 'sortByPopularity')'.
  * See http://stackoverflow.com/a/2699159.
  */
 function sortByPopularity($a, $b) {
-  return $b['views'] - $a['views'];
+  return $b['views'] > $a['views'];
 }
 
-/**
- * Puts an array in descending order on the key 'id' which will put it in
- * reverse chronological order (newest first).
- *
- * Call this function with e.g. 'usort($photos, 'sortByID')'.
- * See http://stackoverflow.com/a/2699159.
- */
+function sortByTaken($a, $b) {
+  return strtotime($b['datetaken']) > strtotime($a['datetaken']);
+}
+
+function sortByUpload($a, $b) {
+  return $b['dateupload'] > $a['dateupload'];
+}
+
+function sortByAdded($a, $b) {
+  return $b['dateadded'] > $a['dateadded'];
+}
+
 function sortByID($a, $b) {
-  return $b['id'] - $a['id'];
+  return $b['id'] > $a['id'];
 }
