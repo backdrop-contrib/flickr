@@ -20,29 +20,29 @@ function flickr_block_help($path, $arg) {
  */
 function flickr_block_info() {
   // User blocks.
-  $blocks[0]['info'] = t("User (node author) Flickr photos tagged as term from node");
-  $blocks[1]['info'] = t("User recent Flickr photosets");
-  $blocks[2]['info'] = t("User (node author) Flickr photos tagged as term from node");
+  $blocks[0]['info'] = t("Flickr: User (node author) photos optionally tagged as term from node");
+  $blocks[1]['info'] = t("Flickr: User recent photosets");
+  $blocks[2]['info'] = t("Flickr: User (node author) photos optionally tagged as term from node (extra instance)");
 
   // Site wide blocks.
-  $blocks[3]['info'] = t('Photos from a Flickr user tagged as term from node');
-  $blocks[4]['info'] = t('Recent photosets from a Flickr user');
-  $blocks[5]['info'] = t('Photos from a Flickr user tagged as term from node');
-  $blocks[6]['info'] = t('Photos from a Flickr group tagged as term from node');
+  $blocks[3]['info'] = t('Flickr: Photos from a user optionally tagged as term from node');
+  $blocks[4]['info'] = t('Flickr: Recent photosets from a user');
+  $blocks[5]['info'] = t('Flickr: Photos from a user optionally tagged as term from node (extra instance)');
+  $blocks[6]['info'] = t('Flickr: Photos from a group optionally tagged as term from node');
 
   // Photoset blocks.
-  $blocks[7]['info'] = t('Photos tagged as term from node from a Flickr photoset');
-  $blocks[8]['info'] = t('Photos tagged as term from node from a Flickr photoset');
+  $blocks[7]['info'] = t('Flickr: Photos tagged as term from node from a photoset');
+  $blocks[8]['info'] = t('Flickr: Photos tagged as term from node from a photoset (extra instance)');
 
   // Returns a list of favorite public photos for the given user.
-  $blocks[9]['info'] = t("Favorite public photos from a Flickr user tagged as term from node");
+  $blocks[9]['info'] = t("Flickr: Favorite public photos from a user optionally tagged as term from node");
 
-  $blocks[10]['info'] = t("Photos from a Flickr group tagged as term from node");
-  $blocks[11]['info'] = t("Photos with specific tags from a Flickr user");
-  $blocks[12]['info'] = t("Favorite public photos from a Flickr user tagged as term from node");
+  $blocks[10]['info'] = t("Flickr: Photos from a group optionally tagged as term from node (extra instance)");
+  $blocks[11]['info'] = t("Flickr: Photos with specific tags from a user");
+  $blocks[12]['info'] = t("Flickr: Favorite public photos from a user optionally tagged as term from node (extra instance)");
 
-  $blocks[13]['info'] = t("User (node author) Flickr favorites tagged as term from node");
-  $blocks[14]['info'] = t("User (node author) Flickr favorites tagged as term from node");
+  $blocks[13]['info'] = t("Flickr: User (node author) favorites optionally tagged as term from node");
+  $blocks[14]['info'] = t("Flickr: User (node author) favorites optionally tagged as term from node (extra instance)");
 
   for ($i = 0; $i < 15; $i++) {
     $blocks[$i]['cache'] = DRUPAL_CACHE_GLOBAL;
@@ -103,12 +103,14 @@ function flickr_block_configure($delta = '') {
   $default_userid = variable_get('flickr_default_userid', '');
   $user_id = array_key_exists('user_id', $settings) ? $settings['user_id'] : '';
   $default = $user_id;
-  if (!empty($default) && $settings['user_id'] != 'public') {
-    $info = flickr_people_get_info($default);
-    $default = $info['username']['_content'];
-  }
-  else {
-    $default = $settings['user_id'];
+  if (isset($settings['user_id'])) {
+    if (!empty($default) && $settings['user_id'] != 'public') {
+      $info = flickr_people_get_info($default);
+      $default = $info['username']['_content'];
+    }
+    else {
+      $default = $settings['user_id'];
+    }
   }
   // Require a user id if the site-wide default user has not been set.
   if (empty($default_userid)) {
@@ -142,7 +144,7 @@ function flickr_block_configure($delta = '') {
     '#title' => t('Flickr group ID'),
     '#default_value' => $settings['group_id'],
     '#required' => TRUE,
-    '#description' => t("A numerical group ID. !find_id", array('!find_id' => $idgettr)),
+    '#description' => t("A numerical ID or group path alias. !find_id", array('!find_id' => $idgettr)),
   );
   $form["flickr_block_{$delta}_photoset"] = array(
     '#type' => 'textfield',
@@ -587,14 +589,16 @@ function flickr_block_view($delta = '') {
     $settings['tag'] = '';
   }
   $default_userid = variable_get('flickr_default_userid', '');
-  if ($settings['user_id'] == 'public' || ((!isset($settings['user_id']) || empty($settings['user_id'])) && empty($default_userid))) {
-    $settings['user_id'] = '39873962@N08';
-  }
-  elseif (!isset($settings['user_id']) || empty($settings['user_id']))
-  // Get the default user id as a fallback.
-    $settings['user_id'] = variable_get('flickr_default_userid', '');
-  else {
-    $settings['user_id'] = flickr_user_find_by_identifier($settings['user_id']);
+  if (isset($settings['user_id'])) {
+    if ($settings['user_id'] == 'public' || ((!isset($settings['user_id']) || empty($settings['user_id'])) && empty($default_userid))) {
+      $settings['user_id'] = '39873962@N08';
+    }
+    elseif (!isset($settings['user_id']) || empty($settings['user_id']))
+    // Get the default user id as a fallback.
+      $settings['user_id'] = variable_get('flickr_default_userid', '');
+    else {
+      $settings['user_id'] = flickr_user_find_by_identifier($settings['user_id']);
+    }
   }
   if (!isset($settings['group_id'])) {
     $settings['group_id'] = '';

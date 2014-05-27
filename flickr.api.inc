@@ -392,18 +392,20 @@ function flickr_people_getpublicphotos($nsid, $page = 1, $other_args = array()) 
 /**
  * Returns info about a given group.
  *
- * @param string $nsid
+ * @param string $id
  *   NSID of the group whose photos you want.
  *
  * @return array $response
  *   Response from the flickr method flickr.groups.getInfo.
  *   (https://www.flickr.com/services/api/flickr.groups.getInfo.html)
  */
-function flickr_groups_getinfo($nsid, $other_args = array()) {
-  $args = array(
-    'group_id' => $nsid,
-  );
-
+function flickr_groups_getinfo($id, $other_args = array()) {
+  if (flickr_is_nsid($id)) {
+    $args = array('group_id' => $id);
+  }
+  else {
+    $args = array('group_path_alias' => $id);
+  }
   // $return_errors = TRUE avoids error messages when we abuse this function to
   // determine betweeen a group and user ID.
   $response = flickr_request('flickr.groups.getInfo', array_merge($args, $other_args), $cacheable = FALSE, $return_errors = TRUE);

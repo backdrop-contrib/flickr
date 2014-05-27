@@ -459,7 +459,7 @@ function flickr_get_user_info($nsid) {
  * If is has no @ it is a set, if flickr_groups_getinfo returns 'ok', it is a
  * group. This is not a validation function.
  *
- * @param string $nsid
+ * @param string $id
  *   A valid Flickr ID. Should be validated before arriving here.
  *
  * @return string
@@ -503,6 +503,9 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
 
   // In any other case we generate an album, including a heading and counter.
   else {
+    // As $id might change during processing, we set a fixed version of it to
+    // use for the key to set the block cache after processing at the end.
+    $idfix = $id;
     $sizes = flickr_photo_sizes();
     $show_n = is_null($show_n) ? variable_get('flickr_photos_per_page', 6) : $show_n;
     $size = is_null($size) ? variable_get('flickr_default_size_album', 'q') : $size;
@@ -545,6 +548,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         if (!$info) {
           return;
         }
+        $id = $info['group']['id'];
         break;
 
       default:
@@ -560,7 +564,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     else {
       $media_type = $media == 'videos' ? t('video') : t('photo');
     }
-    $people['photosurl'] = isset($people['photosurl']) ? $people['photosurl'] : 'https://www.flickr.com/groups/' . $id . '/';
+    $people['photosurl'] = isset($people['photosurl']) ? $people['photosurl'] : 'https://www.flickr.com/groups/' . $idfix . '/';
     $people['photosurl'] = $id == '39873962@N08' ? 'https://www.flickr.com/search/?sort=relevance&text=' : $people['photosurl'];
     $photos = l(t('@orderFlickr @media', array('@order' => $order, '@media' => $media_type)), $people['photosurl'], array(
       'attributes' => array(
@@ -620,13 +624,13 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             'target' => '_blank',
           ),
          )) . ')' : '';
-        $group = l($info['group']['name']['_content'], 'https://www.flickr.com/groups/' . $id . '/', array(
+        $group = l($info['group']['name']['_content'], 'https://www.flickr.com/groups/' . $idfix . '/', array(
           'attributes' => array(
             'title' => t('View group on Flickr.'),
             'target' => '_blank',
           ),
         ));
-        $flickr = l(t('on Flickr'), 'https://www.flickr.com/groups/' . $id . '/', array(
+        $flickr = l(t('on Flickr'), 'https://www.flickr.com/groups/' . $idfix . '/', array(
           'attributes' => array(
             'title' => t("Group @name.", array(
               '@name' => strip_tags($info['group']['name']['_content']),
@@ -1017,7 +1021,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
       $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
       // drupal_is_front_page() is added because it also can have
       // arg(0) == 'node'.
-      cache_set('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
+      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
     }
   }
   return $output;
