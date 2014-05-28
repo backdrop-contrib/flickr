@@ -555,6 +555,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         if (!$info) {
           return;
         }
+        $total = ($media == 'videos') ? $info['count_videos'] : $info['count_photos'] + $info['count_videos'];
         break;
 
       case "group":
@@ -563,11 +564,16 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           return;
         }
         $id = $info['group']['id'];
+        $total = $info['group']['pool_count']['_content'];
         break;
 
       default:
         $id = (empty($id) || $id == 'public') ? '39873962@N08' : $id;
         $people = flickr_get_user_info($id);
+        if (!$people) {
+          return;
+        }
+        $total = $people['count'];
         break;
     }
 
@@ -776,6 +782,10 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
 
       default:
         $output .= '<div class="flickr-album">';
+        // If we could have a response of over 500 photos, we want a random sort
+        // to take a random page first, so any photos could be taken (not only
+        // the last 500).
+        $page = ($sort == 'random' && isset($total) && $total > 500) ? mt_rand(1, floor($total / 500)) : 1;
         // Get a list of "all" the photos. This is cached.
         switch ($type) {
           case "photoset":
@@ -783,7 +793,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                 'per_page' => 500,
                 'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
                 'media' => $media,
-            ));
+            ), $page);
             if (!$response) {
               return;
             }
@@ -793,7 +803,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           case "group":
             // If only one tag exists, use it to circumvent the 500 limit.
             $tags1 = (strpos($tags, ',')) ? '' : $tags;
-            $response = flickr_get_group_photos($id, 1, array(
+            $response = flickr_get_group_photos($id, $page, array(
               'tags' => $tags1,
               'per_page' => 500,
               'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
@@ -816,7 +826,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             break;
 
           case "user":
-            $response = flickr_photos_search($id, 1, array(
+            $response = flickr_photos_search($id, $page, array(
               'tags' => $tags_combined,
               'per_page' => 500,
               'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
@@ -1014,23 +1024,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         }
 
         // A counter if set to show.
-        switch ($type) {
-          case "photoset":
-            $total = ($media == 'videos') ? $info['count_videos'] : $info['count_photos'] + $info['count_videos'];
-            break;
-
-          case "group":
-            $total = $info['group']['pool_count']['_content'];
-            break;
-
-          case "favorites":
-            $total = $response['total'];
-            break;
-
-          default:
-            $total = $people['count'];
-            break;
-        }
+        $total = ($type == 'favorites' || !isset($total)) ? $response['total'] : $total;
         $total = (empty($tags)) ? (int) $total : $j;
         $count = t('@number out of @total !flickr', array(
           '@number' => $i,
