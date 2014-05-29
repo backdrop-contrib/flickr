@@ -31,14 +31,14 @@ function flickr_block_info() {
   $blocks[6]['info'] = t('Flickr: Photos from a group optionally tagged as term from node');
 
   // Photoset blocks.
-  $blocks[7]['info'] = t('Flickr: Photos tagged as term from node from a photoset');
-  $blocks[8]['info'] = t('Flickr: Photos tagged as term from node from a photoset (extra instance)');
+  $blocks[7]['info'] = t('Flickr: Photos from a photoset optionally tagged as term from node');
+  $blocks[8]['info'] = t('Flickr: Photos from a photoset optionally tagged as term from node (extra instance)');
 
   // Returns a list of favorite public photos for the given user.
   $blocks[9]['info'] = t("Flickr: Favorite public photos from a user optionally tagged as term from node");
 
   $blocks[10]['info'] = t("Flickr: Photos from a group optionally tagged as term from node (extra instance)");
-  $blocks[11]['info'] = t("Flickr: Photos with specific tags from a user");
+  $blocks[11]['info'] = t("Flickr: Photos from a user with specific tags");
   $blocks[12]['info'] = t("Flickr: Favorite public photos from a user optionally tagged as term from node (extra instance)");
 
   $blocks[13]['info'] = t("Flickr: User (node author) favorites optionally tagged as term from node");
@@ -84,7 +84,7 @@ function flickr_block_configure($delta = '') {
     $settings['photoset_id'] = '';
   }
   if (!isset($settings['sort'])) {
-    $settings['sort'] = 'random';
+    $settings['sort'] = 'unsorted';
   }
   if (!isset($settings['media'])) {
     $settings['media'] = 'photos';
@@ -173,12 +173,12 @@ function flickr_block_configure($delta = '') {
   $form["flickr_block_{$delta}_sort"] = array(
     '#type' => 'select',
     '#options' => array(
-      'random' => t('Random'),
+      'random' => t('Random (slower response after cache clear)'),
       'taken' => t('Recently taken (newest first)'),
       'uploaded' => t('Recently uploaded (newest first)'),
       'id' => t('Descending on photo ID (an alternative newest first)'),
-      'views' => t('Number of photo views on Flickr (popularity)'),
-      'unsorted' => t('Unsorted, as delivered by the Flickr API response'),
+      'views' => t('Number of photo views on Flickr (popularity, slower response after cache clear)'),
+      'unsorted' => t('Recent unsorted, as delivered by the Flickr API (fastest response)'),
     ),
     '#title' => t('Sort order'),
     '#default_value' => $settings['sort'],
@@ -210,7 +210,7 @@ function flickr_block_configure($delta = '') {
       '#position'      => 'left',
       '#options'       => $checklist_vocab_array,
       '#default_value' => $settings['vocab'],
-      '#description'   => t("Limit the Flickr images to those that have a Flickr tag identical to the terms found for the node on the page the block is displayed on of a specific vocabulary. Case insensitive, matches any tag, for photosets even partial. Multiple tags for groups will only query the last 500 photos on Flickr. For user blocks the Flickr account of the node author will be queried. Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'). Use taxonomy terms without spaces in the vocabulary dedicated to Flickr.<br />For your content type, adjust the <em>Help text</em> of the used taxonomy field accordingly (e.g. at <em>admin/structure/types/manage/article/fields/field_tags</em>). The recommended widget type is <em>Autocomplete term widget (tagging)</em> with an <em>unlimited number of values</em>. If not already in use, the default existing vocabulary <em>Tags</em> can be used which is already configured right by default. Set <em>Tags</em> as a <em>Term reference</em> field on your content type and it works out-of-the-box.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>.<br />Note that if you add this <em>term reference</em> field to user profiles at <em>admin/config/people/accounts/fields</em> it will filter additionally on it for user blocks. E.g. a user can set individually that from their account only photos tagged <em>'website'</em> should be used to embed, indepedent from other used tags. Does apply only on user blocks, except for favorites."),
+      '#description'   => t("Limit the Flickr images to those that have a Flickr tag identical to the terms found for the node on the page the block is displayed on of a specific vocabulary. Case insensitive, matches any tag, for photosets even partial. Multiple tags for groups will only query the last 500 photos on Flickr (slowest API request). For user blocks the Flickr account of the node author will be queried. Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'). Use taxonomy terms without spaces in the vocabulary dedicated to Flickr.<br />For your content type, adjust the <em>Help text</em> of the used taxonomy field accordingly (e.g. at <em>admin/structure/types/manage/article/fields/field_tags</em>). The recommended widget type is <em>Autocomplete term widget (tagging)</em> with an <em>unlimited number of values</em>. If not already in use, the default existing vocabulary <em>Tags</em> can be used which is already configured right by default. Set <em>Tags</em> as a <em>Term reference</em> field on your content type and it works out-of-the-box.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>.<br />Note that if you add this <em>term reference</em> field to user profiles at <em>admin/config/people/accounts/fields</em> it will filter additionally on it for user blocks. E.g. a user can set individually that from their account only photos tagged <em>'website'</em> should be used to embed, indepedent from other used tags. Does apply only on user blocks, except for favorites."),
     );
   }
   // Override default settings to force or suppress the display of the caption
@@ -324,13 +324,13 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_photoset"]);
       unset($form['flickr_block_note']);
       $form["flickr_block_{$delta}_sort"]['#options'] = array(
-        'random' => t('Random'),
+        'unsorted' => t('Recent unsorted, as delivered by the Flickr API (fastest response)'),
+        'random' => t('Random (slower response after cache clear)'),
         'taken' => t('Recently taken (newest first)'),
         'uploaded' => t('Recently uploaded (newest first)'),
         'added' => t('Recently added to group (newest first)'),
         'id' => t('Descending on photo ID (an alternative newest first)'),
-        'views' => t('Number of photo views on Flickr (popularity)'),
-        'unsorted' => t('Unsorted, as delivered by the Flickr API response'),
+        'views' => t('Number of photo views on Flickr (popularity, slower response after cache clear)'),
       );
       break;
 

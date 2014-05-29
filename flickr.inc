@@ -782,15 +782,26 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
 
       default:
         $output .= '<div class="flickr-album">';
-        // If we could have a response of over 500 photos, we want a random sort
-        // to take a random page first, so any photos could be taken (not only
-        // the last 500).
-        $page = ($sort == 'random' && isset($total) && $total > 500) ? mt_rand(1, floor($total / 500)) : 1;
+        // Make API request quicker by limiting the number of photos to return.
+        // For recent sorted photos this is 4 x the displayed number to provide
+        // a sufficient distinction between recently uploaded and recently
+        // taken.
+        $per_page = ($sort == 'random' || $sort == 'views') ? variable_get('flickr_per_page', 100) : 4 * $show_n;
+        // When we have a photoset or favorites, use the maximum.
+        $per_page = ($type == 'favorites' || $type == 'photoset') ? 500 : $per_page;
+        // If the requested order is unsorted, limit it even more.
+        $per_page = $sort == 'unsorted' ? $show_n : $per_page;
+        // When we want to filter on muiltiple tags use the maximum.
+        $per_page = (strpos($tags, ',') !== FALSE && $type == 'group') ? 500 : $per_page;
+        // If we could have a response of over [variable_get('flickr_per_page',
+        // 100)] photos, we want a random sort to take a random page first, so
+        // any photos could be taken (not only from the most recent batch).
+        $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100))) : 1;
         // Get a list of "all" the photos. This is cached.
         switch ($type) {
           case "photoset":
             $response = flickr_photosets_getphotos($id, array(
-                'per_page' => 500,
+                'per_page' => $per_page,
                 'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
                 'media' => $media,
             ), $page);
@@ -802,10 +813,10 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
 
           case "group":
             // If only one tag exists, use it to circumvent the 500 limit.
-            $tags1 = (strpos($tags, ',')) ? '' : $tags;
+            $tags1 = (strpos($tags, ',') !== FALSE) ? '' : $tags;
             $response = flickr_get_group_photos($id, $page, array(
               'tags' => $tags1,
-              'per_page' => 500,
+              'per_page' => $per_page,
               'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
             ));
             if (!$response) {
@@ -816,7 +827,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
 
           case "favorites":
             $response = flickr_favorites_get_public_list($id, 1, array(
-              'per_page' => 500,
+              'per_page' => $per_page,
               'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
             ));
             if (!$response) {
@@ -828,7 +839,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           case "user":
             $response = flickr_photos_search($id, $page, array(
               'tags' => $tags_combined,
-              'per_page' => 500,
+              'per_page' => $per_page,
               'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
               'media' => $media,
             ));
@@ -1024,17 +1035,24 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         }
 
         // A counter if set to show.
-        $total = ($type == 'favorites' || !isset($total)) ? $response['total'] : $total;
-        $total = (empty($tags)) ? (int) $total : $j;
+        if (isset($response['total']) || isset($response['photos']['total'])) {
+          $response['total'] = (!isset($response['total']) && isset($response['photos']['total'])) ? $response['photos']['total'] : $response['total'];
+        }
+        $total = (isset($response['total'])) ? $response['total'] : $total;
+        $total = ($type == 'favorites' && !empty($tags)) ? $j : $total;
+        $total = (empty($tags) || isset($response['total'])) ? (int) $total : $j;
+        $total = (isset($response['total']) && !empty($tags) && $j == $show_n * 4) ? $response['total'] : $total;
+        $total = number_format($total, 0, ",", ".");
         $count = t('@number out of @total !flickr', array(
           '@number' => $i,
-          '@total' => number_format($total, 0, ",", "."),
+          '@total' => $total,
           '!flickr' => $flickr,
         ));
         // Note the $delta value is 'abused' for counter override from filter.
-        // If the total found > max query (500), omit the counter.
+        // If the total found > max query ($per_page), omit the counter if tags
+        // are applied.
         $terms = isset($terms) ? $terms : 1;
-        $output .= (((variable_get('flickr_counter', 1) && $delta != 'false') || $delta == 'true') && $j < (500 * count($terms)) && ($show_n > 1 || is_numeric($delta))) ? '<div class="flickr-album-counter">' . $count . '</div>' : '';
+        $output .= (((variable_get('flickr_counter', 1) && $delta != 'false') || $delta == 'true') && (isset($response['total']) || ($j < $per_page * count($terms) || empty($tags))) && ($show_n > 1 || is_numeric($delta))) ? '<div class="flickr-album-counter">' . $count . '</div>' : '';
     }
     if ($show_n > 1 || is_numeric($delta)) {
       $output .= '</div>';

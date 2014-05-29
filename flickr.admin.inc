@@ -60,6 +60,15 @@ function flickr_admin_settings() {
     '#default_value' => variable_get('flickr_cache_duration', 3600),
     '#description' => t('The refresh interval indicating how often you want to check cached Flickr API calls are up to date.'),
   );
+  $form['flickr_per_page'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Limit API requests for random and popularity sort'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('flickr_per_page', 100),
+    '#description' => t('Setting a lower number enhances performance but makes random results being less spread between one another (not less random) and returns popular (most viewed on Flickr) only from the <em>n</em> most recent. Minimum 20, maximum 500. With cache warming you can set the maximum (see https://drupal.org/node/1576686).'),
+    '#size' => 3,
+    '#maxlength' => 3,
+  );
   $form['flickr_photos_per_page'] = array(
     '#type' => 'textfield',
     '#title' => t('Number of photos per album'),
@@ -302,6 +311,7 @@ function flickr_admin_settings_validate($form, &$form_state) {
   $limit2 = trim($form_state['values']['flickr_title_suppress_on_small']);
   $limit3 = trim($form_state['values']['flickr_metadata_suppress_on_small']);
   $limit4 = trim($form_state['values']['flickr_caption_padding']);
+  $limit7 = trim($form_state['values']['flickr_per_page']);
   if (module_exists('flickr_block')) {
     $limit5 = trim($form_state['values']['flickr_block_refresh_random']);
     $limit6 = trim($form_state['values']['flickr_block_refresh_others']);
@@ -330,9 +340,13 @@ function flickr_admin_settings_validate($form, &$form_state) {
   if (!is_numeric($limit3) || $limit3 < 0) {
     form_set_error('flickr_metadata_suppress_on_small', t('Set a width from 0 to 999 px.'));
   }
-  // Validate the minimum width to suppress metadata caption.
+  // Validate the padding correction for caption width.
   if (!is_numeric($limit4) || $limit4 < 0) {
     form_set_error('flickr_caption_padding', t('Set a padding from 0 to 99 px.'));
+  }
+  // Validate the number to return on a random or views sorted API requests.
+  if (!is_numeric($limit7) || $limit7 < 20 || $limit7 > 500) {
+    form_set_error('flickr_per_page', t('Set a number from 20 to 500.'));
   }
   if (module_exists('flickr_block')) {
     // Validate refresh rate random blocks.

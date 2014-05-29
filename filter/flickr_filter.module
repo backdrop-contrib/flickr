@@ -91,9 +91,9 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
   <strong>size=q</strong> : Big square (150px). The sizes x and y display a slideshow and ignore number, media, tags and sort settings. <strong>Default single photo: size=@default_size, album photo: size=@default_size_album</strong> (both !config).<br />
   <strong>num=4</strong> : Display 4 photos. <strong>Default: num=@default_number</strong> (!config). For albums only.<br />&nbsp;&nbsp;If set to 1, the single image will behave as such. Heading and counter will be omitted, and float might apply. Used to display a single changing random or recent image.<br />
   <strong>media=all</strong> : Display both photos and videos. <strong>Default: media=photos</strong>. For albums only.<br />
-  <strong>tags=kids/men</strong> : <strong>Separate multiple tags with a slash (/).</strong> Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets even partial.<br />&nbsp;&nbsp;Multiple tags for groups will only query the last 500 photos on Flickr. Note that Flickr removes any whitespace from tags (e.g. 'Victoria park' becomes 'victoriapark'). For albums only.<br />
+  <strong>tags=kids/men</strong> : <strong>Separate multiple tags with a slash (/).</strong> Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets even partial.<br />&nbsp;&nbsp;Multiple tags for groups will only query the last @default_limit photos on Flickr (!config). Note that Flickr removes any whitespace from tags (e.g. 'Victoria park' becomes 'victoriapark'). For albums only.<br />
   <strong>heading=h3</strong> : Wraps the album title in HTML tags. Use 'p' to apply no style or 'none' to suppress the title. <strong>Default heading=@default_heading</strong> (!config). For albums only.<br />
-  <strong>sort=views</strong> : Display the most viewed Flickr photos first (popularity). Other values: <em>random</em>, <em>taken</em> (newest first), <em>uploaded</em> (newest first) , <em>added</em> (for groups only, newest first), <em>id</em> (on photo ID, newest first) and <em>unsorted</em> (as delivered by the Flickr API response). <strong>Default: sort=random</strong>. For albums only.<br />
+  <strong>sort=views</strong> : Display the most viewed Flickr photos first (popularity, slower response after cache clear). Other values: <em>unsorted</em> = recent as delivered by the Flickr API (fastest response), <em>random</em> (slower response after cache clear), <em>taken</em> (newest first), <em>uploaded</em> (newest first) , <em>added</em> (for groups only, newest first) and <em>id</em> (on photo ID, newest first). <strong>Default: sort=unsorted</strong>. For albums only.<br />
   <strong>count=false</strong> : Suppress display of the counter under the album (e.g. <em>5 out of 124 on Flickr</em>). <strong>Default: count=@default_count</strong> (!config). For albums only.<br />
   <strong>mintitle=999</strong> : Suppress display of the title in the photo captions for images below a width of 999 px. <strong>Default: mintitle=@default_mintitle</strong> (!config).<br />
   <strong>minmetadata=999</strong> : Suppress display of the metadata in the photo captions for images below a width of 999 px. <strong>Default: minmetadata=@default_minmetadata</strong> (!config).", array(
@@ -102,6 +102,7 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
     '@default_userid' => $info['username']['_content'],
     '@default_size' => variable_get('flickr_filter_default_size', 'm'),
     '@default_size_album' => variable_get('flickr_default_size_album', 'q'),
+    '@default_limit' => variable_get('flickr_per_page', 100),
     '@default_number' => variable_get('flickr_photos_per_page', 6),
     '@default_mintitle' => variable_get('flickr_title_suppress_on_small', '100'),
     '@default_minmetadata' => variable_get('flickr_metadata_suppress_on_small', '150'),
@@ -225,7 +226,7 @@ function flickr_filter_callback_album($matches) {
     $config['media'] = 'photos';
   }
   if (!isset($config['sort'])) {
-    $config['sort'] = 'random';
+    $config['sort'] = 'unsorted';
   }
   if (!isset($config['heading'])) {
     $config['heading'] = variable_get('flickr_filter_heading', 'p');
@@ -268,7 +269,7 @@ function flickr_filter_callback_group($matches) {
       $config['media'] = 'photos';
     }
     if (!isset($config['sort'])) {
-      $config['sort'] = 'random';
+      $config['sort'] = 'unsorted';
     }
     if (!isset($config['heading'])) {
       $config['heading'] = variable_get('flickr_filter_heading', 'p');
@@ -315,7 +316,7 @@ function flickr_filter_callback_favorites($matches) {
       $config['media'] = 'photos';
     }
     if (!isset($config['sort'])) {
-      $config['sort'] = 'random';
+      $config['sort'] = 'unsorted';
     }
     if (!isset($config['heading'])) {
       $config['heading'] = variable_get('flickr_filter_heading', 'p');
