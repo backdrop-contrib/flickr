@@ -5,7 +5,7 @@
  */
 
 define('FLICKR_REST_ENDPOINT', 'https://api.flickr.com/services/rest/');
-require_once(drupal_get_path('module', 'flickr') . '/flickr.api.inc');
+require_once 'flickr.api.inc';
 
 /**
  * A list of possible photo sizes with description and label.
@@ -854,24 +854,24 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         }
         switch ($sort) {
           case 'id':
-            usort($photos, 'sortByID');
+            usort($photos, 'flickr_sortByID');
             break;
 
           case 'taken':
-            usort($photos, 'sortByTaken');
+            usort($photos, 'flickr_sortByTaken');
             break;
 
           case 'uploaded':
-            usort($photos, 'sortByUpload');
+            usort($photos, 'flickr_sortByUpload');
             break;
 
           // Only for group albums.
           case 'added':
-            usort($photos, 'sortByAdded');
+            usort($photos, 'flickr_sortByAdded');
             break;
 
           case 'views':
-            usort($photos, 'sortByPopularity');
+            usort($photos, 'flickr_sortByPopularity');
             break;
 
           case 'random':
@@ -1098,25 +1098,25 @@ function flickr_in_array_r($needle, $haystack, $strict = FALSE) {
 /**
  * Puts an array in descending order on the used key.
  *
- * Call this function with e.g. 'usort($photos, 'sortByPopularity')'.
+ * Call this function with e.g. 'usort($photos, 'flickr_sortByPopularity')'.
  * See http://stackoverflow.com/a/2699159.
  */
-function sortByPopularity($a, $b) {
+function flickr_sortByPopularity($a, $b) {
   return $b['views'] > $a['views'];
 }
 
-function sortByTaken($a, $b) {
+function flickr_sortByTaken($a, $b) {
   return strtotime($b['datetaken']) > strtotime($a['datetaken']);
 }
 
-function sortByUpload($a, $b) {
+function flickr_sortByUpload($a, $b) {
   return $b['dateupload'] > $a['dateupload'];
 }
 
-function sortByAdded($a, $b) {
+function flickr_sortByAdded($a, $b) {
   return $b['dateadded'] > $a['dateadded'];
 }
 
-function sortByID($a, $b) {
+function flickr_sortByID($a, $b) {
   return $b['id'] > $a['id'];
 }
