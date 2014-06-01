@@ -68,7 +68,6 @@ function flickr_photos_search($nsid, $page = 1, $other_args = array()) {
       'user_id' => '',
       'tag_mode' => 'all',
       'license' => '1,2,3,4,5,6,7',
-      'sort' => 'relevance',
       'page' => $page,
     );
   }
@@ -106,7 +105,6 @@ function flickr_favorites_get_public_list($nsid, $page = 1, $other_args = array(
   $args = array(
     'user_id' => $nsid,
     'page' => $page,
-    'extras' => 'license,geo,tags,views,media',
   );
 
   // Set per_page to flickr module default if not specified in $other_args.
@@ -346,7 +344,6 @@ function flickr_get_group_photos($nsid, $page = 1, $other_args = array()) {
   $args = array(
     'group_id' => $nsid,
     'page' => $page,
-    'extras' => 'license,geo,tags,views,media',
   );
 
   // Set per_page to flickr module default if not specified in $other_args.

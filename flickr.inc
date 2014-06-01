@@ -523,11 +523,11 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         $order = t('Recently added') . ' ';
         break;
 
-      case 'taken':
+      case 'date-taken-desc':
         $order = t('Recently taken') . ' ';
         break;
 
-      case 'uploaded':
+      case 'date-posted-desc':
         $order = t('Recently uploaded') . ' ';
         break;
 
@@ -537,6 +537,14 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
 
       case 'random':
         $order = t('Random') . ' ';
+        break;
+
+      case 'interestingness-desc':
+        $order = t('Most interesting') . ' ';
+        break;
+
+      case 'relevance':
+        $order = t('Most relevant') . ' ';
         break;
 
       // In case 'unsorted' or 'id'.
@@ -734,7 +742,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         $username = ($id == '39873962@N08' || empty($id)) ? '' : ' ' . t('by') . ' ' . $people['name'];
         $map = ($id == '39873962@N08' || empty($id)) ? '' : $map;
         $pre_output = ($id == '39873962@N08' || empty($id)) ? strip_tags($photos) . ' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ' . strip_tags($username . ' ' . $map) : $photos . ' '  . $tagged . ' ' . $username . ' ' . $map;
-        $pre_output = (($id == '39873962@N08' || empty($id)) && empty($tags)) ? 'Provide some tags.' : $pre_output;
+        $pre_output .= (($id == '39873962@N08' || empty($id)) && empty($tags)) ? '<br />&nbsp;&nbsp;' . t('[Message: Provide some tags for public photos]') : '';
         $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . $pre_output . '</' . $heading . '>';
         break;
     }
@@ -787,11 +795,11 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         // a sufficient distinction between recently uploaded and recently
         // taken.
         $per_page = ($sort == 'random' || $sort == 'views') ? variable_get('flickr_per_page', 100) : 4 * $show_n;
-        // When we have a photoset or favorites, use the maximum.
+        // When we have a photoset or favorites, use the maximum...
         $per_page = ($type == 'favorites' || $type == 'photoset') ? 500 : $per_page;
-        // If the requested order is unsorted, limit it even more.
-        $per_page = $sort == 'unsorted' ? $show_n : $per_page;
-        // When we want to filter on muiltiple tags use the maximum.
+        // ...but if unsorted or user/date, limit it more (except size 'n')...
+        $per_page = (($sort == 'unsorted' || ($type == 'user' && ($sort == 'date-taken-desc' || $sort == 'date-posted-desc'))) && $size != 'n') ? $show_n : $per_page;
+        // ...but when filtering on muiltiple tags in groups, use the maximum.
         $per_page = (strpos($tags, ',') !== FALSE && $type == 'group') ? 500 : $per_page;
         // If we could have a response of over [variable_get('flickr_per_page',
         // 100)] photos, we want a random sort to take a random page first, so
@@ -837,8 +845,12 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             break;
 
           case "user":
+            $valid_sort = ($sort == 'date-taken-desc' || $sort == 'date-posted-desc' || $sort == 'interestingness-desc' || $sort == 'relevance') ? $sort : NULL;
+            // We add an extra sort to public photos to enhance the results.
+            $valid_sort = ($sort == 'views' && $id == '39873962@N08') ? 'interestingness-desc' : $valid_sort;
             $response = flickr_photos_search($id, $page, array(
               'tags' => $tags_combined,
+              'sort' => $valid_sort,
               'per_page' => $per_page,
               'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
               'media' => $media,
@@ -857,12 +869,16 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             usort($photos, 'flickr_sortByID');
             break;
 
-          case 'taken':
-            usort($photos, 'flickr_sortByTaken');
+          case 'date-taken-desc':
+            if ($type != 'user') {
+              usort($photos, 'flickr_sortByTaken');
+            }
             break;
 
-          case 'uploaded':
-            usort($photos, 'flickr_sortByUpload');
+          case 'date-posted-desc':
+            if ($type != 'user') {
+              usort($photos, 'flickr_sortByUpload');
+            }
             break;
 
           // Only for group albums.
@@ -878,7 +894,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             shuffle($photos);
             break;
 
-          // In case 'unsorted'.
+          // In any other case as ordered by the Flickr API response.
           default:
             break;
         }
