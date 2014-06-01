@@ -798,9 +798,9 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         // When we have a photoset or favorites, use the maximum...
         $per_page = ($type == 'favorites' || $type == 'photoset') ? 500 : $per_page;
         // ...but if unsorted or user/date, limit it more (except size 'n')...
-        $per_page = (($sort == 'unsorted' || ($type == 'user' && ($sort == 'date-taken-desc' || $sort == 'date-posted-desc'))) && $size != 'n') ? $show_n : $per_page;
+        $per_page = (($sort == 'unsorted' || (($type == 'user' || $type != 'group') && ($sort == 'date-taken-desc' || $sort == 'date-posted-desc'))) && $size != 'n') ? $show_n : $per_page;
         // ...but when filtering on muiltiple tags in groups, use the maximum.
-        $per_page = (strpos($tags, ',') !== FALSE && $type == 'group') ? 500 : $per_page;
+        $per_page = ((strpos($tags, ',') !== FALSE && $type == 'group') || ($id == '39873962@N08' && $sort == 'date-taken-desc')) ? 500 : $per_page;
         // If we could have a response of over [variable_get('flickr_per_page',
         // 100)] photos, we want a random sort to take a random page first, so
         // any photos could be taken (not only from the most recent batch).
@@ -897,6 +897,20 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           // In any other case as ordered by the Flickr API response.
           default:
             break;
+        }
+        // Skip photos taken in the future (date set incorrectly on the camera).
+        if ($sort == 'date-taken-desc') {
+          $skipped = 0;
+          foreach ($photos as $key => $photo) {
+            $date = time() - strtotime($photo['datetaken']);
+            if ($date < 0) {
+              unset($photos[$key]);
+              $skipped++;
+            }
+          }
+          if ($skipped > 0) {
+            drupal_set_message(t("Skipped !number photos because dated in the future (probably due to a wrong date on the used camera).", array('!number' => '<em>' . $skipped . '</em>')), 'warning');
+          }
         }
         // We shouldn't try to return more than the total number of photos.
         $to = min($show_n, count($photos));

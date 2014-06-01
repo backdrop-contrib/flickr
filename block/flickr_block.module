@@ -396,7 +396,7 @@ function flickr_block_configure($delta = '') {
         '#type' => 'textfield',
         '#title' => t('Show photos having this tag'),
         '#default_value' => $settings['tag'],
-        '#description' => t("Comma seperated tags for which you want media to display. Case insensitive, matches any one tag (OR) or part of it. Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip')."),
+        '#description' => t("Comma seperated tags for which you want media to display. Case insensitive. Matches any tag for a specific user or all tags for public photos.<br />Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip')."),
         '#required' => TRUE,
       );
       break;
