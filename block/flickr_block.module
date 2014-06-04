@@ -86,6 +86,9 @@ function flickr_block_configure($delta = '') {
   if (!isset($settings['sort'])) {
     $settings['sort'] = 'unsorted';
   }
+  if (!isset($settings['filter'])) {
+    $settings['filter'] = '';
+  }
   if (!isset($settings['media'])) {
     $settings['media'] = 'photos';
   }
@@ -144,7 +147,7 @@ function flickr_block_configure($delta = '') {
     '#title' => t('Flickr group ID'),
     '#default_value' => $settings['group_id'],
     '#required' => TRUE,
-    '#description' => t("A numerical ID or group path alias. !find_id", array('!find_id' => $idgettr)),
+    '#description' => t("A numerical ID (number@number) or group path alias. !find_id", array('!find_id' => $idgettr)),
   );
   $form["flickr_block_{$delta}_photoset"] = array(
     '#type' => 'textfield',
@@ -173,15 +176,26 @@ function flickr_block_configure($delta = '') {
   $form["flickr_block_{$delta}_sort"] = array(
     '#type' => 'select',
     '#options' => array(
-      'unsorted' => t('Recent unsorted, as delivered by the Flickr API (fastest response)'),
+      'unsorted' => t('Unsorted, as delivered by the Flickr API (fastest response)'),
       'random' => t('Random (slower response after cache clear)'),
-      'date-taken-desc' => t('Recently taken (newest first)'),
-      'date-posted-desc' => t('Recently posted (newest first)'),
+      'date-taken-desc' => t('Latest taken (newest first)'),
+      'date-posted-desc' => t('Latest posted (newest first)'),
       'id' => t('Descending on photo ID (an alternative newest first)'),
       'views' => t('Number of photo views on Flickr (popularity, slower response after cache clear)'),
     ),
     '#title' => t('Sort order'),
     '#default_value' => $settings['sort'],
+    '#description' => t("Gets ignored for slideshows (always newest first)."),
+  );
+  $form["flickr_block_{$delta}_filter"] = array(
+    '#type' => 'select',
+    '#options' => array(
+      '' => t('Nothing'),
+      'interestingness-desc' => t("Interesting (Flickr's own algorithm)"),
+      'relevance' => t('Relevant (most useful for public photos filtered on tags)'),
+    ),
+    '#title' => t('Filter'),
+    '#default_value' => $settings['filter'],
     '#description' => t("Gets ignored for slideshows (always newest first)."),
   );
   $form["flickr_block_{$delta}_media"] = array(
@@ -257,6 +271,7 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form["flickr_block_{$delta}_photoset"]);
       unset($form["flickr_block_{$delta}_sort"]);
+      unset($form["flickr_block_{$delta}_filter"]);
       if (module_exists('taxonomy')) {
         unset($form["flickr_block_{$delta}_vocab"]);
       }
@@ -273,16 +288,6 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form["flickr_block_{$delta}_photoset"]);
-      $form["flickr_block_{$delta}_sort"]['#options'] = array(
-        'unsorted' => t('Recent unsorted, as delivered by the Flickr API (fastest response)'),
-        'random' => t('Random (slower response after cache clear)'),
-        'date-taken-desc' => t('Recently taken (newest first)'),
-        'date-posted-desc' => t('Recently posted (newest first)'),
-        'interestingness-desc' => t("Interestingness (Flickr's own algorithm, most useful on public photos)"),
-        'relevance' => t('Relevance (recommended for public photos filtered on tags)'),
-        'id' => t('Descending on photo ID (an alternative newest first)'),
-        'views' => t('Number of photo views on Flickr (popularity, slower response after cache clear)'),
-      );
       break;
 
     // Photos from a Flickr user.
@@ -303,16 +308,6 @@ function flickr_block_configure($delta = '') {
         $form["flickr_block_{$delta}_user_id"]['#description'] = t("A Flickr user ID (number@number, alias, username or email). If empty, the sites's current default user !username will be used. Use the keyword <em>public</em> to grab CC licensed public photos.", array('!username' => '<em>' . $info['username']['_content'] . '</em>'));
       }
       $form["flickr_block_{$delta}_user_id"]['#required'] = FALSE;
-      $form["flickr_block_{$delta}_sort"]['#options'] = array(
-        'unsorted' => t('Recent unsorted, as delivered by the Flickr API (fastest response)'),
-        'random' => t('Random (slower response after cache clear)'),
-        'date-taken-desc' => t('Recently taken (newest first)'),
-        'date-posted-desc' => t('Recently posted (newest first)'),
-        'interestingness-desc' => t("Interestingness (Flickr's own algorithm, most useful on public photos)"),
-        'relevance' => t('Relevance (recommended for public photos filtered on tags)'),
-        'id' => t('Descending on photo ID (an alternative newest first)'),
-        'views' => t('Number of photo views on Flickr (popularity, slower response after cache clear)'),
-      );
       break;
 
     // Favorite public photos from a Flickr user.
@@ -321,6 +316,7 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form["flickr_block_{$delta}_photoset"]);
       unset($form['flickr_block_note']);
+      unset($form["flickr_block_{$delta}_filter"]);
       break;
 
     // Recent photosets from a Flickr user.
@@ -329,6 +325,7 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_photoset"]);
       unset($form['flickr_block_note']);
       unset($form["flickr_block_{$delta}_sort"]);
+      unset($form["flickr_block_{$delta}_filter"]);
       if (module_exists('taxonomy')) {
         unset($form["flickr_block_{$delta}_vocab"]);
       }
@@ -343,12 +340,13 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_photoset"]);
       unset($form['flickr_block_note']);
+      unset($form["flickr_block_{$delta}_filter"]);
       $form["flickr_block_{$delta}_sort"]['#options'] = array(
         'unsorted' => t('Recent unsorted, as delivered by the Flickr API (fastest response)'),
         'random' => t('Random (slower response after cache clear)'),
-        'date-taken-desc' => t('Recently taken (newest first)'),
-        'date-posted-desc' => t('Recently posted (newest first)'),
-        'added' => t('Recently added to group (newest first)'),
+        'date-taken-desc' => t('Latest taken (newest first)'),
+        'date-posted-desc' => t('Latest posted (newest first)'),
+        'added' => t('Latest added to group (newest first)'),
         'id' => t('Descending on photo ID (an alternative newest first)'),
         'views' => t('Number of photo views on Flickr (popularity, slower response after cache clear)'),
       );
@@ -360,6 +358,7 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form['flickr_block_note']);
+      unset($form["flickr_block_{$delta}_filter"]);
       break;
 
     // Photos with a specific tag from a Flickr user.
@@ -382,16 +381,6 @@ function flickr_block_configure($delta = '') {
         $form["flickr_block_{$delta}_user_id"]['#description'] = t("A Flickr user ID (number@number, alias, username or email). If empty, the sites's current default user !username will be used. Use the keyword <em>public</em> to grab CC licensed public photos.", array('!username' => '<em>' . $info['username']['_content'] . '</em>'));
       }
       $form["flickr_block_{$delta}_user_id"]['#required'] = FALSE;
-      $form["flickr_block_{$delta}_sort"]['#options'] = array(
-        'unsorted' => t('Recent unsorted, as delivered by the Flickr API (fastest response)'),
-        'random' => t('Random (slower response after cache clear)'),
-        'date-taken-desc' => t('Recently taken (newest first)'),
-        'date-posted-desc' => t('Recently posted (newest first)'),
-        'interestingness-desc' => t("Interestingness (Flickr's own algorithm, most useful on public photos)"),
-        'relevance' => t('Relevance (recommended for public photos filtered on tags)'),
-        'id' => t('Descending on photo ID (an alternative newest first)'),
-        'views' => t('Number of photo views on Flickr (popularity, slower response after cache clear)'),
-      );
       $form["flickr_block_{$delta}_tag"] = array(
         '#type' => 'textfield',
         '#title' => t('Show photos having this tag'),
@@ -471,6 +460,7 @@ function flickr_block_save($delta = '', $edit = array()) {
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
         'size' => $edit["flickr_block_{$delta}_size"],
         'sort' => $edit["flickr_block_{$delta}_sort"],
+        'filter' => $edit["flickr_block_{$delta}_filter"],
         'media' => $edit["flickr_block_{$delta}_media"],
         'vocab' => $vocab,
         'min_title' => $edit["flickr_block_{$delta}_min_title"],
@@ -504,6 +494,7 @@ function flickr_block_save($delta = '', $edit = array()) {
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
         'size' => $edit["flickr_block_{$delta}_size"],
         'sort' => $edit["flickr_block_{$delta}_sort"],
+        'filter' => $edit["flickr_block_{$delta}_filter"],
         'media' => $edit["flickr_block_{$delta}_media"],
         'vocab' => $vocab,
         'min_title' => $edit["flickr_block_{$delta}_min_title"],
@@ -598,6 +589,7 @@ function flickr_block_save($delta = '', $edit = array()) {
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
         'size' => $edit["flickr_block_{$delta}_size"],
         'sort' => $edit["flickr_block_{$delta}_sort"],
+        'filter' => $edit["flickr_block_{$delta}_filter"],
         'media' => $edit["flickr_block_{$delta}_media"],
         'min_title' => $edit["flickr_block_{$delta}_min_title"],
         'min_metadata' => $edit["flickr_block_{$delta}_min_metadata"],
@@ -620,6 +612,7 @@ function flickr_block_view($delta = '') {
     'group_id' => '',
     'photoset_id' => '',
     'sort' => 'random',
+    'filter' => '',
     'media' => 'photos',
     'vocab' => '',
     'min_title' => variable_get('flickr_title_suppress_on_small', '100'),
@@ -755,7 +748,7 @@ function flickr_block_view($delta = '') {
             // Only if on a node page use it's terms.
             $tags = (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
             $block['subject'] = NULL;
-            $block['content'] = _flickr_album('user', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $tags_user, $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
+            $block['content'] = _flickr_album('user', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $tags_user, $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], $settings['filter']);
             break;
 
           // User favorite Flickr photos.
@@ -798,7 +791,7 @@ function flickr_block_view($delta = '') {
         $tags = '';
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
+      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], $settings['filter']);
       break;
 
     // Recent photosets from a Flickr user.
@@ -913,7 +906,7 @@ function flickr_block_view($delta = '') {
     // Photos with a specific tag from a Flickr user.
     case 11:
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], 0, $settings['filter']);
       break;
   }
   return $block;

@@ -493,7 +493,7 @@ function flickr_get_id_type($id) {
 /**
  * Render multiple photos as an album.
  */
-function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'random', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0) {
+function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'random', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL) {
   // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
   $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page());
   // If $delta is a number it is a block that could be cached.
@@ -520,37 +520,51 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     // The text to prepend to an album title.
     switch ($sort) {
       case 'added':
-        $order = t('Recently added') . ' ';
+        $order = t('Latest added');
         break;
 
       case 'date-taken-desc':
-        $order = t('Recently taken') . ' ';
+        $order = t('Latest taken');
         break;
 
       case 'date-posted-desc':
-        $order = t('Recently uploaded') . ' ';
+        $order = t('Latest uploaded');
         break;
 
       case 'views':
-        $order = t('Most viewed') . ' ';
+        $order = t('Most viewed');
         break;
 
       case 'random':
-        $order = t('Random') . ' ';
+        $order = t('Random');
         break;
 
-      case 'interestingness-desc':
-        $order = t('Most interesting') . ' ';
+      case 'unsorted':
+        $order = t('Unsorted');
         break;
 
-      case 'relevance':
-        $order = t('Most relevant') . ' ';
-        break;
-
-      // In case 'unsorted' or 'id'.
+      // In case 'id'.
       default:
-        $order = t('Recent') . ' ';
+        $order = t('Latest');
         break;
+    }
+    if ($type == 'user') {
+      switch ($filter) {
+        case 'interestingness-desc':
+          $order .= t(', most interesting') . ' ';
+          break;
+
+        case 'relevance':
+          $order .= t(', most relevant') . ' ';
+          break;
+
+        default:
+          $order .= ' ';
+          break;
+      }
+    }
+    else {
+      $order .= ' ';
     }
     // Merge the user profile terms with the terms from the node.
     $tags_user_string = is_array($tags_user) ? implode(",", $tags_user) : $tags_user;
@@ -795,16 +809,20 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         // a sufficient distinction between recently uploaded and recently
         // taken.
         $per_page = ($sort == 'random' || $sort == 'views') ? variable_get('flickr_per_page', 100) : 4 * $show_n;
-        // When we have a photoset or favorites, use the maximum...
-        $per_page = ($type == 'favorites' || $type == 'photoset') ? 500 : $per_page;
         // ...but if unsorted or user/date, limit it more (except size 'n')...
-        $per_page = (($sort == 'unsorted' || (($type == 'user' || $type != 'group') && ($sort == 'date-taken-desc' || $sort == 'date-posted-desc'))) && $size != 'n') ? $show_n : $per_page;
+        $per_page = (($sort == 'unsorted' || ($type == 'user' && ($sort == 'date-taken-desc' || $sort == 'date-posted-desc') && empty($filter))) && $size != 'n') ? $show_n : $per_page;
+        // When we have a photoset or favorites, use the maximum...
+        $per_page = (($type == 'favorites' || $type == 'photoset') && !empty($tags)) ? 500 : $per_page;
         // ...but when filtering on muiltiple tags in groups, use the maximum.
-        $per_page = ((strpos($tags, ',') !== FALSE && $type == 'group') || ($id == '39873962@N08' && $sort == 'date-taken-desc')) ? 500 : $per_page;
+        $per_page = ((strpos($tags, ',') !== FALSE && $type == 'group') || ($id == '39873962@N08' && $sort == 'date-taken-desc' && empty($filter))) ? 500 : $per_page;
         // If we could have a response of over [variable_get('flickr_per_page',
         // 100)] photos, we want a random sort to take a random page first, so
         // any photos could be taken (not only from the most recent batch).
-        $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100))) : 1;
+        // The amount in the last page has to be sufficient to draw a random.
+        $rest_ok = ($total % variable_get('flickr_per_page', 100)) > 3 * $show_n ? 1 : 0;
+        $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : 1;
+//        UNCOMMENT THE NEXT LINE TO DEBUG. ENABLE THE DEVEL MODULE FIRST.
+//        dpm('$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset);
         // Get a list of "all" the photos. This is cached.
         switch ($type) {
           case "photoset":
@@ -845,9 +863,9 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             break;
 
           case "user":
-            $valid_sort = ($sort == 'date-taken-desc' || $sort == 'date-posted-desc' || $sort == 'interestingness-desc' || $sort == 'relevance') ? $sort : NULL;
-            // We add an extra sort to public photos to enhance the results.
-            $valid_sort = ($sort == 'views' && $id == '39873962@N08') ? 'interestingness-desc' : $valid_sort;
+            $valid_sort = ($sort == 'date-taken-desc' || $sort == 'date-posted-desc') ? $sort : NULL;
+            // Filter gets priority. Date sorting will be done anyway later.
+            $valid_sort = ($filter == 'interestingness-desc' || $filter == 'relevance') ? $filter : $valid_sort;
             $response = flickr_photos_search($id, $page, array(
               'tags' => $tags_combined,
               'sort' => $valid_sort,
@@ -870,13 +888,13 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             break;
 
           case 'date-taken-desc':
-            if ($type != 'user') {
+            if ($type != 'user' || !empty($filter)) {
               usort($photos, 'flickr_sortByTaken');
             }
             break;
 
           case 'date-posted-desc':
-            if ($type != 'user') {
+            if ($type != 'user' || !empty($filter)) {
               usort($photos, 'flickr_sortByUpload');
             }
             break;
@@ -1052,16 +1070,19 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           }
         }
         if ($k > 0) {
-          drupal_set_message($k . ' ' . t("photos were skipped because the requested image size is not available on Flickr. They were uploaded when this size was not offered yet. To include them, use another size or re-upload your photos on Flickr."), 'warning');
+          drupal_set_message(t("!number photos were skipped because the requested image size is not available on Flickr. They were uploaded when this size was not offered yet. To include them, use another size or re-upload your photos on Flickr.", array('!number' => '<em>' . $k . '</em>')), 'warning');
         }
         $output .= '</div>';
 
-        if (module_exists('flickr_block')) {
-          // Hide the block if empty if set on the configuration page.
-          if ($i == 0 && variable_get('flickr_block_hide_empty', 0)) {
-            $output = '';
-            return $output;
+        if ($i == 0 && variable_get('flickr_block_hide_empty', 0)) {
+          $output = '';
+          if (is_numeric($delta) && module_exists('flickr_block')) {
+            $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
+            // drupal_is_front_page() is added because it also can have
+            // arg(0) == 'node'.
+            cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
           }
+          return $output;
         }
 
         // A counter if set to show.

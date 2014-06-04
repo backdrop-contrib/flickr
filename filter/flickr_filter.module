@@ -93,7 +93,8 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
   <strong>media=all</strong> : Display both photos and videos. <strong>Default: media=photos</strong>. For albums only.<br />
   <strong>tags=kids/men</strong> : <strong>Separate multiple tags with a slash (/).</strong> Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets even partial.<br />&nbsp;&nbsp;Multiple tags for groups will only query the last @default_limit photos on Flickr (!config). Note that Flickr removes any whitespace from tags (e.g. 'Victoria park' becomes 'victoriapark'). For albums only.<br />
   <strong>heading=h3</strong> : Wraps the album title in HTML tags. Use 'p' to apply no style or 'none' to suppress the title. <strong>Default heading=@default_heading</strong> (!config). For albums only.<br />
-  <strong>sort=views</strong> : Display the most viewed Flickr photos first (popularity, slower response after cache clear). Other values: <em>unsorted</em> = recent as delivered by the Flickr API (fastest response), <em>random</em> (slower response after cache clear), <em>taken</em> (newest first), <em>posted</em> (newest first) , <em>added</em> (for groups only, newest first), <em>interestingness</em> (for users only, also public), <em>relevance</em> (for users only, also public) and <em>id</em> (on photo ID, newest first). <strong>Default: sort=unsorted</strong>. For albums only.<br />
+  <strong>sort=views</strong> : Display the most viewed Flickr photos first (popularity, slower response after cache clear). Other values: <em>unsorted</em> = recent as delivered by the Flickr API (fastest response), <em>random</em> (slower response after cache clear), <em>taken</em> (newest first), <em>posted</em> (newest first) , <em>added</em> (for groups only, newest first) and <em>id</em> (on photo ID, newest first). <strong>Default: sort=unsorted</strong>. For albums only.<br />
+  <strong>filter=interesting</strong> : Display the most interesting photos Other possible value: <em>relevant</em>. For user albums only, also public.<br />
   <strong>count=false</strong> : Suppress display of the counter under the album (e.g. <em>5 out of 124 on Flickr</em>). <strong>Default: count=@default_count</strong> (!config). For albums only.<br />
   <strong>mintitle=999</strong> : Suppress display of the title in the photo captions for images below a width of 999 px. <strong>Default: mintitle=@default_mintitle</strong> (!config).<br />
   <strong>minmetadata=999</strong> : Suppress display of the metadata in the photo captions for images below a width of 999 px. <strong>Default: minmetadata=@default_minmetadata</strong> (!config).", array(
@@ -214,6 +215,7 @@ function flickr_filter_callback_album($matches) {
 
   if (!isset($config['id']) || $config['id'] == 'public') {
     $default_userid = variable_get('flickr_default_userid', '');
+    $config['id'] = !isset($config['id']) ? $default_userid : $config['id'];
     $config['id'] = (!empty($default_userid) && $config['id'] != 'public') ? $default_userid : '39873962@N08';
   }
   if (!isset($config['size'])) {
@@ -224,9 +226,6 @@ function flickr_filter_callback_album($matches) {
   }
   if (!isset($config['media'])) {
     $config['media'] = 'photos';
-  }
-  if (!isset($config['sort'])) {
-    $config['sort'] = 'unsorted';
   }
   if (!isset($config['heading'])) {
     $config['heading'] = variable_get('flickr_filter_heading', 'p');
@@ -246,6 +245,21 @@ function flickr_filter_callback_album($matches) {
   if (!isset($config['minmetadata'])) {
     $config['minmetadata'] = NULL;
   }
+  if (!isset($config['filter'])) {
+    $config['filter'] = NULL;
+  }
+  switch ($config['filter']) {
+   case 'interesting':
+      $config['filter'] = 'interestingness-desc';
+      break;
+
+   case 'relevant':
+      $config['filter'] = 'relevance';
+      break;
+  }
+  if (!isset($config['sort'])) {
+    $config['sort'] = 'unsorted';
+  }
   switch ($config['sort']) {
     case 'taken':
       $config['sort'] = 'date-taken-desc';
@@ -254,14 +268,10 @@ function flickr_filter_callback_album($matches) {
     case 'posted':
       $config['sort'] = 'date-posted-desc';
       break;
-
-    case 'interestingness':
-      $config['sort'] = 'interestingness-desc';
-      break;
   }
   $type = flickr_get_id_type($config['id']);
   $config['id'] = $type == 'user' ? flickr_user_find_by_identifier($config['id']) : $config['id'];
-  $output = _flickr_album($type, $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], '', $config['count'], $config['sort'], $config['heading'], $config['mintitle'], $config['minmetadata']);
+  $output = _flickr_album($type, $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], '', $config['count'], $config['sort'], $config['heading'], $config['mintitle'], $config['minmetadata'], 0, $config['filter']);
   return $output;
 }
 
