@@ -822,7 +822,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         $rest_ok = ($total % variable_get('flickr_per_page', 100)) > 3 * $show_n ? 1 : 0;
         $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : 1;
 //        UNCOMMENT THE NEXT LINE TO DEBUG. ENABLE THE DEVEL MODULE FIRST.
-        dpm('$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset);
+//        dpm('$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset);
         // Get a list of "all" the photos. This is cached.
         switch ($type) {
           case "photoset":
@@ -866,7 +866,6 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             $valid_sort = ($sort == 'date-taken-desc' || $sort == 'date-posted-desc') ? $sort : NULL;
             // Filter gets priority. Date sorting will be done anyway later.
             $valid_sort = ($filter == 'interestingness-desc' || $filter == 'relevance') ? $filter : $valid_sort;
-            dsm($page);
             $response = flickr_photos_search($id, $page, array(
               'tags' => $tags_combined,
               'sort' => $valid_sort,
@@ -874,7 +873,6 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
               'media' => $media,
             ));
-        dsm($response);
             if (!$response) {
               return;
             }
