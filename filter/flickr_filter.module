@@ -91,7 +91,7 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
   <strong>size=q</strong> : Big square (150px). The sizes x and y display a slideshow and ignore number, media, tags and sort settings. <strong>Default single photo: size=@default_size, album photo: size=@default_size_album</strong> (both !config).<br />
   <strong>num=4</strong> : Display 4 photos. <strong>Default: num=@default_number</strong> (!config). For albums only.<br />&nbsp;&nbsp;If set to 1, the single image will behave as such. Heading and counter will be omitted, and float might apply. Used to display a single changing random or recent image.<br />
   <strong>media=all</strong> : Display both photos and videos. <strong>Default: media=photos</strong>. For albums only.<br />
-  <strong>tags=kids/men</strong> : <strong>Separate multiple tags with a slash (/).</strong> Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets even partial.<br />&nbsp;&nbsp;Multiple tags for groups will only query the last @default_limit photos on Flickr (!config). Note that Flickr removes any whitespace from tags (e.g. 'Victoria park' becomes 'victoriapark'). For albums only.<br />
+  <strong>tags=kids/men</strong> : <strong>Separate multiple tags with a slash (/).</strong> Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets even partial.<br />&nbsp;&nbsp;Public albums will only display photos that match all tags. Like on Flickr, whitespace gets removed from tags (e.g. 'Victoria park' becomes 'victoriapark'). For albums only.<br />
   <strong>heading=h3</strong> : Wraps the album title in HTML tags. Use 'p' to apply no style or 'none' to suppress the title. <strong>Default heading=@default_heading</strong> (!config). For albums only.<br />
   <strong>sort=views</strong> : Display the most viewed Flickr photos first (popularity, slower response after cache clear). Other values: <em>unsorted</em> = recent as delivered by the Flickr API (fastest response), <em>random</em> (slower response after cache clear), <em>taken</em> (newest first), <em>posted</em> (newest first) , <em>added</em> (for groups only, newest first) and <em>id</em> (on photo ID, newest first). <strong>Default: sort=unsorted</strong>. For albums only.<br />
   <strong>filter=interesting</strong> : Display the most interesting photos Other possible value: <em>relevant</em>. For user albums only, also public.<br />
@@ -234,7 +234,7 @@ function flickr_filter_callback_album($matches) {
     $config['tags'] = '';
   }
   else {
-    $config['tags'] = str_replace("/", ",", $config['tags']);
+    $config['tags'] = str_replace(' ', '', str_replace("/", ",", $config['tags']));
   }
   if (!isset($config['count'])) {
     $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
@@ -301,7 +301,7 @@ function flickr_filter_callback_group($matches) {
       $config['tags'] = '';
     }
     else {
-      $config['tags'] = str_replace("/", ",", $config['tags']);
+      $config['tags'] = str_replace(' ', '', str_replace("/", ",", $config['tags']));
     }
     if (!isset($config['count'])) {
       $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
@@ -357,7 +357,7 @@ function flickr_filter_callback_favorites($matches) {
       $config['tags'] = '';
     }
     else {
-      $config['tags'] = str_replace("/", ",", $config['tags']);
+      $config['tags'] = str_replace(' ', '', str_replace("/", ",", $config['tags']));
     }
     if (!isset($config['count'])) {
       $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
