@@ -285,7 +285,7 @@ function flickr_form_user_profile_form_alter(&$form, &$form_state) {
       '#type' => 'textfield',
       '#title' => t('Flickr identifier'),
       '#default_value' => empty($account->flickr['identifier']) ? '' : $account->flickr['identifier'],
-      '#description' => t('Enter either your Flickr username, the email address associated with your Flickr account, or your Flickr NSID. Leave this box empty to delete your Flickr page on this site.'),
+      '#description' => t('Enter either your Flickr username, URL path alias, the email address associated with your Flickr account, or your Flickr NSID. Leave this box empty to delete your Flickr page on this site.'),
       '#maxlength' => 64,
     );
     $form['#validate'][] = 'flickr_user_account_form_validate';

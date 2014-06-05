@@ -60,6 +60,7 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
   Insert a <strong>Flickr album</strong>. Working examples:
   <ul>
     <li>[flickr-<strong>photoset</strong>:id=72157634563269642, size=s, num=8, tags=kids/men, media=all, sort=random, count=false, mintitle=999, minmetadata=999, heading=none]</li>
+    <li>[flickr-<strong>gallery</strong>:id=72157645025390895, size=q, num=4, sort=views]</li>
     <li>[flickr-<strong>group</strong>:id=91484156@N00, size=q, num=8, tags=flowers, media=all, sort=random, count=false, mintitle=999, minmetadata=999, heading=none]</li>
     <li>[flickr-<strong>user</strong>:id=lolandese1, size=q, num=6, tags=kids/men, media=all, sort=random, count=false, mintitle=999, minmetadata=999, heading=none]</li>
     <li>[flickr-<strong>favorites</strong>:id=lolandese, size=q, num=4, tags=tomosborn/people, media=all, sort=random, count=false, mintitle=999, minmetadata=999, heading=none]</li>
@@ -91,10 +92,10 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
   <strong>size=q</strong> : Big square (150px). The sizes x and y display a slideshow and ignore number, media, tags and sort settings. <strong>Default single photo: size=@default_size, album photo: size=@default_size_album</strong> (both !config).<br />
   <strong>num=4</strong> : Display 4 photos. <strong>Default: num=@default_number</strong> (!config). For albums only.<br />&nbsp;&nbsp;If set to 1, the single image will behave as such. Heading and counter will be omitted, and float might apply. Used to display a single changing random or recent image.<br />
   <strong>media=all</strong> : Display both photos and videos. <strong>Default: media=photos</strong>. For albums only.<br />
-  <strong>tags=kids/men</strong> : <strong>Separate multiple tags with a slash (/).</strong> Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets even partial.<br />&nbsp;&nbsp;Public albums will only display photos that match all tags. Like on Flickr, whitespace gets removed from tags (e.g. 'Victoria park' becomes 'victoriapark'). For albums only.<br />
+  <strong>tags=kids/men</strong> : <strong>Separate multiple tags with a slash (/).</strong> Display all set, group or user photos that contain the indicated tags. Case insensitive, matches any tag, for photosets and galleries even partial.<br />&nbsp;&nbsp;Public albums will only display photos that match all tags. Like on Flickr, whitespace gets removed from tags (e.g. 'Victoria park' becomes 'victoriapark'). For albums only.<br />
   <strong>heading=h3</strong> : Wraps the album title in HTML tags. Use 'p' to apply no style or 'none' to suppress the title. <strong>Default heading=@default_heading</strong> (!config). For albums only.<br />
   <strong>sort=views</strong> : Display the most viewed Flickr photos first (popularity, slower response after cache clear). Other values: <em>unsorted</em> = recent as delivered by the Flickr API (fastest response), <em>random</em> (slower response after cache clear), <em>taken</em> (newest first), <em>posted</em> (newest first) , <em>added</em> (for groups only, newest first) and <em>id</em> (on photo ID, newest first). <strong>Default: sort=unsorted</strong>. For albums only.<br />
-  <strong>filter=interesting</strong> : Display the most interesting photos Other possible value: <em>relevant</em>. For user albums only, also public.<br />
+  <strong>filter=interesting</strong> : Display the most interesting photos. Other possible value: <em>relevant</em>. For user albums only, also public.<br />
   <strong>count=false</strong> : Suppress display of the counter under the album (e.g. <em>5 out of 124 on Flickr</em>). <strong>Default: count=@default_count</strong> (!config). For albums only.<br />
   <strong>mintitle=999</strong> : Suppress display of the title in the photo captions for images below a width of 999 px. <strong>Default: mintitle=@default_mintitle</strong> (!config).<br />
   <strong>minmetadata=999</strong> : Suppress display of the metadata in the photo captions for images below a width of 999 px. <strong>Default: minmetadata=@default_minmetadata</strong> (!config).", array(
@@ -129,6 +130,7 @@ function flickr_filter($text, $filter) {
   $text = preg_replace_callback('/\[flickr-photo:(.+?)\]/', 'flickr_filter_callback_photo', $text);
   $text = preg_replace_callback('/\[flickr-photoset:(.+?)\]/', 'flickr_filter_callback_album', $text);
   $text = preg_replace_callback('/\[flickr-group:(.+?)\]/', 'flickr_filter_callback_group', $text);
+  $text = preg_replace_callback('/\[flickr-gallery:(.+?)\]/', 'flickr_filter_callback_gallery', $text);
   $text = preg_replace_callback('/\[flickr-user:(.+?)\]/', 'flickr_filter_callback_album', $text);
   $text = preg_replace_callback('/\[flickr-favorites:(.+?)\]/', 'flickr_filter_callback_favorites', $text);
   return $text;
@@ -325,6 +327,58 @@ function flickr_filter_callback_group($matches) {
     return $output;
   }
   return 'Specify a Flickr group ID (number@number or path alias).';
+}
+
+/**
+ * Filter callback for a gallery.
+ */
+function flickr_filter_callback_gallery($matches) {
+  list($config, $attribs) = flickr_filter_split_config($matches[1]);
+
+  if (isset($config['id'])) {
+    if (!isset($config['size'])) {
+      $config['size'] = NULL;
+    }
+    if (!isset($config['num'])) {
+      $config['num'] = NULL;
+    }
+    if (!isset($config['media'])) {
+      $config['media'] = 'photos';
+    }
+    if (!isset($config['sort'])) {
+      $config['sort'] = 'unsorted';
+    }
+    if (!isset($config['heading'])) {
+      $config['heading'] = variable_get('flickr_filter_heading', 'p');
+    }
+    if (!isset($config['tags'])) {
+      $config['tags'] = '';
+    }
+    else {
+      $config['tags'] = str_replace(' ', '', str_replace("/", ",", $config['tags']));
+    }
+    if (!isset($config['count'])) {
+      $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
+    }
+    if (!isset($config['mintitle'])) {
+      $config['mintitle'] = NULL;
+    }
+    if (!isset($config['minmetadata'])) {
+      $config['minmetadata'] = NULL;
+    }
+  switch ($config['sort']) {
+    case 'taken':
+      $config['sort'] = 'date-taken-desc';
+      break;
+
+    case 'posted':
+      $config['sort'] = 'date-posted-desc';
+      break;
+  }
+     $output = _flickr_album('gallery', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], '', $config['count'], $config['sort'], $config['heading'], $config['mintitle'], $config['minmetadata']);
+    return $output;
+  }
+  return 'Specify a Flickr gallery ID (very long, numbers only).';
 }
 
 /**

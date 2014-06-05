@@ -540,7 +540,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         break;
 
       case 'unsorted':
-        $order = t('Unsorted');
+        $order = t('');
         break;
 
       // In case 'id'.
@@ -551,11 +551,21 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     if ($type == 'user') {
       switch ($filter) {
         case 'interestingness-desc':
-          $order .= t(', most interesting') . ' ';
+          if (empty($order)) {
+            $order = t('Most interesting') . ' ';
+          }
+          else {
+            $order .= t(', most interesting') . ' ';
+          }
           break;
 
         case 'relevance':
-          $order .= t(', most relevant') . ' ';
+          if (empty($order)) {
+            $order = t('Most relevant') . ' ';
+          }
+          else {
+            $order .= t(', most relevant') . ' ';
+          }
           break;
 
         default:
@@ -587,6 +597,16 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         }
         $id = $info['group']['id'];
         $total = $info['group']['pool_count']['_content'];
+        break;
+
+      case "gallery":
+        $info = flickr_galleries_getinfo('6065-' . $id);
+        $gallery_id = $info['gallery']['id'];
+        $people = flickr_get_user_info($info['gallery']['owner']);
+        if (!$info) {
+          return;
+        }
+        $total = ($media == 'videos') ? $info['gallery']['count_videos'] : $info['gallery']['count_photos'] + $info['gallery']['count_videos'];
         break;
 
       default:
@@ -656,6 +676,30 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           '!set' => $set,
           '!username' => $people['name'],
           '!map' => $map,
+        )) . '</' . $heading . '>';
+        break;
+
+      case "gallery":
+        $set = l($info['gallery']['title']['_content'], $people['photosurl'] . 'galleries/' . $id, array(
+          'attributes' => array(
+            'title' => t('View gallery on Flickr.'),
+            'target' => '_blank',
+          ),
+        ));
+        $flickr = l(t('on Flickr'), $people['photosurl'] . 'galleries/' . $id, array(
+          'attributes' => array(
+            'title' => t("@set curated by @name.", array(
+              '@set' => strip_tags($set),
+              '@name' => strip_tags($people['name']),
+            )),
+            'target' => '_blank',
+          ),
+        ));
+        $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tagsfrom Flickr gallery !set curated by !username", array(
+          '!photos' => strip_tags($photos),
+          '!tags' => $tagged . ' ',
+          '!set' => $set,
+          '!username' => $people['name'],
         )) . '</' . $heading . '>';
         break;
 
@@ -766,8 +810,9 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
       case "x":
         switch ($type) {
           case "favorites":
-            $output .= t('You cannot choose a slideshow for an album of favorites. Select a size.');
-            drupal_set_message(t('You cannot choose a slideshow for an album of favorites.'), 'error');
+          case "gallery":
+            $output .= t('You cannot choose a @type slideshow. Select another size.' . '<br /><br />', array('@type' => $type));
+            drupal_set_message(t('You cannot choose a @type slideshow. Select another size.', array('@type' => $type)), 'error');
             break;
 
           default:
@@ -776,7 +821,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             $output .= theme('flickr_flickrcomslideshow', array(
               'id' => $id,
             ));
-            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, tags and media settings."), 'warning');
+            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags and media settings."), 'warning');
             break;
         }
         break;
@@ -784,12 +829,13 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
       case "y":
         switch ($type) {
           case "favorites":
-            $output .= t('You cannot choose a slideshow for an album of favorites. Select a size.');
-            drupal_set_message(t('You cannot choose a slideshow for an album of favorites.'), 'error');
+          case "gallery":
+            $output .= t('You cannot choose a @type slideshow. Select another size.' . '<br /><br />', array('@type' => $type));
+            drupal_set_message(t('You cannot choose a @type slideshow. Select another size.', array('@type' => $type)), 'error');
             break;
 
           case "group":
-            $output .= t('Choose the Flash slideshow for group pool albums (size = x).');
+            $output .= t('Choose the Flash slideshow for group pool albums (size = x).' . '<br /><br />');
             drupal_set_message(t('Choose the Flash slideshow for group pool albums (size = x).'), 'error');
             break;
 
@@ -797,7 +843,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             $output .= theme('flickr_flickrcomslideshow_simple', array(
               'id' => $id,
             ));
-            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, tags and media settings."), 'warning');
+            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags and media settings."), 'warning');
             break;
         }
         break;
@@ -811,8 +857,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         $per_page = ($sort == 'random' || $sort == 'views') ? variable_get('flickr_per_page', 100) : 4 * $show_n;
         // ...but if unsorted or user/date, limit it more (except size 'n')...
         $per_page = (($sort == 'unsorted' || ($type == 'user' && ($sort == 'date-taken-desc' || $sort == 'date-posted-desc') && empty($filter))) && $size != 'n') ? $show_n : $per_page;
-        // When we have a photoset or favorites, use the maximum...
-        $per_page = (($type == 'favorites' || $type == 'photoset') && !empty($tags)) ? 500 : $per_page;
+        // When we have a photoset, gallery or favorites, use the maximum...
+        $per_page = (($type == 'favorites' || $type == 'photoset' || $type == 'gallery') && !empty($tags)) ? 500 : $per_page;
         // ...but when filtering on muiltiple tags in groups, use the maximum.
         $per_page = ((strpos($tags, ',') !== FALSE && $type == 'group') || ($id == '39873962@N08' && $sort == 'date-taken-desc' && empty($filter))) ? 500 : $per_page;
         // If we could have a response of over [variable_get('flickr_per_page',
@@ -835,6 +881,18 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               return;
             }
             $photos = $response['photoset']['photo'];
+            break;
+
+          case "gallery":
+            $response = flickr_galleries_getphotos($gallery_id, $page, array(
+                'per_page' => $per_page,
+                'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
+                'media' => $media,
+            ), $page);
+            if (!$response) {
+              return;
+            }
+            $photos = $response['photos']['photo'];
             break;
 
           case "group":
@@ -944,7 +1002,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           foreach ($photos as $photo) {
             if ($i < $show_n && ($media == 'all' || $media == $photo['media'] . 's')) {
               // Insert owner into $photo because theme_flickr_photo needs it.
-              $photo['owner'] = $type == 'photoset' ? $info['owner'] : $photo['owner'];
+              $photo['owner'] = ($type == 'photoset') ? $info['owner'] : $photo['owner'];
+              $photo['owner'] = ($type == 'gallery') ? $info['gallery']['owner'] : $photo['owner'];
               // Check if the requested size is available on Flickr.
               if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
                 $output .= theme('flickr_photo', array(
@@ -973,7 +1032,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               }
               elseif (stripos($photo['tags'], $term) !== FALSE && ($media == 'all' || $media == $photo['media'] . 's')) {
                 // Insert owner into $photo because theme_flickr_photo needs it.
-                $photo['owner'] = $type == 'photoset' ? $info['owner'] : $photo['owner'];
+                $photo['owner'] = ($type == 'photoset' || $type == 'gallery') ? $info['owner'] : $photo['owner'];
                 // Check if the requested size is available on Flickr.
                 if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
                   $output .= theme('flickr_photo', array(
@@ -1007,7 +1066,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               }
               elseif (stripos($photo['tags'], $term) !== FALSE && ($media == 'all' || $media == $photo['media'] . 's')) {
                 // Insert owner into $photo because theme_flickr_photo needs it.
-                $photo['owner'] = $type == 'photoset' ? $info['owner'] : $photo['owner'];
+                $photo['owner'] = ($type == 'photoset' || $type == 'gallery') ? $info['owner'] : $photo['owner'];
                 // Check if the requested size is available on Flickr.
                 if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
                   $output .= theme('flickr_photo', array(
@@ -1045,7 +1104,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                 elseif (stripos($photo['tags'], $term) !== FALSE && stripos($photo['tags'], $tag) !== FALSE && ($media == 'all' || $media == $photo['media'] . 's')) {
                   // Insert owner into $photo because theme_flickr_photo needs
                   // it.
-                  $photo['owner'] = $type == 'photoset' ? $info['owner'] : $photo['owner'];
+                  $photo['owner'] = ($type == 'photoset' || $type == 'gallery') ? $info['owner'] : $photo['owner'];
                   // Check if the requested size is available on Flickr.
                   if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
                     $output .= theme('flickr_photo', array(
