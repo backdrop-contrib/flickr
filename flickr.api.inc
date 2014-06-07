@@ -167,6 +167,30 @@ function flickr_photoset_get_list($nsid, $page = NULL) {
 }
 
 /**
+ * Returns the galleries curated by the specified user.
+ *
+ * @param string $nsid
+ *   NSID of the user whose photoset list you want.
+ *
+ * @return array
+ *   Response from the flickr method flickr.galleries.getList.
+ *   (https://www.flickr.com/services/api/flickr.galleries.getList.html)
+ */
+function flickr_galleries_getlist($nsid, $page = 1) {
+  $response = flickr_request(
+    'flickr.galleries.getList',
+    array(
+      'user_id' => $nsid,
+      'page' => $page,
+    )
+  );
+  if ($response) {
+    return $response['galleries']['gallery'];
+  }
+  return FALSE;
+}
+
+/**
  * Get the list of photos in a set.
  *
  * @param string $photoset_id

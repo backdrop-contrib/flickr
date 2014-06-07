@@ -600,7 +600,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         break;
 
       case "gallery":
-        $info = flickr_galleries_getinfo('6065-' . $id);
+        $info = is_numeric($delta) ? flickr_galleries_getinfo($id) : flickr_galleries_getinfo('6065-' . $id);
         $gallery_id = $info['gallery']['id'];
         $people = flickr_get_user_info($info['gallery']['owner']);
         if (!$info) {
@@ -680,13 +680,13 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         break;
 
       case "gallery":
-        $set = l($info['gallery']['title']['_content'], $people['photosurl'] . 'galleries/' . $id, array(
+        $set = l($info['gallery']['title']['_content'], $people['photosurl'] . 'galleries/' . preg_replace('/^[^,]*-\s*/', '', $id), array(
           'attributes' => array(
             'title' => t('View gallery on Flickr.'),
             'target' => '_blank',
           ),
         ));
-        $flickr = l(t('on Flickr'), $people['photosurl'] . 'galleries/' . $id, array(
+        $flickr = l(t('on Flickr'), $people['photosurl'] . 'galleries/' . preg_replace('/^[^,]*-\s*/', '', $id), array(
           'attributes' => array(
             'title' => t("@set curated by @name.", array(
               '@set' => strip_tags($set),
@@ -695,9 +695,10 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             'target' => '_blank',
           ),
         ));
+        $tagged = is_numeric($delta) ? '' : $tagged;
         $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tagsfrom Flickr gallery !set curated by !username", array(
           '!photos' => strip_tags($photos),
-          '!tags' => $tagged . ' ',
+          '!tags' => strip_tags($tagged . ' '),
           '!set' => $set,
           '!username' => $people['name'],
         )) . '</' . $heading . '>';
@@ -993,12 +994,14 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         $i = 0;
         $j = 0;
         $k = 0;
+        // A (too complex) series of conditions to loop through to generate the
+        // photos of an album. TODO: Implement simplification and better logic.
         // No Flickr tags specified and on a node page.
         if ($vocab_isset != 0 && empty($tags) && (arg(0) == 'node' && is_numeric(arg(1)) && (arg(2) == '' || arg(2) == 'view'))) {
           $output .= t('Post has no Flickr tags specified.');
         }
         // No Flickr tags specified, not on a node page, thus show all.
-        elseif (empty($tags)  && empty($tags_user)) {
+        elseif ((empty($tags)  && empty($tags_user)) || ($type == 'gallery' && is_numeric($delta))) {
           foreach ($photos as $photo) {
             if ($i < $show_n && ($media == 'all' || $media == $photo['media'] . 's')) {
               // Insert owner into $photo because theme_flickr_photo needs it.
@@ -1023,7 +1026,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           }
         }
         // Filter on Flickr tags specified in user account.
-        elseif (empty($tags)) {
+        elseif (empty($tags) && $type='user' && !empty($id) && $id != 'public') {
           foreach ($photos as $key => $photo) {
             $tags_user = !is_array($tags_user) ? explode(",", $tags_user) : $tags_user;
             foreach ($tags_user as $term) {
@@ -1031,8 +1034,6 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                 $j++;
               }
               elseif (stripos($photo['tags'], $term) !== FALSE && ($media == 'all' || $media == $photo['media'] . 's')) {
-                // Insert owner into $photo because theme_flickr_photo needs it.
-                $photo['owner'] = ($type == 'photoset' || $type == 'gallery') ? $info['owner'] : $photo['owner'];
                 // Check if the requested size is available on Flickr.
                 if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
                   $output .= theme('flickr_photo', array(
@@ -1066,7 +1067,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               }
               elseif (stripos($photo['tags'], $term) !== FALSE && ($media == 'all' || $media == $photo['media'] . 's')) {
                 // Insert owner into $photo because theme_flickr_photo needs it.
-                $photo['owner'] = ($type == 'photoset' || $type == 'gallery') ? $info['owner'] : $photo['owner'];
+              $photo['owner'] = ($type == 'photoset') ? $info['owner'] : $photo['owner'];
+              $photo['owner'] = ($type == 'gallery') ? $info['gallery']['owner'] : $photo['owner'];
                 // Check if the requested size is available on Flickr.
                 if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
                   $output .= theme('flickr_photo', array(
@@ -1104,7 +1106,9 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                 elseif (stripos($photo['tags'], $term) !== FALSE && stripos($photo['tags'], $tag) !== FALSE && ($media == 'all' || $media == $photo['media'] . 's')) {
                   // Insert owner into $photo because theme_flickr_photo needs
                   // it.
-                  $photo['owner'] = ($type == 'photoset' || $type == 'gallery') ? $info['owner'] : $photo['owner'];
+                  $photo['owner'] = ($type == 'photoset') ? $info['owner'] : $photo['owner'];
+                  // TODO: In theory we don't get here if a gallery. Remove?
+                  $photo['owner'] = ($type == 'gallery') ? $info['gallery']['owner'] : $photo['owner'];
                   // Check if the requested size is available on Flickr.
                   if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
                     $output .= theme('flickr_photo', array(
