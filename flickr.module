@@ -30,7 +30,9 @@ function flickr_page_build(&$page) {
   }
   // Adds a link to the Flickr photo page in the Colorbox 'default' style.
   // Tweak the condition to apply on other styles. Also needs CSS changes.
-  if (module_exists('colorbox')) {
+  // !path_is_admin($_GET['q'])) was added to avoid the JS kicking in on admin
+  // pages. It mangled the dragging of block weight on admin/structure/block.
+  if (module_exists('colorbox') && !path_is_admin($_GET['q'])) {
     if (variable_get('colorbox_style', 'default') == 'default') {
       drupal_add_js(drupal_get_path('module', 'flickr') . '/flickr_colorbox.js');
     }
