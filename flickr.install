@@ -59,19 +59,63 @@ function flickr_schema() {
 }
 
 /**
- * Implements hook_update().
+ * Create new index 'license' on the variable 'flickr_info_overlay'.
  */
 function flickr_update_7001() {
-  // Create new index on variable 'flickr_info_overlay' without altering others.
   $overlay = variable_get('flickr_info_overlay', array(
     'title' => 'title',
     'metadata' => 'metadata',
     'description' => 'description',
-  ));
-  variable_set('flickr_info_overlay', array(
-    'title' => $overlay['title'],
-    'metadata' => $overlay['metadata'],
-    'description' => $overlay['description'],
     'license' => 0,
   ));
+  if (!isset($overlay['license'])) {
+    variable_set('flickr_info_overlay', array(
+      'title' => 'title',
+      'metadata' => 'metadata',
+      'description' => 'description',
+      'license' => 0,
+    ));
+  }
+}
+
+/**
+ * Create new indexes on all block variables without altering others.
+ */
+function flickr_update_7102() {
+  foreach (range(0, 16) as $delta) {
+    $block_vars = variable_get("flickr_block_{$delta}");
+    $block_vars['user_id'] = isset($block_vars['user_id']) ? $block_vars['user_id'] : '';
+    $block_vars['show_n'] = isset($block_vars['show_n']) ? $block_vars['show_n'] : variable_get('flickr_photos_per_page', 6);
+    $block_vars['size'] = isset($block_vars['size']) ? $block_vars['size'] : variable_get('flickr_default_size_album', 'q');
+    $block_vars['tag'] = isset($block_vars['tag']) ? $block_vars['tag'] : '';
+    if (!isset($block_vars['group_id']) && !isset($block_vars['user_id'])) {
+      $block_vars['group_id'] = '';
+    }
+    else {
+      // In older versions user_id was used to hold the group_id.
+      $block_vars['group_id'] = (!isset($block_vars['group_id']) && isset($block_vars['user_id'])) ? $block_vars['user_id'] : $block_vars['group_id'];
+    }
+    $block_vars['photoset_id'] = isset($block_vars['photoset_id']) ? $block_vars['photoset_id'] : '';
+    $block_vars['sort'] = isset($block_vars['sort']) ? $block_vars['sort'] : 'unsorted';
+    $block_vars['filter'] = isset($block_vars['filter']) ? $block_vars['filter'] : '';
+    $block_vars['media'] = isset($block_vars['media']) ? $block_vars['media'] : 'photos';
+    $block_vars['vocab'] = isset($block_vars['vocab']) ? $block_vars['vocab'] : '';
+    $block_vars['min_title'] = isset($block_vars['min_title']) ? $block_vars['min_title'] : variable_get('flickr_title_suppress_on_small', '100');
+    $block_vars['min_metadata'] = isset($block_vars['min_metadata']) ? $block_vars['min_metadata'] : variable_get('flickr_metadata_suppress_on_small', '150');
+    variable_set('flickr_block_' . $delta, array(
+      'user_id' => $block_vars['user_id'],
+      'show_n' => $block_vars['show_n'],
+      'size' => $block_vars['size'],
+      'tag' => $block_vars['tag'],
+      'group_id' => $block_vars['group_id'],
+      'photoset_id' => $block_vars['photoset_id'],
+      'sort' => $block_vars['sort'],
+      'filter' => $block_vars['filter'],
+      'media' => $block_vars['media'],
+      'vocab' => $block_vars['vocab'],
+      'min_title' => $block_vars['min_title'],
+      'min_metadata' => $block_vars['min_metadata'],
+    ));
+    unset($block_vars);
+  }
 }

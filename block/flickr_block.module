@@ -632,12 +632,12 @@ function flickr_block_save($delta = '', $edit = array()) {
 function flickr_block_view($delta = '') {
   $settings = variable_get('flickr_block_' . $delta, array(
     'user_id' => '',
-    'show_n' => 4,
-    'size' => 's',
+    'show_n' => variable_get('flickr_photos_per_page', 6),
+    'size' => variable_get('flickr_default_size_album', 'q'),
     'tag' => '',
     'group_id' => '',
     'photoset_id' => '',
-    'sort' => 'random',
+    'sort' => 'unsorted',
     'filter' => '',
     'media' => 'photos',
     'vocab' => '',
@@ -664,6 +664,12 @@ function flickr_block_view($delta = '') {
   }
   if (!isset($settings['photoset_id'])) {
     $settings['photoset_id'] = '';
+  }
+  if (!isset($settings['sort'])) {
+    $settings['sort'] = 'unsorted';
+  }
+  if (!isset($settings['filter'])) {
+    $settings['filter'] = '';
   }
   if (!isset($settings['vocab'])) {
     $settings['vocab'] = '';
@@ -729,7 +735,7 @@ function flickr_block_view($delta = '') {
               else {
                 $tags_user = '';
               }
-              $terms_node = (!empty($settings['vocab'])) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+              $terms_node = (!empty($settings['vocab']) && $taxonomy != FALSE) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
               if (!empty($terms_node)) {
                 $i = 0;
                 foreach ($terms_node['#items'] as $item) {
