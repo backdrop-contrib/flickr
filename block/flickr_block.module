@@ -698,7 +698,14 @@ function flickr_block_view($delta = '') {
             $user = user_load($uid);
             if (module_exists('taxonomy')) {
               $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
-              $terms_user = (!empty($settings['vocab'])) ? field_view_field('user', $user, 'field_' . $taxonomy->machine_name) : '';
+              $field = field_get_items('user', $user, 'field_' . $taxonomy->machine_name);
+              if ($field) {
+                $terms_user = (!empty($settings['vocab'])) ? field_view_field('user', $user, 'field_' . $taxonomy->machine_name) : '';
+                }
+              else {
+                $terms_user = '';
+                drupal_set_message(t("Add the 'Term reference' field 'Flickr tags' to user profiles at <a href='#overlay=admin/config/people/accounts/fields%3Fdestination%3D@current_path'>admin/config/people/accounts/fields</a>.", array('@current_path' => current_path())), 'error', FALSE);
+              }
               if (!empty($terms_user)) {
                 $i = 0;
                 foreach ($terms_user['#items'] as $item) {
@@ -724,7 +731,14 @@ function flickr_block_view($delta = '') {
             $user = user_load($node->uid);
             if (module_exists('taxonomy')) {
               $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
-              $terms_user = (!empty($settings['vocab'])) ? field_view_field('user', $user, 'field_' . $taxonomy->machine_name) : '';
+              $field = field_get_items('user', $user, 'field_' . $taxonomy->machine_name);
+              if ($field) {
+                $terms_user = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('user', $user, 'field_' . $taxonomy->machine_name) : '';
+              }
+              else {
+                $terms_user = '';
+                drupal_set_message(t("Add the 'Term reference' field 'Flickr tags' to user profiles at <a href='#overlay=admin/config/people/accounts/fields%3Fdestination%3D@current_path'>admin/config/people/accounts/fields</a>.", array('@current_path' => current_path())), 'error', FALSE);
+              }
               if (!empty($terms_user)) {
                 $i = 0;
                 foreach ($terms_user['#items'] as $item) {
@@ -735,7 +749,14 @@ function flickr_block_view($delta = '') {
               else {
                 $tags_user = '';
               }
-              $terms_node = (!empty($settings['vocab']) && $taxonomy != FALSE) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+              $field = field_get_items('node', $node, 'field_' . $taxonomy->machine_name);
+              if ($field) {
+                $terms_node = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+              }
+              else {
+                drupal_set_message(t("Add the 'Term reference' field 'Flickr tags' to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type.", array('@type' => $node->type, '@current_path' => current_path(), '@delta' => $delta)), 'error', FALSE);
+                $terms_node = '';
+              }
               if (!empty($terms_node)) {
                 $i = 0;
                 foreach ($terms_node['#items'] as $item) {
@@ -829,7 +850,14 @@ function flickr_block_view($delta = '') {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
-          $terms = (!empty($settings['vocab'])) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+          $field = field_get_items('node', $node, 'field_' . $taxonomy->machine_name);
+          if ($field) {
+            $terms = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+          }
+          else {
+            drupal_set_message(t("Add the 'Term reference' field 'Flickr tags' to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type.", array('@type' => $node->type, '@current_path' => current_path(), '@delta' => $delta)), 'error', FALSE);
+            $terms = '';
+          }
           if (!empty($terms)) {
             $i = 0;
             foreach ($terms['#items'] as $item) {
@@ -875,7 +903,14 @@ function flickr_block_view($delta = '') {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
-          $terms = (!empty($settings['vocab'])) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+          $field = field_get_items('node', $node, 'field_' . $taxonomy->machine_name);
+          if ($field) {
+            $terms = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+          }
+          else {
+            drupal_set_message(t("Add the 'Term reference' field 'Flickr tags' to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type.", array('@type' => $node->type, '@current_path' => current_path(), '@delta' => $delta)), 'error', FALSE);
+            $terms = '';
+          }
           if (!empty($terms)) {
             $i = 0;
             foreach ($terms['#items'] as $item) {
@@ -906,7 +941,14 @@ function flickr_block_view($delta = '') {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
-          $terms = (!empty($settings['vocab'])) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+          $field = field_get_items('node', $node, 'field_' . $taxonomy->machine_name);
+          if ($field) {
+            $terms = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+          }
+          else {
+            drupal_set_message(t("Add the 'Term reference' field 'Flickr tags' to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type.", array('@type' => $node->type, '@current_path' => current_path(), '@delta' => $delta)), 'error', FALSE);
+            $terms = '';
+          }
           if (!empty($terms)) {
             $i = 0;
             foreach ($terms['#items'] as $item) {
@@ -938,7 +980,14 @@ function flickr_block_view($delta = '') {
         $node = node_load($nid);
         if (module_exists('taxonomy')) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
-          $terms = (!empty($settings['vocab'])) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+          $field = field_get_items('node', $node, 'field_' . $taxonomy->machine_name);
+          if ($field) {
+            $terms = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
+          }
+          else {
+            $terms = '';
+            drupal_set_message(t("Add the 'Term reference' field 'Flickr tags' to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type.", array('@type' => $node->type, '@current_path' => current_path(), '@delta' => $delta)), 'error', FALSE);
+          }
           if (!empty($terms)) {
             $i = 0;
             foreach ($terms['#items'] as $item) {
