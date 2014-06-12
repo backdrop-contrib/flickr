@@ -236,7 +236,7 @@ function flickr_filter_callback_album($matches) {
     $config['tags'] = '';
   }
   else {
-    $config['tags'] = str_replace(' ', '', str_replace("/", ",", $config['tags']));
+    $config['tags'] = str_replace("/", ",", $config['tags']);
   }
   if (!isset($config['count'])) {
     $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
@@ -303,7 +303,7 @@ function flickr_filter_callback_group($matches) {
       $config['tags'] = '';
     }
     else {
-      $config['tags'] = str_replace(' ', '', str_replace("/", ",", $config['tags']));
+      $config['tags'] = str_replace("/", ",", $config['tags']);
     }
     if (!isset($config['count'])) {
       $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
@@ -355,7 +355,7 @@ function flickr_filter_callback_gallery($matches) {
       $config['tags'] = '';
     }
     else {
-      $config['tags'] = str_replace(' ', '', str_replace("/", ",", $config['tags']));
+      $config['tags'] = str_replace("/", ",", $config['tags']);
     }
     if (!isset($config['count'])) {
       $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
@@ -411,7 +411,7 @@ function flickr_filter_callback_favorites($matches) {
       $config['tags'] = '';
     }
     else {
-      $config['tags'] = str_replace(' ', '', str_replace("/", ",", $config['tags']));
+      $config['tags'] = str_replace("/", ",", $config['tags']);
     }
     if (!isset($config['count'])) {
       $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';

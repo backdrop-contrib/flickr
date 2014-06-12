@@ -494,6 +494,9 @@ function flickr_get_id_type($id) {
  * Render multiple photos as an album.
  */
 function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL) {
+  // Remove spaces from tags but save the original for e.g. the block title.
+  $tagsfix = $tags;
+  $tags = strtolower(str_replace(' ', '', $tags));
   // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
   $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page());
   // If $delta is a number it is a block that could be cached.
@@ -637,7 +640,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     // The used tags with a space forced after the comma and the last
     // one replaced by 'or' ('and' for public photos).
     $conjunction = ($id == '39873962@N08' || empty($id)) ? t('and') : t('or');
-    $tags1 = preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tags));
+    $tags1 = preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tagsfix));
     $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : '<span class="flickr-tags-wrap">' . l(t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span></span>', $people['photosurl'] . 'tags/' . $tags, array(
       'attributes' => array(
         'title' => t('View tagged photos on Flickr.'),
@@ -786,14 +789,14 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           ),
         )) : l(t("on Flickr"), $people['photosurl'] . 'tags/' . $tags, array(
           'attributes' => array(
-            'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tags)) . '.',
+            'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tagsfix)) . '.',
             'target' => '_blank',
           ),
           'html' => TRUE,
         ));
         $flickr = ($id == '39873962@N08' || empty($id)) ? l(t("on Flickr"), $people['photosurl'] . str_replace(",", " ", $tags), array(
           'attributes' => array(
-            'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tags)) . '.',
+            'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tagsfix)) . '.',
             'target' => '_blank',
           ),
           'html' => TRUE,
@@ -998,7 +1001,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         // photos of an album. TODO: Implement simplification and better logic.
         // No Flickr tags specified and on a node page.
         if ($vocab_isset != 0 && empty($tags) && (arg(0) == 'node' && is_numeric(arg(1)) && (arg(2) == '' || arg(2) == 'view'))) {
-          $output .= t('Post has no Flickr tags specified.');
+          $vocab_name = taxonomy_vocabulary_load($vocab_isset)->name;
+          $output .= t('Post has no !vocab_name specified.', array('!vocab_name' => '<em>' . $vocab_name . '</em>'));
         }
         // No Flickr tags specified, not on a node page, thus show all.
         elseif ((empty($tags)  && empty($tags_user)) || ($type == 'gallery' && is_numeric($delta))) {
