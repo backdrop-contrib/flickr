@@ -137,8 +137,14 @@ function flickr_theme() {
  */
 function flickr_permission() {
   return array(
-    'view own flickr photos' => array('title' => t('View own Flickr photos')),
-    'view all flickr photos' => array('title' => t('View all Flickr photos')),
+    'view own flickr photos' => array(
+      'title' => t('View Flickr photos on own user profile and specify Flickr ID on own account'),
+      'description' => t("Needed to add a Flickr identifier to own account. This is used for example by the 'Node author' Flickr blocks."),
+    ),
+    'view all flickr photos' => array(
+      'title' => t('View Flickr photos on user profiles'),
+      'description' => t("Consider giving 'View user profiles' permission also, in combination with this one."),
+    ),
     'administer flickr' => array('title' => t('Administer Flickr settings')),
   );
 }
