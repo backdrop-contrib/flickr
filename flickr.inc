@@ -543,7 +543,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         break;
 
       case 'unsorted':
-        $order = t('');
+        $order = '';
         break;
 
       // In case 'id'.
@@ -815,7 +815,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         switch ($type) {
           case "favorites":
           case "gallery":
-            $output .= t('You cannot choose a @type slideshow. Select another size.' . '<br /><br />', array('@type' => $type));
+            $output .= t('You cannot choose a @type slideshow. Select another size.', array('@type' => $type)) . '<br /><br />';
             drupal_set_message(t('You cannot choose a @type slideshow. Select another size.', array('@type' => $type)), 'error');
             break;
 
@@ -834,12 +834,12 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         switch ($type) {
           case "favorites":
           case "gallery":
-            $output .= t('You cannot choose a @type slideshow. Select another size.' . '<br /><br />', array('@type' => $type));
+            $output .= t('You cannot choose a @type slideshow. Select another size.', array('@type' => $type)) . '<br /><br />';
             drupal_set_message(t('You cannot choose a @type slideshow. Select another size.', array('@type' => $type)), 'error');
             break;
 
           case "group":
-            $output .= t('Choose the Flash slideshow for group pool albums (size = x).' . '<br /><br />');
+            $output .= t('Choose the Flash slideshow for group pool albums (size = x).') . '<br /><br />';
             drupal_set_message(t('Choose the Flash slideshow for group pool albums (size = x).'), 'error');
             break;
 
@@ -871,8 +871,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         // The amount in the last page has to be sufficient to draw a random.
         $rest_ok = ($total % variable_get('flickr_per_page', 100)) > 3 * $show_n ? 1 : 0;
         $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : 1;
-//        UNCOMMENT THE NEXT LINE TO DEBUG. ENABLE THE DEVEL MODULE FIRST.
-//        dpm('$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset);
+// UNCOMMENT THE NEXT LINE FOR DEBUG INFO. ENABLE THE DEVEL MODULE FIRST.
+// dpm('$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset);
         // Get a list of "all" the photos. This is cached.
         switch ($type) {
           case "photoset":
@@ -1030,7 +1030,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           }
         }
         // Filter on Flickr tags specified in user account.
-        elseif (empty($tags) && $type='user' && !empty($id) && $id != 'public') {
+        elseif (empty($tags) && $type == 'user' && !empty($id) && $id != 'public') {
           foreach ($photos as $key => $photo) {
             $tags_user = !is_array($tags_user) ? explode(",", $tags_user) : $tags_user;
             foreach ($tags_user as $term) {
@@ -1071,8 +1071,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               }
               elseif (stripos($photo['tags'], $term) !== FALSE && ($media == 'all' || $media == $photo['media'] . 's')) {
                 // Insert owner into $photo because theme_flickr_photo needs it.
-              $photo['owner'] = ($type == 'photoset') ? $info['owner'] : $photo['owner'];
-              $photo['owner'] = ($type == 'gallery') ? $info['gallery']['owner'] : $photo['owner'];
+                $photo['owner'] = $type == 'photoset' ? $info['owner'] : $photo['owner'];
+                $photo['owner'] = $type == 'gallery' ? $info['gallery']['owner'] : $photo['owner'];
                 // Check if the requested size is available on Flickr.
                 if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
                   $output .= theme('flickr_photo', array(

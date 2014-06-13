@@ -253,11 +253,11 @@ function flickr_filter_callback_album($matches) {
     $config['filter'] = NULL;
   }
   switch ($config['filter']) {
-   case 'interesting':
+    case 'interesting':
       $config['filter'] = 'interestingness-desc';
       break;
 
-   case 'relevant':
+    case 'relevant':
       $config['filter'] = 'relevance';
       break;
   }
@@ -316,16 +316,16 @@ function flickr_filter_callback_group($matches) {
     if (!isset($config['minmetadata'])) {
       $config['minmetadata'] = NULL;
     }
-  switch ($config['sort']) {
-    case 'taken':
-      $config['sort'] = 'date-taken-desc';
-      break;
+    switch ($config['sort']) {
+      case 'taken':
+        $config['sort'] = 'date-taken-desc';
+        break;
 
-    case 'posted':
-      $config['sort'] = 'date-posted-desc';
-      break;
-  }
-     $output = _flickr_album('group', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], '', $config['count'], $config['sort'], $config['heading'], $config['mintitle'], $config['minmetadata']);
+      case 'posted':
+        $config['sort'] = 'date-posted-desc';
+        break;
+    }
+    $output = _flickr_album('group', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], '', $config['count'], $config['sort'], $config['heading'], $config['mintitle'], $config['minmetadata']);
     return $output;
   }
   return 'Specify a Flickr group ID (number@number or path alias).';
@@ -368,16 +368,16 @@ function flickr_filter_callback_gallery($matches) {
     if (!isset($config['minmetadata'])) {
       $config['minmetadata'] = NULL;
     }
-  switch ($config['sort']) {
-    case 'taken':
-      $config['sort'] = 'date-taken-desc';
-      break;
+    switch ($config['sort']) {
+      case 'taken':
+        $config['sort'] = 'date-taken-desc';
+        break;
 
-    case 'posted':
-      $config['sort'] = 'date-posted-desc';
-      break;
-  }
-     $output = _flickr_album('gallery', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], '', $config['count'], $config['sort'], $config['heading'], $config['mintitle'], $config['minmetadata']);
+      case 'posted':
+        $config['sort'] = 'date-posted-desc';
+        break;
+    }
+    $output = _flickr_album('gallery', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], '', $config['count'], $config['sort'], $config['heading'], $config['mintitle'], $config['minmetadata']);
     return $output;
   }
   return 'Specify a Flickr gallery ID (very long, numbers only).';
