@@ -25,9 +25,9 @@ function flickr_block_info() {
   $blocks[2]['info'] = t("Flickr: Node author photos optionally tagged as term from node (extra instance)");
 
   // Site wide blocks.
-  $blocks[3]['info'] = t('Flickr: Flickr user photos optionally tagged as term from node');
-  $blocks[4]['info'] = t('Flickr: Flickr user recent photosets');
-  $blocks[5]['info'] = t('Flickr: Flickr user photos optionally tagged as term from node (extra instance)');
+  $blocks[3]['info'] = t('Flickr: User photos optionally tagged as term from node');
+  $blocks[4]['info'] = t('Flickr: User recent photosets');
+  $blocks[5]['info'] = t('Flickr: User photos optionally tagged as term from node (extra instance)');
   $blocks[6]['info'] = t('Flickr: Group photos optionally tagged as term from node');
 
   // Photoset blocks.
@@ -35,16 +35,16 @@ function flickr_block_info() {
   $blocks[8]['info'] = t('Flickr: Set photos optionally tagged as term from node (extra instance)');
 
   // Returns a list of favorite public photos for the given user.
-  $blocks[9]['info'] = t("Flickr: Favorites of a Flickr user optionally tagged as term from node");
+  $blocks[9]['info'] = t("Flickr: Favorites optionally tagged as term from node");
 
   $blocks[10]['info'] = t("Flickr: Group photos optionally tagged as term from node (extra instance)");
-  $blocks[11]['info'] = t("Flickr: Flickr user photos with specific tags");
-  $blocks[12]['info'] = t("Flickr: Favorites of a Flickr user optionally tagged as term from node (extra instance)");
+  $blocks[11]['info'] = t("Flickr: User photos with specific tags");
+  $blocks[12]['info'] = t("Flickr: Favorites optionally tagged as term from node (extra instance)");
 
-  $blocks[13]['info'] = t("Flickr: Node author favorites optionally tagged as term from node");
+  $blocks[13]['info'] = t("Flickr: Node author favorites (what they like from others, but all together) optionally tagged as term from node");
   $blocks[14]['info'] = t("Flickr: Node author favorites optionally tagged as term from node (extra instance)");
 
-  $blocks[15]['info'] = t("Flickr: Node author gallery photos optionally titled as term from node");
+  $blocks[15]['info'] = t("Flickr: Node author gallery photos (arbitrary selection by author of other's photos) optionally with gallery title as term from node");
   $blocks[16]['info'] = t("Flickr: Node author gallery photos optionally titled as term from node (extra instance)");
 
   for ($i = 0; $i < 17; $i++) {
@@ -633,7 +633,7 @@ function flickr_block_view($delta = '') {
   $settings = variable_get('flickr_block_' . $delta, array(
     'user_id' => '',
     'show_n' => variable_get('flickr_photos_per_page', 6),
-    'size' => variable_get('flickr_default_size_album', 'q'),
+    'size' => variable_get('flickr_default_size_album', 's'),
     'tag' => '',
     'group_id' => '',
     'photoset_id' => '',

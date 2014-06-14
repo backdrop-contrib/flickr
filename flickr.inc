@@ -511,7 +511,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     $idfix = $id;
     $sizes = flickr_photo_sizes();
     $show_n = is_null($show_n) ? variable_get('flickr_photos_per_page', 6) : $show_n;
-    $size = is_null($size) ? variable_get('flickr_default_size_album', 'q') : $size;
+    $size = is_null($size) ? variable_get('flickr_default_size_album', 's') : $size;
     $min_title = is_null($min_title) ? variable_get('flickr_title_suppress_on_small', '100') : $min_title;
     $min_metadata = is_null($min_metadata) ? variable_get('flickr_metadata_suppress_on_small', '150') : $min_metadata;
     if ($show_n > 1 || is_numeric($delta)) {
@@ -604,9 +604,11 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
 
       case "gallery":
         $info = is_numeric($delta) ? flickr_galleries_getinfo($id) : flickr_galleries_getinfo('6065-' . $id);
-        $gallery_id = $info['gallery']['id'];
-        $people = flickr_get_user_info($info['gallery']['owner']);
-        if (!$info) {
+        if ($info['stat'] == 'ok') {
+          $gallery_id = $info['gallery']['id'];
+          $people = flickr_get_user_info($info['gallery']['owner']);
+        }
+        else {
           return;
         }
         $total = ($media == 'videos') ? $info['gallery']['count_videos'] : $info['gallery']['count_photos'] + $info['gallery']['count_videos'];
@@ -872,7 +874,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         $rest_ok = ($total % variable_get('flickr_per_page', 100)) > 3 * $show_n ? 1 : 0;
         $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : 1;
 // UNCOMMENT THE NEXT LINE FOR DEBUG INFO. ENABLE THE DEVEL MODULE FIRST.
-// dpm('$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset);
+// dpm('$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total);
         // Get a list of "all" the photos. This is cached.
         switch ($type) {
           case "photoset":
@@ -925,7 +927,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             break;
 
           case "user":
-            $valid_sort = ($sort == 'date-taken-desc' || $sort == 'date-posted-desc') ? $sort : NULL;
+            $valid_sort = ($sort == 'date-taken-desc' || $sort == 'date-posted-desc') ? $sort : '';
             // Filter gets priority. Date sorting will be done anyway later.
             $valid_sort = ($filter == 'interestingness-desc' || $filter == 'relevance') ? $filter : $valid_sort;
             $response = flickr_photos_search($id, $page, array(

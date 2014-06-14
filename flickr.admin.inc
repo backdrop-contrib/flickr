@@ -81,7 +81,7 @@ function flickr_admin_settings() {
   $form['flickr_default_size_album'] = array(
     '#type' => 'select',
     '#title' => t('Default size for photos in an album'),
-    '#default_value' => variable_get('flickr_default_size_album', 'q'),
+    '#default_value' => variable_get('flickr_default_size_album', 's'),
     '#options' => array(
       's' => t('s: 75 px square'),
       't' => t('t: 100 px on longest side'),
