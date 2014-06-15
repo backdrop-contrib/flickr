@@ -436,14 +436,14 @@ function flickr_galleries_getphotos($id, $page = 1, $other_args = array()) {
 }
 
 /**
- * Returns info about a given group.
+ * Returns info about a given gallery.
  *
  * @param string $id
- *   NSID of the group whose photos you want.
+ *   NSID of the gallery whose photos you want.
  *
  * @return array $response
- *   Response from the flickr method flickr.groups.getInfo.
- *   (https://www.flickr.com/services/api/flickr.groups.getInfo.html)
+ *   Response from the flickr method flickr.gallery.getInfo.
+ *   (https://www.flickr.com/services/api/flickr.gallery.getInfo.html)
  */
 function flickr_galleries_getinfo($id, $other_args = array()) {
   $args = array('gallery_id' => $id);

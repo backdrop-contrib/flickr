@@ -43,7 +43,7 @@ API Shared Secret
 -----------------
 Default Flickr User ID
 To use if in the block configuration no user is specified. Must be a valid
-Flickr User ID, username or email address. Emails or usernames (that might
+Flickr User ID, alias, username or email address. Emails or usernames (that might
 change at any given time) are internally (in the variable) replaced with a
 stable NSID (Flickr ID number). These are rendered in admin forms (settings or
 block config) as Flickr usernames. 'Maria Emanuela' is human readable,
@@ -55,17 +55,24 @@ Update interval
 The refresh interval how often to check if cached Flickr API calls are up to
 date. Defaults to 1 hour.
 
+Limit API requests for random and popularity sort
+-------------------------------------------------
+Setting a lower number enhances performance but makes random results being less
+spread between one another (not less random) and returns popular (most viewed on
+Flickr) only for the n most recent. Minimum 20, maximum 500. If you use cache
+warming you can set the maximum (see https://drupal.org/node/1576686).
+
 Number of photos per photoset
 -----------------------------
-Defaults to 20.
+Defaults to 6.
 
-Default size
-------------
-Only if the submodule Flickr Filter is enabled.
+Default size for photos in an album
+-----------------------------------
 A default Flickr size to use. This will be used when no size is specified, for
-example [flickr-photo:id=3711935987]. TAKE CARE, n (320px) and c (800px) sizes
-are missing on many "older" Flickr images!
-Defaults to m: 240 px on longest side.
+example [flickr-photoset:id=72157634563269642]. TAKE CARE, n (320px) and c
+(800px) sizes are missing on many "older" Flickr images! Defaults to s: 75 px
+square. Thanks to the default setting you can change the size of all images
+without a specified size on the site in one go.
 
 Use flickr.css
 --------------
@@ -108,19 +115,19 @@ exclude.
 Adds date, location and photographer info to the caption on images of a certain
 width. The date is in the form of 'time ago'. The photographer's Real Name is
 used, if not available the Username. In the caption it links to the user page on
-Flickr.
+Flickr. The license info is optional (see below).
 
 License info in caption
 -----------------------
-To include to follow the Creative Commons Guidelines. See:
-  https://creativecommons.org/licenses/by/2.0/#deed-conditions
-Depending on 'Minimum image width' above.
-Checkbox (not selected by default).
-Used is the nonintrusive icons font that can be found at:
-  http://creativecommons.org/about/downloads
-It links to the corresponding Creative Commons human friendly info page.
-It is recommended to download it, put it in your theme folder and substitute the
-default used remote source that can be found in the module's 'flickr.css' file.
+Depending on 'Minimum image width' above. Checkbox (not selected by default).
+Used is the nonintrusive icons font that can be found at
+http://creativecommons.org/about/downloads. It links to the
+corresponding Creative Commons human friendly info page. It is recommended to
+download the cc-icons font, put it in the your theme folder or the Flickr module
+folder and substitute the default used remote source that can be found in the
+module's 'flickr.css' file. Just replace 'http://creative.../downloads/' with
+the path to your theme folder or remove it completely if you have put it in the
+Flickr module folder so that only the filename remains.
 
 What horizontal inside spacing is applied on the caption? (padding/border)
 --------------------------------------------------------------------------
@@ -144,13 +151,43 @@ As a side note: The description is always included as the image 'title'
 attribute (shows on hover). If the description is not available the title will
 be used.
 
+Extra links to Flickr maps
+--------------------------
+Include extra links to maps available for a user, group or set on Flickr.
+Locations mentioned (if displayed) under individual images link to corresponding
+Flickr user maps in any case, independent on the setting here.
+
+Show a Flickr counter
+--------------------
+Shows how many photos are displayed out of the total number available for a
+user, group, set or tags on Flickr. Can be overridden by the filter tag, eg.
+[flickr-photoset:id=72157634563269642,count=false]
+
+FILTER SETTINGS
+---------------
+Only if the submodule Flickr Filter is enabled.
+See https://drupal.org/node/2171503#config.
+
+BLOCK SETTINGS
+--------------
+Only if the submodule Flickr Block is enabled.
+See https://drupal.org/node/2171249#config.
+
 OVERLAY BROWSER SETTINGS (field group)
 --------------------------------------
-Colorbox, Lightbox (use the dev version) or alike.
-Leave these fields empty to link directly to the Flickr photo page instead of
-opening the bigger version of the image.
-The best way of giving attribution is by using a full version of the caption
-(default settings + license info).
+Colorbox, Lightbox (use the dev version) or alike. Leave these fields empty to
+link directly to the Flickr photo page instead of opening the bigger version of
+the image.  It also omits the caption in that case. This is only done to not
+alter the behaviour on previous installs of the Flickr module.  The best way of
+giving attribution is by using a full version of the caption (default settings +
+license info).
+
+To have captions, you must fill in the 'class' or 'rel' field. Even if you do
+not intend to use an overlay browser, this is the condition to display a
+caption. This way any sites upgrading the Flickr module do not experience a
+change from the 'old' behaviour, suddenly having unexpected captions. If you
+want captions but don't want to use an overlay browser, just enter for example
+the name of your dog in one of the fields.
 
 class
 -----
