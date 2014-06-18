@@ -74,14 +74,15 @@ It consists of:
 - The term flickr followed by a dash (-).
 The type: photo, photoset, user, group or favorites followed by a colon (:).
 - A series of parameters separated by commas: id, size, class, style, num, tags,
-media, heading, sort, filter, count, mintitle and minmetadata
+  media, heading, sort, filter, count, mintitle and minmetadata
 - A closing square bracket (]).
 
 Photo ID
 --------
 Use the Flickr Advanced Search at https://www.flickr.com/search/advanced/ to
 find a Flickr photo of your own choice. Click one you like. The last number of
-the URL of the Flickr photo page is the ID.
+the URL of the Flickr photo page is the ID, for example '9244503345' in
+https://www.flickr.com/photos/98518260@N02/9244503345/.
 
 Size
 ----
@@ -97,7 +98,9 @@ Float single photos
 -------------------
 If the AutoFloat module is active (https://drupal.org/project/autofloat) the
 text already wraps around the image. If not, go back in 'Edit' mode and add:
+
 , class=floatright
+
 Put it at the end of the text filter tag above but inside the square brackets.
 Don't forget the leading comma. This is prefered as it avoids inline styling and
 is targeted with CSS that can be modified easily.
@@ -155,6 +158,16 @@ All aforementioned parameters that also apply on single images can be used.
 Obviously the 'id' is now a user, set, gallery or group ID. A number that
 includes '@' is a user or group ID. A very long number (>16 characters) is a
 photoset or gallery ID.
+
+Examples:
+- user: '98518260@N02' in https://www.flickr.com/photos/98518260@N02/9244503345
+- photoset: '72157634563269642' in
+  https://www.flickr.com/photos/98518260@N02/sets/72157634563269642
+- gallery: '72157645025390895' in
+  http://www.flickr.com/photos/martinpostma/galleries/72157645025390895
+
+For users and groups you can also use the path alias if it exists:
+- group: 'southseauk' in https://www.flickr.com/groups/southseauk
 
 For albums you have the extra sizes 'x' and 'y' available that result in a Flash
 or non-Flash slideshow over the full content width (responsive). Note that for

@@ -60,12 +60,18 @@ function flickr_admin_settings() {
     '#default_value' => variable_get('flickr_cache_duration', 3600),
     '#description' => t('The refresh interval indicating how often you want to check cached Flickr API calls are up to date.'),
   );
+  $cache_warming =  l(t('cache warming'), 'https://drupal.org/node/1576686', array(
+    'attributes' => array(
+      'title' => t('Load Page Cache after cron Runs | Drupal.org'),
+      'target' => '_blank',
+    ),
+  ));
   $form['flickr_per_page'] = array(
     '#type' => 'textfield',
     '#title' => t('Limit API requests for random and popularity sort'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_per_page', 100),
-    '#description' => t('Setting a lower number enhances performance but makes random results being less spread between one another (not less random) and returns popular (most viewed on Flickr) only from the <em>n</em> most recent. Minimum 20, maximum 500. With cache warming you can set the maximum (see https://drupal.org/node/1576686).'),
+    '#description' => t('Setting a lower number enhances performance but makes random results being less spread between one another (not less random) and returns popular (most viewed on Flickr) only from the <em>n</em> most recent.<br />Minimum 20, maximum 500. Set the maximum only if you use !cache_warming.', array('!cache_warming' => $cache_warming)),
     '#size' => 3,
     '#maxlength' => 3,
   );
@@ -143,12 +149,18 @@ function flickr_admin_settings() {
     '#default_value' => variable_get('flickr_license', 0),
     '#description' => t("To give !attribution. Depends on 'Minimum image width' above. After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution)),
   );
+  $style_doc = l(t('Style Guide'), 'https://drupal.org/node/2174131#caption', array(
+      'attributes' => array(
+        'title' => t('Flickr Style Guide documentation | Drupal.org'),
+        'target' => '_blank',
+      ),
+  ));
   $form['info_settings']['flickr_caption_padding'] = array(
     '#type' => 'textfield',
-    '#title' => t('What horizontal inside spacing is applied on the caption? (padding/border)'),
+    '#title' => t('Make the caption smaller in width (correction for caption padding/border)'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_caption_padding', '0'),
-    '#description' => t('By default the caption is as wide as the image. If you add padding to a boxed caption with CSS, set a value here to make sure the caption will remain of the same width of the image. See <a href="https://drupal.org/node/2174131#caption" title="Flickr module documentation on Drupal.org" target="_blank">Style Guide</a>.<br />Only padding: 1 x horizontal padding value.<br />Padding AND border: 2 x padding value + 1 x border-width.'),
+    '#description' => t('By default the caption is as wide as the image. If you add padding to a boxed caption with CSS, set a value here to make sure the caption will remain of the same width of the image. See the !style_doc.<br />Only padding: 1 x horizontal padding value.<br />Padding AND border: 2 x padding value + 1 x border-width.', array('!style_doc' => $style_doc)),
     '#field_suffix' => t('px'),
     '#size' => 2,
     '#maxlength' => 2,

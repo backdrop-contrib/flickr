@@ -227,7 +227,7 @@ t Thumbnail thumbnail, 100 on longest side
 q Large Square  big square 150x150
 m Small small, 240 on longest side
 n Small 320 small, 320 on longest side
-[none]  Medium  medium, 500 on longest side
+[none] Medium  medium, 500 on longest side
 z Medium 640  medium 640, 640 on longest side
 c Medium 800  medium 800,
 b Large large, 1024 on longest side

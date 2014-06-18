@@ -26,9 +26,9 @@ page. You can fine-grain it even more by selecting only a certain content type
 you want to show them on, for example blog posts.
 
 - Node author favorites (what they like from others, but all together)
-optionally tagged as term from node
+  optionally tagged as term from node
 - Node author gallery photos (arbitrary selection by author of other's photos)
-optionally with gallery title as term from node
+  optionally with gallery title as term from node
 - Node author photos optionally tagged as term from node
 - Node author recent photosets
 
