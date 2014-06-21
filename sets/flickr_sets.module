@@ -46,7 +46,10 @@ function flickr_sets_menu() {
  * Set a user's photosets page title.
  */
 function flickr_sets_page_title($user) {
-  return 'Flickr photosets - ' . $user->name;
+  if(isset($user->name)) {
+    return t('Flickr photosets') . ' - ' . $user->name;
+  }
+  return t('Flickr photosets');
 }
 
 /**

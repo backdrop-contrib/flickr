@@ -675,7 +675,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             'target' => '_blank',
           ),
         ));
-        $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tagsfrom Flickr set !set by !username !map", array(
+        $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tagsfrom the album !set by !username !map", array(
           '!photos' => $photos,
           '!tags' => $tagged . ' ',
           '!set' => $set,
@@ -701,7 +701,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           ),
         ));
         $tagged = is_numeric($delta) ? '' : $tagged;
-        $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tagsfrom Flickr gallery !set curated by !username", array(
+        $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tagsfrom gallery !set curated by !username", array(
           '!photos' => strip_tags($photos),
           '!tags' => strip_tags($tagged . ' '),
           '!set' => $set,

@@ -256,6 +256,8 @@ Flickr module Style Guide. See https://drupal.org/node/2174131
 
 TROUBLESHOOTING
 ===============
+For more details, see https://www.drupal.org/node/2289785
+
 Try clearing both your site (https://drupal.org/node/42055) and browser cache
 (http://www.wikihow.com/Clear-Your-Browser's-Cache).
 Use http://idgettr.com/ to find your Flickr user or group id.

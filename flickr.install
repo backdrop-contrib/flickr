@@ -77,3 +77,10 @@ function flickr_update_7001() {
     ));
   }
 }
+
+/**
+ * Removes old unused variables.
+ */
+function flickr_update_7101() {
+  variable_del("flickr_default_size");
+}

@@ -32,6 +32,9 @@ you want to show them on, for example blog posts.
 - Node author photos optionally tagged as term from node
 - Node author recent photosets
 
+The node author has to have permission to specify a Flickr ID on their own
+account (admin/people/permissions#module-flickr).
+
 The block visibility setting for the 'Node author' blocks are not only
 restricted by the sitebuilder in the block configuration but also by the module.
 The block gets displayed when the first argument of the path is 'user' or 'node'
@@ -128,6 +131,7 @@ permissions at https://drupal.org/node/2279003#block. They can still make use of
 the 'Node author' blocks that use photos of their Flickr account that have
 Flickr tags similar to taxonomy terms they attach to a node. This way they are
 able to add matching Flickr photos with their posts without the hassle of
-uploading them on the site.
+uploading them on the site. Remember to give site editors also the permission to
+specify a Flickr identifier on their account.
 
 Use Block Inject to put a Flickr Block inside your node body.

@@ -91,7 +91,7 @@ function flickr_block_install() {
 }
 
 /**
- * New vocabulary flickr_tags and extra block variable indexes.
+ * New vocabulary flickr_tags, extra block variable indexes, removes old vars.
  */
 function flickr_block_update_7101() {
   $t = get_t();
@@ -222,6 +222,8 @@ function flickr_block_update_7101() {
     ));
     unset($block_vars);
   }
+  variable_del("flickr_block_counter");
+  variable_del("flickr_block_maps");
 }
 
 /**
