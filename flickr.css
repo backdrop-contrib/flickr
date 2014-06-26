@@ -109,3 +109,7 @@ span.flickr-empty {
   margin: 10px;
   display: inline-block;
 }
+
+.page-flickr-sets h1#page-title {
+  display: none;
+}

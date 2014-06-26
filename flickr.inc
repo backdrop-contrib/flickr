@@ -493,12 +493,12 @@ function flickr_get_id_type($id) {
 /**
  * Render multiple photos as an album.
  */
-function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL) {
+function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $page = 1) {
   // Remove spaces from tags but save the original for e.g. the block title.
   $tagsfix = $tags;
   $tags = strtolower(str_replace(' ', '', $tags));
   // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
-  $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page());
+  $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $page);
   // If $delta is a number it is a block that could be cached.
   if ($cache && is_numeric($delta)) {
     $output = $cache->data;
@@ -660,7 +660,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             'target' => '_blank',
           ),
         ));
-        $map = variable_get('flickr_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'sets/' . $id . '/map/', array(
+        $map = variable_get('flickr_maps', 0) ? '(' . l(t('map'), $people['photosurl'] . 'sets/' . $id . '/map/', array(
           'attributes' => array(
             'title' => t('View set on Flickr map.'),
             'target' => '_blank',
@@ -682,6 +682,15 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           '!username' => $people['name'],
           '!map' => $map,
         )) . '</' . $heading . '>';
+        if ($heading == 'h1') {
+          $title_bar = t("@photos @tagsfrom the album @set by @username", array(
+            '@photos' => strip_tags($photos),
+            '@tags' => strip_tags($tagged) . ' ',
+            '@set' => strip_tags($set),
+            '@username' => strip_tags($people['name']),
+          ));
+          drupal_set_title($title_bar);
+        }
         break;
 
       case "gallery":
@@ -710,7 +719,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         break;
 
       case "group":
-        $map = variable_get('flickr_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
+        $map = variable_get('flickr_maps', 0) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
           'attributes' => array(
             'title' => t('View group photos on Flickr map.'),
             'target' => '_blank',
@@ -767,7 +776,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
 
       default:
         if (!empty($tags) && strpos($tags, ',') == FALSE) {
-          $map = variable_get('flickr_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'tags/' . $tags . '/map/', array(
+          $map = variable_get('flickr_maps', 0) ? '(' . l(t('map'), $people['photosurl'] . 'tags/' . $tags . '/map/', array(
             'attributes' => array(
               'title' => t('View tagged photos on Flickr map.'),
               'target' => '_blank',
@@ -775,7 +784,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           )) . ')' : '';
         }
         else {
-          $map = variable_get('flickr_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
+          $map = variable_get('flickr_maps', 0) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
             'attributes' => array(
               'title' => t('View user photos on Flickr map.'),
               'target' => '_blank',
@@ -872,7 +881,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         // any photos could be taken (not only from the most recent batch).
         // The amount in the last page has to be sufficient to draw a random.
         $rest_ok = ($total % variable_get('flickr_per_page', 100)) > 3 * $show_n ? 1 : 0;
-        $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : 1;
+        $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : $page;
 // UNCOMMENT THE NEXT LINE FOR DEBUG INFO. ENABLE THE DEVEL MODULE FIRST.
 // dpm('$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total);
         // Get a list of "all" the photos. This is cached.
@@ -1184,7 +1193,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
       $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
       // drupal_is_front_page() is added because it also can have
       // arg(0) == 'node'.
-      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
+      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $page, $output, 'cache', time() + $refresh * 60 * 60);
     }
   }
   return $output;

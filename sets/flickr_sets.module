@@ -33,13 +33,28 @@ function flickr_sets_menu() {
     'type' => MENU_LOCAL_TASK,
   );
   $items['flickr/%user/sets/%flickr_set'] = array(
-    'title' => 'Flickr photoset',
     'page callback' => 'flickr_sets_photoset',
     'page arguments' => array(1, 3),
     'access callback' => 'flickr_photos_access',
     'access arguments' => array(1),
   );
   return $items;
+}
+
+/**
+ * Get the list of photos in a set.
+ */
+function flickr_set_load($sid, $page = 1) {
+  // TODO: Why this called for /flickr and does not show for admin role?
+  if (is_numeric($sid)) {
+    return flickr_request('flickr.photosets.getPhotos',
+      array(
+        'photoset_id' => $sid,
+        'page' => $page,
+        'per_page' => variable_get('flickr_photos_per_page', 20),
+      )
+    );
+  }
 }
 
 /**
@@ -95,9 +110,8 @@ function flickr_sets_photosets($account, $nsid = NULL) {
 function flickr_sets_photoset($account, $set) {
   global $pager_page_array, $pager_total, $pager_total_items, $user;
 
-  $uid = $user->uid;
+  $uid = $account->uid;
   $nsid = $account->flickr['nsid'];
-
   $id = $set['photoset']['id'];
   $set_info = flickr_photoset_get_info($id);
 
@@ -113,8 +127,7 @@ function flickr_sets_photoset($account, $set) {
   $per_page = variable_get('flickr_photos_per_page', 6);
 
   // Request set of photos.
-  $set_response = flickr_photosets_getphotos($id, $other_args = NULL, $pager_page_array[$element] + 1);
-
+  $set_response = flickr_set_load($id, $pager_page_array[$element] + 1);
   if (!$set_response) {
     drupal_set_message(t("Error retrieving :setid's photosets from Flickr"), array(':setid', $id));
     return '';
@@ -123,7 +136,6 @@ function flickr_sets_photoset($account, $set) {
     drupal_set_message(t('This photoset is empty'));
     return '';
   }
-
   // Set pager information we just acquired.
   $pager_total_items[$element] = $set_response['photoset']['total'];
   $pager_total[$element] = $set_response['photoset']['pages'];
@@ -188,19 +200,8 @@ function theme_flickr_sets_photoset($variables) {
   $per_page = $variables['per_page'];
   $photo_arr = $variables['photo_arr'];
   $set_info = $variables['set_info'];
-
   $output = theme('pager', array('quantity' => variable_get('flickr_photos_per_page', 6)));
-  $output .= "<div class='flickr-photoset'>\n";
-  foreach ((array) $photo_arr['photoset']['photo'] as $photo) {
-    // Insert owner into $photo because
-    // theme_flickr_photo_box/flickr_photo_page_url needs it.
-    $photo['owner'] = $set_info['owner'];
-    $output .= theme('flickr_photo_box', array(
-      'photo' => $photo,
-      'size' => 'm',
-    ));
-  }
-  $output .= '</div>';
+  $output .= _flickr_album('photoset', $set_info['id'] , $per_page, NULL, 'photos', '', '', 101, 'unsorted', 'h1', NULL, NULL, 0, NULL, $photo_arr['photoset']['page']);
   $output .= theme('pager', array('quantity' => variable_get('flickr_photos_per_page', 6)));
 
   return $output;

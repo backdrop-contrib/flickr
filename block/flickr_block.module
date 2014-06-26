@@ -1064,7 +1064,7 @@ function _flickr_block_photosets($nsid, $show_n, $size, $media, $delta, $people 
           'target' => '_blank',
         ),
       ));
-      $map = variable_get('flickr_maps', 1) ? '(' . l(t('map'), $people['photosurl'] . 'sets/' . $photosets[$i]['id'] . '/map/', array(
+      $map = variable_get('flickr_maps', 0) ? '(' . l(t('map'), $people['photosurl'] . 'sets/' . $photosets[$i]['id'] . '/map/', array(
         'attributes' => array(
           'title' => t('View set on Flickr map.'),
           'target' => '_blank',

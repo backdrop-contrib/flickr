@@ -185,7 +185,7 @@ function flickr_admin_settings() {
   $form['info_settings']['flickr_maps'] = array(
     '#type' => 'checkbox',
     '#title' => t('Extra links to Flickr maps'),
-    '#default_value' => variable_get('flickr_maps', 1),
+    '#default_value' => variable_get('flickr_maps', 0),
     '#description' => t('Include extra links to maps available for a user, group or set on Flickr. Locations mentioned (if displayed) under individual images link to corresponding Flickr user maps in any case, independent on the setting here.'),
   );
   $form['info_settings']['flickr_counter'] = array(
