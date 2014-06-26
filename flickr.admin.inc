@@ -267,6 +267,40 @@ function flickr_admin_settings() {
       '#size' => 3,
       '#maxlength' => 3,
     );
+    $form['block_settings']['flickr_block_photos_per_set'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Number of photos per set'),
+      '#required' => TRUE,
+      '#default_value' => variable_get('flickr_block_photos_per_set', 6),
+      '#description' => t('The number indicates how many photos display per set on blocks that display multiple photosets. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+      '#size' => 2,
+      '#maxlength' => 2,
+    );
+  }
+  if (module_exists('flickr_sets')) {
+    $form['photoset_settings'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Photoset settings'),
+      '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+    );
+    $form['photoset_settings']['flickr_sets_per_page'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Number of photosets per page'),
+      '#required' => TRUE,
+      '#default_value' => variable_get('flickr_sets_per_page', 8),
+      '#description' => t('The number indicates how many photosets display on user profile pages at <em>flickr/%uid/sets</em>. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+      '#size' => 2,
+      '#maxlength' => 2,
+    );
+    $form['photoset_settings']['flickr_photos_per_set'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Number of photos per set'),
+      '#required' => TRUE,
+      '#default_value' => variable_get('flickr_photos_per_set', 6),
+      '#description' => t('The number indicates how many photos display in a set on user profile pages at <em>flickr/%uid/sets/%nsid</em>. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+      '#size' => 2,
+      '#maxlength' => 2,
+    );
   }
   $form['overlay_settings'] = array(
     '#type' => 'fieldset',
@@ -327,6 +361,11 @@ function flickr_admin_settings_validate($form, &$form_state) {
   if (module_exists('flickr_block')) {
     $limit5 = trim($form_state['values']['flickr_block_refresh_random']);
     $limit6 = trim($form_state['values']['flickr_block_refresh_others']);
+    $limit10 = trim($form_state['values']['flickr_block_photos_per_set']);
+  }
+  if (module_exists('flickr_sets')) {
+    $limit8 = trim($form_state['values']['flickr_sets_per_page']);
+    $limit9 = trim($form_state['values']['flickr_photos_per_set']);
   }
   if ($key && (preg_match('/^[A-Fa-f\d]{32}$/', $key) != 1)) {
     form_set_error('flickr_api_key', t('This does not appear to be a Flickr API key.'));
@@ -368,6 +407,20 @@ function flickr_admin_settings_validate($form, &$form_state) {
     // Validate refresh rate other blocks.
     if (!is_numeric($limit6) || $limit6 < 2) {
       form_set_error('flickr_block_refresh_others', t('Set a number from 2 to 999.'));
+    }
+    // Validate photos per set.
+    if (!is_numeric($limit10) || $limit10 < 1) {
+      form_set_error('flickr_block_photos_per_set', t('Set a number from 1 to 99.'));
+    }
+  }
+  if (module_exists('flickr_sets')) {
+    // Validate sets per page.
+    if (!is_numeric($limit8) || $limit8 < 1) {
+      form_set_error('flickr_sets_per_page', t('Set a number from 1 to 99.'));
+    }
+    // Validate photos per set.
+    if (!is_numeric($limit9) || $limit9 < 1) {
+      form_set_error('flickr_photos_per_set', t('Set a number from 1 to 99.'));
     }
   }
 }

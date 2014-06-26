@@ -61,7 +61,7 @@ function flickr_set_load($sid, $page = 1) {
  * Set a user's photosets page title.
  */
 function flickr_sets_page_title($user) {
-  if(isset($user->name)) {
+  if (isset($user->name)) {
     return t('Flickr photosets') . ' - ' . $user->name;
   }
   return t('Flickr photosets');
@@ -79,10 +79,10 @@ function flickr_sets_photosets($account, $nsid = NULL) {
   // Set this to something else if you want multiple pagers.
   $element = 0;
   $pager_page_array[$element] = empty($_GET['page']) ? 0 : (int) $_GET['page'];
-  $per_page = variable_get('flickr_photos_per_page', 6);
+  $per_page = variable_get('flickr_sets_per_page', 8);
   // First we need the complete list of sets just for the pager info.
   $set_response = flickr_photoset_get_list($nsid);
-  $pager_total[$element] = ceil(count($set_response) / variable_get('flickr_photos_per_page', 6));
+  $pager_total[$element] = ceil(count($set_response) / variable_get('flickr_sets_per_page', 8));
   $pager_total_items[$element] = count($set_response);
   // Now we only get the sets for the corresponding page.
   $set_response = flickr_photoset_get_list($nsid, $pager_page_array[$element] + 1);
@@ -124,7 +124,7 @@ function flickr_sets_photoset($account, $set) {
   // Set this to something else if you want multiple pagers.
   $element = 0;
   $pager_page_array[$element] = empty($_GET['page']) ? 0 : (int) $_GET['page'];
-  $per_page = variable_get('flickr_photos_per_page', 6);
+  $per_page = variable_get('flickr_photos_per_set', 6);
 
   // Request set of photos.
   $set_response = flickr_set_load($id, $pager_page_array[$element] + 1);
@@ -177,7 +177,7 @@ function theme_flickr_sets_photosets($variables) {
   $nsid = $variables['nsid'];
   $photosets = $variables['photosets'];
 
-  $output = theme('pager', array('quantity' => variable_get('flickr_photos_per_page', 6)));
+  $output = theme('pager', array('quantity' => variable_get('flickr_sets_per_page', 8)));
   $output .= "<div class='flickr-photosets'>\n";
   foreach ((array) $photosets as $photoset) {
     $output .= theme('flickr_sets_photoset_box', array(
@@ -188,7 +188,7 @@ function theme_flickr_sets_photosets($variables) {
     ));
   }
   $output .= '</div>';
-  $output .= theme('pager', array('quantity' => variable_get('flickr_photos_per_page', 6)));
+  $output .= theme('pager', array('quantity' => variable_get('flickr_sets_per_page', 8)));
   return $output;
 }
 
@@ -200,8 +200,8 @@ function theme_flickr_sets_photoset($variables) {
   $per_page = $variables['per_page'];
   $photo_arr = $variables['photo_arr'];
   $set_info = $variables['set_info'];
-  $output = theme('pager', array('quantity' => variable_get('flickr_photos_per_page', 6)));
-  $output .= _flickr_album('photoset', $set_info['id'] , $per_page, NULL, 'photos', '', '', 101, 'unsorted', 'h1', NULL, NULL, 0, NULL, $photo_arr['photoset']['page']);
+  $output = theme('pager', array('quantity' => variable_get('flickr_photos_per_set', 6)));
+  $output .= _flickr_album('photoset', $set_info['id'], $per_page, NULL, 'photos', '', '', 101, 'unsorted', 'h1', NULL, NULL, 0, NULL, $photo_arr['photoset']['page']);
   $output .= theme('pager', array('quantity' => variable_get('flickr_photos_per_page', 6)));
 
   return $output;

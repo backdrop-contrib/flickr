@@ -298,3 +298,6 @@ MORE INFO
 =========
 The flickr module uses XML-RPC to connect to Flickr's API and retrieve photo
 information. Flickr API Documentation: http://www.flickr.com/services/api
+
+Other Flickr module specific info for developers can be found at
+https://www.drupal.org/node/2289797

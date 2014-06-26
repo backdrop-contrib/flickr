@@ -151,7 +151,7 @@ function flickr_photoset_get_info($photoset_id) {
  *   (https://www.flickr.com/services/api/flickr.photosets.getList.html)
  */
 function flickr_photoset_get_list($nsid, $page = NULL) {
-  $per_page = (!empty($page)) ? variable_get('flickr_photos_per_page', 6) : '';
+  $per_page = (!empty($page)) ? variable_get('flickr_sets_per_page', 8) : '';
   $response = flickr_request(
     'flickr.photosets.getList',
     array(

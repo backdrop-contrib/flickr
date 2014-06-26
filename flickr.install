@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * The Flickr database schema and uninstall hook
+ * The Flickr database schema and uninstall hook.
  */
 
 /**

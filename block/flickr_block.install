@@ -50,13 +50,13 @@ function flickr_block_install() {
         // Define how the terms will be displayed in full node and teaser mode.
         'display' => array(
           'default' => array(
-          'label' => 'inline',
-          'type' => 'taxonomy_term_reference_link',
-          'weight' => 10,
+            'label' => 'inline',
+            'type' => 'taxonomy_term_reference_link',
+            'weight' => 10,
           ),
           'teaser' => array(
-          'type' => 'hidden',
-          'weight' => 10,
+            'type' => 'hidden',
+            'weight' => 10,
           ),
         ),
       );
@@ -79,8 +79,8 @@ function flickr_block_install() {
         // Define how the terms will be displayed on the user profile.
         'display' => array(
           'default' => array(
-          'type' => 'hidden',
-          'weight' => 10,
+            'type' => 'hidden',
+            'weight' => 10,
           ),
         ),
       );
@@ -136,13 +136,13 @@ function flickr_block_update_7101() {
         // Define how the terms will be displayed in full node and teaser mode.
         'display' => array(
           'default' => array(
-          'label' => 'inline',
-          'type' => 'taxonomy_term_reference_link',
-          'weight' => 10,
+            'label' => 'inline',
+            'type' => 'taxonomy_term_reference_link',
+            'weight' => 10,
           ),
           'teaser' => array(
-          'type' => 'hidden',
-          'weight' => 10,
+            'type' => 'hidden',
+            'weight' => 10,
           ),
         ),
       );
@@ -165,8 +165,8 @@ function flickr_block_update_7101() {
         // Define how the terms will be displayed on the user profile.
         'display' => array(
           'default' => array(
-          'type' => 'hidden',
-          'weight' => 10,
+            'type' => 'hidden',
+            'weight' => 10,
           ),
         ),
       );
@@ -234,6 +234,7 @@ function flickr_block_uninstall() {
   variable_del("flickr_block_refresh_others");
   variable_del('flickr_block_heading');
   variable_del('flickr_block_hide_empty');
+  variable_del('flickr_block_photos_per_set');
   foreach (range(0, 16) as $delta) {
     variable_del("flickr_block_{$delta}");
   }

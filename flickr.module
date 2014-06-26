@@ -612,7 +612,11 @@ function theme_flickr_photoset($variables) {
 
   if (module_exists('flickr_sets')) {
     $output = "<div class='flickr-photoset'>\n";
-    $photos = flickr_photosets_getphotos($photoset['id'], array('media' => $media));
+    $per_page = variable_get('flickr_block_photos_per_set', 6);
+    $photos = flickr_photosets_getphotos($photoset['id'], array(
+      'per_page' => $per_page,
+      'media' => $media,
+      ));
     if ($photos['photoset']['total']) {
       foreach ((array) $photos['photoset']['photo'] as $photo) {
         // Insert owner into $photo because theme_flickr_photo needs it.

@@ -837,8 +837,8 @@ function flickr_block_view($delta = '') {
             $terms = is_array($tags) ? $tags : explode(",", $tags);
             foreach ($galleries as $gallery) {
               foreach ($terms as $term) {
-                if (stripos($gallery['title']['_content'], $term) !== false || empty($term)) {
-                  $quit =1;
+                if (stripos($gallery['title']['_content'], $term) !== FALSE || empty($term)) {
+                  $quit = 1;
                   break;
                 }
               }
@@ -1012,7 +1012,7 @@ function flickr_block_view($delta = '') {
                 '@type' => $node->type,
                 '@current_path' => current_path(),
                 '@delta' => $delta,
-              )),'error', FALSE);
+              )), 'error', FALSE);
           }
           if (!empty($terms)) {
             $i = 0;
