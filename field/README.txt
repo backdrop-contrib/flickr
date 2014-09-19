@@ -58,3 +58,19 @@ NOTE:
 For square images ('s': 75px and 'q': 150px) no real width needs to be fetched,
 giving it a performance advantage over other sizes. Recommended if you include
 many images.
+
+FEEDS INTEGRATION
+=================
+If you have the feeds module enabled, you can export Flickr field data.
+- Go to 'Mapping' (under 'Processor') for your particular feed.
+- See and use the 3 new 'Target' options (named as your chosen field name with
+the targeted column (id, nsid and type) in brackets.
+
+The options are as follows:
+- id: This is the Flickr photo or set ID.
+- nsid: This is the Flickr user ID.
+- type: This is the type of Flickr field. Current options are 'photo_id' (for an
+individual photo) and 'id' (for a set).
+
+Find an example csv file and feeds importer at:
+https://www.drupal.org/node/2339189#comment-9160963

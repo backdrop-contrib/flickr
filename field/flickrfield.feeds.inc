@@ -8,7 +8,7 @@
 /**
  * Implements hook_feeds_processor_targets_alter().
  *
- * @see FeedsNodeProcessor::getMappingTargets().
+ * @see FeedsNodeProcessor::getMappingTargets()
  */
 function flickrfield_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name) {
 
@@ -16,10 +16,10 @@ function flickrfield_feeds_processor_targets_alter(&$targets, $entity_type, $bun
     $info = field_info_field($name);
 
     if (in_array($info['type'], array('flickrfield'))) {
-      foreach($info['columns'] as $id => $column) {
-        
+      foreach ($info['columns'] as $id => $column) {
+
         $targets[$name . ':' . $id] = array(
-          'name'        => check_plain($instance['label'] . t(' (@id)', array('@id' => $id))),
+          'name'        => check_plain($instance['label'] . ' ' . t('(@id)', array('@id' => $id))),
           'callback'    => 'flickrfield_feeds_set_target',
           'description' => t('The field instance @label  -column @id.', array(
             '@label' => $instance['label'],
@@ -56,16 +56,16 @@ function flickrfield_feeds_set_target($source, $entity, $target, $value) {
 
   // Assume that the passed in value could really be any number of values.
   $value = is_array($value) ? $value : array($value);
-  
+
   // Set the language of the field depending on the mapping.
   $language = isset($mapping['language']) ? $mapping['language'] : LANGUAGE_NONE;
-  
+
   // Determine the field we are matching against.
   list($target, $match_key) = explode(':', $target, 2);
-  
+
   // Get some useful field information.
   $info = field_info_field($target);
-  
+
   // Iterate over all values.
   $i = 0;
   $field = isset($entity->$target) ? $entity->$target : array();
@@ -78,7 +78,7 @@ function flickrfield_feeds_set_target($source, $entity, $target, $value) {
     }
     $i++;
   }
-  
+
   // Add the field to the entity definition.
   $entity->{$target} = $field;
 }
