@@ -60,7 +60,7 @@ function flickr_admin_settings() {
     '#default_value' => variable_get('flickr_cache_duration', 3600),
     '#description' => t('The refresh interval indicating how often you want to check cached Flickr API calls are up to date.'),
   );
-  $cache_warming =  l(t('cache warming'), 'https://drupal.org/node/1576686', array(
+  $cache_warming = l(t('cache warming'), 'https://drupal.org/node/1576686', array(
     'attributes' => array(
       'title' => t('Load Page Cache after cron Runs | Drupal.org'),
       'target' => '_blank',

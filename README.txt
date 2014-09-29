@@ -212,6 +212,12 @@ sizes make navigating to next and previous pictures slower. TAKE CARE, n (320px)
 and c (800px) sizes are missing on many "older" Flickr images!
 Defaults to -: 500 px on longest side.
 
+Additionally: Enable playing videos within Colorbox
+--------------------------------------------------
+- Go to '/admin/config/media/colorbox'.
+- Select the checkbox 'Enable Colorbox inline' and 'Save configuration'.
+- Clear your site cache (https://drupal.org/node/42055).
+
 BLOCK SETTINGS (field group)
 --------------------------------------
 Only if the submodule Flickr Block is enabled.
