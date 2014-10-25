@@ -540,14 +540,14 @@ function theme_flickr_photo($variables) {
     }
     if ($photo['media'] == 'video' && module_exists('colorbox') && variable_get('colorbox_inline', 0) == 1) {
       return '<div style="display: none;">
-      <div id="myFlickrVideo">
+      <div id="' . $photo['id'] . '">
         <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" data="https://www.flickr.com/apps/video/stewart.swf" type="application/x-shockwave-flash" height="270" width="480">
           <param name="flashvars" value="intl_lang=en-US&amp;photo_secret=' . $photo['secret'] . '&amp;photo_id=' . $photo['id'] . '&amp;hd_default=false">
           <param name="movie" value="https://www.flickr.com/apps/video/stewart.swf"><param name="bgcolor" value="#000000">
           <param name="allowFullScreen" value="true"><embed allowfullscreen="true" bgcolor="#000000" flashvars="intl_lang=en-US&amp;photo_secret=' . $photo['secret'] . '&amp;photo_id=' . $photo['id'] . '&amp;hd_default=false" src="https://www.flickr.com/apps/video/stewart.swf" type="application/x-shockwave-flash" height="270" width="480">
         </object>
       </div>
-      </div><span class="flickr-wrap' . $class_float . '"' . $style_float . '>' . l($img, $photo_url . '/?width=480&height=280&inline=true#myFlickrVideo', array(
+      </div><span class="flickr-wrap' . $class_float . '"' . $style_float . '>' . l($img, $photo_url . '/?width=480&height=280&inline=true#' . $photo['id'], array(
         'attributes' => array(
           'title' => $overlayhtml,
           'class' => 'colorbox-inline',
