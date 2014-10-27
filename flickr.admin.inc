@@ -147,7 +147,7 @@ function flickr_admin_settings() {
     '#type' => 'checkbox',
     '#title' => t('License info in caption'),
     '#default_value' => variable_get('flickr_license', 0),
-    '#description' => t("To give !attribution. Depends on 'Minimum image width' above. After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution)),
+    '#description' => t("To give !attribution. Depends on 'Minimum image width' above. After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.<br />Currently used source for the CC icon font in 'flickr.css':<br />https://cdnjs.cloudflare.com/ajax/libs/cc-icons/1.2.0/fonts/cc-icons.ttf (through http://cdnjs.com/libraries/cc-icons#)<br />Alternatively use the http version at http://mirrors.creativecommons.org/presskit/cc-icons.ttf or download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr.css' accordingly.", array('!attribution' => $attribution)),
   );
   $style_doc = l(t('Style Guide'), 'https://drupal.org/node/2174131#caption', array(
       'attributes' => array(
