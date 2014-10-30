@@ -226,6 +226,15 @@ function flickr_admin_settings() {
       '#size' => 4,
       '#maxlength' => 4,
     );
+    // Offer the following setting if the ctools module is enabled.
+    if (module_exists('ctools')) {
+      $form['filter_settings']['flickr_filter_collapsible'] = array(
+        '#type' => 'checkbox',
+        '#title' => t("Collapsible filter tips (collapsed by default)"),
+        '#default_value' => variable_get('flickr_filter_collapsible', 1),
+        '#description' => t('Collapse the in-line help for the Flickr Filter text format under the body field on node edit forms.'),
+      );
+    }
   }
   if (module_exists('flickr_block')) {
     $form['block_settings'] = array(
