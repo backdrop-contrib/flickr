@@ -361,7 +361,60 @@ function theme_flickr_photo($variables) {
   // If it is not a square.
   if (!isset($width)) {
     // Get the real width of the image.
-    list($width) = getimagesize($img_url);
+    // Reset the variable to use cURL if not available. In case it has been
+    // removed. Unlikely but possible.
+    if (!function_exists('curl_version')) {
+      variable_set('flickr_curl', 0);
+    }
+    // 'getimagesize' needs 'allow_url_fopen' to be enabled.
+    if (ini_get("allow_url_fopen") && variable_get('flickr_curl', 0) == 0) {
+      list($width) = getimagesize($img_url);
+    }
+    // Fallback to cURL if fopen cannot be used or cURL is set to be used.
+    elseif (function_exists('curl_version')) {
+      $width = ranger($img_url);
+    }
+    // Our server settings don't allow us to determine the image width.
+    // Use the known longest side of the image for the width. Leads to
+    // horizontal white space on portrait orientated images.
+    else {
+      switch ($size) {
+      case 't':
+        $width = '100';
+        break;
+
+      case 'm':
+        $width = '240';
+        break;
+
+      case 'n':
+        $width = '320';
+        break;
+
+      case 'z':
+        $width = '640';
+        break;
+
+      case 'c':
+        $width = '800';
+        break;
+
+      case 'b':
+        $width = '1024';
+        break;
+
+      case 'h':
+        $width = '1600';
+        break;
+
+      case 'k':
+        $width = '2048';
+        break;
+
+      default:
+        $width = '500';
+      }
+    }
   }
   $photo_url = flickr_photo_page_url($photo['owner'], $photo['id']);
   $info = flickr_photo_get_info($photo['id']);
@@ -735,4 +788,20 @@ function theme_flickr_flickrcomslideshow_simple($variables) {
       break;
   }
   return '<div class="flickr-slideshow"><object type="text/html" data="' . $src . '"></object></div>';
+}
+
+/**
+ * Alternative to the PHP function getimagesize. See
+ * http://stackoverflow.com/questions/4635936/super-fast-getimagesize-in-php.
+ */
+function ranger($url) {
+  $headers = array("Range: bytes=0-32768");
+  $curl = curl_init($url);
+  curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+  $data = curl_exec($curl);
+  curl_close($curl);
+  $im = imagecreatefromstring($data);
+  $width = imagesx($im);
+  return $width;
 }

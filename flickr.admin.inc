@@ -113,6 +113,15 @@ function flickr_admin_settings() {
     '#default_value' => variable_get('flickr_css', 1),
     '#description' => t("Uncheck to take care of the styling yourself in custom CSS.<br />Side note: Extend CSS even further with the !style_doc. If you use Flickr Filter, you might find the <a href='https://drupal.org/project/autofloat'>AutoFloat module</a> useful.", array('!style_doc' => $style_doc)),
   );
+  // Offer the following setting if both allow_url_fopen and curl are enabled.
+  if (ini_get("allow_url_fopen") && function_exists('curl_version')) {
+    $form['flickr_curl'] = array(
+      '#type' => 'checkbox',
+      '#title' => t("Use cURL to determine the image width instead of the PHP function 'getimagesize'."),
+      '#default_value' => variable_get('flickr_curl', 0),
+      '#description' => t("It has been detected your server configuration allows both 'fopen' for external resources (used by 'getimagesize') and 'cURL' that might be faster. <a href='https://stackoverflow.com/a/4635991'>More info</a>."),
+    );
+  }
   $form['info_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Flickr info to use'),
