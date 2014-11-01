@@ -301,6 +301,23 @@ function flickr_admin_settings() {
       '#title' => t('Photoset settings'),
       '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
     );
+    $form['photoset_settings']['flickr_setthumb_default_size'] = array(
+      '#type' => 'select',
+      '#title' => t('Size for the photo representing a set'),
+      '#default_value' => variable_get('flickr_setthumb_default_size', 's'),
+      '#options' => array(
+        's' => t('s: 75 px square'),
+        't' => t('t: 100 px on longest side'),
+        'q' => t('q: 150 px square'),
+        'm' => t('m: 240 px on longest side'),
+        'n' => t('n: 320 px on longest side (!)'),
+        '-' => t('-: 500 px on longest side'),
+        'z' => t('z: 640 px on longest side'),
+        'c' => t('c: 800 px on longest side (!)'),
+        'b' => t('b: 1024 px on longest side'),
+      ),
+      '#description' => t('!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+    );
     $form['photoset_settings']['flickr_sets_per_page'] = array(
       '#type' => 'textfield',
       '#title' => t('Number of photosets per page'),

@@ -184,7 +184,7 @@ function theme_flickr_sets_photosets($variables) {
       'photoset' => $photoset,
       'uid' => $uid,
       'nsid' => $nsid,
-      'size' => 's',
+      'size' => variable_get('flickr_setthumb_default_size', 's'),
     ));
   }
   $output .= '</div>';
