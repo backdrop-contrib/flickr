@@ -301,10 +301,10 @@ function flickr_admin_settings() {
       '#title' => t('Photoset settings'),
       '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
     );
-    $form['photoset_settings']['flickr_setthumb_default_size'] = array(
+    $form['photoset_settings']['flickr_sets_thumb_default_size'] = array(
       '#type' => 'select',
       '#title' => t('Size for the photo representing a set'),
-      '#default_value' => variable_get('flickr_setthumb_default_size', 's'),
+      '#default_value' => variable_get('flickr_sets_thumb_default_size', 's'),
       '#options' => array(
         's' => t('s: 75 px square'),
         't' => t('t: 100 px on longest side'),
@@ -327,11 +327,11 @@ function flickr_admin_settings() {
       '#size' => 2,
       '#maxlength' => 2,
     );
-    $form['photoset_settings']['flickr_photos_per_set'] = array(
+    $form['photoset_settings']['flickr_sets_photos_per_set'] = array(
       '#type' => 'textfield',
       '#title' => t('Number of photos per set'),
       '#required' => TRUE,
-      '#default_value' => variable_get('flickr_photos_per_set', 6),
+      '#default_value' => variable_get('flickr_sets_photos_per_set', 6),
       '#description' => t('The number indicates how many photos display in a set on user profile pages at <em>flickr/%uid/sets/%nsid</em>. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
       '#size' => 2,
       '#maxlength' => 2,
@@ -400,7 +400,7 @@ function flickr_admin_settings_validate($form, &$form_state) {
   }
   if (module_exists('flickr_sets')) {
     $limit8 = trim($form_state['values']['flickr_sets_per_page']);
-    $limit9 = trim($form_state['values']['flickr_photos_per_set']);
+    $limit9 = trim($form_state['values']['flickr_sets_photos_per_set']);
   }
   if ($key && (preg_match('/^[A-Fa-f\d]{32}$/', $key) != 1)) {
     form_set_error('flickr_api_key', t('This does not appear to be a Flickr API key.'));
@@ -455,7 +455,7 @@ function flickr_admin_settings_validate($form, &$form_state) {
     }
     // Validate photos per set.
     if (!is_numeric($limit9) || $limit9 < 1) {
-      form_set_error('flickr_photos_per_set', t('Set a number from 1 to 99.'));
+      form_set_error('flickr_sets_photos_per_set', t('Set a number from 1 to 99.'));
     }
   }
 }

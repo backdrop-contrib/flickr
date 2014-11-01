@@ -10,4 +10,5 @@
 function flickr_filter_uninstall() {
   variable_del('flickr_filter_heading');
   variable_del('flickr_filter_default_size');
+  variable_del('flickr_filter_collapsible');
 }
