@@ -827,8 +827,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         switch ($type) {
           case "favorites":
           case "gallery":
-            $output .= t('You cannot choose a @type slideshow. Select another size.', array('@type' => $type)) . '<br /><br />';
-            drupal_set_message(t('You cannot choose a @type slideshow. Select another size.', array('@type' => $type)), 'error');
+            $output .= '<div class="messages error">' . t("You cannot choose a slideshow for '@type'. Select another size.", array('@type' => $type)) . '</div>';
+            drupal_set_message(t("You cannot choose a slideshow for '@type'. Select another size.", array('@type' => $type)), 'error', FALSE);
             break;
 
           default:
@@ -837,7 +837,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             $output .= theme('flickr_flickrcomslideshow', array(
               'id' => $id,
             ));
-            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags and media settings."), 'warning');
+            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags and media settings."), 'warning', FALSE);
             break;
         }
         break;
@@ -846,20 +846,20 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         switch ($type) {
           case "favorites":
           case "gallery":
-            $output .= t('You cannot choose a @type slideshow. Select another size.', array('@type' => $type)) . '<br /><br />';
-            drupal_set_message(t('You cannot choose a @type slideshow. Select another size.', array('@type' => $type)), 'error');
+            $output .= '<div class="messages error">' . t("You cannot choose a slideshow for '@type'. Select another size.", array('@type' => $type)) . '</div>';
+            drupal_set_message(t("You cannot choose a slideshow for '@type'. Select another size.", array('@type' => $type)), 'error', FALSE);
             break;
 
           case "group":
-            $output .= t('Choose the Flash slideshow for group pool albums (size = x).') . '<br /><br />';
-            drupal_set_message(t('Choose the Flash slideshow for group pool albums (size = x).'), 'error');
+            $output .= '<div class="messages error">' . t('Choose the Flash slideshow for group pool albums (size = x).') . '</div>';
+            drupal_set_message(t('Choose the Flash slideshow for group pool albums (size = x).'), 'error', FALSE);
             break;
 
           default:
             $output .= theme('flickr_flickrcomslideshow_simple', array(
               'id' => $id,
             ));
-            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags and media settings."), 'warning');
+            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags and media settings."), 'warning', FALSE);
             break;
         }
         break;
@@ -1014,7 +1014,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         // No Flickr tags specified and on a node page.
         if ($vocab_isset != 0 && empty($tags) && (arg(0) == 'node' && is_numeric(arg(1)) && (arg(2) == '' || arg(2) == 'view'))) {
           $vocab_name = taxonomy_vocabulary_load($vocab_isset)->name;
-          $output .= t('Post has no !vocab_name specified.', array('!vocab_name' => '<em>' . $vocab_name . '</em>'));
+          $output .= t("Post has no !vocab_name specified.", array('!vocab_name' => '<em>' . $vocab_name . '</em>'));
         }
         // No Flickr tags specified, not on a node page, thus show all.
         elseif ((empty($tags)  && empty($tags_user)) || ($type == 'gallery' && is_numeric($delta))) {

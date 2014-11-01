@@ -498,6 +498,37 @@ function flickr_block_save($delta = '', $edit = array()) {
     // Photos from a Flickr user.
     case 3:
     case 5:
+      $userid = $edit["flickr_block_{$delta}_user_id"];
+      if (!empty($userid) && $userid != 'public') {
+        if (!flickr_is_nsid($edit["flickr_block_{$delta}_user_id"])) {
+          if ($user = flickr_user_find_by_identifier($userid)) {
+            drupal_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $edit["flickr_block_{$delta}_user_id"], '%uid' => $user)));
+            $edit["flickr_block_{$delta}_user_id"] = $user;
+          }
+        }
+        else {
+          $info = flickr_people_get_info($edit["flickr_block_{$delta}_user_id"]);
+          drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
+
+        }
+      }
+      $vocab = module_exists('taxonomy') ? (int) $edit["flickr_block_{$delta}_vocab"] : 0;
+      variable_set('flickr_block_' . $delta, array(
+        'user_id' => $edit["flickr_block_{$delta}_user_id"],
+        'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
+        'size' => $edit["flickr_block_{$delta}_size"],
+        'sort' => $edit["flickr_block_{$delta}_sort"],
+        'filter' => $edit["flickr_block_{$delta}_filter"],
+        'media' => $edit["flickr_block_{$delta}_media"],
+        'vocab' => $vocab,
+        'min_title' => $edit["flickr_block_{$delta}_min_title"],
+        'min_metadata' => $edit["flickr_block_{$delta}_min_metadata"],
+      ));
+      $nsid = empty($edit["flickr_block_{$delta}_user_id"]) ? variable_get('flickr_default_userid', '') : $edit["flickr_block_{$delta}_user_id"];
+      cache_clear_all('flickr_block_' . $delta, 'cache', TRUE);
+      break;
+
+    // Favorites from a Flickr user.
     case 9:
     case 12:
       $userid = $edit["flickr_block_{$delta}_user_id"];
@@ -520,7 +551,6 @@ function flickr_block_save($delta = '', $edit = array()) {
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
         'size' => $edit["flickr_block_{$delta}_size"],
         'sort' => $edit["flickr_block_{$delta}_sort"],
-        'filter' => $edit["flickr_block_{$delta}_filter"],
         'media' => $edit["flickr_block_{$delta}_media"],
         'vocab' => $vocab,
         'min_title' => $edit["flickr_block_{$delta}_min_title"],
