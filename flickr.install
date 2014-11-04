@@ -5,6 +5,17 @@
  */
 
 /**
+ * Implements hook_install().
+ */
+function flickr_install() {
+  if (module_exists('colorbox')) {
+    variable_set('flickr_class', 'colorbox');
+    variable_set('flickr_rel', 'gallery-all');
+    variable_set('colorbox_inline', 1);
+  }
+}
+
+/**
  * Implements hook_uninstall().
  */
 function flickr_uninstall() {
@@ -84,4 +95,15 @@ function flickr_update_7001() {
  */
 function flickr_update_7101() {
   variable_del("flickr_default_size");
+}
+
+/**
+ * Enable 'Colorbox inline' to allow playing videos inside Colorbox.
+ */
+function flickr_update_7102() {
+  if (module_exists('colorbox')) {
+    variable_set('flickr_class', 'colorbox');
+    variable_set('flickr_rel', 'gallery-all');
+    variable_set('colorbox_inline', 1);
+  }
 }
