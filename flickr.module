@@ -591,6 +591,9 @@ function theme_flickr_photo($variables) {
     if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) {
       $url = $photo_url;
     }
+    if (!isset($photo['media'])) {
+      $photo = flickr_photo_get_info($photo['id']);
+    }
     if ($photo['media'] == 'video' && module_exists('colorbox') && variable_get('colorbox_inline', 0) == 1) {
       return '<div style="display: none;">
       <div id="' . $photo['id'] . '">
