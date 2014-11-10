@@ -493,7 +493,7 @@ function flickr_get_id_type($id) {
 /**
  * Render multiple photos as an album.
  */
-function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $page = 1) {
+function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $page = 1) {
   // Remove spaces from tags but save the original for e.g. the block title.
   $tagsfix = $tags;
   $pagefix = $page;
@@ -815,8 +815,32 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         )) : $flickr;
         $username = ($id == '39873962@N08' || empty($id)) ? '' : ' ' . t('by') . ' ' . $people['name'];
         $map = ($id == '39873962@N08' || empty($id)) ? '' : $map;
-        $pre_output = ($id == '39873962@N08' || empty($id)) ? strip_tags($photos) . ' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ' . strip_tags($username . ' ' . $map) : $photos . ' '  . $tagged . ' ' . $username . ' ' . $map;
-        $pre_output .= (($id == '39873962@N08' || empty($id)) && empty($tags)) ? '<br />&nbsp;&nbsp;' . t('[Message: Provide some tags for public photos]') : '';
+        if (isset($lat)) {
+          $place_id = flickr_places_findbylatlon($lat, $lon);
+          $place_name = $place_id['places']['place'][0]['name'];
+          if ($id == '39873962@N08' || empty($id)) {
+            $place_name = l($place_name, 'https://www.flickr.com/map?&location=' . $place_name, array(
+              'attributes' => array(
+                'title' => t('View photos on Flickr map.'),
+                'target' => '_blank',
+                'class' => array('flickr-location'),
+              ),
+            ));
+          }
+          else {
+            $place_name = l($place_name, 'https://www.flickr.com/photos/' . $id . '/map?&location=' . $place_name, array(
+              'attributes' => array(
+                'title' => t('View photos on Flickr map.'),
+                'target' => '_blank',
+                'class' => array('flickr-location'),
+              ),
+            ));
+          }
+        }
+        $place = (isset($lat)) ? t('near') . ' ' . $place_name . ' ' : '';
+        $tags2 = ($tags1 != '') ? ' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ' : '';
+        $pre_output = ($id == '39873962@N08' || empty($id)) ? strip_tags($photos) . $tags2 . strip_tags($username) . ' ' . $place . strip_tags($map) : $photos . ' '  . $tagged . ' ' . $place . $username . ' ' . $map;
+        $pre_output .= (($id == '39873962@N08' || empty($id)) && empty($tags) && !isset($lat)) ? '<div class="messages warning">' . t('Provide some tags or a location for public photos.') . '</div>' : '';
         $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . $pre_output . '</' . $heading . '>';
         break;
     }
@@ -837,7 +861,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             $output .= theme('flickr_flickrcomslideshow', array(
               'id' => $id,
             ));
-            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags and media settings."), 'warning', FALSE);
+            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags, location and media settings."), 'warning', FALSE);
             break;
         }
         break;
@@ -859,7 +883,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             $output .= theme('flickr_flickrcomslideshow_simple', array(
               'id' => $id,
             ));
-            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags and media settings."), 'warning', FALSE);
+            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags, location and media settings."), 'warning', FALSE);
             break;
         }
         break;
@@ -884,7 +908,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         $rest_ok = ($total % variable_get('flickr_per_page', 100)) > 3 * $show_n ? 1 : 0;
         $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : $page;
 // UNCOMMENT THE NEXT LINE FOR DEBUG INFO. ENABLE THE DEVEL MODULE FIRST.
-// dpm('$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total);
+// dpm('$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total . ' $lat=' . $lat . ' $lon=' . $lon . ' $radius=' . $radius);
         // Get a list of "all" the photos. This is cached.
         switch ($type) {
           case "photoset":
@@ -940,13 +964,27 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             $valid_sort = ($sort == 'date-taken-desc' || $sort == 'date-posted-desc') ? $sort : '';
             // Filter gets priority. Date sorting will be done anyway later.
             $valid_sort = ($filter == 'interestingness-desc' || $filter == 'relevance') ? $filter : $valid_sort;
-            $response = flickr_photos_search($id, $page, array(
-              'tags' => $tags_combined,
-              'sort' => $valid_sort,
-              'per_page' => $per_page,
-              'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
-              'media' => $media,
-            ));
+            if (isset($lat)) {
+              $response = flickr_photos_search($id, $page, array(
+                'tags' => $tags_combined,
+                'sort' => $valid_sort,
+                'per_page' => $per_page,
+                'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
+                'media' => $media,
+                'lat' => $lat,
+                'lon' => $lon,
+                'radius' => $radius,
+              ));
+            }
+            else {
+              $response = flickr_photos_search($id, $page, array(
+                'tags' => $tags_combined,
+                'sort' => $valid_sort,
+                'per_page' => $per_page,
+                'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
+                'media' => $media,
+              ));
+            }
             if (!$response) {
               return;
             }

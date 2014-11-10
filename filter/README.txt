@@ -164,7 +164,7 @@ Examples:
 - photoset: '72157634563269642' in
   https://www.flickr.com/photos/98518260@N02/sets/72157634563269642
 - gallery: '72157645025390895' in
-  http://www.flickr.com/photos/martinpostma/galleries/72157645025390895
+  https://www.flickr.com/photos/martinpostma/galleries/72157645025390895
 
 For users and groups you can also use the path alias if it exists:
 - group: 'southseauk' in https://www.flickr.com/groups/southseauk
@@ -172,8 +172,9 @@ For users and groups you can also use the path alias if it exists:
 For albums you have the extra sizes 'x' and 'y' available that result in a Flash
 or non-Flash slideshow over the full content width (responsive). Note that for
 now a slideshow is only supported for photosets, groups and users and any other
-parameters are ignored (NO sort or tags). To add some spacing above and below a
-slideshow, modify your CSS or add some lines that contain a non breaking space:
+parameters are ignored (NO sort, tags or location). To add some spacing above
+and below a slideshow, modify your CSS or add some lines that contain a non
+breaking space:
 
 &nbsp;
 [flickr-photoset:id=72157634563269642,size=y]
@@ -184,6 +185,7 @@ For all other sizes the following parameters can be used:
 
 num : The number of photos to show.
 tags : Flickr tags to filter on.
+location : Lattitude, longitude and optionally radius in km (defaults to 5 km).
 media : photos, videos or all.
 heading : To suppress the album title.
 sort : Date taken, posted, number of views, random or unsorted.

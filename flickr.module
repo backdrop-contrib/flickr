@@ -542,6 +542,7 @@ function theme_flickr_photo($variables) {
     'attributes' => array(
       'title' => t('View photo on Flickr map.'),
       'target' => '_blank',
+      'class' => array('flickr-location'),
     ),
   )) : '';
   // Compose extra Flickr info as HTML to render.

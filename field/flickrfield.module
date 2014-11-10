@@ -255,7 +255,7 @@ function flickrfield_field_formatter_info() {
  * @todo: the theme definitions for our field-formatters should be removed from
  * flickrfield_theme() and implemented here
  * @ see
- *   http://drupal.org/node/728792 (section "Changed! Hook Formatter")
+ *   https://drupal.org/node/728792 (section "Changed! Hook Formatter")
  */
 function flickrfield_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
@@ -277,7 +277,7 @@ function flickrfield_field_formatter_view($entity_type, $entity, $field, $instan
  * @todo: the theme definitions for our field-formatters should go in
  * flickrfield_field_formatter_view()
  * @ see
- *   http://drupal.org/node/728792 (section "Changed! Hook Formatter")
+ *   https://drupal.org/node/728792 (section "Changed! Hook Formatter")
  */
 function flickrfield_theme() {
   require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'flickr') . '/flickr.inc';

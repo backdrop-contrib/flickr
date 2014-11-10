@@ -67,6 +67,7 @@ function flickr_photos_search($nsid, $page = 1, $other_args = array()) {
     $args = array(
       'user_id' => '',
       'tag_mode' => 'all',
+      // Uncomment below line to NOT restrict public photos to only CC licensed.
       'license' => '1,2,3,4,5,6,7',
       'page' => $page,
     );
@@ -478,6 +479,31 @@ function flickr_people_getpublicphotos($nsid, $page = 1, $other_args = array()) 
   }
 
   $response = flickr_request('flickr.people.getPublicPhotos', array_merge($args, $other_args));
+  if ($response) {
+    return $response;
+  }
+  return FALSE;
+}
+
+/**
+ * Returns a place ID for a latitude and longitude.
+ *
+ * @param string $lat
+ *   Latitude from -90 to 90. Anything after 4 decimals will be truncated.
+ * @param string $lon
+ *   Longitude from -90 to 90. Anything after 4 decimals will be truncated.
+ *
+ * @return array $response
+ *   Response from the flickr method flickr.places.findByLatLon.
+ *   (https://www.flickr.com/services/api/flickr.places.findByLatLon.html)
+ */
+function flickr_places_findbylatlon($lat, $lon) {
+  $args = array(
+    'lat' => $lat,
+    'lon' => $lon,
+  );
+
+  $response = flickr_request('flickr.places.findByLatLon', $args);
   if ($response) {
     return $response;
   }
