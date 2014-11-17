@@ -28,6 +28,14 @@ function flickr_page_build(&$page) {
       'every_page' => TRUE,
     ));
   }
+  // Determine the setting to use flickr_cc_icons.css or not (license info in
+  // the caption).
+  if (variable_get('flickr_license', 0)) {
+    drupal_add_css(drupal_get_path('module', 'flickr') . '/flickr_cc_icons.css', array(
+      'group' => CSS_DEFAULT,
+      'every_page' => TRUE,
+    ));
+  }
   // Adds a link to the Flickr photo page in the Colorbox 'default' style.
   // Tweak the condition to apply on other styles. Also needs CSS changes.
   // !path_is_admin($_GET['q'])) was added to avoid the JS kicking in on admin
