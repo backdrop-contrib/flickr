@@ -186,6 +186,8 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
  *   size if it is available.
  */
 function flickr_img($photo, $size = NULL, $attributes = NULL) {
+// UNCOMMENT THE NEXT LINE FOR PHOTO DEBUG INFO. ENABLE THE DEVEL MODULE FIRST.
+// dpm($photo);
   $sizes = flickr_photo_sizes();
   if (!isset($size)) {
     $size = '-';
@@ -898,16 +900,18 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         // ...but if unsorted or user/date, limit it more (except size 'n')...
         $per_page = (($sort == 'unsorted' || ($type == 'user' && ($sort == 'date-taken-desc' || $sort == 'date-posted-desc') && empty($filter))) && $size != 'n') ? $show_n : $per_page;
         // When we have a photoset, gallery or favorites, use the maximum...
-        $per_page = (($type == 'favorites' || $type == 'photoset' || $type == 'gallery') && !empty($tags)) ? 500 : $per_page;
+        $per_page = ($type == 'favorites' || $type == 'photoset' || $type == 'gallery') && (!empty($tags) || ($sort == 'date-taken-desc' || $sort == 'date-posted-desc')) ? $total : $per_page;
         // ...but when filtering on muiltiple tags in groups, use the maximum.
-        $per_page = ((strpos($tags, ',') !== FALSE && $type == 'group') || ($id == '39873962@N08' && $sort == 'date-taken-desc' && empty($filter))) ? 500 : $per_page;
+        $per_page = (strpos($tags, ',') !== FALSE && $type == 'group') || ($id == '39873962@N08' && $sort == 'date-taken-desc' && empty($filter)) ? $total : $per_page;
+        // Fallback: Avoid that $page can be empty or 0.
+        $per_page = isset($page) && $per_page > 0 ? $per_page : variable_get('flickr_per_page', 100);
         // If we could have a response of over [variable_get('flickr_per_page',
         // 100)] photos, we want a random sort to take a random page first, so
         // any photos could be taken (not only from the most recent batch).
         // The amount in the last page has to be sufficient to draw a random.
         $rest_ok = ($total % variable_get('flickr_per_page', 100)) > 3 * $show_n ? 1 : 0;
         $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : $page;
-// UNCOMMENT THE NEXT LINE FOR DEBUG INFO. ENABLE THE DEVEL MODULE FIRST.
+// UNCOMMENT THE NEXT LINE FOR ALBUM DEBUG INFO. ENABLE THE DEVEL MODULE FIRST.
 // dpm('$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total . ' $lat=' . $lat . ' $lon=' . $lon . ' $radius=' . $radius);
         // Get a list of "all" the photos. This is cached.
         switch ($type) {
