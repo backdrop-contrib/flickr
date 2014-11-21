@@ -1121,6 +1121,7 @@ function _flickr_block_photosets($nsid, $show_n, $size, $media, $delta, $people 
             'media' => $media,
             'min_title' => $min_title,
             'min_metadata' => $min_metadata,
+            'per_page' => variable_get('flickr_block_photos_per_set', 6),
           ));
           // A counter if set to show.
           $flickr = l(t("set on Flickr"), $people['photosurl'] . 'sets/' . $photosets[$i]['id'] . '/', array(

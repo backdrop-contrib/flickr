@@ -369,6 +369,7 @@ function theme_flickrfield_field_formatter($element) {
         'attribs' => NULL,
         'size' => $formatter,
         'photoset' => $photo_data,
+        'per_page' => variable_get('flickr_sets_photos_per_set', 6),
       ));
   }
 }

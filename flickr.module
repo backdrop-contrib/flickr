@@ -702,10 +702,10 @@ function theme_flickr_photoset($variables) {
   $attribs = $variables['attribs'];
   $min_title = $variables['min_title'];
   $min_metadata = $variables['min_metadata'];
+  $per_page = (isset($variables['per_page'])) ? $variables['per_page'] : variable_get('flickr_photos_per_page', 6);
 
   if (module_exists('flickr_sets')) {
     $output = "<div class='flickr-photoset'>\n";
-    $per_page = variable_get('flickr_block_photos_per_set', 6);
     $photos = flickr_photosets_getphotos($photoset['id'], array(
       'per_page' => $per_page,
       'media' => $media,
@@ -721,6 +721,7 @@ function theme_flickr_photoset($variables) {
           'attribs' => $attribs,
           'min_title' => $variables['min_title'],
           'min_metadata' => $variables['min_metadata'],
+          'per_page' => $per_page,
           ));
       }
     }
