@@ -821,25 +821,28 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           $place_id = flickr_places_findbylatlon($lat, $lon);
           $place_name = $place_id['places']['place'][0]['name'];
           if ($id == '39873962@N08' || empty($id)) {
-            $place_name = l($place_name, 'https://www.flickr.com/map?&location=' . $place_name, array(
+            $place_name = !is_array($place_name) ? l($place_name, 'https://www.flickr.com/map?&location=' . $place_name, array(
               'attributes' => array(
                 'title' => t('View photos on Flickr map.'),
                 'target' => '_blank',
                 'class' => array('flickr-location'),
               ),
-            ));
+            )) : $place_name;
           }
           else {
-            $place_name = l($place_name, 'https://www.flickr.com/photos/' . $id . '/map?&location=' . $place_name, array(
+            $place_name = !is_array($place_name) ? l($place_name, 'https://www.flickr.com/photos/' . $id . '/map?&location=' . $place_name, array(
               'attributes' => array(
                 'title' => t('View photos on Flickr map.'),
                 'target' => '_blank',
                 'class' => array('flickr-location'),
               ),
-            ));
+            )) : $place_name;
+          }
+          if (is_array($place_name)) {
+            drupal_set_message(t("Temporarily the album location could not be retrieved from Flickr and is therefore omitted in the album title."), 'warning', FALSE);
           }
         }
-        $place = (isset($lat)) ? t('near') . ' ' . $place_name . ' ' : '';
+        $place = isset($lat) && !is_array($place_name) ? t('near') . ' ' . $place_name . ' ' : '';
         $tags2 = ($tags1 != '') ? ' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ' : '';
         $pre_output = ($id == '39873962@N08' || empty($id)) ? strip_tags($photos) . $tags2 . strip_tags($username) . ' ' . $place . strip_tags($map) : $photos . ' '  . $tagged . ' ' . $place . $username . ' ' . $map;
         $pre_output .= (($id == '39873962@N08' || empty($id)) && empty($tags) && !isset($lat)) ? '<div class="messages warning">' . t('Provide some tags or a location for public photos.') . '</div>' : '';
