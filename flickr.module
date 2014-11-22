@@ -224,7 +224,7 @@ function flickr_photos($user = NULL) {
   $nsid = flickr_user_find_by_identifier($nsid);
   $photos = flickr_photos_search($nsid, $pager_page_array[$element] + 1);
   if (!$photos) {
-    drupal_set_message(t('No accessible photos found for Flickr %userid', array('%userid' => $nsid)));
+    drupal_set_message(t('No accessible photos found for Flickr %userid', array('%userid' => $nsid)), 'warning');
     return FALSE;
   }
 
@@ -236,7 +236,8 @@ function flickr_photos($user = NULL) {
 }
 
 /**
- * Implements hook_user_load(). Adds the Flickr variables to the user object.
+ * Implements hook_user_load().
+ * Adds the Flickr variables to the user object.
  */
 function flickr_user_load($users) {
   $result = db_query('SELECT * FROM {flickr_users} WHERE uid IN (:uids)', array(':uids' => array_keys($users)));
@@ -387,40 +388,40 @@ function theme_flickr_photo($variables) {
     // horizontal white space on portrait orientated images.
     else {
       switch ($size) {
-      case 't':
-        $width = '100';
-        break;
+        case 't':
+          $width = '100';
+          break;
 
-      case 'm':
-        $width = '240';
-        break;
+        case 'm':
+          $width = '240';
+          break;
 
-      case 'n':
-        $width = '320';
-        break;
+        case 'n':
+          $width = '320';
+          break;
 
-      case 'z':
-        $width = '640';
-        break;
+        case 'z':
+          $width = '640';
+          break;
 
-      case 'c':
-        $width = '800';
-        break;
+        case 'c':
+          $width = '800';
+          break;
 
-      case 'b':
-        $width = '1024';
-        break;
+        case 'b':
+          $width = '1024';
+          break;
 
-      case 'h':
-        $width = '1600';
-        break;
+        case 'h':
+          $width = '1600';
+          break;
 
-      case 'k':
-        $width = '2048';
-        break;
+        case 'k':
+          $width = '2048';
+          break;
 
-      default:
-        $width = '500';
+        default:
+          $width = '500';
       }
     }
   }
@@ -747,7 +748,8 @@ function theme_flickr_photoset($variables) {
 }
 
 /**
- * Theme a Flickr photo set as an embedded Flickr.com slideshow (Flash).
+ * Theme Flickr set/user/group photos as an embedded Flickr.com slideshow
+ * (Flash, 'size' = x).
  */
 function theme_flickr_flickrcomslideshow($variables) {
   $id = $variables['id'];
@@ -774,11 +776,13 @@ function theme_flickr_flickrcomslideshow($variables) {
     case 'group':
       return '<div class="flickr-slideshow"><object  type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=140556"><param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=140556"></param><param name="flashvars" value="offsite=true&lang=en-us&page_show_url=%2Fgroups%2F' . $id . '%2Fpool%2Fshow%2F&page_show_back_url=%2Fgroups%2F' . $id . '%2Fpool%2F&group_id=' . $id . '&jump_to=&start_index="></param><param name="allowFullScreen" value="true"><param name="wmode" value="opaque" /></param></object></div>';
   }
+  drupal_set_message(t('No valid set, user or group ID is provided for the slideshow.'), 'error');
   return;
 }
 
 /**
- * Theme a Flickr photo set as an embedded Flickr.com slideshow (non Flash).
+ * Theme Flickr set/user/group photos as an embedded Flickr.com slideshow
+ * ('size' = y).
  */
 function theme_flickr_flickrcomslideshow_simple($variables) {
   $id = $variables['id'];

@@ -124,8 +124,16 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
     }
     $output .= theme('item_list', array('items' => $items));
   }
-  $options = array('handle' => 'Flickr Filter options. <a href="#">expand / collapse</a>', 'content' => $output, 'collapsed' => TRUE);
-  $output = module_exists('ctools') && variable_get('flickr_filter_collapsible', 1) ? theme('ctools_collapsible',$options) : $output;
+  $toggle = l(t('expand / collapse'), '#', array(
+    'attributes' => array(
+      'title' => t('Examples to embed Flickr images'),
+    ),
+  ));
+  $options = array(
+    'handle' => t('Flickr Filter options. !toggle', array('!toggle' => $toggle)),
+    'content' => $output, 'collapsed' => TRUE,
+  );
+  $output = module_exists('ctools') && variable_get('flickr_filter_collapsible', 1) ? theme('ctools_collapsible', $options) : $output;
   return $output;
 }
 
