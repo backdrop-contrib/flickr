@@ -30,7 +30,7 @@ function flickr_admin_settings() {
   );
   $default = variable_get('flickr_default_userid', '');
   if (!empty($default)) {
-    $info = flickr_people_get_info($default);
+    $info = flickr_people_getinfo($default);
     $default = $info['username']['_content'];
   }
   $form['flickr_default_userid'] = array(
@@ -489,7 +489,7 @@ function flickr_admin_settings_submit($form, &$form_state) {
     }
   }
   else {
-    $info = flickr_people_get_info($form_state['values']['flickr_default_userid']);
+    $info = flickr_people_getinfo($form_state['values']['flickr_default_userid']);
     drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $form_state['values']['flickr_default_userid'], '%userid' => $info['username']['_content'])));
   }
 }

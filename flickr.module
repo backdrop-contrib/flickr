@@ -426,7 +426,7 @@ function theme_flickr_photo($variables) {
     }
   }
   $photo_url = flickr_photo_page_url($photo['owner'], $photo['id']);
-  $info = flickr_photo_get_info($photo['id']);
+  $info = flickr_photos_getinfo($photo['id']);
   $people = flickr_get_user_info($info['owner']['nsid']);
   switch ($info['license']) {
     case '0':
@@ -602,7 +602,7 @@ function theme_flickr_photo($variables) {
       $url = $photo_url;
     }
     if (!isset($photo['media'])) {
-      $photo = flickr_photo_get_info($photo['id']);
+      $photo = flickr_photos_getinfo($photo['id']);
     }
     if ($photo['media'] == 'video' && module_exists('colorbox') && variable_get('colorbox_inline', 0) == 1) {
       return '<div style="display: none;">
@@ -758,7 +758,7 @@ function theme_flickr_flickrcomslideshow($variables) {
   }
   switch (flickr_get_id_type($id)) {
     case 'photoset':
-      $info = flickr_photoset_get_info($id);
+      $info = flickr_photosets_getinfo($id);
       $user_id = $info['owner'];
       return '<div class="flickr-slideshow"><object type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=71649">
     <param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=71649" />
@@ -791,7 +791,7 @@ function theme_flickr_flickrcomslideshow_simple($variables) {
   }
   switch (flickr_get_id_type($id)) {
     case 'photoset':
-      $info = flickr_photoset_get_info($id);
+      $info = flickr_photosets_getinfo($id);
       $user_id = $info['owner'];
       $src = 'https://www.flickr.com/slideShow/index.gne?group_id=&user_id=' . $user_id . '&set_id=' . $id . '&text=';
       break;

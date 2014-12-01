@@ -58,7 +58,7 @@ function flickr_tags_cloud($account, $nsid = NULL) {
   drupal_set_title(t('Flickr tags cloud - @name', array('@name' => $account->name)));
   $nsid = $account->flickr['nsid'];
   // Get tag info.
-  $poptag_response = flickr_tags_get_list_user_popular($nsid, variable_get('flickr_tags_in_cloud', 150));
+  $poptag_response = flickr_tags_getlistuserpopular($nsid, variable_get('flickr_tags_in_cloud', 150));
 
   if ($poptag_response === FALSE) {
     drupal_set_message(t("Error retrieving %user's tags from Flickr", array('%user' => $account->name)));
@@ -91,7 +91,7 @@ function flickr_tags_list($account, $nsid = NULL) {
   drupal_set_title(t('Flickr tags list - @name', array('@name' => $account->name)));
   $nsid = $account->flickr['nsid'];
   // Get all tags.
-  $taglist_response = flickr_tags_get_list_user($nsid);
+  $taglist_response = flickr_tags_getlistuser($nsid);
 
   if ($taglist_response === FALSE) {
     drupal_set_message(t("Error retrieving %user's tags from Flickr", array('%user' => $account->name)));

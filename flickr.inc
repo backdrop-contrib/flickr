@@ -218,7 +218,7 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
     ));
   }
 
-  $image_sizes = flickr_photo_get_sizes($id);
+  $image_sizes = flickr_photos_getsizes($id);
   if ($image_sizes) {
     foreach ($image_sizes as $image_size) {
       if ($image_size['label'] == $sizes[$size]['label']) {
@@ -232,7 +232,7 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
   else {
     $img_url = flickr_photo_img($photo, $size);
   }
-  $info = !is_array($photo['title']) ? flickr_photo_get_info($photo['id']) : '';
+  $info = !is_array($photo['title']) ? flickr_photos_getinfo($photo['id']) : '';
   $title = is_array($photo['title']) ? str_replace('"', "'", htmlspecialchars_decode(strip_tags($photo['description']['_content']))) : str_replace('"', "'", htmlspecialchars_decode(strip_tags($info['description']['_content'])));
   if (empty($title) == 'title') {
     $title = $photo['title'];
@@ -297,7 +297,7 @@ function flickr_photo_img($photo, $size = NULL, $format = NULL) {
  */
 function flickr_photo_page_url($owner, $id = NULL) {
   $nsid = is_array($owner) ? $owner['nsid'] : $owner;
-  if ($person = flickr_people_get_info($nsid)) {
+  if ($person = flickr_people_getinfo($nsid)) {
     return $person['photosurl']['_content'] . $id;
   }
   else {
@@ -318,7 +318,7 @@ function flickr_photo_page_url($owner, $id = NULL) {
  */
 function flickr_photoset_page_url($owner, $id = NULL) {
   $nsid = is_array($owner) ? $owner['nsid'] : $owner;
-  if ($person = flickr_people_get_info($nsid)) {
+  if ($person = flickr_people_getinfo($nsid)) {
     return $person['photosurl']['_content'] . 'sets/' . $id;
   }
   else {
@@ -349,13 +349,13 @@ function flickr_user_find_by_identifier($identifier) {
     // Identifier is an NSID.
     return $identifier;
   }
-  if (valid_email_address($identifier) && ($user = flickr_user_find_by_email($identifier))) {
+  if (valid_email_address($identifier) && ($user = flickr_people_findbyemail($identifier))) {
     return $user['nsid'];
   }
-  if ($user = flickr_user_find_by_alias($identifier)) {
+  if ($user = flickr_urls_lookupuser($identifier)) {
     return $user['id'];
   }
-  if ($user = flickr_user_find_by_username($identifier)) {
+  if ($user = flickr_people_findbyusername($identifier)) {
     return $user['nsid'];
   }
   return FALSE;
@@ -418,7 +418,7 @@ function flickr_set_error($message_or_response) {
 
 /**
  * Returns Flickr detialed data based on nsid.
- * An elaboration of flickr_people_get_info.
+ * An elaboration of flickr_people_getinfo.
  *
  * @param string $nsid
  *   A valid Flickr numerical user ID. Should be validated before arriving here.
@@ -428,7 +428,7 @@ function flickr_set_error($message_or_response) {
  *   Real name if it exists, if not the username.
  */
 function flickr_get_user_info($nsid) {
-  $info = flickr_people_get_info($nsid);
+  $info = flickr_people_getinfo($nsid);
   $people = array();
   $people['name'] = !empty($info['realname']['_content']) ? l($info['realname']['_content'], $info['profileurl']['_content'], array(
     'attributes' => array(
@@ -588,7 +588,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     // Get information about the album, including the owner if needed later on.
     switch ($type) {
       case "photoset":
-        $info = flickr_photoset_get_info($id);
+        $info = flickr_photosets_getinfo($id);
         $people = flickr_get_user_info($info['owner']);
         if (!$info) {
           return;
@@ -945,7 +945,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           case "group":
             // If only one tag exists, use it to circumvent the 500 limit.
             $tags1 = (strpos($tags, ',') !== FALSE) ? '' : $tags;
-            $response = flickr_get_group_photos($id, $page, array(
+            $response = flickr_groups_pools_getphotos($id, $page, array(
               'tags' => $tags1,
               'per_page' => $per_page,
               'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
@@ -957,7 +957,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             break;
 
           case "favorites":
-            $response = flickr_favorites_get_public_list($id, 1, array(
+            $response = flickr_favorites_getpubliclist($id, 1, array(
               'per_page' => $per_page,
               'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
             ));
@@ -1069,7 +1069,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               $photo['owner'] = ($type == 'photoset') ? $info['owner'] : $photo['owner'];
               $photo['owner'] = ($type == 'gallery') ? $info['gallery']['owner'] : $photo['owner'];
               // Check if the requested size is available on Flickr.
-              if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
+              if (flickr_in_array_r($sizes[$size]['label'], flickr_photos_getsizes($photo['id']))) {
                 $output .= theme('flickr_photo', array(
                   'photo' => $photo,
                   'size' => $size,
@@ -1096,7 +1096,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               }
               elseif (stripos($photo['tags'], $term) !== FALSE && ($media == 'all' || $media == $photo['media'] . 's')) {
                 // Check if the requested size is available on Flickr.
-                if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
+                if (flickr_in_array_r($sizes[$size]['label'], flickr_photos_getsizes($photo['id']))) {
                   $output .= theme('flickr_photo', array(
                     'photo' => $photo,
                     'size' => $size,
@@ -1131,7 +1131,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                 $photo['owner'] = $type == 'photoset' ? $info['owner'] : $photo['owner'];
                 $photo['owner'] = $type == 'gallery' ? $info['gallery']['owner'] : $photo['owner'];
                 // Check if the requested size is available on Flickr.
-                if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
+                if (flickr_in_array_r($sizes[$size]['label'], flickr_photos_getsizes($photo['id']))) {
                   $output .= theme('flickr_photo', array(
                     'photo' => $photo,
                     'size' => $size,
@@ -1171,7 +1171,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                   // TODO: In theory we don't get here if a gallery. Remove?
                   $photo['owner'] = ($type == 'gallery') ? $info['gallery']['owner'] : $photo['owner'];
                   // Check if the requested size is available on Flickr.
-                  if (flickr_in_array_r($sizes[$size]['label'], flickr_photo_get_sizes($photo['id']))) {
+                  if (flickr_in_array_r($sizes[$size]['label'], flickr_photos_getsizes($photo['id']))) {
                     $output .= theme('flickr_photo', array(
                       'photo' => $photo,
                       'size' => $size,

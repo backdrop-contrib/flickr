@@ -354,7 +354,7 @@ function theme_flickrfield_field_formatter($element) {
   $formatter = $element['#formatter'];
   switch ($item['type']) {
     case 'photo_id':
-      $photo_data = flickr_photo_get_info($item['id']);
+      $photo_data = flickr_photos_getinfo($item['id']);
       return theme('flickr_photo', array(
         'format' => NULL,
         'attribs' => NULL,
@@ -363,7 +363,7 @@ function theme_flickrfield_field_formatter($element) {
       ));
 
     case 'id':
-      $photo_data = flickr_photoset_get_info($item['id']);
+      $photo_data = flickr_photosets_getinfo($item['id']);
       return theme('flickr_photoset', array(
         'owner' => $photo_data['owner'],
         'attribs' => NULL,
@@ -383,7 +383,7 @@ function theme_flickrfield_formatter_photoset_primaryphoto($element) {
     return;
   }
   $formatter_info = explode('_', $element['#formatter']);
-  $set_data = flickr_photoset_get_info($element['#item']['flickrid']);
+  $set_data = flickr_photosets_getinfo($element['#item']['flickrid']);
   $set_url = flickr_photoset_page_url($set_data['owner'], $set_data['id']);
   $size = substr($formatter_info[2], -1);
   $img = flickr_img($set_data, $size);
@@ -438,7 +438,7 @@ function theme_flickrfield_formatter_photoset_flickrcomslideshow_simple($variabl
  * Theme a Flickr photoset as a simple link to the photoset page on Flickr.com.
  */
 function theme_flickrfield_formatter_photoset_flickrcomsetlink($variables) {
-  $set_data = flickr_photoset_get_info($variables['#item']['flickrid']);
+  $set_data = flickr_photosets_getinfo($variables['#item']['flickrid']);
   $set_url = flickr_photoset_page_url($set_data['owner'], $set_data['id']);
   return l($set_url, $set_url);
 }

@@ -111,7 +111,7 @@ function flickr_block_configure($delta = '') {
   $default = $user_id;
   if (isset($settings['user_id'])) {
     if (!empty($default) && $settings['user_id'] != 'public') {
-      $info = flickr_people_get_info($default);
+      $info = flickr_people_getinfo($default);
       $default = $info['username']['_content'];
     }
     else {
@@ -130,7 +130,7 @@ function flickr_block_configure($delta = '') {
     );
   }
   else {
-    $info = flickr_people_get_info(variable_get('flickr_default_userid', ''));
+    $info = flickr_people_getinfo(variable_get('flickr_default_userid', ''));
     $form["flickr_block_{$delta}_user_id"] = array(
       '#type' => 'textfield',
       '#title' => t('Flickr User ID'),
@@ -507,7 +507,7 @@ function flickr_block_save($delta = '', $edit = array()) {
           }
         }
         else {
-          $info = flickr_people_get_info($edit["flickr_block_{$delta}_user_id"]);
+          $info = flickr_people_getinfo($edit["flickr_block_{$delta}_user_id"]);
           drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
 
         }
@@ -540,7 +540,7 @@ function flickr_block_save($delta = '', $edit = array()) {
           }
         }
         else {
-          $info = flickr_people_get_info($edit["flickr_block_{$delta}_user_id"]);
+          $info = flickr_people_getinfo($edit["flickr_block_{$delta}_user_id"]);
           drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
 
         }
@@ -571,7 +571,7 @@ function flickr_block_save($delta = '', $edit = array()) {
           }
         }
         else {
-          $info = flickr_people_get_info($edit["flickr_block_{$delta}_user_id"]);
+          $info = flickr_people_getinfo($edit["flickr_block_{$delta}_user_id"]);
           drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
 
         }
@@ -633,7 +633,7 @@ function flickr_block_save($delta = '', $edit = array()) {
           }
         }
         else {
-          $info = flickr_people_get_info($edit["flickr_block_{$delta}_user_id"]);
+          $info = flickr_people_getinfo($edit["flickr_block_{$delta}_user_id"]);
           drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
 
         }
@@ -1084,7 +1084,7 @@ function _flickr_block_photosets($nsid, $show_n, $size, $media, $delta, $people 
     $output = $cache->data;
   }
   else {
-    $photosets = flickr_photoset_get_list($nsid);
+    $photosets = flickr_photosets_getlist($nsid);
     $output = '<div class="flickr-block-photosets">';
     $to = min($show_n, count($photosets));
     for ($i = 0; $i < $to; $i++) {

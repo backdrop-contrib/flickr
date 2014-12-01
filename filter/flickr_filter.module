@@ -52,7 +52,7 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
   ));
   $count = variable_get('flickr_counter', 1) ? 'true' : 'false';
   $default_userid = variable_get('flickr_default_userid', '');
-  $info = empty($default_userid) ? '' : flickr_people_get_info(variable_get('flickr_default_userid', ''));
+  $info = empty($default_userid) ? '' : flickr_people_getinfo(variable_get('flickr_default_userid', ''));
   $default_userid = empty($info) ? '[undefined]' : $info['username']['_content'];
   $output = t("Insert a <strong>Flickr photo</strong>. A working example:
   <ul>
@@ -185,7 +185,7 @@ function flickr_filter_split_config($string) {
 function flickr_filter_callback_photo($matches) {
   list($config, $attribs) = flickr_filter_split_config($matches[1]);
   if (isset($config['id'])) {
-    if ($photo = flickr_photo_get_info($config['id'])) {
+    if ($photo = flickr_photos_getinfo($config['id'])) {
       if (!isset($config['size'])) {
         $config['size'] = variable_get('flickr_filter_default_size', 'm');
       }
@@ -203,7 +203,7 @@ function flickr_filter_callback_photo($matches) {
           break;
       }
       $sizes = flickr_photo_sizes();
-      if (flickr_in_array_r($sizes[$config['size']]['label'], flickr_photo_get_sizes($photo['id']))) {
+      if (flickr_in_array_r($sizes[$config['size']]['label'], flickr_photos_getsizes($photo['id']))) {
         return theme('flickr_photo', array(
           'photo' => $photo,
           'size' => $config['size'],

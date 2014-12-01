@@ -4,9 +4,6 @@
  * Flickr API functions.
  */
 
-// TODO: Would like to implement a consistent naming for drupal wrapper
-// functions around flick API methods e.g covert a "." to an "underscore" only
-// i.e for flickr.photos.getInfo use flickr_photos_getinfo()
 /**
  * Get information about a photo.
  *
@@ -17,7 +14,7 @@
  *   Response from the flickr method flickr.photos.getInfo..
  *   (https://www.flickr.com/services/api/flickr.photos.getInfo.html)
  */
-function flickr_photo_get_info($photo_id) {
+function flickr_photos_getinfo($photo_id) {
   $response = flickr_request(
     'flickr.photos.getInfo',
     array('photo_id' => $photo_id)
@@ -38,7 +35,7 @@ function flickr_photo_get_info($photo_id) {
  *   Response from the flickr method flickr.photos.getSizes..
  *   (https://www.flickr.com/services/api/flickr.photos.getSizes.html)
  */
-function flickr_photo_get_sizes($photo_id) {
+function flickr_photos_getsizes($photo_id) {
   $response = flickr_request(
     'flickr.photos.getSizes',
     array('photo_id' => $photo_id)
@@ -102,7 +99,7 @@ function flickr_photos_search($nsid, $page = 1, $other_args = array()) {
  *   Response from the flickr method flickr.favorites.getPublicList.
  *   (https://www.flickr.com/services/api/flickr.favorites.getPublicList.html)
  */
-function flickr_favorites_get_public_list($nsid, $page = 1, $other_args = array()) {
+function flickr_favorites_getpubliclist($nsid, $page = 1, $other_args = array()) {
   $args = array(
     'user_id' => $nsid,
     'page' => $page,
@@ -130,7 +127,7 @@ function flickr_favorites_get_public_list($nsid, $page = 1, $other_args = array(
  *   Response from the flickr method flickr.photosets.getInfo.
  *   (https://www.flickr.com/services/api/flickr.photosets.getInfo.html)
  */
-function flickr_photoset_get_info($photoset_id) {
+function flickr_photosets_getinfo($photoset_id) {
   $response = flickr_request(
     'flickr.photosets.getInfo',
     array('photoset_id' => $photoset_id)
@@ -151,7 +148,7 @@ function flickr_photoset_get_info($photoset_id) {
  *   Response from the flickr method flickr.photosets.getList.
  *   (https://www.flickr.com/services/api/flickr.photosets.getList.html)
  */
-function flickr_photoset_get_list($nsid, $page = NULL) {
+function flickr_photosets_getlist($nsid, $page = NULL) {
   $per_page = (!empty($page)) ? variable_get('flickr_sets_per_page', 8) : '';
   $response = flickr_request(
     'flickr.photosets.getList',
@@ -231,7 +228,7 @@ function flickr_photosets_getphotos($photoset_id, $other_args = array(), $page =
  *   (https://www.flickr.com/services/api/flickr.people.getInfo.html)
  *   or FALSE on error.
  */
-function flickr_people_get_info($nsid) {
+function flickr_people_getinfo($nsid) {
   $response = flickr_request(
     'flickr.people.getInfo',
     array('user_id' => $nsid)
@@ -252,7 +249,7 @@ function flickr_people_get_info($nsid) {
  *   Response from the flickr method flickr.people.findByUsername.
  *   (https://www.flickr.com/services/api/flickr.people.findByUsername.html)
  */
-function flickr_user_find_by_username($username) {
+function flickr_people_findbyusername($username) {
   $response = flickr_request(
     'flickr.people.findByUsername',
     array('username' => $username)
@@ -273,7 +270,7 @@ function flickr_user_find_by_username($username) {
  *   Response from the flickr method flickr.people.findByUsername.
  *   (https://www.flickr.com/services/api/flickr.people.findByUsername.html)
  */
-function flickr_user_find_by_alias($alias) {
+function flickr_urls_lookupuser($alias) {
   $response = flickr_request(
     'flickr.urls.lookupUser',
     array('url' => 'https://www.flickr.com/photos/' . $alias),
@@ -298,7 +295,7 @@ function flickr_user_find_by_alias($alias) {
  *   Response from the flickr method flickr.people.findByEmail.
  *   (https://www.flickr.com/services/api/flickr.people.findByEmail.html)
  */
-function flickr_user_find_by_email($email) {
+function flickr_people_findbyemail($email) {
   $response = flickr_request(
     'flickr.people.findByEmail',
     array('find_email' => $email)
@@ -321,7 +318,7 @@ function flickr_user_find_by_email($email) {
  *   Response from the flickr method flickr.tags.getListUserPopular.
  *   (https://www.flickr.com/services/api/flickr.tags.getListUserPopular.html)
  */
-function flickr_tags_get_list_user_popular($nsid, $count = NULL) {
+function flickr_tags_getlistuserpopular($nsid, $count = NULL) {
   $args = array('user_id' => $nsid);
   if ($count != NULL) {
     $args['count'] = $count;
@@ -343,7 +340,7 @@ function flickr_tags_get_list_user_popular($nsid, $count = NULL) {
  *   Response from the flickr method flickr.tags.getListUser.
  *   (https://www.flickr.com/services/api/flickr.tags.getListUser.html)
  */
-function flickr_tags_get_list_user($nsid) {
+function flickr_tags_getlistuser($nsid) {
   $response = flickr_request(
     'flickr.tags.getListUser',
     array('user_id' => $nsid)
@@ -354,7 +351,6 @@ function flickr_tags_get_list_user($nsid) {
   return FALSE;
 }
 
-// TODO: Change name to flickr_groups_pools_getphotos()?
 /**
  * Returns a list of pool photos for a given group.
  *
@@ -365,7 +361,7 @@ function flickr_tags_get_list_user($nsid) {
  *   Response from the flickr method flickr.groups.pools.getPhotos.
  *   (https://www.flickr.com/services/api/flickr.groups.pools.getPhotos.html)
  */
-function flickr_get_group_photos($nsid, $page = 1, $other_args = array()) {
+function flickr_groups_pools_getphotos($nsid, $page = 1, $other_args = array()) {
   $args = array(
     'group_id' => $nsid,
     'page' => $page,
