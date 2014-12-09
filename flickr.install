@@ -25,6 +25,8 @@ function flickr_uninstall() {
   variable_del('flickr_class');
   variable_del('flickr_css');
   variable_del('flickr_curl');
+  variable_del('flickr_curl2');
+  variable_del('flickr_debug');
   variable_del('flickr_default_size_album');
   variable_del('flickr_default_userid');
   variable_del('flickr_opening_size');

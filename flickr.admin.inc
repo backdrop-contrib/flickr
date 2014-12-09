@@ -8,20 +8,26 @@
  * Implements hook_settings().
  */
 function flickr_admin_settings() {
+  $form['credentials'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Flickr credentials'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
   $apply = l(t('https://www.flickr.com/services/apps/create/apply'), 'https://www.flickr.com/services/apps/create/apply', array(
       'attributes' => array(
         'title' => t('Flickr Services'),
         'target' => '_blank',
       ),
   ));
-  $form['flickr_api_key'] = array(
+  $form['credentials']['flickr_api_key'] = array(
     '#type' => 'textfield',
     '#title' => t('API Key'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_api_key', ''),
     '#description' => t("API Key from Flickr. Get an API Key at !apply.", array('!apply' => $apply)),
   );
-  $form['flickr_api_secret'] = array(
+  $form['credentials']['flickr_api_secret'] = array(
     '#type' => 'textfield',
     '#title' => t('API Shared Secret'),
     '#required' => TRUE,
@@ -33,49 +39,19 @@ function flickr_admin_settings() {
     $info = flickr_people_getinfo($default);
     $default = $info['username']['_content'];
   }
-  $form['flickr_default_userid'] = array(
+  $form['credentials']['flickr_default_userid'] = array(
     '#type' => 'textfield',
     '#title' => t('Default Flickr User ID'),
     '#default_value' => $default,
     '#description' => t('An, optional, default Flickr user (number@number, alias, username or email). This will be used when no user is specified.'),
   );
-  $times = array(
-    900,
-    1800,
-    2700,
-    3600,
-    7200,
-    10800,
-    14400,
-    18000,
-    21600,
-    43200,
-    86400,
+  $form['info_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Global display options'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
-  $ageoptions = drupal_map_assoc($times, 'format_interval');
-  $form['flickr_cache_duration'] = array(
-    '#type' => 'select',
-    '#title' => t('Update interval'),
-    '#options' => $ageoptions,
-    '#default_value' => variable_get('flickr_cache_duration', 3600),
-    '#description' => t('The refresh interval indicating how often you want to check cached Flickr API calls are up to date.'),
-  );
-  $cache_warming = l(t('cache warming'), 'https://drupal.org/node/1576686', array(
-    'attributes' => array(
-      'title' => t('Load Page Cache after cron Runs | Drupal.org'),
-      'target' => '_blank',
-    ),
-  ));
-  $form['flickr_per_page'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Limit API requests for random and popularity sort'),
-    '#required' => TRUE,
-    '#default_value' => variable_get('flickr_per_page', 100),
-    '#description' => t('Setting a lower number enhances performance but makes random results being less spread between one another (not less random) and returns popular (most viewed on Flickr) only from the <em>n</em> most recent.<br />Minimum 20, maximum 500. Set the maximum only if you use !cache_warming.', array('!cache_warming' => $cache_warming)),
-    '#size' => 3,
-    '#maxlength' => 3,
-  );
-  $form['flickr_photos_per_page'] = array(
+  $form['info_settings']['flickr_photos_per_page'] = array(
     '#type' => 'textfield',
     '#title' => t('Number of photos per album'),
     '#required' => TRUE,
@@ -84,7 +60,7 @@ function flickr_admin_settings() {
     '#size' => 3,
     '#maxlength' => 3,
   );
-  $form['flickr_default_size_album'] = array(
+  $form['info_settings']['flickr_default_size_album'] = array(
     '#type' => 'select',
     '#title' => t('Default size for photos in an album'),
     '#default_value' => variable_get('flickr_default_size_album', 's'),
@@ -101,34 +77,15 @@ function flickr_admin_settings() {
     ),
     '#description' => t('A default Flickr size to use if no size is specified, for example [flickr-photoset:id=72157634563269642].<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
   );
-  $style_doc = l(t('Flickr module Style Guide'), 'https://drupal.org/node/2174131', array(
+  $guidelines = l(t('Guidelines'), 'https://www.flickr.com/guidelines.gne/', array(
       'attributes' => array(
-        'title' => t('Flickr Style Guide documentation | Drupal.org'),
+        'title' => t('Flickr - Community Guidelines'),
         'target' => '_blank',
       ),
   ));
-  $form['flickr_css'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Use flickr.css'),
-    '#default_value' => variable_get('flickr_css', 1),
-    '#description' => t("Uncheck to take care of the styling yourself in custom CSS.<br />Side note: Extend CSS even further with the !style_doc. If you use Flickr Filter, you might find the <a href='https://drupal.org/project/autofloat'>AutoFloat module</a> useful.", array('!style_doc' => $style_doc)),
-  );
-  // Offer the following setting if both allow_url_fopen and curl are enabled.
-  if (ini_get("allow_url_fopen") && function_exists('curl_version')) {
-    $form['flickr_curl'] = array(
-      '#type' => 'checkbox',
-      '#title' => t("Use cURL to determine the image width instead of the PHP function 'getimagesize'."),
-      '#default_value' => variable_get('flickr_curl', 0),
-      '#description' => t("It has been detected your server configuration allows both 'fopen' for external resources (used by 'getimagesize') and 'cURL' that might be faster. <a href='https://stackoverflow.com/a/4635991'>More info</a>."),
-    );
-  }
-  $form['info_settings'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Flickr info to use'),
-  );
   $attribution = l(t('proper attribution'), 'https://www.flickr.com/services/developer/attributions/', array(
       'attributes' => array(
-        'title' => t('Flickr: The Flickr Developer Guide - Attributions'),
+        'title' => t('The Flickr Developer Guide - Attributions'),
         'target' => '_blank',
       ),
   ));
@@ -137,7 +94,7 @@ function flickr_admin_settings() {
     '#title' => t('Minimum image width to display a title caption'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_title_suppress_on_small', '100'),
-    '#description' => t("Small images have liitle space for a title caption. Replace it with the text 'Flickr' that links to the photo page on Flickr to comply with their <a href='https://www.flickr.com/guidelines.gne' title='Flickr Community Guidelines' target='_blank'>Guidelines</a>.<br />Set it to '0 px' to always include or '999 px' to always exclude. To give !attribution this should be included (space allowing). After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution)),
+    '#description' => t("Small images have liitle space for a title caption. Replace it with the text 'Flickr' that links to the photo page on Flickr to comply with their !guidelines.<br />Set it to '0 px' to always include or '999 px' to always exclude. To give !attribution this should be included (space allowing). After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution, '!guidelines' => $guidelines)),
     '#field_suffix' => t('px'),
     '#size' => 3,
     '#maxlength' => 3,
@@ -162,25 +119,62 @@ function flickr_admin_settings() {
     '#type' => 'checkbox',
     '#title' => t('License info in caption'),
     '#default_value' => variable_get('flickr_license', 0),
-    '#description' => t("To give !attribution. Depends on 'Minimum image width' above. After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.<br />!cc_icons in 'flickr.css'. Download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr.css' accordingly.", array('!attribution' => $attribution, '!cc_icons' => $cc_icons)),
+    '#description' => t("To give !attribution. Depends on 'Minimum image width' above. After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.<br />!cc_icons in 'flickr.css'. Download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr_cc_icons.css' accordingly.", array('!attribution' => $attribution, '!cc_icons' => $cc_icons)),
   );
-  $style_doc = l(t('Style Guide'), 'https://drupal.org/node/2174131#caption', array(
+  $form['info_settings']['flickr_maps'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Extra links to Flickr maps'),
+    '#default_value' => variable_get('flickr_maps', 0),
+    '#description' => t('Include extra links to maps available for a user, group or set on Flickr. Locations mentioned (if displayed) under individual images link to corresponding Flickr user maps in any case, independent on the setting here.'),
+  );
+  $form['info_settings']['flickr_counter'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show a Flickr counter'),
+    '#default_value' => variable_get('flickr_counter', 1),
+    '#description' => t('Shows how many photos are displayed out of the total number available for a user, group, set or tags on Flickr. Can be overridden by the filter tag, eg. [flickr-photoset:id=72157634563269642,count=false]'),
+  );
+  $colorbox_module = l(t('Colorbox module'), 'https://drupal.org/project/colorbox', array(
       'attributes' => array(
-        'title' => t('Flickr Style Guide documentation | Drupal.org'),
+        'title' => t('Colorbox| Drupal.org'),
         'target' => '_blank',
       ),
   ));
-  $form['info_settings']['flickr_caption_padding'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Make the caption smaller in width (correction for caption padding/border)'),
-    '#required' => TRUE,
-    '#default_value' => variable_get('flickr_caption_padding', '0'),
-    '#description' => t('By default the caption is as wide as the image. If you add padding to a boxed caption with CSS, set a value here to make sure the caption will remain of the same width of the image. See the !style_doc.<br />Only padding: 1 x horizontal padding value.<br />Padding AND border: 2 x padding value + 1 x border-width.', array('!style_doc' => $style_doc)),
-    '#field_suffix' => t('px'),
-    '#size' => 2,
-    '#maxlength' => 2,
+  $form['overlay_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Overlay browser (Colorbox, Lightbox)'),
+    '#description' => t('Recommended is the !colorbox_module. Leave empty to link directly to the Flickr photo page instead of opening the bigger version of the image.', array('!colorbox_module' => $colorbox_module)),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
-  $form['info_settings']['flickr_info_overlay'] = array(
+  $form['overlay_settings']['flickr_class'] = array(
+    '#type' => 'textfield',
+    '#title' => t('class'),
+    '#default_value' => variable_get('flickr_class', ''),
+    '#description' => t('For example: <em>colorbox</em>. Can be left empty for Lightbox. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+  );
+  $form['overlay_settings']['flickr_rel'] = array(
+    '#type' => 'textfield',
+    '#title' => t('rel'),
+    '#default_value' => variable_get('flickr_rel', ''),
+    '#description' => t('For example: <em>gallery-all</em> for Colorbox or <em>lightbox[gallery]</em>. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+  );
+  $form['overlay_settings']['flickr_opening_size'] = array(
+    '#type' => 'select',
+    '#title' => t('Image size to open'),
+    '#default_value' => variable_get('flickr_opening_size', ''),
+    '#options' => array(
+      'q' => t('q: 150 px square'),
+      'm' => t('m: 240 px on longest side'),
+      'n' => t('n: 320 px on longest side (!)'),
+      '' => t('-: 500 px on longest side'),
+      'z' => t('z: 640 px on longest side'),
+      'c' => t('c: 800 px on longest side (!)'),
+      'b' => t('b: 1024 px on longest side'),
+      'h' => t('h: 1600 px on longest side'),
+    ),
+    '#description' => t('The image size to open in the overlay browser when clicking the image. Larger sizes make navigating to next and previous pictures slower.<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+  );
+  $form['overlay_settings']['flickr_info_overlay'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Info to include when enlarging the image'),
     '#default_value' => variable_get('flickr_info_overlay', array(
@@ -197,23 +191,156 @@ function flickr_admin_settings() {
       'license' => t('License info *'),
     ),
   );
-  $form['info_settings']['flickr_maps'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Extra links to Flickr maps'),
-    '#default_value' => variable_get('flickr_maps', 0),
-    '#description' => t('Include extra links to maps available for a user, group or set on Flickr. Locations mentioned (if displayed) under individual images link to corresponding Flickr user maps in any case, independent on the setting here.'),
+  $form['css_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Styling (CSS related)'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
-  $form['info_settings']['flickr_counter'] = array(
+  $style_doc = l(t('Flickr module Style Guide'), 'https://drupal.org/node/2174131', array(
+      'attributes' => array(
+        'title' => t('Flickr Style Guide documentation | Drupal.org'),
+        'target' => '_blank',
+      ),
+  ));
+  $autofloat_module = l(t('AutoFloat module'), 'https://drupal.org/project/autofloat', array(
+      'attributes' => array(
+        'title' => t('AutoFloat | Drupal.org'),
+        'target' => '_blank',
+      ),
+  ));
+  $form['css_settings']['flickr_css'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Show a Flickr counter'),
-    '#default_value' => variable_get('flickr_counter', 1),
-    '#description' => t('Shows how many photos are displayed out of the total number available for a user, group, set or tags on Flickr. Can be overridden by the filter tag, eg. [flickr-photoset:id=72157634563269642,count=false]'),
+    '#title' => t('Use flickr.css'),
+    '#default_value' => variable_get('flickr_css', 1),
+    '#description' => t("Uncheck to take care of the styling yourself in custom CSS.<br />Side note: Extend CSS even further with the !style_doc. If you use Flickr Filter, you might find the !autofloat_module useful.", array('!style_doc' => $style_doc, '!autofloat_module' => $autofloat_module)),
   );
+    $style_doc = l(t('Style Guide'), 'https://drupal.org/node/2174131#caption', array(
+      'attributes' => array(
+        'title' => t('Flickr Style Guide documentation | Drupal.org'),
+        'target' => '_blank',
+      ),
+  ));
+  $form['css_settings']['flickr_caption_padding'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Make the caption smaller in width (correction for caption padding/border)'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('flickr_caption_padding', '0'),
+    '#description' => t('By default the caption is as wide as the image. If you add padding to a boxed caption with CSS, set a value here to make sure the caption will remain of the same width of the image. See the !style_doc.<br />Only padding: 1 x horizontal padding value.<br />Padding AND border: 2 x padding value + 1 x border-width.', array('!style_doc' => $style_doc)),
+    '#field_suffix' => t('px'),
+    '#size' => 2,
+    '#maxlength' => 2,
+  );
+$form['advanced_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Advanced'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $times = array(
+    900,
+    1800,
+    2700,
+    3600,
+    7200,
+    10800,
+    14400,
+    18000,
+    21600,
+    43200,
+    86400,
+  );
+  $ageoptions = drupal_map_assoc($times, 'format_interval');
+  $form['advanced_settings']['flickr_cache_duration'] = array(
+    '#type' => 'select',
+    '#title' => t('Update interval'),
+    '#options' => $ageoptions,
+    '#default_value' => variable_get('flickr_cache_duration', 3600),
+    '#description' => t('The refresh interval indicating how often you want to check cached Flickr API calls are up to date.'),
+  );
+  $cache_warming = l(t('cache warming'), 'https://drupal.org/node/1576686', array(
+    'attributes' => array(
+      'title' => t('Load Page Cache after cron Runs | Drupal.org'),
+      'target' => '_blank',
+    ),
+  ));
+  $form['advanced_settings']['flickr_per_page'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Limit the number of photos to grab for random and popularity sort'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('flickr_per_page', 100),
+    '#description' => t('Setting a lower number enhances performance but makes random results being less spread between one another (not less random) and returns popular (most viewed on Flickr) only from the <em>n</em> most recent.<br />Minimum 20, maximum 500. Set the maximum only if you use !cache_warming.', array('!cache_warming' => $cache_warming)),
+    '#size' => 3,
+    '#maxlength' => 3,
+  );
+  if (!module_exists('devel')) {
+    variable_set('flickr_debug', 0);
+  }
+  $devel_module = l(t('Devel module'), 'https://drupal.org/project/devel', array(
+      'attributes' => array(
+        'title' => t('Devel | Drupal.org'),
+        'target' => '_blank',
+      ),
+  ));
+  $form['advanced_settings']['flickr_debug'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable Debug Output'),
+    '#description' => t('Display all passed photo/album arguments and HTTP requests/response objects via the !devel_module.', array('!devel_module' => $devel_module)),
+    '#default_value' => variable_get('flickr_debug', 0),
+  );
+  $more_info = l(t('More info'), 'https://stackoverflow.com/a/4635991', array(
+      'attributes' => array(
+        'title' => t("Super fast 'getimagesize' in PHP - Stack Overflow"),
+        'target' => '_blank',
+      ),
+  ));
+  $form['advanced_settings']['flickr_curl'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Use 'cURL' to determine the image width instead of 'fopen' used by the PHP function 'getimagesize'."),
+    '#default_value' => variable_get('flickr_curl', 0),
+    '#description' => t("Your server configuration now uses 'fopen' for external resources (used by 'getimagesize'). 'cURL' might be faster. !more_info.", array('!more_info' => $more_info)),
+  );
+  $form['advanced_settings']['flickr_curl2'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Use 'cURL' instead of 'stream_socket_client' (drupal_http_request) to make Flickr data requests."),
+    '#default_value' => variable_get('flickr_curl2', 0),
+    '#description' => t("Otherwise cURL will only be used as fallback when the usual method returns a 403 (forbidden) or 408 (Request Timeout)."),
+  );
+   // We need an api key before we can verify usernames.
+  if (!$form['credentials']['flickr_api_key']['#default_value']) {
+    $form['credentials']['flickr_default_userid']['#disabled'] = TRUE;
+    $form['credentials']['flickr_default_userid']['#description'] .= ' ' . t('Disabled until a valid API Key is set.');
+  }
+    // Do not offer the following setting if Devel is not available.
+  if (!module_exists('devel')) {
+    $form['advanced_settings']['flickr_debug']['#disabled'] = TRUE;
+    $form['advanced_settings']['flickr_debug']['#description'] = t("Disabled because the !devel_module is not enabled.", array('!devel_module' => $devel_module));
+  }
+  // Offer the following setting if both allow_url_fopen and curl are enabled.
+  if (!ini_get("allow_url_fopen") || !function_exists('curl_version')) {
+    $form['advanced_settings']['flickr_curl']['#disabled'] = TRUE;
+    if (function_exists('curl_version')) {
+      $form['advanced_settings']['flickr_curl']['#description'] = t("Disabled because your server configuration only uses 'cURL' (not 'fopen')");
+    }
+    elseif (ini_get("allow_url_fopen")) {
+      $form['advanced_settings']['flickr_curl']['#description'] = t("Disabled because your server configuration only uses 'fopen' (not 'cURL')");
+    }
+    else {
+      $form['advanced_settings']['flickr_curl']['#description'] = t("It could not be determined if your server configuration uses 'fopen' or 'cURL'. You might see unnecessary whitespace next to your floating images. It probably means your server does not allow neither 'fopen' nor 'cURL'. Check your 'php.ini' settings first, then contact your hosting company.");
+    }
+  }
+    // Do not offer the following setting if curl is not available.
+  if (!function_exists('curl_version')) {
+    $form['advanced_settings']['flickr_curl2']['#disabled'] = TRUE;
+    $form['advanced_settings']['flickr_curl2']['#description'] = t("Disabled because your server configuration only allows 'stream_socket_client' (not 'cURL')");
+  }
   if (module_exists('flickr_filter')) {
     $form['filter_settings'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Filter settings'),
+      '#title' => t('Filter options'),
       '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
     );
     $form['filter_settings']['flickr_filter_default_size'] = array(
       '#type' => 'select',
@@ -254,8 +381,10 @@ function flickr_admin_settings() {
   if (module_exists('flickr_block')) {
     $form['block_settings'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Block settings'),
+      '#title' => t('Block options'),
       '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
     );
     $form['block_settings']['flickr_block_hide_empty'] = array(
       '#type' => 'checkbox',
@@ -281,12 +410,18 @@ function flickr_admin_settings() {
       '#size' => 3,
       '#maxlength' => 3,
     );
+  $cache_warming = l(t('cache warming'), 'https://drupal.org/node/1576686/', array(
+      'attributes' => array(
+        'title' => t('Load Page Cache after cron Runs | Drupal.org'),
+        'target' => '_blank',
+      ),
+  ));
     $form['block_settings']['flickr_block_refresh_others'] = array(
       '#type' => 'textfield',
       '#field_prefix' => t('Refresh other blocks every'),
       '#required' => TRUE,
       '#default_value' => variable_get('flickr_block_refresh_others', 31),
-      '#description' => t('It is recommended to set two different refresh values to avoid all blocks refresh together. Lower values impact performance negatively. Consider to use <a href="https://drupal.org/node/1576686" title="Load Page Cache after cron Runs | Drupal.org">cache warming</a>.'),
+      '#description' => t('It is recommended to set two different refresh values to avoid all blocks refresh together. Lower values impact performance negatively. Consider to use !cache_warming.', array('!cache_warming' => $cache_warming)),
       '#field_suffix' => t('hours.'),
       '#size' => 3,
       '#maxlength' => 3,
@@ -304,8 +439,10 @@ function flickr_admin_settings() {
   if (module_exists('flickr_sets')) {
     $form['photoset_settings'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Photoset settings'),
+      '#title' => t('Photoset options'),
       '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
     );
     $form['photoset_settings']['flickr_sets_thumb_default_size'] = array(
       '#type' => 'select',
@@ -342,44 +479,6 @@ function flickr_admin_settings() {
       '#size' => 2,
       '#maxlength' => 2,
     );
-  }
-  $form['overlay_settings'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Overlay browser settings'),
-    '#description' => t('Leave empty to link directly to the Flickr photo page instead of opening the bigger version of the image.'),
-  );
-  $form['overlay_settings']['flickr_class'] = array(
-    '#type' => 'textfield',
-    '#title' => t('class'),
-    '#default_value' => variable_get('flickr_class', ''),
-    '#description' => t('For example: <em>colorbox</em>. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
-  );
-  $form['overlay_settings']['flickr_rel'] = array(
-    '#type' => 'textfield',
-    '#title' => t('rel'),
-    '#default_value' => variable_get('flickr_rel', ''),
-    '#description' => t('For example: <em>gallery-all</em> or <em>lightbox[gallery]</em>. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
-  );
-  $form['overlay_settings']['flickr_opening_size'] = array(
-    '#type' => 'select',
-    '#title' => t('Image size to open'),
-    '#default_value' => variable_get('flickr_opening_size', ''),
-    '#options' => array(
-      'q' => t('q: 150 px square'),
-      'm' => t('m: 240 px on longest side'),
-      'n' => t('n: 320 px on longest side (!)'),
-      '' => t('-: 500 px on longest side'),
-      'z' => t('z: 640 px on longest side'),
-      'c' => t('c: 800 px on longest side (!)'),
-      'b' => t('b: 1024 px on longest side'),
-      'h' => t('h: 1600 px on longest side'),
-    ),
-    '#description' => t('The image size to open in the overlay browser when clicking the image. Larger sizes make navigating to next and previous pictures slower.<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
-  );
-  // We need an api key before we can verify usernames.
-  if (!$form['flickr_api_key']['#default_value']) {
-    $form['flickr_default_userid']['#disabled'] = TRUE;
-    $form['flickr_default_userid']['#description'] .= ' ' . t('Disabled until a valid API Key is set.');
   }
   // Call submit_function() on form submission.
   $form['#submit'][] = 'flickr_admin_settings_submit';
