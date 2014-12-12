@@ -115,11 +115,30 @@ function flickr_admin_settings() {
         'target' => '_blank',
       ),
   ));
+  $cc_example_cna = '<span class="flickr-cc">' . l('cna', 'https://creativecommons.org/licenses/by-nc-sa/2.0/', array(
+    'attributes' => array(
+      'title' => t('Creative Commons — Attribution-NonCommercial-ShareAlike 2.0 Generic — CC BY-NC-SA 2.0'),
+      'target' => '_blank',
+    ),
+  )) . '</span>';
+  $cc_example_copy = '<span class="flickr-copyright">' . l('©', 'https://en.wikipedia.org/wiki/Copyright', array(
+    'attributes' => array(
+      'title' => t('All Rights Reserved'),
+      'target' => '_blank',
+    ),
+    'html' => TRUE,
+  )) . '</span>';
+  $cc_example_p = '<span class="flickr-cc">' . l('p', 'https://flickr.com/commons/usage/', array(
+    'attributes' => array(
+      'title' => t('Public Domain - No known copyright restrictions'),
+      'target' => '_blank',
+    ),
+  )) . '</span>';
   $form['info_settings']['flickr_license'] = array(
     '#type' => 'checkbox',
     '#title' => t('License info in caption'),
     '#default_value' => variable_get('flickr_license', 0),
-    '#description' => t("To give !attribution. Depends on 'Minimum image width' above. Clear the cache on form submit.<br />!cc_icons in 'flickr_cc_icons.css'. Download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr_cc_icons.css' accordingly.", array('!attribution' => $attribution, '!cc_icons' => $cc_icons)),
+    '#description' => t("To give !attribution. Depends on 'Minimum image width' above. Clear the cache on form submit.<br />!cc_icons in 'flickr_cc_icons.css'. Download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr_cc_icons.css' accordingly.<br />Some examples (try to mouse-over): !ccexample_cna !cc_example_copy !cc_example_p", array('!attribution' => $attribution, '!cc_icons' => $cc_icons, '!ccexample_cna' => $cc_example_cna, '!cc_example_copy' => $cc_example_copy,'!cc_example_p' => $cc_example_p)),
   );
   $form['info_settings']['flickr_maps'] = array(
     '#type' => 'checkbox',

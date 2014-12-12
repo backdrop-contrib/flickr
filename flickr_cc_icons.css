@@ -17,9 +17,13 @@ span.flickr-cc, span.flickr-copyright {
   top: .20em;
   margin-bottom: 5px;
 }
+#flickr-admin-settings span.flickr-cc, #flickr-admin-settings span.flickr-copyright {
+  float: none;
+  margin-right: 8px;
+}
 span.flickr-cc a, span.flickr-copyright a {
   text-decoration: none;
-    }
+}
 span.flickr-cc {
   /*Creative commons icon font*/
   font-family: 'CC-ICONS';
