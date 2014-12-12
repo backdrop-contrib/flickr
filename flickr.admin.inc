@@ -56,7 +56,7 @@ function flickr_admin_settings() {
     '#title' => t('Number of photos per album'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_photos_per_page', 6),
-    '#description' => t('The number indicates how many photos of a photoset display in your nodes if no number is specified. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+    '#description' => t('The number indicates how many photos of a photoset display in your nodes if no number is specified. Clear the cache on form submit.'),
     '#size' => 3,
     '#maxlength' => 3,
   );
@@ -75,7 +75,7 @@ function flickr_admin_settings() {
       'c' => t('c: 800 px on longest side (!)'),
       'b' => t('b: 1024 px on longest side'),
     ),
-    '#description' => t('A default Flickr size to use if no size is specified, for example [flickr-photoset:id=72157634563269642].<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+    '#description' => t('A default Flickr size to use if no size is specified, for example [flickr-photoset:id=72157634563269642].<br />Clear the cache on form submit.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
   );
   $guidelines = l(t('Guidelines'), 'https://www.flickr.com/guidelines.gne/', array(
       'attributes' => array(
@@ -94,7 +94,7 @@ function flickr_admin_settings() {
     '#title' => t('Minimum image width to display a title caption'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_title_suppress_on_small', '100'),
-    '#description' => t("Small images have liitle space for a title caption. Replace it with the text 'Flickr' that links to the photo page on Flickr to comply with their !guidelines.<br />Set it to '0 px' to always include or '999 px' to always exclude. To give !attribution this should be included (space allowing). After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution, '!guidelines' => $guidelines)),
+    '#description' => t("Small images have liitle space for a title caption. Replace it with the text 'Flickr' that links to the photo page on Flickr to comply with their !guidelines.<br />Set it to '0 px' to always include or '999 px' to always exclude. To give !attribution this should be included (space allowing). Clear the cache on form submit.", array('!attribution' => $attribution, '!guidelines' => $guidelines)),
     '#field_suffix' => t('px'),
     '#size' => 3,
     '#maxlength' => 3,
@@ -104,7 +104,7 @@ function flickr_admin_settings() {
     '#title' => t('Minimum image width to display date, location, photographer and optionally license info under the caption'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_metadata_suppress_on_small', '150'),
-    '#description' => t("Suppress extra info on small images. Set it to '0 px' to always include or '999 px' to always exclude. To give !attribution this should be included (space allowing). After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution)),
+    '#description' => t("Suppress extra info on small images. Set it to '0 px' to always include or '999 px' to always exclude. To give !attribution this should be included (space allowing). Clear the cache on form submit.", array('!attribution' => $attribution)),
     '#field_suffix' => t('px'),
     '#size' => 3,
     '#maxlength' => 3,
@@ -119,7 +119,7 @@ function flickr_admin_settings() {
     '#type' => 'checkbox',
     '#title' => t('License info in caption'),
     '#default_value' => variable_get('flickr_license', 0),
-    '#description' => t("To give !attribution. Depends on 'Minimum image width' above. After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.<br />!cc_icons in 'flickr.css'. Download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr_cc_icons.css' accordingly.", array('!attribution' => $attribution, '!cc_icons' => $cc_icons)),
+    '#description' => t("To give !attribution. Depends on 'Minimum image width' above. Clear the cache on form submit.<br />!cc_icons in 'flickr_cc_icons.css'. Download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr_cc_icons.css' accordingly.", array('!attribution' => $attribution, '!cc_icons' => $cc_icons)),
   );
   $form['info_settings']['flickr_maps'] = array(
     '#type' => 'checkbox',
@@ -150,13 +150,13 @@ function flickr_admin_settings() {
     '#type' => 'textfield',
     '#title' => t('class'),
     '#default_value' => variable_get('flickr_class', ''),
-    '#description' => t('For example: <em>colorbox</em>. Can be left empty for Lightbox. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+    '#description' => t('For example: <em>colorbox</em>. Can be left empty for Lightbox. Clear the cache on form submit.'),
   );
   $form['overlay_settings']['flickr_rel'] = array(
     '#type' => 'textfield',
     '#title' => t('rel'),
     '#default_value' => variable_get('flickr_rel', ''),
-    '#description' => t('For example: <em>gallery-all</em> for Colorbox or <em>lightbox[gallery]</em>. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+    '#description' => t('For example: <em>gallery-all</em> for Colorbox or <em>lightbox[gallery]</em>. Clear the cache on form submit.'),
   );
   $form['overlay_settings']['flickr_opening_size'] = array(
     '#type' => 'select',
@@ -172,7 +172,7 @@ function flickr_admin_settings() {
       'b' => t('b: 1024 px on longest side'),
       'h' => t('h: 1600 px on longest side'),
     ),
-    '#description' => t('The image size to open in the overlay browser when clicking the image. Larger sizes make navigating to next and previous pictures slower.<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+    '#description' => t('The image size to open in the overlay browser when clicking the image. Larger sizes make navigating to next and previous pictures slower.<br />Clear the cache on form submit.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
   );
   $form['overlay_settings']['flickr_info_overlay'] = array(
     '#type' => 'checkboxes',
@@ -183,7 +183,7 @@ function flickr_admin_settings() {
       'description' => 'description',
       'license' => 0,
     )),
-    '#description' => t("To give !attribution all marked * should be checked. After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution)),
+    '#description' => t("To give !attribution all marked * should be checked. Clear the cache on form submit.", array('!attribution' => $attribution)),
     '#options' => array(
       'title' => t('Title *'),
       'metadata' => t('Date, location and photographer *'),
@@ -338,7 +338,7 @@ $form['advanced_settings'] = array(
     $form['filter_settings'] = array(
       '#type' => 'fieldset',
       '#title' => t('Filter options'),
-      '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+      '#description' => t('Clear the cache on form submit.'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
     );
@@ -357,7 +357,7 @@ $form['advanced_settings'] = array(
         'c' => t('c: 800 px on longest side (!)'),
         'b' => t('b: 1024 px on longest side'),
       ),
-      '#description' => t('A default Flickr size to use if no size is specified, for example [flickr-photo:id=3711935987].<br />After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+      '#description' => t('A default Flickr size to use if no size is specified, for example [flickr-photo:id=3711935987].<br />Clear the cache on form submit.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
     );
     $form['filter_settings']['flickr_filter_heading'] = array(
       '#type' => 'textfield',
@@ -382,7 +382,7 @@ $form['advanced_settings'] = array(
     $form['block_settings'] = array(
       '#type' => 'fieldset',
       '#title' => t('Block options'),
-      '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+      '#description' => t('Clear the cache on form submit.'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
     );
@@ -431,7 +431,7 @@ $form['advanced_settings'] = array(
       '#title' => t('Number of photos per set'),
       '#required' => TRUE,
       '#default_value' => variable_get('flickr_block_photos_per_set', 6),
-      '#description' => t('The number indicates how many photos display per set on blocks that display multiple photosets. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+      '#description' => t('The number indicates how many photos display per set on blocks that display multiple photosets. Clear the cache on form submit.'),
       '#size' => 2,
       '#maxlength' => 2,
     );
@@ -440,7 +440,7 @@ $form['advanced_settings'] = array(
     $form['photoset_settings'] = array(
       '#type' => 'fieldset',
       '#title' => t('Photoset options'),
-      '#description' => t('After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+      '#description' => t('Clear the cache on form submit.'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
     );
@@ -466,7 +466,7 @@ $form['advanced_settings'] = array(
       '#title' => t('Number of photosets per page'),
       '#required' => TRUE,
       '#default_value' => variable_get('flickr_sets_per_page', 8),
-      '#description' => t('The number indicates how many photosets display on user profile pages at <em>flickr/%uid/sets</em>. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+      '#description' => t('The number indicates how many photosets display on user profile pages at <em>flickr/%uid/sets</em>. Clear the cache on form submit.'),
       '#size' => 2,
       '#maxlength' => 2,
     );
@@ -475,11 +475,18 @@ $form['advanced_settings'] = array(
       '#title' => t('Number of photos per set'),
       '#required' => TRUE,
       '#default_value' => variable_get('flickr_sets_photos_per_set', 6),
-      '#description' => t('The number indicates how many photos display in a set on user profile pages at <em>flickr/%uid/sets/%nsid</em>. After saving the configuration <a href="?q=admin/config/development/performance">clear the cache</a>.'),
+      '#description' => t('The number indicates how many photos display in a set on user profile pages at <em>flickr/%uid/sets/%nsid</em>. Clear the cache on form submit.'),
       '#size' => 2,
       '#maxlength' => 2,
     );
   }
+  $form['flickr_cc'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Flush all caches on form submit to see your changes instantly."),
+    '#default_value' => variable_get('flickr_cc', 0),
+    '#description' => t("Note that form submit will be slower and all your site content will be rebuilt. Your choice will be 'remembered' for your next visit to this configuration page."),
+  );
+
   // Call submit_function() on form submission.
   $form['#submit'][] = 'flickr_admin_settings_submit';
 
@@ -569,6 +576,10 @@ function flickr_admin_settings_validate($form, &$form_state) {
  * Submit form data.
  */
 function flickr_admin_settings_submit($form, &$form_state) {
+  if ($form_state['values']['flickr_cc']) {
+    drupal_flush_all_caches();
+    drupal_set_message(t('All caches are flushed.'), 'status', FALSE);
+  }
   // Clean up the data.
   $form_state['values']['flickr_api_key'] = trim($form_state['values']['flickr_api_key']);
   $form_state['values']['flickr_api_secret'] = trim($form_state['values']['flickr_api_secret']);

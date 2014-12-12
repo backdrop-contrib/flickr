@@ -22,6 +22,7 @@ function flickr_uninstall() {
   variable_del('flickr_api_key');
   variable_del('flickr_api_secret');
   variable_del('flickr_cache_duration');
+  variable_del('flickr_cc');
   variable_del('flickr_class');
   variable_del('flickr_css');
   variable_del('flickr_curl');
