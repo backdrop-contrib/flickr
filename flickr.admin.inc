@@ -8,6 +8,10 @@
  * Implements hook_settings().
  */
 function flickr_admin_settings() {
+  drupal_add_css(drupal_get_path('module', 'flickr') . '/flickr_cc_icons.css', array(
+    'group' => CSS_DEFAULT,
+    'every_page' => FALSE,
+  ));
   $form['credentials'] = array(
     '#type' => 'fieldset',
     '#title' => t('Flickr credentials'),
