@@ -40,8 +40,8 @@ function flickr_page_build(&$page) {
   // Tweak the condition to apply on other styles. Also needs CSS changes.
   // !path_is_admin($_GET['q'])) was added to avoid the JS kicking in on admin
   // pages. It mangled the dragging of block weight on admin/structure/block.
-  if (module_exists('colorbox') && !path_is_admin($_GET['q'])) {
-    if (variable_get('colorbox_style', 'default') == 'default') {
+  if (function_exists('_colorbox_active') && !path_is_admin($_GET['q']) && variable_get('flickr_class', '') == 'colorbox') {
+    if (variable_get('colorbox_style', 'default') == 'default' && _colorbox_active()) {
       drupal_add_js(drupal_get_path('module', 'flickr') . '/flickr_colorbox.js');
     }
   }
