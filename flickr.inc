@@ -5,7 +5,8 @@
  */
 
 define('FLICKR_REST_ENDPOINT', 'https://api.flickr.com/services/rest/');
-require_once 'flickr.api.inc';
+// Load flickr.api.inc from the flickr module.
+module_load_include('inc', 'flickr', 'flickr.api');
 
 /**
  * A list of possible photo sizes with description and label.

@@ -4,7 +4,8 @@
  * The Flickr module.
  */
 
-require_once 'flickr.inc';
+// Load flickr.inc from the flickr module.
+module_load_include('inc', 'flickr', 'flickr');
 
 /**
  * Implements hook_help().

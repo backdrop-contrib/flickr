@@ -4,7 +4,7 @@
  * Defines a Flickr field type.
  *
  * @todo - think about how to control access to photos, might be tricky because
- * of CCK caching.
+ * of field caching.
  */
 
 /**
@@ -206,9 +206,8 @@ function flickrfield_field_is_empty($item, $field) {
  * Implements hook_field_formatter_info().
  */
 function flickrfield_field_formatter_info() {
-  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'flickr') . '/flickr.inc';
   $sizes = flickr_photo_sizes();
-  // Formatters for general Flickr CCK field.
+  // Formatters for general Flickr field.
   foreach ($sizes as $size => $info) {
     if (stripos($info['label'], t('slideshow')) == FALSE) {
       $formatters[$size] = array(
@@ -280,7 +279,6 @@ function flickrfield_field_formatter_view($entity_type, $entity, $field, $instan
  *   https://drupal.org/node/728792 (section "Changed! Hook Formatter")
  */
 function flickrfield_theme() {
-  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'flickr') . '/flickr.inc';
   $themes = array();
   foreach (flickr_photo_sizes() as $size => $info) {
     $themes['flickrfield_formatter_' . $size] = array(
@@ -345,7 +343,6 @@ function flickrfield_theme() {
  * Basic flickrfield formatter.
  */
 function theme_flickrfield_field_formatter($element) {
-  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'flickr') . '/flickr.inc';
   $item = $element['#item'];
   if (empty($item['id'])) {
     return;
@@ -378,7 +375,6 @@ function theme_flickrfield_field_formatter($element) {
  * Theme a Flickr photo set as the primary photo of that set.
  */
 function theme_flickrfield_formatter_photoset_primaryphoto($element) {
-  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'flickr') . '/flickr.inc';
   if (empty($element['#item']['flickrid'])) {
     return;
   }
@@ -410,7 +406,6 @@ function theme_flickrfield_formatter_photoset_primaryphoto($element) {
  * Theme a Flickr photo set as an embedded Flickr.com slideshow (Flash).
  */
 function theme_flickrfield_formatter_photoset_flickrcomslideshow($variables) {
-  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'flickr') . '/flickr.inc';
   if (empty($variables['#item']['flickrid'])) {
     return;
   }
@@ -424,7 +419,6 @@ function theme_flickrfield_formatter_photoset_flickrcomslideshow($variables) {
  * Theme a Flickr photo set as an embedded Flickr.com slideshow (non Flash).
  */
 function theme_flickrfield_formatter_photoset_flickrcomslideshow_simple($variables) {
-  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'flickr') . '/flickr.inc';
   if (empty($variables['#item']['flickrid'])) {
     return;
   }
