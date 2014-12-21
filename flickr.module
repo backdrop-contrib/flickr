@@ -5,7 +5,7 @@
  */
 
 // Load flickr.inc from the flickr module.
-module_load_include('inc', 'flickr', 'flickr');
+module_load_include('inc', 'flickr');
 
 /**
  * Implements hook_help().

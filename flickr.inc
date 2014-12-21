@@ -126,17 +126,25 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
   // If a cached value wasn't suitable, attempt to connect and fetch a result.
   if (variable_get('flickr_curl2', 0)) {
     $result = flickr_curl_http_request($url);
+    $cmethod = 'cURL';
   }
   else {
     $result = drupal_http_request($url);
+    $cmethod = 'open socket';
   }
   if ($result->code != 200) {
     // Try to use cURL when drupal_http_request returns a 403 (forbidden) or 408
-    // (Request Timeout).
+    // (Request Timeout). 200 is returned on a valid request (no errors).
     if ($result->code == 403 || $result->code == 408) {
       $result = flickr_curl_http_request($url);
+      $cmethod = 'cURL';
     }
     elseif ($return_errors) {
+      // Debug info.
+      if (variable_get('flickr_debug', 0) && module_exists('devel')) {
+        dpm("Value of error 'result' in 'function flickr_request()' with connection method " . "'" . $cmethod . "' in 'flickr.inc':");
+        dpm($result);
+      }
       return array(
         'stat' => 'error',
         // In Drupal <= 5.1, only HTTP errors are stored in $result->code
@@ -147,19 +155,28 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
       );
     }
     if ($result->code != 200) {
+      // Debug info.
+      if (variable_get('flickr_debug', 0) && module_exists('devel')) {
+        dpm("Value of 'result' with error in 'function flickr_request()' with connection method " . "'" . $cmethod . "' in 'flickr.inc':");
+        dpm($result);
+      }
       flickr_set_error(t("Could not connect to Flickr, Error: @error", array('@error' => $result->error)));
       return FALSE;
     }
   }
-
+  // Debug info.
+  if (variable_get('flickr_debug', 0) && module_exists('devel')) {
+    dpm("Value of 'result' in 'function flickr_request()' with the " . "'" . $cmethod . "' connection method in 'flickr.inc':");
+    dpm($result);
+  }
   // Make sure it unserializes.
   $response = unserialize($result->data);
   if (!$response) {
     if ($return_errors) {
       return array(
-        'stat' => 'error',
+        'stat' => t('error'),
         'code' => '-1',
-        'message' => 'The response was corrupted, it could not be unserialized.',
+        'message' => t('The response was corrupted. It could not be unserialized.'),
       );
     }
     flickr_set_error(t("Flickr's response was corrupted and could not be unserialized."));
@@ -199,7 +216,9 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
  *   size if it is available.
  */
 function flickr_img($photo, $size = NULL, $attributes = NULL) {
+  // Debug info.
   if (variable_get('flickr_debug', 0) && module_exists('devel')) {
+    dpm("Value of 'photo' passed to 'function flickr_img()' in 'flickr.inc':");
     dpm($photo);
   }
   $sizes = flickr_photo_sizes();
@@ -928,9 +947,10 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         // The amount in the last page has to be sufficient to draw a random.
         $rest_ok = ($total % variable_get('flickr_per_page', 100)) > 3 * $show_n ? 1 : 0;
         $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : $page;
-  if (variable_get('flickr_debug', 0) && module_exists('devel')) {
-    dpm('$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total . ' $lat=' . $lat . ' $lon=' . $lon . ' $radius=' . $radius);
-  }
+        // Debug info.
+        if (variable_get('flickr_debug', 0) && module_exists('devel')) {
+          dpm("Arguments passed to 'function _flickr_album()': " . '$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total . ' $lat=' . $lat . ' $lon=' . $lon . ' $radius=' . $radius);
+        }
         // Get a list of "all" the photos. This is cached.
         switch ($type) {
           case "photoset":
@@ -1555,11 +1575,6 @@ function flickr_curl_http_request($url, array $options = array()) {
 
   // Lastly, include any cURL specific information
   $result->curl_info = $info;
-
-  // Debug output.
-  if (variable_get('flickr_debug', 0) && module_exists('devel')) {
-    dpm($result);
-  }
 
   return $result;
 }
