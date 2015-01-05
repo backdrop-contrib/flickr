@@ -1,0 +1,6 @@
+name = Flickr Style
+description = Extra configuration options: Rounded corners, shadow, border, emphasize on hover.
+core = 7.x
+package = Flickr
+configure = admin/config/media/flickr
+dependencies[] = flickr

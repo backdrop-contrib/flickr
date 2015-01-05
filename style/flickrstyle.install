@@ -1,0 +1,14 @@
+<?php
+/**
+ * @file
+ * The Flickr Style uninstall hook
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function flickrstyle_uninstall() {
+  variable_del('flickrstyle_styles');
+  variable_del('flickrstyle_caption');
+  variable_del('flickrstyle_emphasize');
+}

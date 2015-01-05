@@ -1,0 +1,12 @@
+.flickr-photo-img,
+img.flickr-photoset-img {
+  margin: 0 3px 0 0; /*Shadows need some additional space*/
+  -webkit-box-shadow: 2px 2px 7px 3px #a5a5a5;
+     -moz-box-shadow: 2px 2px 7px 3px #a5a5a5;
+          box-shadow: 2px 2px 7px 3px #a5a5a5;
+}
+
+/*Additional space between the image and caption box*/
+span.flickr-credit {
+  margin-top: 2px;
+}

@@ -1,0 +1,11 @@
+.flickr-photo-img,
+img.flickr-photoset-img {
+  padding: 2px;
+  border: solid 2px lightgray;
+}
+
+/*Make the caption as wide as the image */
+span.flickr-credit,
+.flickr-citation {
+  padding: 0 4px;
+}

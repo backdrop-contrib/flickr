@@ -1,0 +1,21 @@
+.flickr-wrap .flickr-photo-img:hover,
+img.flickr-photoset-img:hover {
+  position: relative;
+  top: 2em;
+  -webkit-transform: scale(1.8);
+     -moz-transform: scale(1.8);
+      -ms-transform: scale(1.8);
+       -o-transform: scale(1.8);
+          transform: scale(1.8);
+}
+.flickr-wrap {
+  overflow: hidden;
+}
+.flickr-photo-img,
+img.flickr-photoset-img {
+  -webkit-transition: all 0.2s ease;
+     -moz-transition: all 0.2s ease;
+      -ms-transition: all 0.2s ease;
+       -o-transition: all 0.2s ease;
+          transition: all 0.2s ease;
+}

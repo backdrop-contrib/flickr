@@ -4,4 +4,3 @@ core = 7.x
 package = Flickr
 configure = admin/config/content/formats
 dependencies[] = flickr
-

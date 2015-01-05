@@ -260,8 +260,6 @@ RECOMMENDED
 If you use the Flickr Filter submodule, you might find the AutoFloat
 module useful. See https://drupal.org/project/autofloat
 
-Flickr module Style Guide. See https://drupal.org/node/2174131
-
 TROUBLESHOOTING
 ===============
 For more details, see https://www.drupal.org/node/2289785

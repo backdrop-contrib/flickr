@@ -1,0 +1,18 @@
+.flickr-wrap {
+  margin: 0;
+  border: solid 2px lightgray;
+}
+
+.flickr-photo-img {
+  margin: 0;
+  border: none;
+  -webkit-box-shadow: none;
+     -moz-box-shadow: none;
+          box-shadow: none;
+}
+
+span.flickr-credit {
+  /*Resets the space between the image and caption box*/
+  margin-top: 0;
+  padding: 0 5px 3px;
+}

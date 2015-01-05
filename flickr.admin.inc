@@ -142,13 +142,13 @@ function flickr_admin_settings() {
     '#type' => 'checkbox',
     '#title' => t('License info in caption'),
     '#default_value' => variable_get('flickr_license', 0),
-    '#description' => t("To give !attribution. Depends on 'Minimum image width' above. Clear the cache on form submit.<br />!cc_icons in 'flickr_cc_icons.css'. Download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr_cc_icons.css' accordingly.<br />Some examples (try to mouse-over): !ccexample_cna !cc_example_copy !cc_example_p", array('!attribution' => $attribution, '!cc_icons' => $cc_icons, '!ccexample_cna' => $cc_example_cna, '!cc_example_copy' => $cc_example_copy,'!cc_example_p' => $cc_example_p)),
+    '#description' => t("To give !attribution. Depends on 'Minimum image width' above. Clear the cache on form submit.<br />!cc_icons in 'flickr_cc_icons.css'. Download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr_cc_icons.css' accordingly.<br />Some examples (try to mouse-over): !ccexample_cna !cc_example_copy !cc_example_p", array('!attribution' => $attribution, '!cc_icons' => $cc_icons, '!ccexample_cna' => $cc_example_cna, '!cc_example_copy' => $cc_example_copy, '!cc_example_p' => $cc_example_p)),
   );
   $form['info_settings']['flickr_maps'] = array(
     '#type' => 'checkbox',
     '#title' => t('Extra links to Flickr maps'),
     '#default_value' => variable_get('flickr_maps', 0),
-    '#description' => t('Include extra links to maps available for a user, group or set on Flickr. Locations mentioned (if displayed) under individual images link to corresponding Flickr user maps in any case, independent on the setting here.'),
+    '#description' => t('Include extra links to maps available for a user, group or set on Flickr. Locations mentioned (if displayed) under individual images link to corresponding Flickr user maps in any case, independent of the setting here.'),
   );
   $form['info_settings']['flickr_counter'] = array(
     '#type' => 'checkbox',
@@ -220,12 +220,6 @@ function flickr_admin_settings() {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
-  $style_doc = l(t('Flickr module Style Guide'), 'https://drupal.org/node/2174131', array(
-      'attributes' => array(
-        'title' => t('Flickr Style Guide documentation | Drupal.org'),
-        'target' => '_blank',
-      ),
-  ));
   $autofloat_module = l(t('AutoFloat module'), 'https://drupal.org/project/autofloat', array(
       'attributes' => array(
         'title' => t('AutoFloat | Drupal.org'),
@@ -236,25 +230,35 @@ function flickr_admin_settings() {
     '#type' => 'checkbox',
     '#title' => t('Use flickr.css'),
     '#default_value' => variable_get('flickr_css', 1),
-    '#description' => t("Uncheck to take care of the styling yourself in custom CSS.<br />Side note: Extend CSS even further with the !style_doc. If you use Flickr Filter, you might find the !autofloat_module useful.", array('!style_doc' => $style_doc, '!autofloat_module' => $autofloat_module)),
+    '#description' => t("Uncheck to take care of the styling yourself in custom CSS.<br />If you use Flickr Filter, you might find the !autofloat_module useful.", array('!autofloat_module' => $autofloat_module)),
   );
-    $style_doc = l(t('Style Guide'), 'https://drupal.org/node/2174131#caption', array(
-      'attributes' => array(
-        'title' => t('Flickr Style Guide documentation | Drupal.org'),
-        'target' => '_blank',
-      ),
+  $style_doc = l(t('Style Guide'), 'https://drupal.org/node/2174131#caption', array(
+    'attributes' => array(
+      'title' => t('Flickr Style Guide documentation | Drupal.org'),
+      'target' => '_blank',
+    ),
   ));
   $form['css_settings']['flickr_caption_padding'] = array(
     '#type' => 'textfield',
     '#title' => t('Make the caption smaller in width (correction for caption padding/border)'),
     '#required' => TRUE,
-    '#default_value' => variable_get('flickr_caption_padding', '0'),
+    '#default_value' => variable_get('flickr_caption_padding', 0),
     '#description' => t('By default the caption is as wide as the image. If you add padding to a boxed caption with CSS, set a value here to make sure the caption will remain of the same width of the image. See the !style_doc.<br />Only padding: 1 x horizontal padding value.<br />Padding AND border: 2 x padding value + 1 x border-width.', array('!style_doc' => $style_doc)),
     '#field_suffix' => t('px'),
     '#size' => 2,
     '#maxlength' => 2,
   );
-$form['advanced_settings'] = array(
+  $flickr_style = l(t('Flickr Style'), 'admin/modules', array(
+      'attributes' => array(
+        'title' => t('Extra configuration options.'),
+      ),
+  ));
+  if (!module_exists('flickrstyle')) {
+    $form['css_settings']['flickr_style'] = array(
+      '#markup' => t("Extend the styling options with rounded corners, shadow, border and emphasize on hover by enabling the !flickr_style sub-module.", array('!flickr_style' => $flickr_style)),
+    );
+  }
+  $form['advanced_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Advanced'),
     '#collapsible' => TRUE,
@@ -329,12 +333,12 @@ $form['advanced_settings'] = array(
     '#default_value' => variable_get('flickr_curl2', 0),
     '#description' => t("Otherwise cURL will only be used as fallback when the usual method returns a 403 (forbidden) or 408 (Request Timeout)."),
   );
-   // We need an api key before we can verify usernames.
+  // We need an api key before we can verify usernames.
   if (!$form['credentials']['flickr_api_key']['#default_value']) {
     $form['credentials']['flickr_default_userid']['#disabled'] = TRUE;
     $form['credentials']['flickr_default_userid']['#description'] .= ' ' . t('Disabled until a valid API Key is set.');
   }
-    // Do not offer the following setting if Devel is not available.
+  // Do not offer the following setting if Devel is not available.
   if (!module_exists('devel')) {
     $form['advanced_settings']['flickr_debug']['#disabled'] = TRUE;
     $form['advanced_settings']['flickr_debug']['#description'] = t("Disabled because the !devel_module is not enabled.", array('!devel_module' => $devel_module));
@@ -352,7 +356,7 @@ $form['advanced_settings'] = array(
       $form['advanced_settings']['flickr_curl']['#description'] = t("It could not be determined if your server configuration uses 'fopen' or 'cURL'. You might see unnecessary whitespace next to your floating images. It probably means your server does not allow neither 'fopen' nor 'cURL'. Check your 'php.ini' settings first, then contact your hosting company.");
     }
   }
-    // Do not offer the following setting if curl is not available.
+  // Do not offer the following setting if curl is not available.
   if (!function_exists('curl_version')) {
     $form['advanced_settings']['flickr_curl2']['#disabled'] = TRUE;
     $form['advanced_settings']['flickr_curl2']['#description'] = t("Disabled because your server configuration only allows 'stream_socket_client' (not 'cURL')");
@@ -433,12 +437,12 @@ $form['advanced_settings'] = array(
       '#size' => 3,
       '#maxlength' => 3,
     );
-  $cache_warming = l(t('cache warming'), 'https://drupal.org/node/1576686/', array(
+    $cache_warming = l(t('cache warming'), 'https://drupal.org/node/1576686/', array(
       'attributes' => array(
         'title' => t('Load Page Cache after cron Runs | Drupal.org'),
         'target' => '_blank',
       ),
-  ));
+    ));
     $form['block_settings']['flickr_block_refresh_others'] = array(
       '#type' => 'textfield',
       '#field_prefix' => t('Refresh other blocks every'),
