@@ -80,12 +80,14 @@ function flickrstyle_form_flickr_admin_settings_alter(&$form, &$form_state) {
       '#title' => t('Emphasize the image on hover?'),
       '#options' => array(
         t('No'),
-        t('Enlarge slightly'),
-        t('Zoom in'),
+        t('Enlarge 5% (includes the caption)'),
+        t('Enlarge 80% (image only) (*)'),
+        t('Zoom (*)'),
         t('Magnifier icon'),
       ),
       // Defaults to 'Enlarge slightly'.
       '#default_value' => variable_get('flickrstyle_emphasize', 1),
+      '#description' => t("(*): The 'Zoom' and 'Enlarge 80%'' styles use bigger images to maintain the resolution. This has a slight performance impact and in older browsers the image of the big square is distorted (size 'q')."),
       '#weight' => 10,
     );
   }

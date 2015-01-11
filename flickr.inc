@@ -1332,6 +1332,19 @@ function flickr_sortByID($a, $b) {
 }
 
 /**
+ * Return the Flickr photo suffix that corresponds to the one that is one step
+ * bigger than the one that is passed in the parameter.
+ *
+ * @param string $size
+ *   The image size suffix to return the bigger one for.
+ */
+function flickr_one_size_bigger($size) {
+  $in = array('h', 'b', 'c', 'z', '-', 'n', 'm', 'q', 't', 's');
+  $out = array('k', 'h', 'b', 'b', 'z', '-', '-', 'm', 'm', 'q');
+  return str_replace($in, $out, $size);
+}
+
+/**
  * Performs an HTTP request over cURL.
  * Taken from http://cgit.drupalcode.org/chr/tree/chr.module
  *

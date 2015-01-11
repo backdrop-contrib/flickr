@@ -88,13 +88,20 @@ function flickrstyle_page_build(&$page) {
         break;
 
       case 2:
-        drupal_add_css(drupal_get_path('module', 'flickrstyle') . '/css/flickrstyle_zoom.css', array(
+        drupal_add_css(drupal_get_path('module', 'flickrstyle') . '/css/flickrstyle_big.css', array(
           'group' => CSS_DEFAULT,
           'every_page' => TRUE,
         ));
         break;
 
       case 3:
+        drupal_add_css(drupal_get_path('module', 'flickrstyle') . '/css/flickrstyle_zoom.css', array(
+          'group' => CSS_DEFAULT,
+          'every_page' => TRUE,
+        ));
+        break;
+
+      case 4:
         drupal_add_css(drupal_get_path('module', 'flickrstyle') . '/css/flickrstyle_magnifier.css', array(
           'group' => CSS_DEFAULT,
           'every_page' => TRUE,

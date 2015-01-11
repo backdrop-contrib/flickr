@@ -356,16 +356,17 @@ function theme_flickr_photo($variables) {
     $style_float = '';
   }
   $url = flickr_photo_img($photo, variable_get('flickr_opening_size', ''), $format);
-  $img = flickr_img($photo, $size, $attribs);
   $img_url = flickr_photo_img($photo, $size);
   // If the image is a square we know the width (avoids to make a request).
   switch ($size) {
     case 's':
       $width = '75';
+      $height = '75';
       break;
 
     case 'q':
       $width = '150';
+      $height = '150';
       break;
   }
   // If it is not a square.
@@ -425,7 +426,52 @@ function theme_flickr_photo($variables) {
           $width = '500';
       }
     }
+    switch ($size) {
+      case 't':
+        $height = '100';
+        break;
+
+      case 'm':
+        $height = '240';
+        break;
+
+      case 'n':
+        $height = '320';
+        break;
+
+      case 'z':
+        $height = '640';
+        break;
+
+      case 'c':
+        $height = '800';
+        break;
+
+      case 'b':
+        $height = '1024';
+        break;
+
+      case 'h':
+        $height = '1600';
+        break;
+
+      case 'k':
+        $height = '2048';
+        break;
+
+      default:
+        $height = '500';
+    }
   }
+  // If we zoom an image, we should use the bigger size to retain
+  // an acceptable resolution.
+  if (module_exists('flickrstyle')) {
+    if (variable_get('flickrstyle_emphasize', 1) == 2 || variable_get('flickrstyle_emphasize', 1) == 3) {
+      $attribs['style'] = isset($attribs['style']) ? $attribs['style'] . 'width: ' . $width . 'px;' . ' height: ' . $height . 'px;' : 'width: ' . $width . 'px;' . ' height: ' . $height . 'px';
+      $size = flickr_one_size_bigger($size);
+    }
+ }
+  $img = flickr_img($photo, $size, $attribs);
   $photo_url = flickr_photo_page_url($photo['owner'], $photo['id']);
   $info = flickr_photos_getinfo($photo['id']);
   $people = flickr_get_user_info($info['owner']['nsid']);
@@ -583,7 +629,7 @@ function theme_flickr_photo($variables) {
   $licenselong = (gettype($overlay['license']) == 'integer') ? '' : $licenselong;
   $overlayhtml = $overlaytitle . $metadata . $description . $licenselong;
   // Optionally use the GPL licensed magnifier image supplied with the module.
-  $magnifier = (variable_get('flickrstyle_emphasize', 1) == 3) ? '<span class="hover-icon"><img src="/' . drupal_get_path('module', 'flickr') . '/style/img/magnifier.png' . '" style="width:50px;height:50px;"></span>' : '';
+  $magnifier = (variable_get('flickrstyle_emphasize', 1) == 4) ? '<span class="hover-icon"><img src="/' . drupal_get_path('module', 'flickr') . '/style/img/magnifier.png' . '" style="width:50px;height:50px;"></span>' : '';
   // Final step when NO overlay browser is used that generates the image that
   // links to the Flickr page to comply with the TOS of Flickr.
   if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL && $width < $min_title && $width < $min_metadata) {
