@@ -64,8 +64,7 @@ function flickr_photos_search($nsid, $page = 1, $other_args = array()) {
     $args = array(
       'user_id' => '',
       'tag_mode' => 'all',
-      // Uncomment below line to NOT restrict public photos to only CC licensed.
-      'license' => '1,2,3,4,5,6,7',
+      'license' => $other_args['license'],
       'page' => $page,
     );
   }
@@ -74,6 +73,8 @@ function flickr_photos_search($nsid, $page = 1, $other_args = array()) {
       'user_id' => $nsid,
       'page' => $page,
     );
+    // No license restrictions if a user ID is specified.
+    $other_args['license'] = '';
   }
   // Set per_page to flickr module default if not specified in $other_args.
   if (!isset($other_args['per_page'])) {

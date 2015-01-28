@@ -51,7 +51,7 @@ function flickr_admin_settings() {
   );
   $form['info_settings'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Global display options'),
+    '#title' => t('Global options'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
@@ -144,6 +144,17 @@ function flickr_admin_settings() {
     '#default_value' => variable_get('flickr_license', 0),
     '#description' => t("To give !attribution. Depends on 'Minimum image width' above. Clear the cache on form submit.<br />!cc_icons in 'flickr_cc_icons.css'. Download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr_cc_icons.css' accordingly.<br />Some examples (try to mouse-over): !ccexample_cna !cc_example_copy !cc_example_p", array('!attribution' => $attribution, '!cc_icons' => $cc_icons, '!ccexample_cna' => $cc_example_cna, '!cc_example_copy' => $cc_example_copy, '!cc_example_p' => $cc_example_p)),
   );
+    $form['info_settings']['flickr_restrict'] = array(
+      '#type' => 'radios',
+      '#title' => t("License restriction for 'public' queries"),
+      '#options' => array(
+        t("Always restrict 'public' queries to only Creative Commons licensed media."),
+        t("Do not restrict media to Creative Commons licensed on 'public' queries if no results are returned."),
+      ),
+      // Defaults to 'No restriction'.
+      '#default_value' => variable_get('flickr_restrict', 1),
+      '#description' => t("With 'public' queries are intended Flickr requests that do not specify a Flickr user ID, thus returning results from all public Flickr photos."),
+    );
   $form['info_settings']['flickr_maps'] = array(
     '#type' => 'checkbox',
     '#title' => t('Extra links to Flickr maps'),

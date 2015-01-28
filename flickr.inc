@@ -1016,7 +1016,21 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                 'lat' => $lat,
                 'lon' => $lon,
                 'radius' => $radius,
+                'license' => '1,2,3,4,5,6,7',
               ));
+              if (empty($response['photo']) && variable_get('flickr_restrict', 1)) {
+                $response = flickr_photos_search($id, $page, array(
+                  'tags' => $tags_combined,
+                  'sort' => $valid_sort,
+                  'per_page' => $per_page,
+                  'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
+                  'media' => $media,
+                  'lat' => $lat,
+                  'lon' => $lon,
+                  'radius' => $radius,
+                  'license' => '0,1,2,3,4,5,6,7',
+                ));
+              }
             }
             else {
               $response = flickr_photos_search($id, $page, array(
@@ -1025,7 +1039,18 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                 'per_page' => $per_page,
                 'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
                 'media' => $media,
+                'license' => '1,2,3,4,5,6,7',
               ));
+              if (empty($response['photo']) && variable_get('flickr_restrict', 1)) {
+                $response = flickr_photos_search($id, $page, array(
+                  'tags' => $tags_combined,
+                  'sort' => $valid_sort,
+                  'per_page' => $per_page,
+                  'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
+                  'media' => $media,
+                  'license' => '0,1,2,3,4,5,6,7',
+                ));
+              }
             }
             if (!$response) {
               return;
