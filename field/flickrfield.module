@@ -169,6 +169,7 @@ function flickrfield_form_process_flickrfield($element, $form_state, $form = arr
       '!find_id' => $idgettr,
     )),
   );
+  drupal_alter('flickrfield_process', $element);
   return $element;
 }
 
