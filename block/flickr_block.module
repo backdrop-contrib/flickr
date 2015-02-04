@@ -76,6 +76,7 @@ function flickr_block_configure($delta = '') {
     'filter' => '',
     'media' => 'photos',
     'vocab' => '',
+    'extend' => variable_get('flickr_extend', 1),
     'min_title' => variable_get('flickr_title_suppress_on_small', '100'),
     'min_metadata' => variable_get('flickr_metadata_suppress_on_small', '150'),
   ));
@@ -99,6 +100,9 @@ function flickr_block_configure($delta = '') {
   }
   if (!isset($settings['vocab'])) {
     $settings['vocab'] = '';
+  }
+  if (!isset($settings['extend'])) {
+    $settings['extend'] = variable_get('flickr_extend', 1);
   }
   if (!isset($settings['min_title'])) {
     $settings['min_title'] = variable_get('flickr_title_suppress_on_small', '100');
@@ -231,6 +235,12 @@ function flickr_block_configure($delta = '') {
       '#default_value' => $settings['vocab'],
       '#description'   => t("Limit the Flickr images to those that have a Flickr tag identical to the terms found for the node on the page the block is displayed on of a specific vocabulary. Case insensitive, matches any tag, for photosets even partial. Multiple tags for groups will only query the last 500 photos on Flickr (slowest API request). For user blocks the Flickr account of the node author will be queried. Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'). Use taxonomy terms without spaces in the vocabulary dedicated to Flickr.<br />For your content type, adjust the <em>Help text</em> of the used taxonomy field accordingly (e.g. at <em>admin/structure/types/manage/article/fields/field_tags</em>). The recommended widget type is <em>Autocomplete term widget (tagging)</em> with an <em>unlimited number of values</em>. If not already in use, the default existing vocabulary <em>Tags</em> can be used which is already configured right by default. Set <em>Tags</em> as a <em>Term reference</em> field on your content type and it works out-of-the-box.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>.<br />Note that if you add this <em>term reference</em> field to user profiles at <em>admin/config/people/accounts/fields</em> it will filter additionally on it for user blocks. E.g. a user can set individually that from their account only photos tagged <em>'website'</em> should be used to embed, indepedent from other used tags. Does apply only on user blocks, except for favorites."),
     );
+    $form["flickr_block_{$delta}_extend"] = array(
+      '#type' => 'checkbox',
+      '#title' => t("Extend to search for matching terms also in the Flickr photo title and description besides Flickr tags."),
+      '#default_value' => $settings['extend'],
+      '#description' => t("Shows more results."),
+    );
   }
   // Override default settings to force or suppress the display of the caption
   // title and metadata.
@@ -263,7 +273,7 @@ function flickr_block_configure($delta = '') {
     '#maxlength' => 3,
   );
   // A note for dynamic user blocks.
-  $form['flickr_block_note'] = array(
+  $form["flickr_block_note"] = array(
     '#markup' => t("<h3>NOTE</h3><strong>The block visibility setting for 'user' (node author) blocks are not only restricted in the block configuration but also by the Flickr Block module.</strong> The block only gets displayed on user and node pages. Below you can change the block settings to exclude 'user/*' pages or show them only on 'node/*' pages or the other way around. Fine-grain even more by selecting a content type, for example blog posts."),
     '#weight' => 10,
   );
@@ -279,6 +289,7 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_filter"]);
       if (module_exists('taxonomy')) {
         unset($form["flickr_block_{$delta}_vocab"]);
+        unset($form["flickr_block_{$delta}_extend"]);
       }
       // Photoset, not photos.
       $form["flickr_block_{$delta}_show_n"]['#title'] = t('Show the last <em>n</em> photosets');
@@ -341,6 +352,7 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_filter"]);
       if (module_exists('taxonomy')) {
         unset($form["flickr_block_{$delta}_vocab"]);
+        unset($form["flickr_block_{$delta}_extend"]);
       }
       // Photosets, not photos.
       $form["flickr_block_{$delta}_show_n"]['#title'] = t('Show the last <em>n</em> photosets');
@@ -467,6 +479,7 @@ function flickr_block_save($delta = '', $edit = array()) {
     case 0:
     case 2:
       $vocab = module_exists('taxonomy') ? (int) $edit["flickr_block_{$delta}_vocab"] : 0;
+      $extend = module_exists('taxonomy') ? $edit["flickr_block_{$delta}_extend"] : 0;
       variable_set('flickr_block_' . $delta, array(
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
         'size' => $edit["flickr_block_{$delta}_size"],
@@ -474,6 +487,7 @@ function flickr_block_save($delta = '', $edit = array()) {
         'filter' => $edit["flickr_block_{$delta}_filter"],
         'media' => $edit["flickr_block_{$delta}_media"],
         'vocab' => $vocab,
+        'extend' => $extend,
         'min_title' => $edit["flickr_block_{$delta}_min_title"],
         'min_metadata' => $edit["flickr_block_{$delta}_min_metadata"],
       ));
@@ -485,12 +499,14 @@ function flickr_block_save($delta = '', $edit = array()) {
     case 15:
     case 16:
       $vocab = module_exists('taxonomy') ? (int) $edit["flickr_block_{$delta}_vocab"] : 0;
+      $extend = module_exists('taxonomy') ? $edit["flickr_block_{$delta}_extend"] : 0;
       variable_set('flickr_block_' . $delta, array(
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
         'size' => $edit["flickr_block_{$delta}_size"],
         'sort' => $edit["flickr_block_{$delta}_sort"],
         'media' => $edit["flickr_block_{$delta}_media"],
         'vocab' => $vocab,
+        'extend' => $extend,
         'min_title' => $edit["flickr_block_{$delta}_min_title"],
         'min_metadata' => $edit["flickr_block_{$delta}_min_metadata"],
       ));
@@ -515,6 +531,7 @@ function flickr_block_save($delta = '', $edit = array()) {
         }
       }
       $vocab = module_exists('taxonomy') ? (int) $edit["flickr_block_{$delta}_vocab"] : 0;
+      $extend = module_exists('taxonomy') ? $edit["flickr_block_{$delta}_extend"] : 0;
       variable_set('flickr_block_' . $delta, array(
         'user_id' => $edit["flickr_block_{$delta}_user_id"],
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
@@ -523,6 +540,7 @@ function flickr_block_save($delta = '', $edit = array()) {
         'filter' => $edit["flickr_block_{$delta}_filter"],
         'media' => $edit["flickr_block_{$delta}_media"],
         'vocab' => $vocab,
+        'extend' => $extend,
         'min_title' => $edit["flickr_block_{$delta}_min_title"],
         'min_metadata' => $edit["flickr_block_{$delta}_min_metadata"],
       ));
@@ -548,6 +566,7 @@ function flickr_block_save($delta = '', $edit = array()) {
         }
       }
       $vocab = module_exists('taxonomy') ? (int) $edit["flickr_block_{$delta}_vocab"] : 0;
+      $extend = module_exists('taxonomy') ? $edit["flickr_block_{$delta}_extend"] : 0;
       variable_set('flickr_block_' . $delta, array(
         'user_id' => $edit["flickr_block_{$delta}_user_id"],
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
@@ -555,6 +574,7 @@ function flickr_block_save($delta = '', $edit = array()) {
         'sort' => $edit["flickr_block_{$delta}_sort"],
         'media' => $edit["flickr_block_{$delta}_media"],
         'vocab' => $vocab,
+        'extend' => $extend,
         'min_title' => $edit["flickr_block_{$delta}_min_title"],
         'min_metadata' => $edit["flickr_block_{$delta}_min_metadata"],
       ));
@@ -594,6 +614,7 @@ function flickr_block_save($delta = '', $edit = array()) {
     case 6:
     case 10:
       $vocab = module_exists('taxonomy') ? (int) $edit["flickr_block_{$delta}_vocab"] : 0;
+      $extend = module_exists('taxonomy') ? $edit["flickr_block_{$delta}_extend"] : 0;
       variable_set('flickr_block_' . $delta, array(
         'group_id' => $edit["flickr_block_{$delta}_group_id"],
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
@@ -601,6 +622,7 @@ function flickr_block_save($delta = '', $edit = array()) {
         'sort' => $edit["flickr_block_{$delta}_sort"],
         'media' => $edit["flickr_block_{$delta}_media"],
         'vocab' => $vocab,
+        'extend' => $extend,
         'min_title' => $edit["flickr_block_{$delta}_min_title"],
         'min_metadata' => $edit["flickr_block_{$delta}_min_metadata"],
       ));
@@ -611,13 +633,15 @@ function flickr_block_save($delta = '', $edit = array()) {
     case 7:
     case 8:
       $vocab = module_exists('taxonomy') ? (int) $edit["flickr_block_{$delta}_vocab"] : 0;
+      $extend = module_exists('taxonomy') ? $edit["flickr_block_{$delta}_extend"] : 0;
       variable_set('flickr_block_' . $delta, array(
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
         'size' => $edit["flickr_block_{$delta}_size"],
         'sort' => $edit["flickr_block_{$delta}_sort"],
         'media' => $edit["flickr_block_{$delta}_media"],
         'photoset_id' => $edit["flickr_block_{$delta}_photoset"],
-        'vocab' => (int) $edit["flickr_block_{$delta}_vocab"],
+        'vocab' => $vocab,
+        'extend' => $extend,
         'min_title' => $edit["flickr_block_{$delta}_min_title"],
         'min_metadata' => $edit["flickr_block_{$delta}_min_metadata"],
       ));
@@ -649,6 +673,7 @@ function flickr_block_save($delta = '', $edit = array()) {
         'sort' => $edit["flickr_block_{$delta}_sort"],
         'filter' => $edit["flickr_block_{$delta}_filter"],
         'media' => $edit["flickr_block_{$delta}_media"],
+        'extend' => $edit["flickr_block_{$delta}_extend"],
         'min_title' => $edit["flickr_block_{$delta}_min_title"],
         'min_metadata' => $edit["flickr_block_{$delta}_min_metadata"],
       ));
@@ -673,6 +698,7 @@ function flickr_block_view($delta = '') {
     'filter' => '',
     'media' => 'photos',
     'vocab' => '',
+    'extend' => variable_get('flickr_extend', 1),
     'min_title' => variable_get('flickr_title_suppress_on_small', '100'),
     'min_metadata' => variable_get('flickr_metadata_suppress_on_small', '150'),
   ));
@@ -705,6 +731,9 @@ function flickr_block_view($delta = '') {
   }
   if (!isset($settings['vocab'])) {
     $settings['vocab'] = '';
+  }
+  if (!isset($settings['extend'])) {
+    $settings['extend'] = variable_get('flickr_extend', 1);
   }
   if (!isset($settings['min_title'])) {
     $settings['min_title'] = variable_get('flickr_title_suppress_on_small', '100');
@@ -845,7 +874,7 @@ function flickr_block_view($delta = '') {
             // Only if on a node page use it's terms.
             $tags = (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
             $block['subject'] = NULL;
-            $block['content'] = _flickr_album('user', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $tags_user, $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], $settings['filter']);
+            $block['content'] = _flickr_album('user', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $tags_user, $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], $settings['filter'], NULL, NULL, NULL, $settings['extend']);
             break;
 
           // User favorite Flickr photos.
@@ -854,7 +883,7 @@ function flickr_block_view($delta = '') {
             // Only if on a node page use it's terms.
             $tags = (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
             $block['subject'] = NULL;
-            $block['content'] = _flickr_album('favorites', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
+            $block['content'] = _flickr_album('favorites', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, $settings['extend']);
             break;
 
           // User gallery Flickr photos.
@@ -879,7 +908,7 @@ function flickr_block_view($delta = '') {
               }
             }
             $block['subject'] = NULL;
-            $block['content'] = _flickr_album('gallery', $gallery['id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
+            $block['content'] = _flickr_album('gallery', $gallery['id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, $settings['extend']);
             break;
         }
       }
@@ -924,7 +953,7 @@ function flickr_block_view($delta = '') {
         $tags = '';
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], $settings['filter']);
+      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], $settings['filter'], NULL, NULL, NULL, $settings['extend']);
       break;
 
     // Recent photosets from a Flickr user.
@@ -981,7 +1010,7 @@ function flickr_block_view($delta = '') {
         $tags = '';
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('group', $settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
+      $block['content'] = _flickr_album('group', $settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, $settings['extend']);
       break;
 
     // Photos from a Flickr photoset.
@@ -1023,7 +1052,7 @@ function flickr_block_view($delta = '') {
         $tags = '';
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('photoset', $settings['photoset_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
+      $block['content'] = _flickr_album('photoset', $settings['photoset_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, $settings['extend']);
       break;
 
     // Favorite public photos from a Flickr user.
@@ -1066,13 +1095,13 @@ function flickr_block_view($delta = '') {
         $tags = '';
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('favorites', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab']);
+      $block['content'] = _flickr_album('favorites', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, $settings['extend']);
       break;
 
     // Photos with a specific tag from a Flickr user.
     case 11:
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], 0, $settings['filter']);
+      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], 0, $settings['filter'], NULL, NULL, NULL, $settings['extend']);
       break;
   }
   return $block;

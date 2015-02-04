@@ -142,19 +142,32 @@ function flickr_admin_settings() {
     '#type' => 'checkbox',
     '#title' => t('License info in caption'),
     '#default_value' => variable_get('flickr_license', 0),
-    '#description' => t("To give !attribution. Depends on 'Minimum image width' above. Clear the cache on form submit.<br />!cc_icons in 'flickr_cc_icons.css'. Download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr_cc_icons.css' accordingly.<br />Some examples (try to mouse-over): !ccexample_cna !cc_example_copy !cc_example_p", array('!attribution' => $attribution, '!cc_icons' => $cc_icons, '!ccexample_cna' => $cc_example_cna, '!cc_example_copy' => $cc_example_copy, '!cc_example_p' => $cc_example_p)),
+    '#description' => t("To give !attribution. Depends on 'Minimum image width' above. Clear the cache on form submit.<br />!cc_icons in 'flickr_cc_icons.css'. Download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr_cc_icons.css' accordingly.<br />Some examples (try to mouse-over): !ccexample_cna !cc_example_copy !cc_example_p", array(
+        '!attribution' => $attribution,
+        '!cc_icons' => $cc_icons,
+        '!ccexample_cna' => $cc_example_cna,
+        '!cc_example_copy' => $cc_example_copy,
+        '!cc_example_p' => $cc_example_p,
+      )),
   );
-    $form['info_settings']['flickr_restrict'] = array(
-      '#type' => 'radios',
-      '#title' => t("License restriction for 'public' queries"),
-      '#options' => array(
-        t("Always restrict 'public' queries to only Creative Commons licensed media."),
-        t("Do not restrict media to Creative Commons licensed on 'public' queries if no results are returned."),
-      ),
-      // Defaults to 'No restriction'.
-      '#default_value' => variable_get('flickr_restrict', 1),
-      '#description' => t("With 'public' queries are intended Flickr requests that do not specify a Flickr user ID, thus returning results from all public Flickr photos."),
-    );
+  $form['info_settings']['flickr_restrict'] = array(
+    '#type' => 'radios',
+    '#title' => t("License restriction for 'public' queries"),
+    '#options' => array(
+      t("Always restrict 'public' queries to only Creative Commons licensed media."),
+      t("Do not restrict media to Creative Commons licensed on 'public' queries if no results are returned."),
+      t("Do not restrict media to Creative Commons licensed on 'public' queries."),
+    ),
+    // Defaults to 'No restriction'.
+    '#default_value' => variable_get('flickr_restrict', 1),
+    '#description' => t("With 'public' queries are intended Flickr requests that do not specify a Flickr user ID, thus returning results from all public Flickr photos."),
+  );
+  $form['info_settings']['flickr_extend'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Extend the tag filter to search for matching terms also in the Flickr photo title and description besides Flickr tags."),
+    '#default_value' => variable_get('flickr_extend', 1),
+    '#description' => t("Shows more results. Can be overridden individually by the filter tag, eg. [flickr-user:id=public, size=q, tags=Augusto Canario, extend=true] or in the specific configuration of a Flickr block."),
+  );
   $form['info_settings']['flickr_maps'] = array(
     '#type' => 'checkbox',
     '#title' => t('Extra links to Flickr maps'),
@@ -165,7 +178,7 @@ function flickr_admin_settings() {
     '#type' => 'checkbox',
     '#title' => t('Show a Flickr counter'),
     '#default_value' => variable_get('flickr_counter', 1),
-    '#description' => t('Shows how many photos are displayed out of the total number available for a user, group, set or tags on Flickr. Can be overridden by the filter tag, eg. [flickr-photoset:id=72157634563269642,count=false]'),
+    '#description' => t('Shows how many photos are displayed out of the total number available for a user, group, set or tags on Flickr. Can be overridden individually by the filter tag, eg. [flickr-photoset:id=72157634563269642,count=false]'),
   );
   $colorbox_module = l(t('Colorbox module'), 'https://drupal.org/project/colorbox', array(
       'attributes' => array(

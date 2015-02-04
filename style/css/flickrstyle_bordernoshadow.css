@@ -1,7 +1,7 @@
 .flickr-photo-img,
 img.flickr-photoset-img {
   padding: 2px;
-  border: solid 2px lightgray;
+  border: solid 2px lightgray !important;
 }
 
 /*Make the caption as wide as the image */

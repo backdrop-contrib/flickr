@@ -369,8 +369,15 @@ function theme_flickr_photo($variables) {
       $height = '150';
       break;
   }
+  $sise = $size;
+  if (module_exists('flickrstyle')) {
+    if ((variable_get('flickrstyle_emphasize', 2) == 2 || variable_get('flickrstyle_emphasize', 2) == 3) && $size == 'q') {
+      $size = flickr_one_size_bigger($size);
+      $img_url = flickr_photo_img($photo, $size);
+    }
+  }
   // If it is not a square.
-  if (!isset($width)) {
+  if (!isset($width) || $sise == 'q') {
     // Get the real width of the image.
     // Reset the variable to use cURL if not available. In case it has been
     // removed. Unlikely but possible.
@@ -388,7 +395,7 @@ function theme_flickr_photo($variables) {
     // Our server settings don't allow us to determine the image width.
     // Use the known longest side of the image for the width. Leads to
     // horizontal white space on portrait orientated images.
-    else {
+    if (!isset($width) || $width == 0) {
       switch ($size) {
         case 't':
           $width = '100';
@@ -466,11 +473,27 @@ function theme_flickr_photo($variables) {
   // If we zoom an image, we should use the bigger size to retain
   // an acceptable resolution.
   if (module_exists('flickrstyle')) {
-    if (variable_get('flickrstyle_emphasize', 1) == 2 || variable_get('flickrstyle_emphasize', 1) == 3) {
-      $attribs['style'] = isset($attribs['style']) ? $attribs['style'] . 'width: ' . $width . 'px;' . ' height: ' . $height . 'px;' : 'width: ' . $width . 'px;' . ' height: ' . $height . 'px';
-      $size = flickr_one_size_bigger($size);
+    if (variable_get('flickrstyle_emphasize', 2) == 2 || variable_get('flickrstyle_emphasize', 2) == 3) {
+      $skip = FALSE;
+      if ($width < $height && $sise == 'q') {
+        $width = round(150 * $width / $height);
+        $height = '150';
+      }
+      elseif ($sise == 'q') {
+        $width = '150';
+        $skip = TRUE;
+      }
+      if ($width < $height && !$skip) {
+        $attribs['style'] = isset($attribs['style']) ? $attribs['style'] . 'width: ' . $width . 'px;' . ' height: ' . $height . 'px;' : 'width: ' . $width . 'px;' . ' height: ' . $height . 'px';
+      }
+      else {
+        $attribs['style'] = isset($attribs['style']) ? $attribs['style'] . 'width: ' . $width . 'px;' : 'width: ' . $width . 'px;';
+      }
+      if ($sise != 'q') {
+        $size = flickr_one_size_bigger($size);
+      }
     }
- }
+  }
   $img = flickr_img($photo, $size, $attribs);
   $photo_url = flickr_photo_page_url($photo['owner'], $photo['id']);
   $info = flickr_photos_getinfo($photo['id']);
@@ -615,6 +638,7 @@ function theme_flickr_photo($variables) {
     $notitle = '<span class="flickr-no-title">' . t('Flickr') . '</span> ';
     $metadatacaption = $width < $min_metadata ? $license : $metadatacaption;
   }
+  $class_notitle = $width < $min_title ? ' flickr-no-title' : '';
   $credit = $width < $min_title ? $notitle : '<span class="flickr-title">' . $title . '</span><br />';
   // Determine what info goes with the enlarged version of the image.
   $overlay = variable_get('flickr_info_overlay', array(
@@ -629,11 +653,11 @@ function theme_flickr_photo($variables) {
   $licenselong = (gettype($overlay['license']) == 'integer') ? '' : $licenselong;
   $overlayhtml = $overlaytitle . $metadata . $description . $licenselong;
   // Optionally use the GPL licensed magnifier image supplied with the module.
-  $magnifier = (variable_get('flickrstyle_emphasize', 1) == 4) ? '<span class="hover-icon"><img src="/' . drupal_get_path('module', 'flickr') . '/style/img/magnifier.png' . '" style="width:50px;height:50px;"></span>' : '';
+  $magnifier = (variable_get('flickrstyle_emphasize', 2) == 4) ? '<span class="hover-icon"><img src="/' . drupal_get_path('module', 'flickr') . '/style/img/magnifier.png' . '" style="width:50px;height:50px;"></span>' : '';
   // Final step when NO overlay browser is used that generates the image that
   // links to the Flickr page to comply with the TOS of Flickr.
   if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL && $width < $min_title && $width < $min_metadata) {
-    return '<span class="flickr-wrap' . $class_float . '"' . $style_float . '>' . l($img . $magnifier, $photo_url, array(
+    return '<span class="flickr-wrap' . $class_notitle . $class_float . '"' . $style_float . '>' . l($img . $magnifier, $photo_url, array(
       'attributes' => array(
         'title' => $title,
         'target' => '_blank',
@@ -663,7 +687,7 @@ function theme_flickr_photo($variables) {
           <param name="allowFullScreen" value="true"><embed allowfullscreen="true" bgcolor="#000000" flashvars="intl_lang=en-US&amp;photo_secret=' . $photo['secret'] . '&amp;photo_id=' . $photo['id'] . '&amp;hd_default=false" src="https://www.flickr.com/apps/video/stewart.swf" type="application/x-shockwave-flash" height="270" width="480">
         </object>
       </div>
-      </div><span class="flickr-wrap' . $class_float . '"' . $style_float . '>' . l($img . $magnifier, $photo_url . '/?width=480&height=280&inline=true#' . $photo['id'], array(
+      </div><span class="flickr-wrap' . $class_notitle . $class_float . '"' . $style_float . '>' . l($img . $magnifier, $photo_url . '/?width=480&height=280&inline=true#' . $photo['id'], array(
         'attributes' => array(
           'title' => $overlayhtml,
           'class' => 'colorbox-inline flickr-img-wrap',
@@ -672,7 +696,7 @@ function theme_flickr_photo($variables) {
         ),
         'absolute' => TRUE,
         'html' => TRUE,
-      )) . '<span class="flickr-credit" style="width: ' . ($width - variable_get('flickr_caption_padding', 0)) . 'px;">' . l($credit, $photo_url, array(
+      )) . '<span class="flickr-credit' . $class_notitle . '" style="width: ' . ($width - variable_get('flickr_caption_padding', 0)) . 'px;">' . l($credit, $photo_url, array(
         'attributes' => array(
           'title' => t('View on Flickr. To enlarge click image.'),
           'target' => '_blank',
@@ -681,7 +705,7 @@ function theme_flickr_photo($variables) {
       )) . $metadatacaption . '</span></span>';
     }
     else {
-      return '<span class="flickr-wrap' . $class_float . '"' . $style_float . '>' . l($img . $magnifier, $url, array(
+      return '<span class="flickr-wrap' . $class_notitle . $class_float . '"' . $style_float . '>' . l($img . $magnifier, $url, array(
         'attributes' => array(
           'title' => $overlayhtml,
           'class' => array($class . ' flickr-img-wrap'),
@@ -690,7 +714,7 @@ function theme_flickr_photo($variables) {
         ),
         'absolute' => TRUE,
         'html' => TRUE,
-      )) . '<span class="flickr-credit" style="width: ' . ($width - variable_get('flickr_caption_padding', 0)) . 'px;">' . l($credit, $photo_url, array(
+      )) . '<span class="flickr-credit' . $class_notitle . '" style="width: ' . ($width - variable_get('flickr_caption_padding', 0)) . 'px;">' . l($credit, $photo_url, array(
         'attributes' => array(
           'title' => t('View on Flickr. To enlarge click image.'),
           'target' => '_blank',
@@ -858,7 +882,7 @@ function theme_flickr_flickrcomslideshow_simple($variables) {
 
 /**
  * Alternative to the PHP function getimagesize. See
- * https://stackoverflow.com/questions/4635936/super-fast-getimagesize-in-php
+ * https://stackoverflow.com/questions/4635936/super-fast-getimagesize-in-php.
  */
 function ranger($url) {
   $headers = array("Range: bytes=0-32768");
@@ -868,6 +892,12 @@ function ranger($url) {
   $data = curl_exec($curl);
   curl_close($curl);
   $im = @imagecreatefromstring($data);
-  $width = imagesx($im);
-  return $width;
+  if ($im) {
+    $width = imagesx($im);
+    return $width;
+  }
+  elseif (ini_get("allow_url_fopen")) {
+    list($width) = getimagesize($url);
+    return $width;
+  }
 }

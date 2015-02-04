@@ -5,3 +5,8 @@ span.flickr-credit {
      -moz-box-shadow: 2px 2px 7px 3px #a5a5a5;
           box-shadow: 2px 2px 7px 3px #a5a5a5;
 }
+
+.flickr-wrap {
+  margin: 0 !important;
+  padding: 2px 7px 9px 2px;
+}

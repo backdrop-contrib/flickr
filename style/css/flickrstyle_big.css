@@ -1,27 +1,27 @@
 .flickr-wrap .flickr-photo-img:hover,
-img.flickr-photoset-img:hover
-{
-    position: relative;
-    top: 2em;
-
-    -webkit-transform: scale(1.8);
-       -moz-transform: scale(1.8);
-        -ms-transform: scale(1.8);
-         -o-transform: scale(1.8);
-            transform: scale(1.8);
+img.flickr-photoset-img:hover {
+  position: relative;
+  z-index: 99;
+  top: 1.7em;
+  -webkit-transform: scale(1.8);
+     -moz-transform: scale(1.8);
+      -ms-transform: scale(1.8);
+       -o-transform: scale(1.8);
+          transform: scale(1.8);
+  border: solid 2px white;
 }
 
 .flickr-photo-img,
-img.flickr-photoset-img
-{
-    overflow: hidden;
+img.flickr-photoset-img {
+  overflow: hidden;
+  -webkit-transition: all 0.2s ease;
+     -moz-transition: all 0.2s ease;
+      -ms-transition: all 0.2s ease;
+       -o-transition: all 0.2s ease;
+          transition: all 0.2s ease;
+  background: white;
+  border: solid 2px white;
 
-    -webkit-transition: all .2s ease;
-       -moz-transition: all .2s ease;
-        -ms-transition: all .2s ease;
-         -o-transition: all .2s ease;
-            transition: all .2s ease;
-
-    -o-object-fit: cover;
-       object-fit: cover;
+  -o-object-fit: cover;
+     object-fit: cover;
 }

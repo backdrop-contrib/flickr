@@ -42,7 +42,7 @@ function flickrstyle_page_build(&$page) {
         'every_page' => TRUE,
       ));
     }
-    switch (variable_get('flickrstyle_caption', 0)) {
+    switch (variable_get('flickrstyle_caption', 1)) {
       case 1:
         if (gettype($styles['shadow']) != 'integer') {
           drupal_add_css(drupal_get_path('module', 'flickrstyle') . '/css/flickrstyle_caption_shadow.css', array(
@@ -79,7 +79,13 @@ function flickrstyle_page_build(&$page) {
         }
         break;
     }
-    switch (variable_get('flickrstyle_emphasize', 1)) {
+    if (variable_get('flickrstyle_nostyle', 1)) {
+      drupal_add_css(drupal_get_path('module', 'flickrstyle') . '/css/flickrstyle_nostyle.css', array(
+        'group' => CSS_DEFAULT,
+        'every_page' => TRUE,
+      ));
+    }
+    switch (variable_get('flickrstyle_emphasize', 2)) {
       case 1:
         drupal_add_css(drupal_get_path('module', 'flickrstyle') . '/css/flickrstyle_enlarge.css', array(
           'group' => CSS_DEFAULT,

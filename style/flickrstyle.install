@@ -5,10 +5,18 @@
  */
 
 /**
+ * Implements hook_install().
+ */
+function flickrstyle_install() {
+  variable_set('flickr_caption_padding', 16);
+}
+
+/**
  * Implements hook_uninstall().
  */
 function flickrstyle_uninstall() {
   variable_del('flickrstyle_styles');
   variable_del('flickrstyle_caption');
   variable_del('flickrstyle_emphasize');
+  variable_set('flickr_caption_padding', 0);
 }

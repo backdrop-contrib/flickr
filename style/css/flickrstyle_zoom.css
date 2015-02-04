@@ -2,13 +2,13 @@
 img.flickr-photoset-img:hover
 {
     position: relative;
-    top: 2em;
+    top: 1.8em;
 
-    -webkit-transform: scale(1.8);
-       -moz-transform: scale(1.8);
-        -ms-transform: scale(1.8);
-         -o-transform: scale(1.8);
-            transform: scale(1.8);
+    -webkit-transform: scale(1.85);
+       -moz-transform: scale(1.85);
+        -ms-transform: scale(1.85);
+         -o-transform: scale(1.85);
+            transform: scale(1.85);
 }
 
 .flickr-wrap

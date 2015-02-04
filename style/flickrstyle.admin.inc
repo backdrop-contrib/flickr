@@ -31,7 +31,7 @@ function flickrstyle_form_flickr_admin_settings_alter(&$form, &$form_state) {
       'shadow' => 'shadow',
       'border' => 'border',
     ));
-    switch (variable_get('flickrstyle_caption', 0)) {
+    switch (variable_get('flickrstyle_caption', 1)) {
       case 0:
         // Reset of the caption width if not altered by the user.
         if (variable_get('flickr_caption_padding', 0) == 10 || variable_get('flickr_caption_padding', 0) == 16) {
@@ -67,28 +67,34 @@ function flickrstyle_form_flickr_admin_settings_alter(&$form, &$form_state) {
         t('Yes, wrapped around the image and caption'),
       ),
       // Defaults to 'No'
-      '#default_value' => variable_get('flickrstyle_caption', 0),
-      '#weight' => 9,
+      '#default_value' => variable_get('flickrstyle_caption', 1),
+      '#weight' => 10,
     );
     // We need a shadow and/or border before we can use a style on the caption.
     if (gettype($styles['shadow']) == 'integer' && gettype($styles['border']) == 'integer') {
       $form['css_settings']['flickrstyle_caption']['#disabled'] = TRUE;
       $form['css_settings']['flickrstyle_caption']['#description'] = t('Disabled until a shadow and/or border image style is selected. Select above and save the form to make a caption style available.');
     }
+    $form['css_settings']['flickrstyle_nostyle'] = array(
+      '#type' => 'checkbox',
+      '#title' => t("Disable the above styles on a caption with only the text 'Flickr' (simple link)"),
+      '#default_value' => variable_get('flickrstyle_nostyle', 1),
+      '#weight' => 11,
+    );
     $form['css_settings']['flickrstyle_emphasize'] = array(
       '#type' => 'radios',
       '#title' => t('Emphasize the image on hover?'),
       '#options' => array(
         t('No'),
-        t('Enlarge 5% (includes the caption)'),
-        t('Enlarge 80% (image only) (*)'),
+        t('Enlarge slightly (includes the caption)'),
+        t('Enlarge (image only) (*)'),
         t('Zoom (*)'),
         t('Magnifier icon'),
       ),
       // Defaults to 'Enlarge slightly'.
-      '#default_value' => variable_get('flickrstyle_emphasize', 1),
-      '#description' => t("(*): The 'Zoom' and 'Enlarge 80%'' styles use bigger images to maintain the resolution. This has a slight performance impact and in older browsers the image of the big square is distorted (size 'q')."),
-      '#weight' => 10,
+      '#default_value' => variable_get('flickrstyle_emphasize', 2),
+      '#description' => t("(*): The 'Zoom' and 'Enlarge' styles use bigger images to maintain the resolution. This has a slight performance impact and the size 'big square' (q) is not square but 150px on the longest side to avoid distortion on older browsers."),
+      '#weight' => 12,
     );
   }
   else {

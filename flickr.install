@@ -43,6 +43,7 @@ function flickr_uninstall() {
   variable_del('flickr_caption_padding');
   variable_del('flickr_license');
   variable_del('flickr_restrict');
+  variable_del('flickr_extend');
   variable_del('flickr_counter');
   variable_del('flickr_maps');
 }

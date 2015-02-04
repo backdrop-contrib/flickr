@@ -51,6 +51,7 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
     ),
   ));
   $count = variable_get('flickr_counter', 1) ? 'true' : 'false';
+  $extend = variable_get('flickr_extend', 1) ? 'true' : 'false';
   $default_userid = variable_get('flickr_default_userid', '');
   $info = empty($default_userid) ? '' : flickr_people_getinfo(variable_get('flickr_default_userid', ''));
   $default_userid = empty($info) ? '[undefined]' : $info['username']['_content'];
@@ -65,6 +66,7 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
     <li>[flickr-<strong>gallery</strong>:id=72157648989290536, size=q, num=4, sort=views]</li>
     <li>[flickr-<strong>group</strong>:id=91484156@N00, size=q, num=8, tags=flowers, media=all, sort=random, count=false, mintitle=999, minmetadata=999, heading=none]</li>
     <li>[flickr-<strong>user</strong>:id=lolandese1, size=q, num=6, tags=kids/men, media=all, sort=random, count=false, mintitle=999, minmetadata=999, heading=none]</li>
+    <li>[flickr-<strong>user</strong>:id=public, size=q, num=10,tags=Augusto Canario, filter=interesting, sort=views, extend=true]</li>
     <li>[flickr-<strong>user</strong>:id=public, size=q, num=5,location=48.85837/2.294481/0.2,filter=interesting]</li>
     <li>[flickr-<strong>favorites</strong>:id=lolandese, size=q, num=4, tags=tomosborn/people, media=all, sort=random, count=false, mintitle=999, minmetadata=999, heading=none]</li>
   </ul><br />
@@ -101,6 +103,7 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
   <strong>sort=views</strong> : Display the most viewed Flickr photos first (popularity, slower response after cache clear). Other values: <em>unsorted</em> = recent as delivered by the Flickr API (fastest response), <em>random</em> (slower response after cache clear), <em>taken</em> (newest first), <em>posted</em> (newest first) , <em>added</em> (for groups only, newest first) and <em>id</em> (on photo ID, newest first). <strong>Default: sort=unsorted</strong>. For albums only.<br />
   <strong>filter=interesting</strong> : Display the most interesting photos. Other possible value: <em>relevant</em>. For user albums only, also public.<br />
   <strong>count=false</strong> : Suppress display of the counter under the album (e.g. <em>5 out of 124 on Flickr</em>). <strong>Default: count=@default_count</strong> (!config). For albums only.<br />
+  <strong>extend=true</strong> : Extend the tag filter to search for matching terms also in the Flickr photo title and description besides Flickr tags. <strong>Default: extend=@default_extend</strong> (!config). For albums only.<br />
   <strong>mintitle=999</strong> : Suppress display of the title in the photo captions for images below a width of 999 px. <strong>Default: mintitle=@default_mintitle</strong> (!config).<br />
   <strong>minmetadata=999</strong> : Suppress display of the metadata in the photo captions for images below a width of 999 px. <strong>Default: minmetadata=@default_minmetadata</strong> (!config).", array(
     '!autofloat' => $autofloat,
@@ -114,6 +117,7 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
     '@default_minmetadata' => variable_get('flickr_metadata_suppress_on_small', '150'),
     '@default_heading' => variable_get('flickr_filter_heading', 'p'),
     '@default_count' => $count,
+    '@default_extend' => $extend,
     '!config' => $config,
   ));
   if ($long) {
@@ -159,8 +163,6 @@ function flickr_filter($text, $filter) {
 function flickr_filter_split_config($string) {
   $config = array();
   $attribs = array();
-  // Remove whitespace.
-  $string = preg_replace('/\s+/', '', $string);
   // Put each setting on its own line.
   $string = str_replace(',', "\n", $string);
   // Break them up around commas.
@@ -264,6 +266,12 @@ function flickr_filter_callback_album($matches) {
   if (!isset($config['count'])) {
     $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
   }
+  if (!isset($config['extend'])) {
+    $config['extend'] = variable_get('flickr_extend', 1);
+  }
+  else {
+    $config['extend'] = $config['extend'] == 'false' ? 0 : 1;
+  }
   if (!isset($config['mintitle'])) {
     $config['mintitle'] = NULL;
   }
@@ -296,7 +304,7 @@ function flickr_filter_callback_album($matches) {
   }
   $type = flickr_get_id_type($config['id']);
   $config['id'] = $type == 'user' ? flickr_user_find_by_identifier($config['id']) : $config['id'];
-  $output = _flickr_album($type, $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], '', $config['count'], $config['sort'], $config['heading'], $config['mintitle'], $config['minmetadata'], 0, $config['filter'], $config['location'][0], $config['location'][1], $config['location'][2]);
+  $output = _flickr_album($type, $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], '', $config['count'], $config['sort'], $config['heading'], $config['mintitle'], $config['minmetadata'], 0, $config['filter'], $config['location'][0], $config['location'][1], $config['location'][2], $config['extend']);
   return $output;
 }
 
