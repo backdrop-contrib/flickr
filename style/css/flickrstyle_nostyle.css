@@ -1,11 +1,7 @@
 span.flickr-credit.flickr-no-title {
-  padding: 2px 0 0 4px;
   border: none;
+  background: none;
   -webkit-box-shadow: none;
      -moz-box-shadow: none;
           box-shadow: none;
-}
-
-span.flickr-wrap.flickr-no-title {
-  padding: 2px 7px 2px 2px;
 }

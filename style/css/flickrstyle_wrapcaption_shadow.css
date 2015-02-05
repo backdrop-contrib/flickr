@@ -1,5 +1,6 @@
 span.flickr-wrap {
   margin: 0 8px 5px 0 !important;
+  background: white;
   -webkit-box-shadow: 2px 2px 7px 3px #a5a5a5;
      -moz-box-shadow: 2px 2px 7px 3px #a5a5a5;
           box-shadow: 2px 2px 7px 3px #a5a5a5;
@@ -7,7 +8,6 @@ span.flickr-wrap {
 
 .flickr-photo-img {
   margin: 0;
-  border: none;
   -webkit-box-shadow: none;
      -moz-box-shadow: none;
           box-shadow: none;

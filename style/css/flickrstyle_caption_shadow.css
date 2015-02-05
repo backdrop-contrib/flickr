@@ -1,6 +1,7 @@
 span.flickr-credit {
   /*Use the dedicated field at admin/config/media/flickr for a horizontal inside spacing value (padding/border).*/
   padding: 3px 10px;
+  background: white;
   -webkit-box-shadow: 2px 2px 7px 3px #a5a5a5;
      -moz-box-shadow: 2px 2px 7px 3px #a5a5a5;
           box-shadow: 2px 2px 7px 3px #a5a5a5;

@@ -1,11 +1,13 @@
 .flickr-wrap {
   margin: 0;
   border: solid 2px lightgray;
+  background: white;
 }
 
 .flickr-photo-img {
   margin: 0;
   border: none;
+  border: transparent !important;
   -webkit-box-shadow: none;
      -moz-box-shadow: none;
           box-shadow: none;
