@@ -4,6 +4,9 @@
  * The Flickr block module
  */
 
+  // Load flickr_block.admin.inc from the flickr_block module.
+  module_load_include('inc', 'flickr_block', 'flickr_block.admin');
+
 /**
  * Implements hook_help().
  */

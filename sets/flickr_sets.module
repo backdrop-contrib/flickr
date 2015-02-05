@@ -4,6 +4,9 @@
  * The Flickr sets module.
  */
 
+  // Load flickr_sets.admin.inc from the flickr_sets module.
+  module_load_include('inc', 'flickr_sets', 'flickr_sets.admin');
+
 /**
  * Implements hook_help().
  */

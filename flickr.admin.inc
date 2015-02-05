@@ -385,157 +385,12 @@ function flickr_admin_settings() {
     $form['advanced_settings']['flickr_curl2']['#disabled'] = TRUE;
     $form['advanced_settings']['flickr_curl2']['#description'] = t("Disabled because your server configuration only allows 'stream_socket_client' (not 'cURL')");
   }
-  if (module_exists('flickr_filter')) {
-    $form['filter_settings'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Filter options'),
-      '#description' => t('Clear the cache on form submit.'),
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-    );
-    $form['filter_settings']['flickr_filter_default_size'] = array(
-      '#type' => 'select',
-      '#title' => t('Default size for single photos'),
-      '#default_value' => variable_get('flickr_filter_default_size', 'm'),
-      '#options' => array(
-        's' => t('s: 75 px square'),
-        't' => t('t: 100 px on longest side'),
-        'q' => t('q: 150 px square'),
-        'm' => t('m: 240 px on longest side'),
-        'n' => t('n: 320 px on longest side (!)'),
-        '-' => t('-: 500 px on longest side'),
-        'z' => t('z: 640 px on longest side'),
-        'c' => t('c: 800 px on longest side (!)'),
-        'b' => t('b: 1024 px on longest side'),
-      ),
-      '#description' => t('A default Flickr size to use if no size is specified, for example [flickr-photo:id=3711935987].<br />Clear the cache on form submit.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
-    );
-    $form['filter_settings']['flickr_filter_heading'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Wrap the album title in an HTML heading tag (only for the text filter)'),
-      '#required' => TRUE,
-      '#default_value' => variable_get('flickr_filter_heading', 'p'),
-      '#description' => t("Use 'p' for no style, e.g. 'h3' for a heading or 'none' to not display an album title."),
-      '#size' => 4,
-      '#maxlength' => 4,
-    );
-    // Offer the following setting if the ctools module is enabled.
-    if (module_exists('ctools')) {
-      $form['filter_settings']['flickr_filter_collapsible'] = array(
-        '#type' => 'checkbox',
-        '#title' => t("Collapsible filter tips (collapsed by default)"),
-        '#default_value' => variable_get('flickr_filter_collapsible', 1),
-        '#description' => t('Collapse the in-line help for the Flickr Filter text format under the body field on node edit forms.'),
-      );
-    }
-  }
-  if (module_exists('flickr_block')) {
-    $form['block_settings'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Block options'),
-      '#description' => t('Clear the cache on form submit.'),
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-    );
-    $form['block_settings']['flickr_block_hide_empty'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Hide empty blocks (no media found)'),
-      '#default_value' => variable_get('flickr_block_hide_empty', 0),
-      '#description' => t("Uncheck to see the block title and to access the contextual links. That little wheel you see when you hover over blocks to edit them in place."),
-    );
-    $form['block_settings']['flickr_block_heading'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Wrap the album title in an HTML heading tag (only for blocks)'),
-      '#required' => TRUE,
-      '#default_value' => variable_get('flickr_block_heading', 'h2'),
-      '#description' => t("Use 'p' for no style, e.g. 'h2' for a heading or 'none' to not display an album title."),
-      '#size' => 4,
-      '#maxlength' => 4,
-    );
-    $form['block_settings']['flickr_block_refresh_random'] = array(
-      '#type' => 'textfield',
-      '#field_prefix' => t('Refresh random blocks every'),
-      '#required' => TRUE,
-      '#default_value' => variable_get('flickr_block_refresh_random', 23),
-      '#field_suffix' => t('hours.'),
-      '#size' => 3,
-      '#maxlength' => 3,
-    );
-    $cache_warming = l(t('cache warming'), 'https://drupal.org/node/1576686/', array(
-      'attributes' => array(
-        'title' => t('Load Page Cache after cron Runs | Drupal.org'),
-        'target' => '_blank',
-      ),
-    ));
-    $form['block_settings']['flickr_block_refresh_others'] = array(
-      '#type' => 'textfield',
-      '#field_prefix' => t('Refresh other blocks every'),
-      '#required' => TRUE,
-      '#default_value' => variable_get('flickr_block_refresh_others', 31),
-      '#description' => t('It is recommended to set two different refresh values to avoid all blocks refresh together. Lower values impact performance negatively. Consider to use !cache_warming.', array('!cache_warming' => $cache_warming)),
-      '#field_suffix' => t('hours.'),
-      '#size' => 3,
-      '#maxlength' => 3,
-    );
-    $form['block_settings']['flickr_block_photos_per_set'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Number of photos per set'),
-      '#required' => TRUE,
-      '#default_value' => variable_get('flickr_block_photos_per_set', 6),
-      '#description' => t('The number indicates how many photos display per set on blocks that display multiple photosets. Clear the cache on form submit.'),
-      '#size' => 2,
-      '#maxlength' => 2,
-    );
-  }
-  if (module_exists('flickr_sets')) {
-    $form['photoset_settings'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Photoset options'),
-      '#description' => t('Clear the cache on form submit.'),
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-    );
-    $form['photoset_settings']['flickr_sets_thumb_default_size'] = array(
-      '#type' => 'select',
-      '#title' => t('Size for the photo representing a set'),
-      '#default_value' => variable_get('flickr_sets_thumb_default_size', 's'),
-      '#options' => array(
-        's' => t('s: 75 px square'),
-        't' => t('t: 100 px on longest side'),
-        'q' => t('q: 150 px square'),
-        'm' => t('m: 240 px on longest side'),
-        'n' => t('n: 320 px on longest side (!)'),
-        '-' => t('-: 500 px on longest side'),
-        'z' => t('z: 640 px on longest side'),
-        'c' => t('c: 800 px on longest side (!)'),
-        'b' => t('b: 1024 px on longest side'),
-      ),
-      '#description' => t('!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
-    );
-    $form['photoset_settings']['flickr_sets_per_page'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Number of photosets per page'),
-      '#required' => TRUE,
-      '#default_value' => variable_get('flickr_sets_per_page', 8),
-      '#description' => t('The number indicates how many photosets display on user profile pages at <em>flickr/%uid/sets</em>. Clear the cache on form submit.'),
-      '#size' => 2,
-      '#maxlength' => 2,
-    );
-    $form['photoset_settings']['flickr_sets_photos_per_set'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Number of photos per set'),
-      '#required' => TRUE,
-      '#default_value' => variable_get('flickr_sets_photos_per_set', 6),
-      '#description' => t('The number indicates how many photos display in a set on user profile pages at <em>flickr/%uid/sets/%nsid</em>. Clear the cache on form submit.'),
-      '#size' => 2,
-      '#maxlength' => 2,
-    );
-  }
   $form['flickr_cc'] = array(
     '#type' => 'checkbox',
     '#title' => t("Flush all caches on form submit to see your changes instantly."),
     '#default_value' => variable_get('flickr_cc', 0),
     '#description' => t("Note that form submit will be slower and all your site content will be rebuilt. Your choice will be 'remembered' for your next visit to this configuration page."),
+    '#weight' => 99,
   );
 
   // Call submit_function() on form submission.
@@ -556,15 +411,6 @@ function flickr_admin_settings_validate($form, &$form_state) {
   $limit3 = trim($form_state['values']['flickr_metadata_suppress_on_small']);
   $limit4 = trim($form_state['values']['flickr_caption_padding']);
   $limit7 = trim($form_state['values']['flickr_per_page']);
-  if (module_exists('flickr_block')) {
-    $limit5 = trim($form_state['values']['flickr_block_refresh_random']);
-    $limit6 = trim($form_state['values']['flickr_block_refresh_others']);
-    $limit10 = trim($form_state['values']['flickr_block_photos_per_set']);
-  }
-  if (module_exists('flickr_sets')) {
-    $limit8 = trim($form_state['values']['flickr_sets_per_page']);
-    $limit9 = trim($form_state['values']['flickr_sets_photos_per_set']);
-  }
   if ($key && (preg_match('/^[A-Fa-f\d]{32}$/', $key) != 1)) {
     form_set_error('flickr_api_key', t('This does not appear to be a Flickr API key.'));
   }
@@ -596,30 +442,6 @@ function flickr_admin_settings_validate($form, &$form_state) {
   // Validate the number to return on a random or views sorted API requests.
   if (!is_numeric($limit7) || $limit7 < 20 || $limit7 > 500) {
     form_set_error('flickr_per_page', t('Set a number from 20 to 500.'));
-  }
-  if (module_exists('flickr_block')) {
-    // Validate refresh rate random blocks.
-    if (!is_numeric($limit5) || $limit5 < 2) {
-      form_set_error('flickr_block_refresh_random', t('Set a number from 2 to 999.'));
-    }
-    // Validate refresh rate other blocks.
-    if (!is_numeric($limit6) || $limit6 < 2) {
-      form_set_error('flickr_block_refresh_others', t('Set a number from 2 to 999.'));
-    }
-    // Validate photos per set.
-    if (!is_numeric($limit10) || $limit10 < 1) {
-      form_set_error('flickr_block_photos_per_set', t('Set a number from 1 to 99.'));
-    }
-  }
-  if (module_exists('flickr_sets')) {
-    // Validate sets per page.
-    if (!is_numeric($limit8) || $limit8 < 1) {
-      form_set_error('flickr_sets_per_page', t('Set a number from 1 to 99.'));
-    }
-    // Validate photos per set.
-    if (!is_numeric($limit9) || $limit9 < 1) {
-      form_set_error('flickr_sets_photos_per_set', t('Set a number from 1 to 99.'));
-    }
   }
 }
 

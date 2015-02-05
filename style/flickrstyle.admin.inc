@@ -1,13 +1,14 @@
 <?php
 /**
  * @file
- * The admin settings for the Flickr Style module
+ * The admin settings for the Flickr Style module.
  */
 
 /**
  * Implements hook_form_FORM_ID_alter().
  */
 function flickrstyle_form_flickr_admin_settings_alter(&$form, &$form_state) {
+  $form['#validate'][] = 'flickrstyle_admin_settings_validate';
   // Do not display CSS styling options if the module's CSS is disabled.
   if (variable_get('flickr_css', 1)) {
     $options = array(
@@ -102,4 +103,11 @@ function flickrstyle_form_flickr_admin_settings_alter(&$form, &$form_state) {
       '#markup' => t("Styling options are not displayed until the module's CSS is enabled again (the checkbox above)."),
     );
   }
+}
+
+/**
+ * Validate user input.
+ */
+function flickrstyle_admin_settings_validate($form, &$form_state) {
+  // Put validation rules here.
 }

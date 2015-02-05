@@ -4,6 +4,9 @@
  * The Flickr filter module.
  */
 
+  // Load flickr_filter.admin.inc from the flickr_filter module.
+  module_load_include('inc', 'flickr_filter', 'flickr_filter.admin');
+
 /**
  * Implements hook_help().
  */
