@@ -3,11 +3,11 @@
 }
 
 .flickr-photo-box {
-  padding: 10px;
   float: left;
-  text-align: center;
   width: 260px;
   height: 260px;
+  padding: 10px;
+  text-align: center;
 }
 
 .flickr-photoset-img {
@@ -15,39 +15,40 @@
 }
 
 .flickr-photoset-box {
-  padding: 10px;
   float: left;
+  padding: 10px;
   text-align: center;
 }
 
 span.flickr-wrap,
 span.flickr-photoset-single {
   display: inline-block;
-  vertical-align: top;
   margin: 0 5px 5px 0;
+  vertical-align: top;
 }
 
 span.flickr-credit {
   display: block;
-  line-height: 100%;
+  background: white;
   font-size: 80%;
+  line-height: 100%;
 }
 
 .flickr-slideshow {
-  height: 0;
+  position: relative;
+  overflow: hidden;
   width: 100%;
+  height: 0;
   /*Change percentage below to change ratio. Currently 16:9 (as most screens).*/
   padding-bottom: 56.25%;
-  overflow: hidden;
-  position: relative;
 }
 
 .flickr-slideshow object {
-  width: 100%;
-  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .flickr-block-photosets .flickr-block-photoset {
@@ -80,8 +81,8 @@ div.flickr-photoset {
 }
 
 span.flickr-empty {
-  margin: 10px;
   display: inline-block;
+  margin: 10px;
 }
 
 .page-flickr-sets h1#page-title {
