@@ -746,7 +746,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           ),
         ));
         $tagged = is_numeric($delta) ? '' : $tagged;
-        $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tagsfrom gallery !set curated by !username", array(
+        $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . t("!photos !tagsfrom the gallery !set curated by !username", array(
           '!photos' => strip_tags($photos),
           '!tags' => strip_tags($tagged . ' '),
           '!set' => $set,
@@ -1270,11 +1270,12 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           $terms = array_merge($taxs, $texts);
           $done = 0;
           foreach ($photos as $key => $photo) {
+            $phototags = (variable_get('flickr_extend', 1) || $extend) && $extend ? $photo['tags'] . ' ' . strtolower($photo['title']) : $photo['tags'];
             foreach ($terms as $term) {
-              if (($i >= $show_n && (stripos($photo['tags'], $term) !== FALSE || $type == 'user')) || ($photo['id'] == $done && (stripos($photo['tags'], $term) !== FALSE || $type == 'user'))) {
+              if (($i >= $show_n && (stripos($phototags, $term) !== FALSE || $type == 'user')) || ($photo['id'] == $done && (stripos($phototags, $term) !== FALSE || $type == 'user'))) {
                 $j++;
               }
-              elseif (($media == 'all' || $media == $photo['media'] . 's') && (stripos($photo['tags'], $term) !== FALSE || $type == 'user')) {
+              elseif (($media == 'all' || $media == $photo['media'] . 's') && (stripos($phototags, $term) !== FALSE || $type == 'user')) {
                 // Insert owner into $photo because theme_flickr_photo needs it.
                 $photo['owner'] = $type == 'photoset' ? $info['owner'] : $photo['owner'];
                 $photo['owner'] = $type == 'gallery' ? $info['gallery']['owner'] : $photo['owner'];
@@ -1366,9 +1367,9 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         $total = ($type == 'favorites' && !empty($tags)) ? $j : $total;
         $total = (empty($tags) || isset($response['total'])) ? (int) $total : $j;
         $total = (isset($response['total']) && !empty($tags) && $j == $show_n * 4) ? $response['total'] : $total;
-        $total = number_format($total, 0, ",", ".");
         $total = $total < $i ? $i : $total;
-        $total = $show_n > $i ? $i : $total;
+        $total = $i < $show_n ? $i : $total;
+        $total = number_format($total, 0, ",", ".");
         $count = t('@number out of @total !flickr', array(
           '@number' => $i,
           '@total' => $total,

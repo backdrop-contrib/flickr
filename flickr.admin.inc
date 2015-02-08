@@ -164,7 +164,7 @@ function flickr_admin_settings() {
   );
   $form['info_settings']['flickr_extend'] = array(
     '#type' => 'checkbox',
-    '#title' => t("Extend the tag filter to search for matching terms also in the Flickr photo title and description besides Flickr tags."),
+    '#title' => t("Extend the tag filter to search for matching terms also in the Flickr photo title and description besides Flickr tags. Descriptions are only searched on the album type 'user' (also 'public')."),
     '#default_value' => variable_get('flickr_extend', 1),
     '#description' => t("Shows more results. Can be overridden individually by the filter tag, eg. [flickr-user:id=public, size=q, tags=Augusto Canario, extend=true] or in the specific configuration of a Flickr block."),
   );

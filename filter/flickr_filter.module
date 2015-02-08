@@ -229,7 +229,7 @@ function flickr_filter_callback_photo($matches) {
 }
 
 /**
- * Filter callback for a user.
+ * Filter callback for a user or set.
  */
 function flickr_filter_callback_album($matches) {
   list($config, $attribs) = flickr_filter_split_config($matches[1]);
