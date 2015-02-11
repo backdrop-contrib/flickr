@@ -139,10 +139,16 @@ function flickr_admin_settings() {
     ),
   )) . '</span>';
   $form['info_settings']['flickr_license'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('License info in caption'),
-    '#default_value' => variable_get('flickr_license', 0),
-    '#description' => t("To give !attribution. Depends on 'Minimum image width' above. Clear the cache on form submit.<br />!cc_icons in 'flickr_cc_icons.css'. Download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr_cc_icons.css' accordingly.<br />Some examples (try to mouse-over): !ccexample_cna !cc_example_copy !cc_example_p", array(
+    '#type' => 'radios',
+    '#title' => t("License icon"),
+    '#options' => array(
+      t("No"),
+      t("On the image on mouse-over only (small in the top left corner, on hover). NOTE: Does not display with the Flickr Style 'Enlarge'."),
+      t("On the image (small in the top left corner, always)"),
+      t("In the caption"),
+    ),
+    '#default_value' => variable_get('flickr_license', 1),
+    '#description' => t("To give !attribution. Clear the cache on form submit.<br />!cc_icons in 'flickr_cc_icons.css'. Download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr_cc_icons.css' accordingly.<br />Some examples (try to mouse-over): !ccexample_cna !cc_example_copy !cc_example_p", array(
         '!attribution' => $attribution,
         '!cc_icons' => $cc_icons,
         '!ccexample_cna' => $cc_example_cna,
@@ -158,7 +164,6 @@ function flickr_admin_settings() {
       t("Do not restrict media to Creative Commons licensed on 'public' queries if no results are returned."),
       t("Do not restrict media to Creative Commons licensed on 'public' queries."),
     ),
-    // Defaults to 'No restriction'.
     '#default_value' => variable_get('flickr_restrict', 1),
     '#description' => t("With 'public' queries are intended Flickr requests that do not specify a Flickr user ID, thus returning results from all public Flickr photos."),
   );

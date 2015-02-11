@@ -8,7 +8,7 @@ img.flickr-photoset-img:hover {
       -ms-transform: scale(1.8);
        -o-transform: scale(1.8);
           transform: scale(1.8);
-  border: solid 2px tranparent;
+  border: solid 2px transparent;
   background: white;
 }
 

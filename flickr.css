@@ -22,13 +22,21 @@
 
 span.flickr-wrap,
 span.flickr-photoset-single {
+  position: relative;
   display: inline-block;
   margin: 0 5px 5px 0;
   vertical-align: top;
 }
 
+.flickr-photo-img,
+img.flickr-photoset-img {
+  border: solid 2px transparent;
+}
+
 span.flickr-credit {
   display: block;
+  float: left;
+  clear: both;
   font-size: 80%;
   line-height: 100%;
 }
@@ -73,6 +81,10 @@ span.flickr-tags {
 .flickr-wrap img,
 .flickr-wrap .flickr-credit {
   max-width: 100%;
+}
+
+a.flickr-img-wrap {
+  float: left;
 }
 
 div.flickr-photoset {
