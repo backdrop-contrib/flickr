@@ -122,24 +122,27 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
       }
     }
   }
-
   // If a cached value wasn't suitable, attempt to connect and fetch a result.
-  if (variable_get('flickr_curl2', 0)) {
+  $cmethod = 'none';
+  $result->code = 0;
+  if ((variable_get('flickr_curl2', 0) || !function_exists('stream_socket_client')) && function_exists('curl_version')) {
     $result = flickr_curl_http_request($url);
     $cmethod = 'cURL';
   }
-  else {
+  elseif (function_exists('stream_socket_client')) {
     $result = drupal_http_request($url);
-    $cmethod = 'open socket';
+    $cmethod = 'stream_socket_client';
   }
-  if ($result->code != 200) {
-    // Try to use cURL when drupal_http_request returns a 403 (forbidden) or 408
-    // (Request Timeout). 200 is returned on a valid request (no errors).
-    if ($result->code == 403 || $result->code == 408) {
-      $result = flickr_curl_http_request($url);
-      $cmethod = 'cURL';
-    }
-    elseif ($return_errors) {
+  if ($result->code != 200 && ($cmethod == 'stream_socket_client' || $cmethod == 'none') && function_exists('curl_version')) {
+    // Try to use cURL when drupal_http_request returns a different code than
+    // 200 (valid request, no errors). Most likely are 403 (forbidden) or 408
+    // (Request Timeout).
+    $result = flickr_curl_http_request($url);
+    $cmethod = 'cURL';
+    $message = t('Automatic fallback to the cURL connection method kicked in to handle the request. Result code from the failing request: ') . $result->code;
+    drupal_set_message($message, 'warning', FALSE);
+    watchdog('flickr', $message, array(), WATCHDOG_WARNING);
+    if ($return_errors) {
       // Debug info.
       if (variable_get('flickr_debug', 0) && module_exists('devel')) {
         dpm("Value of error 'result' in 'function flickr_request()' with connection method " . "'" . $cmethod . "' in 'flickr.inc':");
@@ -154,6 +157,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
         'message' => $result->error,
       );
     }
+    // Even the cURL method returns an error.
     if ($result->code != 200) {
       // Debug info.
       if (variable_get('flickr_debug', 0) && module_exists('devel')) {
@@ -161,8 +165,14 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
         dpm($result);
       }
       flickr_set_error(t("Could not connect to Flickr, Error: @error", array('@error' => $result->error)));
-      return FALSE;
+        return FALSE;
     }
+  }
+  if ($result->code == 0) {
+    $message = t("There seems to be no connection method available on your server. Neither 'stream_socket_client' nor 'cURL'.");
+    drupal_set_message($message, 'error', FALSE);
+    watchdog('flickr', $message, array(), WATCHDOG_ERROR);
+
   }
   // Debug info.
   if (variable_get('flickr_debug', 0) && module_exists('devel')) {
