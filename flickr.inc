@@ -165,7 +165,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
         dpm($result);
       }
       flickr_set_error(t("Could not connect to Flickr, Error: @error", array('@error' => $result->error)));
-        return FALSE;
+      return FALSE;
     }
   }
   if ($result->code == 0) {
@@ -538,7 +538,7 @@ function flickr_get_id_type($id) {
 /**
  * Render multiple photos as an album.
  */
-function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $extend = 1, $page = 1) {
+function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $extend = 1, $class = NULL, $style = NULL, $page = 1) {
   // Remove spaces from tags but save the original for e.g. the block title.
   $tagsfix = $tags;
   $pagefix = $page;
@@ -918,9 +918,11 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
 
           default:
             // Info about set and owner is displayed in slideshow itself. If you
-            // want a header nonetheless, use concatenation (.=).
+            // don't want a header, don't use concatenation (.=) but equals (=).
             $output .= theme('flickr_flickrcomslideshow', array(
               'id' => $id,
+              'class' => $class,
+              'style' => $style,
             ));
             drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags, location and media settings."), 'warning', FALSE);
             break;
@@ -943,6 +945,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           default:
             $output .= theme('flickr_flickrcomslideshow_simple', array(
               'id' => $id,
+              'class' => $class,
+              'style' => $style,
             ));
             drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags, location and media settings."), 'warning', FALSE);
             break;
@@ -950,7 +954,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         break;
 
       default:
-        $output .= '<div class="flickr-album">';
+        $output .= '<div class="flickr-album ' . $class . '" style="' . $style . '">';
         // Make API request quicker by limiting the number of photos to return.
         // For recent sorted photos this is 4 x the displayed number to provide
         // a sufficient distinction between recently uploaded and recently
@@ -1461,7 +1465,7 @@ function flickr_sortByID($a, $b) {
 /**
  * Return the Flickr photo suffix that corresponds to the one that is one step
  * bigger than the one that is passed in the parameter.
- * Avoided are sizes that do not exist on all images.
+ * Avoided are sizes that do not exist on all images ('n' and 'c').
  *
  * @param string $size
  *   The image size suffix to return the bigger one for.
@@ -1996,4 +2000,26 @@ function flickr_response_codes() {
     504 => 'Gateway Time-out',
     505 => 'HTTP Version not supported',
   );
+}
+
+/**
+ * Parse parameters to the fiter from a format like:
+ * style="float:left;border:1px"
+ * into an associative array with HTML attributes and their values.
+ */
+function flickr_split_style($string) {
+  $attribs = array();
+  // Put each setting on its own line.
+  $string = str_replace(';', "\n", $string);
+  // Break them up around colons.
+  preg_match_all('/([a-zA-Z.]+):([-@\/0-9a-zA-Z .\%"\']+)/', $string, $parts, PREG_SET_ORDER);
+  foreach ($parts as $part) {
+    // Normalize to lowercase and remove extra spaces.
+    $name = strtolower(trim($part[1]));
+    $value = trim($part[2]);
+    // Remove undesired but tolerated characters from the value.
+    $value = str_replace(str_split('"\''), '', $value);
+    $attribs[$name] = $value;
+  }
+  return array($attribs);
 }
