@@ -398,7 +398,7 @@ function flickr_filter_callback_group($matches) {
         $config['sort'] = 'date-posted-desc';
         break;
     }
-    $output = _flickr_album('group', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], '', $config['count'], $config['sort'], $config['heading'], $config['mintitle'], $config['minmetadata'], $config['minmetadata'], 0, $config['filter'], $config['location'][0], $config['location'][1], $config['location'][2], $config['extend'], $attribs['class'], $attribs['style']);
+    $output = _flickr_album('group', $config['id'], $config['num'], $config['size'], $config['media'], $config['tags'], '', $config['count'], $config['sort'], $config['heading'], $config['mintitle'], $config['minmetadata'], 0, $config['filter'], $config['location'][0], $config['location'][1], $config['location'][2], $config['extend'], $attribs['class'], $attribs['style']);
     return $output;
   }
   return 'Specify a Flickr group ID (number@number or path alias).';
