@@ -542,7 +542,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
   // Remove spaces from tags but save the original for e.g. the block title.
   $tagsfix = $tags;
   $pagefix = $page;
-  $tags = strtolower(str_replace(' ', '', $tags));
+  // Also Flickr converts tags to lowercase, removes spaces and the ampersand.
+  $tags = strtolower(str_replace(array(' ', '&'), '', $tags));
   // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
   $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $page);
   // If $delta is a number it is a block that could be cached.

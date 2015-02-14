@@ -169,11 +169,11 @@ function flickr_filter_split_config($string) {
   // Put each setting on its own line.
   $string = str_replace(',', "\n", $string);
   // Break them up around commas.
-  preg_match_all('/([a-zA-Z.]+)=([-@\/0-9a-zA-Z :;.\%"\']+)/', $string, $parts, PREG_SET_ORDER);
+  preg_match_all('/([a-zA-Z.]+)=([-@\/0-9a-zA-Z :;.\%"\'&]+)/', $string, $parts, PREG_SET_ORDER);
   foreach ($parts as $part) {
     // Normalize to lowercase and remove extra spaces.
     $name = strtolower(trim($part[1]));
-    $value = trim($part[2]);
+    $value = htmlspecialchars_decode(trim($part[2]));
     // Remove undesired but tolerated characters from the value.
     $value = str_replace(str_split('"\''), '', $value);
     if ($name == 'style' || $name == 'class') {

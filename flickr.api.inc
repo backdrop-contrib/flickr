@@ -367,7 +367,6 @@ function flickr_groups_pools_getphotos($nsid, $page = 1, $other_args = array()) 
     'group_id' => $nsid,
     'page' => $page,
   );
-
   // Set per_page to flickr module default if not specified in $other_args.
   if (!isset($other_args['per_page'])) {
     $args['per_page'] = variable_get('flickr_photos_per_page', 6);
