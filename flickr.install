@@ -40,7 +40,6 @@ function flickr_uninstall() {
   variable_del('flickr_title_suppress_on_small');
   variable_del('flickr_metadata_suppress_on_small');
   variable_del('flickr_info_overlay');
-  variable_del('flickr_caption_padding');
   variable_del('flickr_license');
   variable_del('flickr_restrict');
   variable_del('flickr_extend');
@@ -117,4 +116,11 @@ function flickr_update_7102() {
   elseif (module_exists('lightbox2')) {
     variable_set('flickr_rel', 'lightbox[gallery]');
   }
+}
+
+/**
+ * Delete unused variables.
+ */
+function flickr_update_7103() {
+  variable_del('flickr_caption_padding');
 }

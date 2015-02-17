@@ -3,10 +3,6 @@
   display: none;
 }
 
-span.flickr-image {
-  position: relative;
-}
-
 .flickr-image:hover .flickr-image span.flickr-cc,
 .flickr-wrap:hover .flickr-image span.flickr-cc,
 .flickr-image:hover .flickr-image span.flickr-copyright,

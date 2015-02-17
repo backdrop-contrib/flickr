@@ -6,5 +6,5 @@ img.flickr-photoset-img {
 /*Make the caption as wide as the image */
 span.flickr-credit,
 .flickr-citation {
-  padding: 0 2px;
+  padding: 0 2px 4px 4px;
 }

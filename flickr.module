@@ -358,7 +358,7 @@ function theme_flickr_photo($variables) {
     $class_float = '';
   }
   if (isset($attribs['style'])) {
-    $style_float = (stripos($attribs['style'], 'float') !== FALSE) ? ' style="' . $attribs['style'] . '"' : '';
+    $style_float = (stripos($attribs['style'], 'float') !== FALSE) ? ' "' . $attribs['style'] . '";' : '';
   }
   else {
     $style_float = '';
@@ -478,24 +478,15 @@ function theme_flickr_photo($variables) {
         $height = '500';
     }
   }
-  // If we zoom an image, we should use the bigger size to retain
+  // If we zoom or enlarge an image, we should use the bigger size to retain
   // an acceptable resolution.
   if (module_exists('flickrstyle')) {
     if (variable_get('flickrstyle_emphasize', 2) == 2 || variable_get('flickrstyle_emphasize', 2) == 3) {
-      $skip = FALSE;
       if ($width < $height && $sise == 'q') {
         $width = round(150 * $width / $height);
-        $height = '150';
       }
       elseif ($sise == 'q') {
         $width = '150';
-        $skip = TRUE;
-      }
-      if ($width < $height && !$skip) {
-        $attribs['style'] = isset($attribs['style']) ? $attribs['style'] . 'width: ' . $width . 'px;' . ' height: ' . $height . 'px;' : 'width: ' . $width . 'px;' . ' height: ' . $height . 'px';
-      }
-      else {
-        $attribs['style'] = isset($attribs['style']) ? $attribs['style'] . 'width: ' . $width . 'px;' : 'width: ' . $width . 'px;';
       }
       if ($sise != 'q') {
         $size = flickr_one_size_bigger($size);
@@ -666,7 +657,7 @@ function theme_flickr_photo($variables) {
   // Final step when NO overlay browser is used that generates the image that
   // links to the Flickr page to comply with the TOS of Flickr.
   if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL && $width < $min_title && $width < $min_metadata) {
-    return '<span class="flickr-wrap' . $class_notitle . $class_float . '"' . $style_float . '><span class="flickr-image">' . l($img . $magnifier, $photo_url, array(
+    return '<span class="flickr-wrap' . $class_notitle . $class_float . '"' . ' style="width:' . $width . 'px;"' . $style_float . '><span class="flickr-image">' . l($img . $magnifier, $photo_url, array(
       'attributes' => array(
         'title' => $title,
         'target' => '_blank',
@@ -696,7 +687,7 @@ function theme_flickr_photo($variables) {
           <param name="allowFullScreen" value="true"><embed allowfullscreen="true" bgcolor="#000000" flashvars="intl_lang=en-US&amp;photo_secret=' . $photo['secret'] . '&amp;photo_id=' . $photo['id'] . '&amp;hd_default=false" src="https://www.flickr.com/apps/video/stewart.swf" type="application/x-shockwave-flash" height="270" width="480">
         </object>
       </div>
-      </div><span class="flickr-wrap' . $class_notitle . $class_float . '"' . $style_float . '><span class="flickr-image">' . l($img . $magnifier, $photo_url . '/?width=480&height=280&inline=true#' . $photo['id'], array(
+      </div><span class="flickr-wrap' . $class_notitle . $class_float . '"' . ' style="width:' . $width . 'px;"' . $style_float . '><span class="flickr-image">' . l($img . $magnifier, $photo_url . '/?width=480&height=280&inline=true#' . $photo['id'], array(
         'attributes' => array(
           'title' => $overlayhtml,
           'class' => 'colorbox-inline flickr-img-wrap',
@@ -705,7 +696,7 @@ function theme_flickr_photo($variables) {
         ),
         'absolute' => TRUE,
         'html' => TRUE,
-      )) . $license_overlay . '</span><span class="flickr-credit' . $class_notitle . '" style="width: ' . ($width - variable_get('flickr_caption_padding', 0)) . 'px;">' . l($credit, $photo_url, array(
+      )) . $license_overlay . '</span><span class="flickr-credit' . $class_notitle . '">' . l($credit, $photo_url, array(
         'attributes' => array(
           'title' => t('View on Flickr. To enlarge click image.'),
           'target' => '_blank',
@@ -714,7 +705,7 @@ function theme_flickr_photo($variables) {
       )) . $metadatacaption . '</span></span>';
     }
     else {
-      return '<span class="flickr-wrap' . $class_notitle . $class_float . '"' . $style_float . '><span class="flickr-image">' . l($img . $magnifier, $url, array(
+      return '<span class="flickr-wrap' . $class_notitle . $class_float . '"' . ' style="width:' . $width . 'px;"' . $style_float . '><span class="flickr-image">' . l($img . $magnifier, $url, array(
         'attributes' => array(
           'title' => $overlayhtml,
           'class' => array($class . ' flickr-img-wrap'),
@@ -723,7 +714,7 @@ function theme_flickr_photo($variables) {
         ),
         'absolute' => TRUE,
         'html' => TRUE,
-      )) . $license_overlay . '</span><span class="flickr-credit' . $class_notitle . '" style="width: ' . ($width - variable_get('flickr_caption_padding', 0)) . 'px;">' . l($credit, $photo_url, array(
+      )) . $license_overlay . '</span><span class="flickr-credit' . $class_notitle . '">' . l($credit, $photo_url, array(
         'attributes' => array(
           'title' => t('View on Flickr. To enlarge click image.'),
           'target' => '_blank',

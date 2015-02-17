@@ -270,6 +270,10 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
     }
     if (isset($image_size)) {
       $img_url = $image_size['source'];
+      // Fallback if no valid image is returned (might happen on some videos).
+      if (!stripos($img_url, 'jpg')) {
+        $img_url = flickr_photo_img($photo, $size);
+      }
     }
   }
   else {

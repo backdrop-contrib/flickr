@@ -261,22 +261,6 @@ function flickr_admin_settings() {
     '#default_value' => variable_get('flickr_css', 1),
     '#description' => t("Uncheck to take care of the styling yourself in custom CSS.<br />If you use Flickr Filter, you might find the !autofloat_module useful.", array('!autofloat_module' => $autofloat_module)),
   );
-  $style_doc = l(t('Style Guide'), 'https://drupal.org/node/2174131#caption', array(
-    'attributes' => array(
-      'title' => t('Flickr Style Guide documentation | Drupal.org'),
-      'target' => '_blank',
-    ),
-  ));
-  $form['css_settings']['flickr_caption_padding'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Make the caption smaller in width (correction for caption padding/border)'),
-    '#required' => TRUE,
-    '#default_value' => variable_get('flickr_caption_padding', 0),
-    '#description' => t('By default the caption is as wide as the image. If you add padding to a boxed caption with CSS, set a value here to make sure the caption will remain of the same width of the image. See the !style_doc.<br />Only padding: 1 x horizontal padding value.<br />Padding AND border: 2 x padding value + 1 x border-width.', array('!style_doc' => $style_doc)),
-    '#field_suffix' => t('px'),
-    '#size' => 2,
-    '#maxlength' => 2,
-  );
   $flickr_style = l(t('Flickr Style'), 'admin/modules', array(
       'attributes' => array(
         'title' => t('Extra configuration options.'),
@@ -414,7 +398,6 @@ function flickr_admin_settings_validate($form, &$form_state) {
   $limit1 = trim($form_state['values']['flickr_photos_per_page']);
   $limit2 = trim($form_state['values']['flickr_title_suppress_on_small']);
   $limit3 = trim($form_state['values']['flickr_metadata_suppress_on_small']);
-  $limit4 = trim($form_state['values']['flickr_caption_padding']);
   $limit7 = trim($form_state['values']['flickr_per_page']);
   if ($key && (preg_match('/^[A-Fa-f\d]{32}$/', $key) != 1)) {
     form_set_error('flickr_api_key', t('This does not appear to be a Flickr API key.'));
@@ -439,10 +422,6 @@ function flickr_admin_settings_validate($form, &$form_state) {
   // Validate the minimum width to suppress metadata caption.
   if (!is_numeric($limit3) || $limit3 < 0) {
     form_set_error('flickr_metadata_suppress_on_small', t('Set a width from 0 to 999 px.'));
-  }
-  // Validate the padding correction for caption width.
-  if (!is_numeric($limit4) || $limit4 < 0) {
-    form_set_error('flickr_caption_padding', t('Set a padding from 0 to 99 px.'));
   }
   // Validate the number to return on a random or views sorted API requests.
   if (!is_numeric($limit7) || $limit7 < 20 || $limit7 > 500) {

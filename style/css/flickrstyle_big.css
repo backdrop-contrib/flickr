@@ -20,6 +20,7 @@ img.flickr-photoset-img {
       -ms-transition: all 0.2s ease;
        -o-transition: all 0.2s ease;
           transition: all 0.2s ease;
+  border: solid 2px transparent;
   background: none;
 
   -o-object-fit: cover;

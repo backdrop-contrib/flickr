@@ -71,12 +71,6 @@ function flickrstyle_page_build(&$page) {
             'every_page' => TRUE,
           ));
         }
-        if (gettype($styles['shadow']) != 'integer' && gettype($styles['border']) != 'integer') {
-          drupal_add_css(drupal_get_path('module', 'flickrstyle') . '/css/flickrstyle_wrapcaption_shadowwithborder.css', array(
-            'group' => CSS_DEFAULT,
-            'every_page' => TRUE,
-          ));
-        }
         break;
     }
     if (variable_get('flickrstyle_nostyle', 1)) {
