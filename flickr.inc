@@ -124,6 +124,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
   }
   // If a cached value wasn't suitable, attempt to connect and fetch a result.
   $cmethod = 'none';
+  $result = new stdClass();
   $result->code = 0;
   if ((variable_get('flickr_curl2', 0) || !function_exists('stream_socket_client')) && function_exists('curl_version')) {
     $result = flickr_curl_http_request($url);
