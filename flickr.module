@@ -610,7 +610,7 @@ function theme_flickr_photo($variables) {
   // Replace with $people['photostream'] if you want to link to the photostream.
   $username = $people['name'];
   // The date an image was taken formatted as 'time ago'.
-  $taken = isset($info['dates']['taken']) ? format_interval(time() - strtotime($info['dates']['taken']), 1) . ' ' . t('ago') : '';
+  $taken = isset($info['dates']['taken']) ? '<a title="' . format_date(strtotime($info['dates']['taken']), 'long') . '">' . format_interval(time() - strtotime($info['dates']['taken']), 1) . '</a> ' . t('ago') : '';
   // A bunch of geo data.
   $neighbourhood = isset($info['location']['neighbourhood']['_content']) ? strip_tags($info['location']['neighbourhood']['_content']) . ', ' : '';
   $locality = isset($info['location']['locality']['_content']) ? strip_tags($info['location']['locality']['_content']) . ', ' : '';
