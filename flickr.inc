@@ -145,7 +145,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     watchdog('flickr', $message, array(), WATCHDOG_WARNING);
     if ($return_errors) {
       // Debug info.
-      if (variable_get('flickr_debug', 0) && module_exists('devel')) {
+      if (variable_get('flickr_debug', 0) == 2 && module_exists('devel')) {
         dpm("Value of error 'result' in 'function flickr_request()' with connection method " . "'" . $cmethod . "' in 'flickr.inc':");
         dpm($result);
       }
@@ -161,7 +161,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     // Even the cURL method returns an error.
     if ($result->code != 200) {
       // Debug info.
-      if (variable_get('flickr_debug', 0) && module_exists('devel')) {
+      if (variable_get('flickr_debug', 0) == 2 && module_exists('devel')) {
         dpm("Value of 'result' with error in 'function flickr_request()' with connection method " . "'" . $cmethod . "' in 'flickr.inc':");
         dpm($result);
       }
@@ -176,7 +176,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
 
   }
   // Debug info.
-  if (variable_get('flickr_debug', 0) && module_exists('devel')) {
+  if (variable_get('flickr_debug', 0) == 2 && module_exists('devel')) {
     dpm("Value of 'result' in 'function flickr_request()' with the " . "'" . $cmethod . "' connection method in 'flickr.inc':");
     dpm($result);
   }
@@ -201,6 +201,33 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     }
     flickr_set_error($response);
     return FALSE;
+  }
+  elseif (isset($args) && variable_get('flickr_debug', 0)) {
+    $args['format'] = 'rest';
+    unset($args['api_sig']);
+    $attribs = urldecode(http_build_query($args, '', '&'));
+    $attribs = str_replace('"', '', $attribs);
+    $methodurl = l($method, 'https://www.flickr.com/services/api/' . $method . '.htm', array(
+      'attributes' => array(
+        'title' => t('Flickr Services: Flickr API: ') . $method,
+        'target' => '_blank',
+      ),
+    ));
+    $explorerurl = l('API Explorer', 'https://www.flickr.com/services/api/explore/' . $method, array(
+      'attributes' => array(
+        'title' => t('Flickr Api Explorer - ') . $method,
+        'target' => '_blank',
+      ),
+    ));
+    $requrl = l(t('following response'), FLICKR_REST_ENDPOINT . '?' . $attribs, array(
+      'attributes' => array(
+        'title' => t('Verify the passed arguments in the URL'),
+        'target' => '_blank',
+      ),
+    ));
+    $message = t("Debug info: Connection by %cmethod with method !methodurl gives the !requrl to check in the !explorerurl.<br />Passed arguments: " . $attribs, array('%cmethod' => $cmethod, '!methodurl' => $methodurl, '!explorerurl' => $explorerurl, '!requrl' => $requrl));
+    drupal_set_message($message, 'warning');
+    watchdog('flickr', $message, array(), WATCHDOG_WARNING);
   }
 
   // Save cacheable results for future use.
@@ -228,7 +255,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
  */
 function flickr_img($photo, $size = NULL, $attributes = NULL) {
   // Debug info.
-  if (variable_get('flickr_debug', 0) && module_exists('devel')) {
+  if (variable_get('flickr_debug', 0) == 2 && module_exists('devel')) {
     dpm("Value of 'photo' passed to 'function flickr_img()' in 'flickr.inc':");
     dpm($photo);
   }
@@ -907,7 +934,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           ),
         ));
         if (($id == '39873962@N08' || empty($id)) && empty($tags) && !isset($lat)) {
-          $pre_output .= '<div class="messages warning">' . t('Provide some tags or a location for public photos for the node on this page<br />OR<br />!block_config on this page<br />OR<br />!config.', array('!block_config' => $block_config, '!config' => $config)) . '</div>';
+          $pre_output .= '<div class="messages warning">' . t('Provide some tags or a location for public photos for the node on this page<br />- OR -<br />!block_config on this page<br />- OR -<br />!config.', array('!block_config' => $block_config, '!config' => $config)) . '</div>';
           $show_n = 0;
         }
         $output .= ($heading == 'none' || ($show_n == 1 && !is_numeric($delta))) ? '' : '<' . $heading . ' class="flickr-album-heading">' . $pre_output . '</' . $heading . '>';
@@ -983,7 +1010,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         $rest_ok = ($total % variable_get('flickr_per_page', 100)) > 3 * $show_n ? 1 : 0;
         $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : $page;
         // Debug info.
-        if (variable_get('flickr_debug', 0) && module_exists('devel')) {
+        if (variable_get('flickr_debug', 0) == 2 && module_exists('devel')) {
           dpm("Arguments passed to 'function _flickr_album()': " . '$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total . ' $lat=' . $lat . ' $lon=' . $lon . ' $radius=' . $radius . ' $extend=' . $extend);
         }
         // Get a list of "all" the photos. This is cached.

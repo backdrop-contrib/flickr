@@ -49,6 +49,11 @@ function flickr_admin_settings() {
     '#default_value' => $default,
     '#description' => t('An, optional, default Flickr user (number@number, alias, username or email). This will be used when no user is specified.'),
   );
+  // We need an api key before we can verify usernames.
+  if (!$form['credentials']['flickr_api_key']['#default_value']) {
+    $form['credentials']['flickr_default_userid']['#disabled'] = TRUE;
+    $form['credentials']['flickr_default_userid']['#description'] .= ' ' . t('Disabled until a valid API Key is set.');
+  }
   $form['info_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t('Global options'),
@@ -313,21 +318,6 @@ function flickr_admin_settings() {
     '#size' => 3,
     '#maxlength' => 3,
   );
-  if (!module_exists('devel')) {
-    variable_set('flickr_debug', 0);
-  }
-  $devel_module = l(t('Devel module'), 'https://drupal.org/project/devel', array(
-      'attributes' => array(
-        'title' => t('Devel | Drupal.org'),
-        'target' => '_blank',
-      ),
-  ));
-  $form['advanced_settings']['flickr_debug'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Enable Debug Output'),
-    '#description' => t('Display all passed photo/album arguments and HTTP requests/response objects via the !devel_module.', array('!devel_module' => $devel_module)),
-    '#default_value' => variable_get('flickr_debug', 0),
-  );
   $more_info = l(t('More info'), 'https://stackoverflow.com/a/4635991', array(
       'attributes' => array(
         'title' => t("Super fast 'getimagesize' in PHP - Stack Overflow"),
@@ -346,16 +336,6 @@ function flickr_admin_settings() {
     '#default_value' => variable_get('flickr_curl2', 0),
     '#description' => t("Otherwise cURL will only be used as fallback when the usual method returns a 403 (forbidden) or 408 (Request Timeout)."),
   );
-  // We need an api key before we can verify usernames.
-  if (!$form['credentials']['flickr_api_key']['#default_value']) {
-    $form['credentials']['flickr_default_userid']['#disabled'] = TRUE;
-    $form['credentials']['flickr_default_userid']['#description'] .= ' ' . t('Disabled until a valid API Key is set.');
-  }
-  // Do not offer the following setting if Devel is not available.
-  if (!module_exists('devel')) {
-    $form['advanced_settings']['flickr_debug']['#disabled'] = TRUE;
-    $form['advanced_settings']['flickr_debug']['#description'] = t("Disabled because the !devel_module is not enabled.", array('!devel_module' => $devel_module));
-  }
   // Offer the following setting if both allow_url_fopen and curl are enabled.
   if (!ini_get("allow_url_fopen") || !function_exists('curl_version')) {
     $form['advanced_settings']['flickr_curl']['#disabled'] = TRUE;
@@ -373,6 +353,40 @@ function flickr_admin_settings() {
   if (!function_exists('curl_version')) {
     $form['advanced_settings']['flickr_curl2']['#disabled'] = TRUE;
     $form['advanced_settings']['flickr_curl2']['#description'] = t("Disabled because your server configuration only allows 'stream_socket_client' (not 'cURL')");
+  }
+   $devel_module = l(t('Devel module'), 'https://drupal.org/project/devel', array(
+      'attributes' => array(
+        'title' => t('Devel | Drupal.org'),
+        'target' => '_blank',
+      ),
+  ));
+  // Disable the Devel output until it is available.
+  if (!module_exists('devel')) {
+    if (variable_get('flickr_debug', 0) == 2) {
+      variable_set('flickr_debug', 1);
+      drupal_set_message(t("The debug output has been set to 'Flickr response only'. 'Plus Devel' has been disabled until you enable the !devel_module.", array('!devel_module' => $devel_module)), 'warning', FALSE);
+    }
+  }
+  $form['advanced_settings']['flickr_debug'] = array(
+    '#type' => 'radios',
+    '#title' => t('Enable Debug Output'),
+    '#options' => array(
+      t('None'),
+      t('Flickr response only (as a link to an XML page in a debug message)'),
+      t('Plus Devel (Flickr response plus additional output'),
+    ),
+    '#description' => t('Display the Flickr XML response, all passed photo/album arguments and HTTP requests/response objects via the !devel_module.', array('!devel_module' => $devel_module)),
+    '#default_value' => variable_get('flickr_debug', 0),
+  );
+  // Disable the Devel output until it is available.
+  if (!module_exists('devel')) {
+    $form['advanced_settings']['flickr_debug']['#options'] = array(
+      t('None'),
+      t('Flickr response only (as a link to an XML page in a debug message)'),
+      '<span class="grayed-out">' . t('Plus Devel (Flickr response plus additional output') . '</span> <span class="grayed-out-help">' . t('Disabled until you enable the !devel_module.', array('!devel_module' => $devel_module)) . '</span> ',
+    );
+    $form['advanced_settings']['flickr_debug'][2]['#disabled'] = TRUE;
+    $form['advanced_settings']['flickr_debug']['#description'] = t('Display the Flickr XML response.');
   }
   $form['flickr_cc'] = array(
     '#type' => 'checkbox',
