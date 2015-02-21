@@ -308,10 +308,11 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
     $img_url = flickr_photo_img($photo, $size);
   }
   $info = !is_array($photo['title']) ? flickr_photos_getinfo($photo['id']) : '';
-  $taken_short = isset($info['dates']['taken']) ? format_date(strtotime($info['dates']['taken']), 'short') . ' - ' : format_date(strtotime($photo['dates']['taken']), 'short') . ' - ';
+  $taken_short = isset($info['dates']['taken']) ? format_date(strtotime($info['dates']['taken']), 'short') : format_date(strtotime($photo['dates']['taken']), 'short');
+  $taken_short = empty($taken_short) ? '' : $taken_short . ' - ';
   $title = is_array($photo['title']) ? str_replace('"', "'", htmlspecialchars_decode(strip_tags($photo['description']['_content']))) : str_replace('"', "'", htmlspecialchars_decode(strip_tags($info['description']['_content'])));
-  if (empty($title) == 'title') {
-    $title = $photo['title'];
+  if (empty($title)) {
+    $title = is_array($photo['title']) ? str_replace('"', "'", htmlspecialchars_decode(strip_tags($photo['title']['_content']))) : $photo['title'];
   }
   $title = $taken_short . $title;
   $overlay = variable_get('flickr_info_overlay', array(
