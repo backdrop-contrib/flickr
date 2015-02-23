@@ -390,9 +390,9 @@ function flickr_admin_settings() {
   }
   $form['flickr_cc'] = array(
     '#type' => 'checkbox',
-    '#title' => t("Flush all caches on form submit to see your changes instantly."),
+    '#title' => t("Flush the cache on form submit to see your changes instantly."),
     '#default_value' => variable_get('flickr_cc', 0),
-    '#description' => t("Note that form submit will be slower and all your site content will be rebuilt. Your choice will be 'remembered' for your next visit to this configuration page."),
+    '#description' => t("Note that form submit will be slower. Your content will be rebuilt at the first visit. Your choice will be 'remembered' for your next visit to this configuration page."),
     '#weight' => 99,
   );
 
