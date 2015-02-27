@@ -308,7 +308,9 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
     $img_url = flickr_photo_img($photo, $size);
   }
   $info = !is_array($photo['title']) ? flickr_photos_getinfo($photo['id']) : '';
+  if (arg(2) != 'sets') {
   $taken_short = isset($info['dates']['taken']) ? format_date(strtotime($info['dates']['taken']), 'short') : format_date(strtotime($photo['dates']['taken']), 'short');
+  }
   $taken_short = empty($taken_short) ? '' : $taken_short . ' - ';
   $title = is_array($photo['title']) ? str_replace('"', "'", htmlspecialchars_decode(strip_tags($photo['description']['_content']))) : str_replace('"', "'", htmlspecialchars_decode(strip_tags($info['description']['_content'])));
   if (empty($title)) {
@@ -580,7 +582,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
   // Also Flickr converts tags to lowercase, removes spaces and the ampersand.
   $tags = strtolower(str_replace(array(' ', '&'), '', $tags));
   // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
-  $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $page);
+  $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . $lat . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $page);
   // If $delta is a number it is a block that could be cached.
   if ($cache && is_numeric($delta)) {
     $output = $cache->data;
@@ -1079,6 +1081,9 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             }
             $textext = array();
             if (isset($lat)) {
+              // Start with a circle of 14 meter.
+              $radius = empty($radius) ? 0.014 : $radius;
+              do {
               if (variable_get('flickr_restrict', 1) < 2) {
                 $response = flickr_photos_search($id, $page, array(
                   'tags' => $tags_combined,
@@ -1106,6 +1111,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                   $textext = array_merge($textext, $textextension['photo']);
                 }
               }
+              // No results, to extend the search on license.
               if ((empty($response['photo']) || variable_get('flickr_restrict', 1) == 2) && variable_get('flickr_restrict', 1) != 0) {
                 $response = flickr_photos_search($id, $page, array(
                   'tags' => $tags_combined,
@@ -1133,6 +1139,10 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                   $textext = array_merge($textext, $textextension['photo']);
                 }
               }
+              // Extend the search geo radius gradually to 32 km if there are
+              // not enough results.
+              $radius = $radius * 3;
+            } while ((count($response['photo']) + count($textext)) < $show_n && $radius <= 32);
             }
             else {
               if (variable_get('flickr_restrict', 1) < 2) {
@@ -1403,7 +1413,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
             // drupal_is_front_page() is added because it also can have
             // arg(0) == 'node'.
-            cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
+            cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . arg(0) . '_' . drupal_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
           }
           return $output;
         }
@@ -1420,10 +1430,23 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         $total = $total < $i ? $i : $total;
         $total = $i < $show_n ? $i : $total;
         $total = number_format($total, 0, ",", ".");
-        $count = t('@number out of @total !flickr', array(
+        if (!empty($radius)) {
+          $radius = $radius / 3;
+          $km = floor($radius);
+          $mt = ltrim(str_replace(".", "", number_format($radius - $km, 3)), '0');
+          $mt = empty ($mt) ? '' : $mt . ' mt';
+          $km = $radius >= 1 ? $km . ' km' : '';
+          $separator = empty($km) || empty($mt) ? '' : ' and ';
+          $range = ' ' . t('in a range of') . ' '. $km . $separator . $mt;
+        }
+        else {
+          $range ='';
+        }
+        $count = t('@number out of @total !flickr@range', array(
           '@number' => $i,
           '@total' => $total,
           '!flickr' => $flickr,
+          '@range' => $range,
         ));
         // Note the $delta value is 'abused' for counter override from filter.
         // If the total found > max query ($per_page), omit the counter if tags
@@ -1441,7 +1464,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
       $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
       // drupal_is_front_page() is added because it also can have
       // arg(0) == 'node'.
-      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $pagefix, $output, 'cache', time() + $refresh * 60 * 60);
+      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $pagefix, $output, 'cache', time() + $refresh * 60 * 60);
     }
   }
   return $output;
