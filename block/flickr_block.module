@@ -987,8 +987,6 @@ function flickr_block_view($delta = '') {
                 }
               }
             }
-//            $block['subject'] = NULL;
-//            $block['content'] = _flickr_album('gallery', $gallery['id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, $settings['extend']);
             break;
         }
       }
