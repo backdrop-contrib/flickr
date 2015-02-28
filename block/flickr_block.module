@@ -978,25 +978,17 @@ function flickr_block_view($delta = '') {
               break;
             }
             $terms = is_array($tags) ? $tags : explode(",", $tags);
+            $block['subject'] = NULL;
+            $block['content'] = '';
             foreach ($galleries as $gallery) {
               foreach ($terms as $term) {
-                if (stripos($gallery['title']['_content'], $term) !== FALSE || empty($term)) {
-                  $quit = 1;
-                  break;
+                if (stripos($gallery['title']['_content'], $term) !== FALSE || (empty($term) && !isset($taxonomy))) {
+                  $block['content'] .= _flickr_album('gallery', $gallery['id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, $settings['extend']);
                 }
               }
-              // If we have galleries with titles matching tags continue (or no
-              // tags).
-              if (isset($quit)) {
-                break;
-              }
-              // If not, return nothing.
-              else {
-                return;
-              }
             }
-            $block['subject'] = NULL;
-            $block['content'] = _flickr_album('gallery', $gallery['id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, $settings['extend']);
+//            $block['subject'] = NULL;
+//            $block['content'] = _flickr_album('gallery', $gallery['id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, $settings['extend']);
             break;
         }
       }
