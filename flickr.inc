@@ -575,7 +575,7 @@ function flickr_get_id_type($id) {
 /**
  * Render multiple photos as an album.
  */
-function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $extend = 1, $class = NULL, $style = NULL, $page = 1) {
+function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $datefrom = NULL, $dateto = NULL, $extend = 1, $class = NULL, $style = NULL, $page = 1) {
   // Remove spaces from tags but save the original for e.g. the block title.
   $tagsfix = $tags;
   $pagefix = $page;
@@ -734,6 +734,22 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
       ),
       'html' => TRUE,
     ));
+    if (substr($datefrom, 0, 10) == substr($dateto, 0, 10) && !empty($datefrom)) {
+      // A single date.
+      $str = format_date(strtotime(substr($datefrom, 0, 10)), 'medium');
+      // Remove everthing after the last dash to remove the time.
+      $taken = ' ' . t('taken on') . ' ' . substr($str, 0, strrpos($str, '-'));
+    }
+    // Multiple days.
+    elseif (!empty($datefrom)) {
+      // Remove everthing after the last dash to remove the time.
+      $str = format_date(strtotime(substr($datefrom, 0, 10)), 'medium');
+      $strto = format_date(strtotime(substr($dateto, 0, 10)), 'medium');
+      $taken = ' ' . t('taken from') . ' ' . substr($str, 0, strrpos($str, '-')) . ' ' . t('to') . ' ' . substr($strto, 0, strrpos($strto, '-'));
+    }
+    else {
+      $taken = '';
+    }
 
     // Generate an album heading depending on type.
     switch ($type) {
@@ -925,7 +941,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         }
         $place = isset($lat) && !is_array($place_name) ? t('near') . ' ' . $place_name . ' ' : '';
         $tags2 = ($tags1 != '') ? ' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ' : '';
-        $pre_output = ($id == '39873962@N08' || empty($id)) ? strip_tags($photos) . $tags2 . strip_tags($username) . ' ' . $place . strip_tags($map) : $photos . ' '  . $tagged . ' ' . $place . $username . ' ' . $map;
+        $pre_output = ($id == '39873962@N08' || empty($id)) ? strip_tags($photos) . $tags2 . strip_tags($username) . ' ' . $place . strip_tags($map) . $taken : $photos . ' '  . $tagged . ' ' . $place . $username . ' ' . $map . $taken;
         $block_config = l(t('exclude the block'), 'admin/structure/block/manage/flickr/' . $delta . '/configure/', array(
           'attributes' => array(
             'title' => t('Block visibility settings'),
@@ -1087,6 +1103,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               if (variable_get('flickr_restrict', 1) < 2) {
                 $response = flickr_photos_search($id, $page, array(
                   'tags' => $tags_combined,
+                  'min_taken_date' => $datefrom,
+                  'max_taken_date' => $dateto,
                   'sort' => $valid_sort,
                   'per_page' => $per_page,
                   'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
@@ -1099,6 +1117,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                 foreach ($texts as $tagsfiks) {
                   $textextension = flickr_photos_search($id, $page, array(
                     'text' => '"' . $tagsfiks . '"',
+                    'min_taken_date' => $datefrom,
+                    'max_taken_date' => $dateto,
                     'sort' => $valid_sort,
                     'per_page' => $per_page,
                     'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
@@ -1115,6 +1135,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               if ((empty($response['photo']) || variable_get('flickr_restrict', 1) == 2) && variable_get('flickr_restrict', 1) != 0) {
                 $response = flickr_photos_search($id, $page, array(
                   'tags' => $tags_combined,
+                  'min_taken_date' => $datefrom,
+                  'max_taken_date' => $dateto,
                   'sort' => $valid_sort,
                   'per_page' => $per_page,
                   'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
@@ -1127,6 +1149,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                 foreach ($texts as $tagsfiks) {
                   $textextension = flickr_photos_search($id, $page, array(
                     'text' => '"' . $tagsfiks . '"',
+                    'min_taken_date' => $datefrom,
+                    'max_taken_date' => $dateto,
                     'sort' => $valid_sort,
                     'per_page' => $per_page,
                     'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
@@ -1148,6 +1172,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               if (variable_get('flickr_restrict', 1) < 2) {
                 $response = flickr_photos_search($id, $page, array(
                   'tags' => $tags_combined,
+                  'min_taken_date' => $datefrom,
+                  'max_taken_date' => $dateto,
                   'sort' => $valid_sort,
                   'per_page' => $per_page,
                   'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
@@ -1157,6 +1183,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                 foreach ($texts as $tagsfiks) {
                   $textextension = flickr_photos_search($id, $page, array(
                     'text' => '"' . $tagsfiks . '"',
+                    'min_taken_date' => $datefrom,
+                    'max_taken_date' => $dateto,
                     'sort' => $valid_sort,
                     'per_page' => $per_page,
                     'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
@@ -1169,6 +1197,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               if ((empty($response['photo']) || variable_get('flickr_restrict', 1) == 2) && variable_get('flickr_restrict', 1) != 0) {
                 $response = flickr_photos_search($id, $page, array(
                   'tags' => $tags_combined,
+                  'min_taken_date' => $datefrom,
+                  'max_taken_date' => $dateto,
                   'sort' => $valid_sort,
                   'per_page' => $per_page,
                   'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
@@ -1178,6 +1208,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                 foreach ($texts as $tagsfiks) {
                   $textextension = flickr_photos_search($id, $page, array(
                     'text' => '"' . $tagsfiks . '"',
+                    'min_taken_date' => $datefrom,
+                    'max_taken_date' => $dateto,
                     'sort' => $valid_sort,
                     'per_page' => $per_page,
                     'extras' => 'date_upload,date_taken,license,geo,tags,views,media',

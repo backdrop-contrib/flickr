@@ -204,7 +204,7 @@ function theme_flickr_sets_photoset($variables) {
   $photo_arr = $variables['photo_arr'];
   $set_info = $variables['set_info'];
   $output = theme('pager', array('quantity' => variable_get('flickr_sets_photos_per_set', 6)));
-  $output .= _flickr_album('photoset', $set_info['id'], $per_page, NULL, 'photos', '', '', 101, 'unsorted', 'h1', NULL, NULL, 0, NULL, NULL, NULL, NULL, 1, NULL, NULL, $photo_arr['photoset']['page']);
+  $output .= _flickr_album('photoset', $set_info['id'], $per_page, NULL, 'photos', '', '', 101, 'unsorted', 'h1', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, $photo_arr['photoset']['page']);
   $output .= theme('pager', array('quantity' => variable_get('flickr_photos_per_page', 6)));
 
   return $output;
