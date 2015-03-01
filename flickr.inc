@@ -309,7 +309,7 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
   }
   $info = !is_array($photo['title']) ? flickr_photos_getinfo($photo['id']) : '';
   if (arg(2) != 'sets') {
-  $taken_short = isset($info['dates']['taken']) ? format_date(strtotime($info['dates']['taken']), 'short') : format_date(strtotime($photo['dates']['taken']), 'short');
+  $taken_short = isset($info['dates']['taken']) ? format_date(strtotime($info['dates']['taken']), 'short', '', NULL) : format_date(strtotime($photo['dates']['taken']), 'short', '', NULL);
   }
   $taken_short = empty($taken_short) ? '' : $taken_short . ' - ';
   $title = is_array($photo['title']) ? str_replace('"', "'", htmlspecialchars_decode(strip_tags($photo['description']['_content']))) : str_replace('"', "'", htmlspecialchars_decode(strip_tags($info['description']['_content'])));
@@ -582,7 +582,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
   // Also Flickr converts tags to lowercase, removes spaces and the ampersand.
   $tags = strtolower(str_replace(array(' ', '&'), '', $tags));
   // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
-  $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . $lat . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $page);
+  $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . $lat . '_' . $datefrom . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $page);
   // If $delta is a number it is a block that could be cached.
   if ($cache && is_numeric($delta)) {
     $output = $cache->data;
@@ -736,15 +736,15 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     ));
     if (substr($datefrom, 0, 10) == substr($dateto, 0, 10) && !empty($datefrom)) {
       // A single date.
-      $str = format_date(strtotime(substr($datefrom, 0, 10)), 'medium');
+      $str = format_date(strtotime(substr($datefrom, 0, 10)), 'medium', '', NULL);
       // Remove everthing after the last dash to remove the time.
       $taken = ' ' . t('taken on') . ' ' . substr($str, 0, strrpos($str, '-'));
     }
     // Multiple days.
     elseif (!empty($datefrom)) {
       // Remove everthing after the last dash to remove the time.
-      $str = format_date(strtotime(substr($datefrom, 0, 10)), 'medium');
-      $strto = format_date(strtotime(substr($dateto, 0, 10)), 'medium');
+      $str = format_date(strtotime(substr($datefrom, 0, 10)), 'medium', '', NULL);
+      $strto = format_date(strtotime(substr($dateto, 0, 10)), 'medium', '', NULL);
       $taken = ' ' . t('taken from') . ' ' . substr($str, 0, strrpos($str, '-')) . ' ' . t('to') . ' ' . substr($strto, 0, strrpos($strto, '-'));
     }
     else {
@@ -1030,7 +1030,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : $page;
         // Debug info.
         if (variable_get('flickr_debug', 0) == 2 && module_exists('devel')) {
-          dpm("Arguments passed to 'function _flickr_album()': " . '$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total . ' $lat=' . $lat . ' $lon=' . $lon . ' $radius=' . $radius . ' $extend=' . $extend);
+          dpm("Arguments passed to 'function _flickr_album()': " . '$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total . ' $lat=' . $lat . ' $lon=' . $lon . ' $radius=' . $radius . '$datefrom=' . $datfrom . ' $dateto=' . $dateto . ' $extend=' . $extend);
         }
         // Get a list of "all" the photos. This is cached.
         switch ($type) {
@@ -1295,9 +1295,9 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         // A (too complex) series of conditions to loop through to generate the
         // photos of an album. TODO: Implement simplification and better logic.
         // No Flickr tags specified and on a node page.
-        if ($vocab_isset != 0 && empty($tags) && (arg(0) == 'node' && is_numeric(arg(1)) && (arg(2) == '' || arg(2) == 'view'))) {
+        if ($vocab_isset == -1 && empty($tags) && empty($lat) && (arg(0) == 'node' && is_numeric(arg(1)) && (arg(2) == '' || arg(2) == 'view'))) {
           $vocab_name = taxonomy_vocabulary_load($vocab_isset)->name;
-          $output .= t("Post has no !vocab_name specified.", array('!vocab_name' => '<em>' . $vocab_name . '</em>'));
+          $output .= t("Post has no !vocab_name or location specified.", array('!vocab_name' => '<em>' . $vocab_name . '</em>'));
         }
         // No Flickr tags specified, not on a node page, thus show all.
         elseif ((empty($tags)  && empty($tags_user)) || ($type == 'gallery' && is_numeric($delta))) {
@@ -1445,7 +1445,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
             // drupal_is_front_page() is added because it also can have
             // arg(0) == 'node'.
-            cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . arg(0) . '_' . drupal_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
+            cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . $datefrom . '_' . arg(0) . '_' . drupal_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
           }
           return $output;
         }
@@ -1466,10 +1466,10 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           $radius = $radius / 3;
           $km = floor($radius);
           $mt = ltrim(str_replace(".", "", number_format($radius - $km, 3)), '0');
-          $mt = empty ($mt) ? '' : $mt . ' mt';
-          $km = $radius >= 1 ? $km . ' km' : '';
-          $separator = empty($km) || empty($mt) ? '' : ' and ';
-          $range = ' ' . t('in a range of') . ' '. $km . $separator . $mt;
+          $mt = empty ($mt) ? '' : $mt . ' ' . t('mt');
+          $km = $radius >= 1 ? $km . ' ' . t('km') : '';
+          $separator = empty($km) || empty($mt) ? '' : ' ' . t('and') . ' ';
+          $range = ' ' . t('in a radius of') . ' '. $km . $separator . $mt;
         }
         else {
           $range ='';
@@ -1496,7 +1496,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
       $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
       // drupal_is_front_page() is added because it also can have
       // arg(0) == 'node'.
-      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $pagefix, $output, 'cache', time() + $refresh * 60 * 60);
+      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . $datefrom . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $pagefix, $output, 'cache', time() + $refresh * 60 * 60);
     }
   }
   return $output;
