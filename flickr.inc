@@ -917,8 +917,23 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         if (isset($lat)) {
           $place_id = flickr_places_findbylatlon($lat, $lon);
           $place_name = $place_id['places']['place'][0]['name'];
+          $geophp = variable_get('flickr_geophp', array(
+            'title' => 'title',
+            'caption' => 0,
+          ));
+          if (module_exists('geophp') && gettype($geophp['title']) != 'integer') {
+            geophp_load();
+            $json = '{
+              "type": "Point",
+              "coordinates": [' . $lon . ',' . $lat . ']
+            }';
+            $location_name = geoPHP::load($json,'json')->out('google_geocode');
+          }
+          else {
+            $location_name = $place_name;
+          }
           if ($id == '39873962@N08' || empty($id)) {
-            $place_name = !is_array($place_name) ? l($place_name, 'https://www.flickr.com/map?&location=' . $place_name, array(
+            $place_name = !is_array($place_name) ? l($location_name, 'https://www.flickr.com/map?&location=' . $place_name, array(
               'attributes' => array(
                 'title' => t('View photos on Flickr map.'),
                 'target' => '_blank',
@@ -927,7 +942,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             )) : $place_name;
           }
           else {
-            $place_name = !is_array($place_name) ? l($place_name, 'https://www.flickr.com/photos/' . $id . '/map?&location=' . $place_name, array(
+            $place_name = !is_array($place_name) ? l($location_name, 'https://www.flickr.com/photos/' . $id . '/map?&location=' . $place_name, array(
               'attributes' => array(
                 'title' => t('View photos on Flickr map.'),
                 'target' => '_blank',

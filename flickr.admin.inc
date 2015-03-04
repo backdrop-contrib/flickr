@@ -190,6 +190,38 @@ function flickr_admin_settings() {
     '#default_value' => variable_get('flickr_counter', 1),
     '#description' => t('Shows how many photos are displayed out of the total number available for a user, group, set or tags on Flickr. Can be overridden individually by the filter tag, eg. [flickr-photoset:id=72157634563269642,count=false]'),
   );
+  $form['info_settings']['flickr_geophp'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Use Google instead of Flickr for location info (reverse geocoding)'),
+    '#default_value' => variable_get('flickr_geophp', array(
+      'title' => 'title',
+      'caption' => 0,
+    )),
+    '#options' => array(
+      'title' => t('In the album title'),
+      'caption' => t('In the photo caption'),
+    ),
+  );
+  if (!module_exists('geophp')) {
+    $geophp = l(t('geoPHP'), 'https://drupal.org/project/geophp', array(
+      'attributes' => array(
+        'title' => t('geophp | Drupal.org'),
+        'target' => '_blank',
+      ),
+    ));
+    $geofield = l(t('Geofield'), 'https://drupal.org/project/geofield', array(
+      'attributes' => array(
+        'title' => t('Geofield | Drupal.org'),
+        'target' => '_blank',
+      ),
+    ));
+    $form['info_settings']['flickr_geophp']['#disabled'] = TRUE;
+    $form['info_settings']['flickr_geophp']['#options'] = array(
+      'title' => '<span class="grayed-out">' . t('In the album title') . '</span>',
+      'caption' => '<span class="grayed-out">' . t('In the photo caption') . '</span>',
+    );
+    $form['info_settings']['flickr_geophp']['#description'] = t('Disabled until !geophp is enabled (a dependency of !geofield).', array('!geophp' => $geophp, '!geofield' => $geofield));
+  }
   $colorbox_module = l(t('Colorbox module'), 'https://drupal.org/project/colorbox', array(
       'attributes' => array(
         'title' => t('Colorbox| Drupal.org'),
@@ -354,7 +386,7 @@ function flickr_admin_settings() {
     $form['advanced_settings']['flickr_curl2']['#disabled'] = TRUE;
     $form['advanced_settings']['flickr_curl2']['#description'] = t("Disabled because your server configuration only allows 'stream_socket_client' (not 'cURL')");
   }
-   $devel_module = l(t('Devel module'), 'https://drupal.org/project/devel', array(
+  $devel_module = l(t('Devel module'), 'https://drupal.org/project/devel', array(
       'attributes' => array(
         'title' => t('Devel | Drupal.org'),
         'target' => '_blank',
@@ -373,7 +405,7 @@ function flickr_admin_settings() {
     '#options' => array(
       t('None'),
       t('Flickr response only (as a link to an XML page in a debug message)'),
-      t('Plus Devel (Flickr response plus additional output'),
+      t('Plus Devel (Flickr response plus additional output)'),
     ),
     '#description' => t('Display the Flickr XML response, all passed photo/album arguments and HTTP requests/response objects via the !devel_module.', array('!devel_module' => $devel_module)),
     '#default_value' => variable_get('flickr_debug', 0),
