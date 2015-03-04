@@ -928,6 +928,13 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               "coordinates": [' . $lon . ',' . $lat . ']
             }';
             $location_name = geoPHP::load($json,'json')->out('google_geocode');
+            // Remove the postal code from the string.
+            // Usually the læst component of the returned address by Google.
+            $location_components = geoPHP::load($json,'json')->out('google_geocode', 'array');
+            $location_pc = end($location_components);
+            if (strpos($location_pc->types[0], 'postal_code') !== FALSE) {
+              $location_name = str_replace($location_pc->long_name, '', $location_name);
+            }
           }
           else {
             $location_name = $place_name;
