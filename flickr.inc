@@ -921,19 +921,20 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             'title' => 'title',
             'caption' => 0,
           ));
-          if (module_exists('geophp') && gettype($geophp['title']) != 'integer') {
-            geophp_load();
-            $json = '{
-              "type": "Point",
-              "coordinates": [' . $lon . ',' . $lat . ']
-            }';
-            $location_name = geoPHP::load($json,'json')->out('google_geocode');
+          if (gettype($geophp['title']) != 'integer') {
+            $url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $info['location']['latitude'] . ',' . $info['location']['longitude'];
+            $result = drupal_http_request($url);
+            $json = json_decode($result->data);
+            $location_name = $json->results[0]->formatted_address;
             // Remove the postal code from the string.
-            // Usually the læst component of the returned address by Google.
-            $location_components = geoPHP::load($json,'json')->out('google_geocode', 'array');
+            // Usually the last component of the returned address by Google.
+            $location_components = $json->results[0]->address_components;
             $location_pc = end($location_components);
             if (strpos($location_pc->types[0], 'postal_code') !== FALSE) {
               $location_name = str_replace($location_pc->long_name, '', $location_name);
+            }
+            else {
+              $location_name = $place_name;
             }
           }
           else {

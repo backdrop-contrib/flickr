@@ -202,26 +202,6 @@ function flickr_admin_settings() {
       'caption' => t('In the photo caption'),
     ),
   );
-  if (!module_exists('geophp')) {
-    $geophp = l(t('geoPHP'), 'https://drupal.org/project/geophp', array(
-      'attributes' => array(
-        'title' => t('geophp | Drupal.org'),
-        'target' => '_blank',
-      ),
-    ));
-    $geofield = l(t('Geofield'), 'https://drupal.org/project/geofield', array(
-      'attributes' => array(
-        'title' => t('Geofield | Drupal.org'),
-        'target' => '_blank',
-      ),
-    ));
-    $form['info_settings']['flickr_geophp']['#disabled'] = TRUE;
-    $form['info_settings']['flickr_geophp']['#options'] = array(
-      'title' => '<span class="grayed-out">' . t('In the album title') . '</span>',
-      'caption' => '<span class="grayed-out">' . t('In the photo caption') . '</span>',
-    );
-    $form['info_settings']['flickr_geophp']['#description'] = t('Disabled until !geophp is enabled (a dependency of !geofield).', array('!geophp' => $geophp, '!geofield' => $geofield));
-  }
   $colorbox_module = l(t('Colorbox module'), 'https://drupal.org/project/colorbox', array(
       'attributes' => array(
         'title' => t('Colorbox| Drupal.org'),

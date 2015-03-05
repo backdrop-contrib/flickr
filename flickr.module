@@ -620,19 +620,22 @@ function theme_flickr_photo($variables) {
     'title' => 'title',
     'caption' => 0,
   ));
-  if (module_exists('geophp') && gettype($geophp['caption']) != 'integer' && isset($info['location']['latitude'])) {
-    geophp_load();
-    $json = '{
-      "type": "Point",
-      "coordinates": [' . $info['location']['longitude'] . ',' . $info['location']['latitude'] . ']
-    }';
-    $loc = geoPHP::load($json,'json')->out('google_geocode');
+  if (gettype($geophp['caption']) != 'integer' && isset($info['location']['latitude']) && isset($info['location']['longitude'])) {
+    $url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $info['location']['latitude'] . ',' . $info['location']['longitude'];
+    $result = drupal_http_request($url);
+    $json = json_decode($result->data);
+    $loc = $json->results[0]->formatted_address;
     // Remove the postal code from the string.
-    // Usually the læst component of the returned address by Google.
-    $location_components = geoPHP::load($json,'json')->out('google_geocode', 'array');
+    // Usually the last component of the returned address by Google.
+    $location_components = $json->results[0]->address_components;
     $location_pc = end($location_components);
-    if (strpos($location_pc->types[0], 'postal_code') !== FALSE) {
-      $loc = str_replace($location_pc->long_name, '', $loc);
+    if (isset($location_pc->types[0])) {
+      if (strpos($location_pc->types[0], 'postal_code') !== FALSE) {
+        $loc = str_replace($location_pc->long_name, '', $loc);
+      }
+    }
+    else {
+      $loc = $neighbourhood . $locality . $region . $country;
     }
   }
   else {
