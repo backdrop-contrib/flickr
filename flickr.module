@@ -139,11 +139,15 @@ function flickr_theme() {
     'flickr_flickrcomslideshow' => array(
       'variables' => array(
         'id' => NULL,
+        'class' => NULL,
+        'style' => NULL,
       ),
     ),
     'flickr_flickrcomslideshow_simple' => array(
       'variables' => array(
         'id' => NULL,
+        'class' => NULL,
+        'style' => NULL,
       ),
     ),
   );
