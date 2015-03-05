@@ -922,7 +922,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             'caption' => 0,
           ));
           if (gettype($geophp['title']) != 'integer') {
-            $url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $info['location']['latitude'] . ',' . $info['location']['longitude'];
+            $url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $lat . ',' . $lon;
             $result = drupal_http_request($url);
             $json = json_decode($result->data);
             $location_name = $json->results[0]->formatted_address;
