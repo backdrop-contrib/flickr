@@ -344,9 +344,9 @@ function flickr_admin_settings() {
   );
   $form['advanced_settings']['flickr_curl2'] = array(
     '#type' => 'checkbox',
-    '#title' => t("Use 'cURL' instead of 'stream_socket_client' (drupal_http_request) to make Flickr data requests."),
+    '#title' => t("Use 'cURL' instead of 'stream_socket_client' (drupal_http_request) to make data requests."),
     '#default_value' => variable_get('flickr_curl2', 0),
-    '#description' => t("Otherwise cURL will only be used as fallback when the usual method returns a 403 (forbidden) or 408 (Request Timeout)."),
+    '#description' => t("Otherwise cURL will only be used as fallback when drupal_http_request fails."),
   );
   // Offer the following setting if both allow_url_fopen and curl are enabled.
   if (!ini_get("allow_url_fopen") || !function_exists('curl_version')) {

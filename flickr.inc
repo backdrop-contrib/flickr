@@ -923,7 +923,12 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           ));
           if (gettype($geophp['title']) != 'integer') {
             $url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $lat . ',' . $lon;
-            $result = drupal_http_request($url);
+            if ((variable_get('flickr_curl2', 0) || !function_exists('stream_socket_client')) && function_exists('curl_version')) {
+              $result = flickr_curl_http_request($url);
+            }
+            elseif (function_exists('stream_socket_client')) {
+              $result = drupal_http_request($url);
+            }
             $json = json_decode($result->data);
             $location_name = $json->results[0]->formatted_address;
             // Remove the postal code from the string.
