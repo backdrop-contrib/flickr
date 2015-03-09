@@ -94,7 +94,8 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
   // Add in additional parameters then sort them for signing.
   $args['api_key'] = trim(variable_get('flickr_api_key', ''));
   $args['method'] = $method;
-  $args['format'] = 'php_serial';
+  $args['format'] = 'json';
+  $args['nojsoncallback'] = 1;
   ksort($args);
 
   // Build an argument hash API signing (we'll also use it for the cache id).
@@ -118,7 +119,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     if ($cache = cache_get("flickr_$arg_hash", 'cache')) {
       // Check that the value is still "fresh".
       if ($cache->expire > time()) {
-        return unserialize($cache->data);
+        return json_decode($cache->data, TRUE);
       }
     }
   }
@@ -180,17 +181,17 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     dpm("Value of 'result' in 'function flickr_request()' with the " . "'" . $cmethod . "' connection method in 'flickr.inc':");
     dpm($result);
   }
-  // Make sure it unserializes.
-  $response = unserialize($result->data);
+  // Make sure it decodes.
+  $response = json_decode($result->data, TRUE);
   if (!$response) {
     if ($return_errors) {
       return array(
         'stat' => t('error'),
         'code' => '-1',
-        'message' => t('The response was corrupted. It could not be unserialized.'),
+        'message' => t('The response was corrupted. It could not be decoded.'),
       );
     }
-    flickr_set_error(t("Flickr's response was corrupted and could not be unserialized."));
+    flickr_set_error(t("Flickr's response was corrupted and could not be decoded."));
     return FALSE;
   }
 
@@ -922,12 +923,12 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             'caption' => 0,
           ));
           if (gettype($geophp['title']) != 'integer') {
-            $url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $lat . ',' . $lon;
+            $google = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $lat . ',' . $lon;
             if ((variable_get('flickr_curl2', 0) || !function_exists('stream_socket_client')) && function_exists('curl_version')) {
-              $result = flickr_curl_http_request($url);
+              $result = flickr_curl_http_request($google);
             }
             elseif (function_exists('stream_socket_client')) {
-              $result = drupal_http_request($url);
+              $result = drupal_http_request($google);
             }
             $json = json_decode($result->data);
             $location_name = $json->results[0]->formatted_address;
