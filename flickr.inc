@@ -577,8 +577,11 @@ function flickr_get_id_type($id) {
  * Render multiple photos as an album.
  */
 function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $datefrom = NULL, $dateto = NULL, $extend = 1, $class = NULL, $style = NULL, $page = 1) {
-  // Remove spaces from tags but save the original for e.g. the block title.
+  // Remove spaces from tags but save the original for matches in text instead
+  // of tags.
   $tagsfix = $tags;
+  // Remove tags to exclude (preceded by a minus symbol) for album titles.
+  $tagsfixnoexclude = preg_replace('/,(^|\s)*-(\w+)/', '', $tags);
   $pagefix = $page;
   // Also Flickr converts tags to lowercase, removes spaces and the ampersand.
   $tags = strtolower(str_replace(array(' ', '&'), '', $tags));
@@ -727,7 +730,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     // The used tags with a space forced after the comma and the last
     // one replaced by 'or' ('and' for public photos).
     $conjunction = ($id == '39873962@N08' || empty($id)) ? t('and') : t('or');
-    $tags1 = preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tagsfix));
+    $tags1 = preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tagsfixnoexclude));
     $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : '<span class="flickr-tags-wrap">' . l(t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span></span>', $people['photosurl'] . 'tags/' . $tags, array(
       'attributes' => array(
         'title' => t('View tagged photos on Flickr.'),
@@ -901,14 +904,14 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           ),
         )) : l(t("on Flickr"), $people['photosurl'] . 'tags/' . $tags, array(
           'attributes' => array(
-            'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tagsfix)) . '.',
+            'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tagsfixnoexclude)) . '.',
             'target' => '_blank',
           ),
           'html' => TRUE,
         ));
         $flickr = ($id == '39873962@N08' || empty($id)) ? l(t("on Flickr"), $people['photosurl'] . str_replace(",", " ", $tags) . '+OR+"' . str_replace(',', '","', $tagsfix) . '"', array(
           'attributes' => array(
-            'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tagsfix)) . '.',
+            'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tagsfixnoexclude)) . '.',
             'target' => '_blank',
           ),
           'html' => TRUE,
