@@ -44,7 +44,7 @@ function flickrstyle_form_flickr_admin_settings_alter(&$form, &$form_state) {
       '#options' => array(
         t('No'),
         t('Yes, separate from the image'),
-        t('Yes, wrapped around the image and caption'),
+        t('Yes, wrapped around the image and caption ("Polaroid" effect if applied with a border)'),
       ),
       // Defaults to 'No'
       '#default_value' => variable_get('flickrstyle_caption', 1),

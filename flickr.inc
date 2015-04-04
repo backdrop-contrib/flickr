@@ -450,18 +450,6 @@ function flickr_is_nsid($id) {
 }
 
 /**
- * Flickr tag request.
- */
-function flickr_tag_request_args($tags = array(), $mode = 'all') {
-  $args = array();
-  if (!empty($tags)) {
-    $args['tags'] = implode(',', $tags);
-    $args['tag_mode'] = $mode == 'all' ? $mode : 'any';
-  }
-  return $args;
-}
-
-/**
  * Check if the response from the Flickr api call was an error.
  *
  * @param string $response
@@ -576,7 +564,7 @@ function flickr_get_id_type($id) {
 /**
  * Render multiple photos as an album.
  */
-function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $datefrom = NULL, $dateto = NULL, $extend = 1, $class = NULL, $style = NULL, $page = 1) {
+function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $datefrom = NULL, $dateto = NULL, $extend = 1, $tag_mode = 'context', $class = NULL, $style = NULL, $page = 1) {
   // Remove spaces from tags but save the original for matches in text instead
   // of tags.
   $tagsfix = $tags;
@@ -585,6 +573,10 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
   $pagefix = $page;
   // Also Flickr converts tags to lowercase, removes spaces and the ampersand.
   $tags = strtolower(str_replace(array(' ', '&'), '', $tags));
+  // Set the default tag mode appropriate.
+  if ($tag_mode == 'context') {
+    $tag_mode = empty($id) || $id == 'public' || $id == '39873962@N08' ? 'all' : 'any';
+  }
   // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
   $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . $lat . '_' . $datefrom . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $page);
   // If $delta is a number it is a block that could be cached.
@@ -721,17 +713,20 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     }
     $people['photosurl'] = isset($people['photosurl']) ? $people['photosurl'] : 'https://www.flickr.com/groups/' . $idfix . '/';
     $people['photosurl'] = $id == '39873962@N08' ? 'https://www.flickr.com/search/?sort=relevance&text=' : $people['photosurl'];
-    $photos = l(t('@orderFlickr @media', array('@order' => $order, '@media' => $media_type)), $people['photosurl'], array(
+    $searchurl = isset($people['photosurl']) ? 'https://www.flickr.com/search/?user_id=' . $id . '&sort=relevance&media=' . $media . '&q=' : 'https://www.flickr.com/search/?group_id=' . $idfix . '&sort=relevance&q=';
+    $searchurl = $id == '39873962@N08' ? 'https://www.flickr.com/search/?sort=relevance&q=' : $searchurl;
+    $photos = $order . l(t('Flickr'), $people['photosurl'], array(
       'attributes' => array(
-        'title' => t('View Flickr photostream.'),
+        'title' => t("View the user's Flickr photostream."),
         'target' => '_blank',
       ),
-    ));
+    )) . ' ' . $media_type;
     // The used tags with a space forced after the comma and the last
-    // one replaced by 'or' ('and' for public photos).
-    $conjunction = ($id == '39873962@N08' || empty($id)) ? t('and') : t('or');
+    // one replaced by 'or' or 'and'.
+    $conjunction = $tag_mode == 'all' ? t('and') : t('or');
     $tags1 = preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tagsfixnoexclude));
-    $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : '<span class="flickr-tags-wrap">' . l(t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span></span>', $people['photosurl'] . 'tags/' . $tags, array(
+    $tagsinurl = $tag_mode == 'all' ? str_replace(',', '+AND+', $tags) : str_replace(',', '+OR+', str_replace(',-', '+AND+-', $tags));
+    $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : '<span class="flickr-tags-wrap">' . l(' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span></span>', $searchurl . $tagsinurl, array(
       'attributes' => array(
         'title' => t('View tagged photos on Flickr.'),
         'target' => '_blank',
@@ -972,8 +967,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           }
         }
         $place = isset($lat) && !is_array($place_name) ? t('near') . ' ' . $place_name . ' ' : '';
-        $tags2 = ($tags1 != '') ? ' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span> ' : '';
-        $pre_output = ($id == '39873962@N08' || empty($id)) ? strip_tags($photos) . $tags2 . strip_tags($username) . ' ' . $place . strip_tags($map) . $taken : $photos . ' '  . $tagged . ' ' . $place . $username . ' ' . $map . $taken;
+        $pre_output = ($id == '39873962@N08' || empty($id)) ? strip_tags($photos) . ' '  . $tagged . ' ' . $place . $username . ' ' . $map . $taken : $photos . ' '  . $tagged . ' ' . $place . $username . ' ' . $map . $taken;
         $block_config = l(t('exclude the block'), 'admin/structure/block/manage/flickr/' . $delta . '/configure/', array(
           'attributes' => array(
             'title' => t('Block visibility settings'),
@@ -1062,7 +1056,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : $page;
         // Debug info.
         if (variable_get('flickr_debug', 0) == 2 && module_exists('devel')) {
-          dpm("Arguments passed to 'function _flickr_album()': " . '$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total . ' $lat=' . $lat . ' $lon=' . $lon . ' $radius=' . $radius . '$datefrom=' . $datfrom . ' $dateto=' . $dateto . ' $extend=' . $extend);
+          dpm("Arguments passed to 'function _flickr_album()': " . '$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total . ' $lat=' . $lat . ' $lon=' . $lon . ' $radius=' . $radius . '$datefrom=' . $datfrom . ' $dateto=' . $dateto . ' $extend=' . $extend . ' $tag_mode=' . $tag_mode . ' $class=' . $class . ' $style=' . $style . ' $page=' . $page);
         }
         // Get a list of "all" the photos. This is cached.
         switch ($type) {
@@ -1120,14 +1114,25 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             // Filter gets priority. Date sorting will be done anyway later.
             $valid_sort = ($filter == 'interestingness-desc' || $filter == 'relevance') ? $filter : $valid_sort;
             // On public photos we want to match all tags (AND).
-            if ($id == '39873962@N08' || empty($id)) {
+            if ($id == 'public' || $id == '39873962@N08' || empty($id)) {
               $texts[0] = $tagsfix;
+              $id = '39873962@N08';
             }
             // On albums with a specified ID match any tags (OR).
             else {
               $texts = is_array($tagsfix) ? $tagsfix : explode(",", $tagsfix);
             }
             $textext = array();
+            // With OR operator we remove exclusion strings.
+            if ($tag_mode == 'any') {
+              // Produce an array of all exlusion tags to use later on.
+              preg_match_all('/(,-\w+)/', $tags_combined, $excludestrings);
+              // Remove sub key.
+              $excludestrings = $excludestrings[0];
+              // We need the tags themselves, without comma and minus sign.
+              $excludestrings = str_replace(',-', '', $excludestrings);
+              $tags_combined = preg_replace('/(,-\w+)/', '', $tags_combined);
+            }
             if (isset($lat)) {
               // Start with a circle of 14 meter.
               $radius = empty($radius) ? 0.014 : $radius;
@@ -1135,6 +1140,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               if (variable_get('flickr_restrict', 1) < 2) {
                 $response = flickr_photos_search($id, $page, array(
                   'tags' => $tags_combined,
+                  'tag_mode' => $tag_mode,
                   'min_taken_date' => $datefrom,
                   'max_taken_date' => $dateto,
                   'sort' => $valid_sort,
@@ -1149,6 +1155,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                 foreach ($texts as $tagsfiks) {
                   $textextension = flickr_photos_search($id, $page, array(
                     'text' => '"' . $tagsfiks . '"',
+                    'tag_mode' => $tag_mode,
                     'min_taken_date' => $datefrom,
                     'max_taken_date' => $dateto,
                     'sort' => $valid_sort,
@@ -1167,6 +1174,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               if ((empty($response['photo']) || variable_get('flickr_restrict', 1) == 2) && variable_get('flickr_restrict', 1) != 0) {
                 $response = flickr_photos_search($id, $page, array(
                   'tags' => $tags_combined,
+                  'tag_mode' => $tag_mode,
                   'min_taken_date' => $datefrom,
                   'max_taken_date' => $dateto,
                   'sort' => $valid_sort,
@@ -1176,11 +1184,12 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                   'lat' => $lat,
                   'lon' => $lon,
                   'radius' => $radius,
-                  'license' => '0,1,2,3,4,5,6,7',
+                  'license' => '',
                 ));
                 foreach ($texts as $tagsfiks) {
                   $textextension = flickr_photos_search($id, $page, array(
                     'text' => '"' . $tagsfiks . '"',
+                    'tag_mode' => $tag_mode,
                     'min_taken_date' => $datefrom,
                     'max_taken_date' => $dateto,
                     'sort' => $valid_sort,
@@ -1190,7 +1199,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                     'lat' => $lat,
                     'lon' => $lon,
                     'radius' => $radius,
-                    'license' => '0,1,2,3,4,5,6,7',
+                    'license' => '',
                   ));
                   $textext = array_merge($textext, $textextension['photo']);
                 }
@@ -1204,6 +1213,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               if (variable_get('flickr_restrict', 1) < 2) {
                 $response = flickr_photos_search($id, $page, array(
                   'tags' => $tags_combined,
+                  'tag_mode' => $tag_mode,
                   'min_taken_date' => $datefrom,
                   'max_taken_date' => $dateto,
                   'sort' => $valid_sort,
@@ -1215,6 +1225,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
                 foreach ($texts as $tagsfiks) {
                   $textextension = flickr_photos_search($id, $page, array(
                     'text' => '"' . $tagsfiks . '"',
+                    'tag_mode' => $tag_mode,
                     'min_taken_date' => $datefrom,
                     'max_taken_date' => $dateto,
                     'sort' => $valid_sort,
@@ -1229,24 +1240,26 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               if ((empty($response['photo']) || variable_get('flickr_restrict', 1) == 2) && variable_get('flickr_restrict', 1) != 0) {
                 $response = flickr_photos_search($id, $page, array(
                   'tags' => $tags_combined,
+                  'tag_mode' => $tag_mode,
                   'min_taken_date' => $datefrom,
                   'max_taken_date' => $dateto,
                   'sort' => $valid_sort,
                   'per_page' => $per_page,
                   'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
                   'media' => $media,
-                  'license' => '0,1,2,3,4,5,6,7',
+                  'license' => '',
                 ));
                 foreach ($texts as $tagsfiks) {
                   $textextension = flickr_photos_search($id, $page, array(
                     'text' => '"' . $tagsfiks . '"',
+                    'tag_mode' => $tag_mode,
                     'min_taken_date' => $datefrom,
                     'max_taken_date' => $dateto,
                     'sort' => $valid_sort,
                     'per_page' => $per_page,
                     'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
                     'media' => $media,
-                    'license' => '0,1,2,3,4,5,6,7',
+                    'license' => '',
                   ));
                   $textext = array_merge($textext, $textextension['photo']);
                 }
@@ -1266,6 +1279,12 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
               }
             }
             $photos = $new;
+            // With OR operator we remove results that match exclusion strings.
+            if ($tag_mode == 'any') {
+              $photos = array_filter($photos, function($photo) use ($excludestrings) {
+                return flickr_excludestrings($photo, $excludestrings);
+              });
+            }
             break;
 
           default:
@@ -1532,6 +1551,30 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     }
   }
   return $output;
+}
+
+/**
+ * Callback function of array_filter().
+ * Returns TRUE if a value is found in an array within a multidimensional array.
+ * Note we use a closure to pass some variables.
+ * See http://stackoverflow.com/a/2529784/523688.
+ *
+ * @param array $photo
+ *   A single passed element of $photos.
+ *
+ * @param array $excludestrings
+ *   The array to match, to return false if true.
+ *
+ * @return bool
+ *   FALSE if a match found.
+ */
+function flickr_excludestrings($photo, $excludestrings) {
+  foreach ($excludestrings as $excludestring) {
+    if (stripos($photo['tags'], $excludestring) !== FALSE) {
+      return FALSE;
+    }
+  }
+  return TRUE;
 }
 
 /**

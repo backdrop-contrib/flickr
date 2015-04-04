@@ -60,22 +60,14 @@ function flickr_photos_getsizes($photo_id) {
  */
 function flickr_photos_search($nsid, $page = 1, $other_args = array()) {
   // The user ID that gets returned from flickr_user_find_by_identifier('').
-  if ($nsid == '39873962@N08' || empty($nsid)) {
-    $args = array(
-      'user_id' => '',
-      'tag_mode' => 'all',
-      'license' => $other_args['license'],
-      'page' => $page,
-    );
-  }
-  else {
-    $args = array(
-      'user_id' => $nsid,
-      'page' => $page,
-    );
-    // No license restrictions if a user ID is specified.
-    $other_args['license'] = '';
-  }
+  $tags = isset($other_args['tags']) ? $other_args['tags'] : '';
+  $nsid = $nsid == 'public' || $nsid == '39873962@N08' || empty($nsid) ? '' : $nsid;
+  $args = array(
+    'user_id' => $nsid,
+    'tag_mode' => $other_args['tag_mode'],
+    'license' => $other_args['license'],
+    'page' => $page,
+  );
   // Set per_page to flickr module default if not specified in $other_args.
   if (!isset($other_args['per_page'])) {
     $args['per_page'] = variable_get('flickr_photos_per_page', 6);

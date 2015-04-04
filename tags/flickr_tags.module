@@ -239,3 +239,15 @@ function theme_flickr_tags_cloud($variables) {
 
   return $output;
 }
+
+/**
+ * Flickr tag request.
+ */
+function flickr_tag_request_args($tags = array(), $mode = 'all') {
+  $args = array();
+  if (!empty($tags)) {
+    $args['tags'] = implode(',', $tags);
+    $args['tag_mode'] = $mode == 'all' ? $mode : 'any';
+  }
+  return $args;
+}
