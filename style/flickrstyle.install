@@ -11,4 +11,5 @@ function flickrstyle_uninstall() {
   variable_del('flickrstyle_styles');
   variable_del('flickrstyle_caption');
   variable_del('flickrstyle_emphasize');
+  variable_del('flickrstyle_nostyle');
 }

@@ -565,6 +565,16 @@ function flickr_get_id_type($id) {
  * Render multiple photos as an album.
  */
 function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $datefrom = NULL, $dateto = NULL, $extend = 1, $tag_mode = 'context', $class = NULL, $style = NULL, $page = 1) {
+  // As variables might change during processing, we set a fixed version of it
+  // to use for the key to set the block cache after processing at the end.
+  $idfix = $id;
+  $datefromfix = $datefrom;
+  $datetofix = $dateto;
+  if (!isset($dateto)) {
+    $dateto = $datefrom;
+  }
+  $datefrom = $datefrom . ' 00:00:00';
+  $dateto = $dateto . ' 23:59:59';
   // Remove spaces from tags but save the original for matches in text instead
   // of tags.
   $tagsfix = $tags;
@@ -578,7 +588,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     $tag_mode = empty($id) || $id == 'public' || $id == '39873962@N08' ? 'all' : 'any';
   }
   // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
-  $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . $lat . '_' . $datefrom . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $page);
+  $cache = cache_get('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . $datetofix . '_' . $datefromfix . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $page);
   // If $delta is a number it is a block that could be cached.
   if ($cache && is_numeric($delta)) {
     $output = $cache->data;
@@ -586,9 +596,6 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
 
   // In any other case we generate an album, including a heading and counter.
   else {
-    // As $id might change during processing, we set a fixed version of it to
-    // use for the key to set the block cache after processing at the end.
-    $idfix = $id;
     $sizes = flickr_photo_sizes();
     $show_n = is_null($show_n) ? variable_get('flickr_photos_per_page', 6) : $show_n;
     $size = is_null($size) ? variable_get('flickr_default_size_album', 's') : $size;
@@ -733,14 +740,14 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
       ),
       'html' => TRUE,
     ));
-    if (substr($datefrom, 0, 10) == substr($dateto, 0, 10) && !empty($datefrom)) {
-      // A single date.
+    // A single date.
+    if ((empty($datetofix) || $datetofix == $datefromfix) && !empty($datefromfix)) {
       $str = format_date(strtotime(substr($datefrom, 0, 10)), 'medium', '', NULL);
       // Remove everthing after the last dash to remove the time.
       $taken = ' ' . t('taken on') . ' ' . substr($str, 0, strrpos($str, '-'));
     }
     // Multiple days.
-    elseif (!empty($datefrom)) {
+    elseif (!empty($datefromfix)) {
       // Remove everthing after the last dash to remove the time.
       $str = format_date(strtotime(substr($datefrom, 0, 10)), 'medium', '', NULL);
       $strto = format_date(strtotime(substr($dateto, 0, 10)), 'medium', '', NULL);
@@ -748,6 +755,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     }
     else {
       $taken = '';
+      $datefrom = '';
+      $dateto = '';
     }
 
     // Generate an album heading depending on type.
@@ -1496,7 +1505,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
             // drupal_is_front_page() is added because it also can have
             // arg(0) == 'node'.
-            cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . $datefrom . '_' . arg(0) . '_' . drupal_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
+            cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . $datetofix . '_' . $datefromfix . '_' . arg(0) . '_' . drupal_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
           }
           return $output;
         }
@@ -1547,7 +1556,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
       $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
       // drupal_is_front_page() is added because it also can have
       // arg(0) == 'node'.
-      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . $datefrom . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $pagefix, $output, 'cache', time() + $refresh * 60 * 60);
+      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . $datetofix . '_' . $datefromfix . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $pagefix, $output, 'cache', time() + $refresh * 60 * 60);
     }
   }
   return $output;

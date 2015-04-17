@@ -284,10 +284,8 @@ function flickr_filter_callback_album($matches) {
   else {
     $config['date'] = explode("/", $config['date']);
     if (!isset($config['date'][1])) {
-      $config['date'][1] = $config['date'][0];
+      $config['date'][1] = NULL;
     }
-    $config['date'][0] = $config['date'][0] . ' 00:00:00';
-    $config['date'][1] = $config['date'][1] . ' 23:59:59';
   }
   if (!isset($config['count'])) {
     $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
@@ -410,10 +408,8 @@ function flickr_filter_callback_group($matches) {
   else {
     $config['date'] = explode("/", $config['date']);
     if (!isset($config['date'][1])) {
-      $config['date'][1] = $config['date'][0];
+      $config['date'][1] = NULL;
     }
-    $config['date'][0] = $config['date'][0] . ' 00:00:00';
-    $config['date'][1] = $config['date'][1] . ' 23:59:59';
   }
     if (!isset($config['extend'])) {
       $config['extend'] = variable_get('flickr_extend', 1);
@@ -512,10 +508,8 @@ function flickr_filter_callback_gallery($matches) {
   else {
     $config['date'] = explode("/", $config['date']);
     if (!isset($config['date'][1])) {
-      $config['date'][1] = $config['date'][0];
+      $config['date'][1] = NULL;
     }
-    $config['date'][0] = $config['date'][0] . ' 00:00:00';
-    $config['date'][1] = $config['date'][1] . ' 23:59:59';
   }
     if (!isset($config['extend'])) {
       $config['extend'] = variable_get('flickr_extend', 1);
@@ -618,10 +612,8 @@ function flickr_filter_callback_favorites($matches) {
   else {
     $config['date'] = explode("/", $config['date']);
     if (!isset($config['date'][1])) {
-      $config['date'][1] = $config['date'][0];
+      $config['date'][1] = NULL;
     }
-    $config['date'][0] = $config['date'][0] . ' 00:00:00';
-    $config['date'][1] = $config['date'][1] . ' 23:59:59';
   }
     if (!isset($config['extend'])) {
       $config['extend'] = variable_get('flickr_extend', 1);

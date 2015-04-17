@@ -153,7 +153,7 @@ function flickr_admin_settings() {
       t("In the caption"),
     ),
     '#default_value' => variable_get('flickr_license', 1),
-    '#description' => t("To give !attribution. Clear the cache on form submit.<br />!cc_icons in 'flickr_cc_icons.css'. Download it to host yourself locally (CC 4.0 licensed). Adjust 'flickr_cc_icons.css' accordingly.<br />Some examples (try to mouse-over): !ccexample_cna !cc_example_copy !cc_example_p", array(
+    '#description' => t("To give !attribution. Clear the cache on form submit.<br />!cc_icons in 'flickr_cc_icons.css'. Download it if you prefer to host it yourself locally (CC 4.0 licensed, give credit somewhere). Adjust 'flickr_cc_icons.css' accordingly.<br />Some examples (try to mouse-over): !ccexample_cna !cc_example_copy !cc_example_p", array(
         '!attribution' => $attribution,
         '!cc_icons' => $cc_icons,
         '!ccexample_cna' => $cc_example_cna,
@@ -399,6 +399,51 @@ function flickr_admin_settings() {
     );
     $form['advanced_settings']['flickr_debug'][2]['#disabled'] = TRUE;
     $form['advanced_settings']['flickr_debug']['#description'] = t('Display the Flickr XML response.');
+  }
+  $form['block_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Block options'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  if (module_exists('flickr_block')) {
+    $form['block_settings']['#description'] = t('Clear the cache on form submit.');
+  }
+  $date = l(t('Date'), 'https://www.drupal.org/project/date', array(
+    'attributes' => array(
+      'title' => t('Project page on Drupal.org'),
+      'target' => '_blank',
+    ),
+  ));
+  $geofield = l(t('Geofield'), 'https://www.drupal.org/project/geofield', array(
+    'attributes' => array(
+      'title' => t('Project page on Drupal.org'),
+      'target' => '_blank',
+    ),
+  ));
+  $form['block_settings']['flickr_smart'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Smart install of Flickr Block"),
+    '#default_value' => variable_get('flickr_smart', 1),
+    '#description' => t("On install of Flickr Block auto create Flickr taxonomy, date and geo fields on all node types to grab Flickr photos related to the node on the same page as a Flickr block based on tags, a date or a location. Enable Taxonomy (core), !date (including date_popup) and !geofield before enabling Flickr Block for the first time (or uninstall it first).", array('!date' => $date, '!geofield' => $geofield)),
+  );
+  // If a block variable exists, the Flickr Block module has not been
+  // uninstalled, thus disable the setting relevant only during installation.
+  global $conf;
+  if (module_exists('flickr_block') || isset($conf['flickr_block_photos_per_set'])) {
+    $form['block_settings']['flickr_smart']['#disabled'] = TRUE;
+    $form['block_settings']['flickr_smart']['#title'] = '<span class="grayed-out">' . t("Smart install of Flickr Block"). '</span> | ' . t('Disabled until uninstall of Flickr Block.');
+    $form['block_settings']['flickr_smart']['#description'] = '<span class="grayed-out">' . t("On install of Flickr Block auto create Flickr taxonomy, date and geo fields on all node types to grab Flickr photos related to the node on the same page as a Flickr block based on tags, a date or a location. Enable Taxonomy (core), !date (including date_popup) and !geofield before enabling Flickr Block for the first time (or uninstall it first).", array('!date' => $date, '!geofield' => $geofield)). '</span>';
+    }
+  $flickr_block = l(t('Flickr Block'), 'admin/modules', array(
+      'attributes' => array(
+        'title' => t('Display Flickr photos in blocks.'),
+      ),
+  ));
+  if (!module_exists('flickr_block')) {
+    $form['block_settings']['flickr_block'] = array(
+      '#markup' => t("Display Flickr photos in blocks by enabling the !flickr_block sub-module.", array('!flickr_style' => $flickr_style)),
+    );
   }
   $form['flickr_cc'] = array(
     '#type' => 'checkbox',

@@ -72,8 +72,8 @@ function flickr_block_configure($delta = '') {
     'user_id' => '',
     'group_id' => '',
     'photoset_id' => '',
-    'show_n' => 4,
-    'size' => 's',
+    'show_n' => variable_get('flickr_photos_per_page', 6),
+    'size' => variable_get('flickr_default_size_album', 's'),
     'tag' => '',
     'sort' => 'unsorted',
     'filter' => '',
@@ -86,6 +86,12 @@ function flickr_block_configure($delta = '') {
     'min_title' => variable_get('flickr_title_suppress_on_small', '100'),
     'min_metadata' => variable_get('flickr_metadata_suppress_on_small', '150'),
   ));
+  if (!isset($settings['show_n'])) {
+    $settings['show_n'] = variable_get('flickr_photos_per_page', 6);
+  }
+  if (!isset($settings['size'])) {
+    $settings['size'] = variable_get('flickr_default_size_album', 's');
+  }
   if (!isset($settings['tag'])) {
     $settings['tag'] = '';
   }
@@ -338,7 +344,7 @@ function flickr_block_configure($delta = '') {
       '#position'      => 'left',
       '#options'       => $checklist_fields_array,
       '#default_value' => $settings['date'],
-      '#description'   => t("Limit the Flickr images to those that have are taken on or between the dates attached to the node on the page the block is displayed on.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>."),
+      '#description'   => t("Limit the Flickr images to those that are taken on or between the dates attached to the node on the page the block is displayed on.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>."),
     );
   }
   // Override default settings to force or suppress the display of the caption

@@ -9,13 +9,6 @@
  */
 function flickr_block_form_flickr_admin_settings_alter(&$form, &$form_state) {
   $form['#validate'][] = 'flickr_block_admin_settings_validate';
-  $form['block_settings'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Block options'),
-    '#description' => t('Clear the cache on form submit.'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
   $form['block_settings']['flickr_block_hide_empty'] = array(
     '#type' => 'checkbox',
     '#title' => t('Hide empty blocks (no media found)'),
