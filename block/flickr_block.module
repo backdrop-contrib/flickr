@@ -186,7 +186,13 @@ function flickr_block_configure($delta = '') {
     '#description' => t("A numerical ID of a Flickr photoset."),
     '#required' => TRUE,
   );
-  $form["flickr_block_{$delta}_show_n"] = array(
+  $form['display_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Display'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['display_settings']["flickr_block_{$delta}_show_n"] = array(
     '#type' => 'textfield',
     '#title' => t('Show <em>n</em> photos'),
     '#required' => TRUE,
@@ -196,14 +202,44 @@ function flickr_block_configure($delta = '') {
     '#size' => 2,
     '#maxlength' => 2,
   );
-  $form["flickr_block_{$delta}_size"] = array(
+  $form['display_settings']["flickr_block_{$delta}_size"] = array(
     '#type' => 'select',
     '#options' => $size_options,
     '#title' => t('Size of photos'),
     '#default_value' => $settings['size'],
     '#description' => t("Select the size of photos you'd like to display in the block."),
   );
-  $form["flickr_block_{$delta}_sort"] = array(
+  // Override default settings to force or suppress the display of the caption
+  // title and metadata.
+  $attribution = l(t('proper attribution'), 'https://www.flickr.com/services/developer/attributions/', array(
+      'attributes' => array(
+        'title' => t('Flickr: The Flickr Developer Guide - Attributions'),
+        'target' => '_blank',
+      ),
+  ));
+  $form['display_settings']["flickr_block_{$delta}_min_title"] = array(
+    '#type' => 'textfield',
+    '#title' => t('Minimum image width to display a title caption'),
+    '#required' => TRUE,
+    '#default_value' => $settings['min_title'],
+    '#description' => t("Small images have liitle space for a title caption. Replace it with the text 'Flickr' that links to the photo page on Flickr to comply with their <a href='https://www.flickr.com/guidelines.gne' title='Flickr Community Guidelines' target='_blank'>Guidelines</a>.<br />Set it to '0 px' to always include or '999 px' to always exclude. To give !attribution this should be included (space allowing). After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution)),
+    '#element_validate' => array('flickr_title_block_validate'),
+    '#field_suffix' => t('px'),
+    '#size' => 3,
+    '#maxlength' => 3,
+  );
+  $form['display_settings']["flickr_block_{$delta}_min_metadata"] = array(
+    '#type' => 'textfield',
+    '#title' => t('Minimum image width to display date, location, photographer and optionally license info under the caption'),
+    '#required' => TRUE,
+    '#default_value' => $settings['min_metadata'],
+    '#description' => t("Suppress extra info on small images. Set it to '0 px' to always include or '999 px' to always exclude. To give !attribution this should be included (space allowing). After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution)),
+    '#element_validate' => array('flickr_metadata_block_validate'),
+    '#field_suffix' => t('px'),
+    '#size' => 3,
+    '#maxlength' => 3,
+  );
+  $form['display_settings']["flickr_block_{$delta}_sort"] = array(
     '#type' => 'select',
     '#options' => array(
       'unsorted' => t('Unsorted, as delivered by the Flickr API (fastest response)'),
@@ -217,18 +253,24 @@ function flickr_block_configure($delta = '') {
     '#default_value' => $settings['sort'],
     '#description' => t("Gets ignored for slideshows (always newest first)."),
   );
-  $form["flickr_block_{$delta}_filter"] = array(
+  $form['filter_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Filter by ..'),
+    '#description' => t("The filters below get ignored for slideshows (always newest first)."),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['filter_settings']["flickr_block_{$delta}_filter"] = array(
     '#type' => 'select',
     '#options' => array(
       '' => t('Nothing'),
-      'interestingness-desc' => t("Interesting (Flickr's own algorithm)"),
-      'relevance' => t('Relevant (most useful for public photos filtered on tags)'),
+      'interestingness-desc' => t("Interestingness (Flickr's own algorithm)"),
+      'relevance' => t('Relevancy (most useful for public photos filtered on tags)'),
     ),
-    '#title' => t('Filter'),
+    '#title' => t('Interestingness / relevancy'),
     '#default_value' => $settings['filter'],
-    '#description' => t("Gets ignored for slideshows (always newest first)."),
   );
-  $form["flickr_block_{$delta}_media"] = array(
+  $form['filter_settings']["flickr_block_{$delta}_media"] = array(
     '#type' => 'select',
     '#options' => array(
       'all' => t('all'),
@@ -237,7 +279,6 @@ function flickr_block_configure($delta = '') {
     ),
     '#title' => t('Media type'),
     '#default_value' => $settings['media'],
-    '#description' => t("Filter results by media type. Gets ignored for slideshows."),
   );
   if (module_exists('taxonomy')) {
     // Get a list of existing vocabularies.
@@ -248,16 +289,16 @@ function flickr_block_configure($delta = '') {
       $value = $item->name;
       $checklist_vocab_array[$key] = $value;
     }
-    $form["flickr_block_{$delta}_vocab"] = array(
+    $form['filter_settings']["flickr_block_{$delta}_vocab"] = array(
       '#type'          => 'select',
-      '#title'         => t('Filter by vocabulary'),
+      '#title'         => t('Flickr tags as node taxonomy terms (choose a vocabulary to use)'),
       '#position'      => 'left',
       '#options'       => $checklist_vocab_array,
       '#default_value' => $settings['vocab'],
       '#description'   => t("Limit the Flickr images to those that have a Flickr tag identical to the terms found for the node on the page the block is displayed on of a specific vocabulary. Case insensitive, matches any tag, for photosets even partial. Multiple tags for groups will only query the last 500 photos on Flickr (slowest API request). For user blocks the Flickr account of the node author will be queried. Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'). Use taxonomy terms without spaces in the vocabulary dedicated to Flickr.<br />For your content type, adjust the <em>Help text</em> of the used taxonomy field accordingly (e.g. at <em>admin/structure/types/manage/article/fields/field_tags</em>). The recommended widget type is <em>Autocomplete term widget (tagging)</em> with an <em>unlimited number of values</em>. If not already in use, the default existing vocabulary <em>Tags</em> can be used which is already configured right by default. Set <em>Tags</em> as a <em>Term reference</em> field on your content type and it works out-of-the-box.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>.<br />Note that if you add this <em>term reference</em> field to user profiles at <em>admin/config/people/accounts/fields</em> it will filter additionally on it for user blocks. E.g. a user can set individually that from their account only photos tagged <em>'website'</em> should be used to embed, indepedent from other used tags. Does apply only on user blocks, except for favorites."),
     );
     if ($delta < 7 || $delta == 10 || $delta == 11) {
-      $form["flickr_block_{$delta}_extend"] = array(
+      $form['filter_settings']["flickr_block_{$delta}_extend"] = array(
         '#type' => 'checkbox',
         '#title' => t("Extend to search for matching terms also in the Flickr photo title and description besides Flickr tags. This limits the tag mode below to 'any' (OR)."),
         '#default_value' => $settings['extend'],
@@ -265,7 +306,7 @@ function flickr_block_configure($delta = '') {
       );
     }
     else {
-      $form["flickr_block_{$delta}_extend"] = array(
+      $form['filter_settings']["flickr_block_{$delta}_extend"] = array(
         '#type' => 'checkbox',
         '#title' => t("Extend to search for matching terms also in the Flickr photo title (not the description) besides Flickr tags."),
         '#default_value' => $settings['extend'],
@@ -274,7 +315,7 @@ function flickr_block_configure($delta = '') {
     }
     // Limit the tag mode to 'OR' for extended searches.
     if ($settings['extend']) {
-      $form["flickr_block_{$delta}_tag_mode"] = array(
+      $form['filter_settings']["flickr_block_{$delta}_tag_mode"] = array(
        '#type' => 'radios',
         '#title' => t("Tag mode"),
         '#options' => array(
@@ -295,7 +336,7 @@ function flickr_block_configure($delta = '') {
       );
     }
     else {
-      $form["flickr_block_{$delta}_tag_mode"] = array(
+      $form['filter_settings']["flickr_block_{$delta}_tag_mode"] = array(
         '#type' => 'radios',
         '#title' => t("Tag mode"),
         '#options' => array(
@@ -320,9 +361,9 @@ function flickr_block_configure($delta = '') {
       $value = $item['field_name'];
       $checklist_fields_array[$key] = $value;
     }
-    $form["flickr_block_{$delta}_geo"] = array(
+    $form['filter_settings']["flickr_block_{$delta}_geo"] = array(
       '#type'          => 'select',
-      '#title'         => t('Filter by location or geofield (machine names)'),
+      '#title'         => t('Location or geofield (choose a field machine name to use)'),
       '#position'      => 'left',
       '#options'       => $checklist_fields_array,
       '#default_value' => $settings['geo'],
@@ -338,45 +379,15 @@ function flickr_block_configure($delta = '') {
       $value = $item['field_name'];
       $checklist_fields_array[$key] = $value;
     }
-    $form["flickr_block_{$delta}_date"] = array(
+    $form['filter_settings']["flickr_block_{$delta}_date"] = array(
       '#type'          => 'select',
-      '#title'         => t('Filter by a date field (machine names)'),
+      '#title'         => t('Date field (choose a field machine name to use)'),
       '#position'      => 'left',
       '#options'       => $checklist_fields_array,
       '#default_value' => $settings['date'],
       '#description'   => t("Limit the Flickr images to those that are taken on or between the dates attached to the node on the page the block is displayed on.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>."),
     );
   }
-  // Override default settings to force or suppress the display of the caption
-  // title and metadata.
-  $attribution = l(t('proper attribution'), 'https://www.flickr.com/services/developer/attributions/', array(
-      'attributes' => array(
-        'title' => t('Flickr: The Flickr Developer Guide - Attributions'),
-        'target' => '_blank',
-      ),
-  ));
-  $form["flickr_block_{$delta}_min_title"] = array(
-    '#type' => 'textfield',
-    '#title' => t('Minimum image width to display a title caption'),
-    '#required' => TRUE,
-    '#default_value' => $settings['min_title'],
-    '#description' => t("Small images have liitle space for a title caption. Replace it with the text 'Flickr' that links to the photo page on Flickr to comply with their <a href='https://www.flickr.com/guidelines.gne' title='Flickr Community Guidelines' target='_blank'>Guidelines</a>.<br />Set it to '0 px' to always include or '999 px' to always exclude. To give !attribution this should be included (space allowing). After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution)),
-    '#element_validate' => array('flickr_title_block_validate'),
-    '#field_suffix' => t('px'),
-    '#size' => 3,
-    '#maxlength' => 3,
-  );
-  $form["flickr_block_{$delta}_min_metadata"] = array(
-    '#type' => 'textfield',
-    '#title' => t('Minimum image width to display date, location, photographer and optionally license info under the caption'),
-    '#required' => TRUE,
-    '#default_value' => $settings['min_metadata'],
-    '#description' => t("Suppress extra info on small images. Set it to '0 px' to always include or '999 px' to always exclude. To give !attribution this should be included (space allowing). After saving the configuration <a href='?q=admin/config/development/performance'>clear the cache</a>.", array('!attribution' => $attribution)),
-    '#element_validate' => array('flickr_metadata_block_validate'),
-    '#field_suffix' => t('px'),
-    '#size' => 3,
-    '#maxlength' => 3,
-  );
   // A note for dynamic user blocks.
   $form["flickr_block_note"] = array(
     '#markup' => t("<h3>NOTE</h3><strong>The block visibility setting for 'user' (node author) blocks are not only restricted in the block configuration but also by the Flickr Block module.</strong> The block only gets displayed on user and node pages. Below you can change the block settings to exclude 'user/*' pages or show them only on 'node/*' pages or the other way around. Fine-grain even more by selecting a content type, for example blog posts."),
