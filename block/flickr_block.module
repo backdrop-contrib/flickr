@@ -256,7 +256,7 @@ function flickr_block_configure($delta = '') {
       '#default_value' => $settings['vocab'],
       '#description'   => t("Limit the Flickr images to those that have a Flickr tag identical to the terms found for the node on the page the block is displayed on of a specific vocabulary. Case insensitive, matches any tag, for photosets even partial. Multiple tags for groups will only query the last 500 photos on Flickr (slowest API request). For user blocks the Flickr account of the node author will be queried. Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'). Use taxonomy terms without spaces in the vocabulary dedicated to Flickr.<br />For your content type, adjust the <em>Help text</em> of the used taxonomy field accordingly (e.g. at <em>admin/structure/types/manage/article/fields/field_tags</em>). The recommended widget type is <em>Autocomplete term widget (tagging)</em> with an <em>unlimited number of values</em>. If not already in use, the default existing vocabulary <em>Tags</em> can be used which is already configured right by default. Set <em>Tags</em> as a <em>Term reference</em> field on your content type and it works out-of-the-box.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>.<br />Note that if you add this <em>term reference</em> field to user profiles at <em>admin/config/people/accounts/fields</em> it will filter additionally on it for user blocks. E.g. a user can set individually that from their account only photos tagged <em>'website'</em> should be used to embed, indepedent from other used tags. Does apply only on user blocks, except for favorites."),
     );
-    if ($delta < 6 || $delta == 11) {
+    if ($delta < 7 || $delta == 10 || $delta == 11) {
       $form["flickr_block_{$delta}_extend"] = array(
         '#type' => 'checkbox',
         '#title' => t("Extend to search for matching terms also in the Flickr photo title and description besides Flickr tags. This limits the tag mode below to 'any' (OR)."),
@@ -506,7 +506,6 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_photoset"]);
       unset($form['flickr_block_note']);
-      unset($form["flickr_block_{$delta}_filter"]);
       $form["flickr_block_{$delta}_sort"]['#options'] = array(
         'unsorted' => t('Recent unsorted, as delivered by the Flickr API (fastest response)'),
         'random' => t('Random (slower response after cache clear)'),
@@ -516,15 +515,6 @@ function flickr_block_configure($delta = '') {
         'id' => t('Descending on photo ID (an alternative newest first)'),
         'views' => t('Number of photo views on Flickr (popularity, slower response after cache clear)'),
       );
-      if (module_exists('taxonomy')) {
-        unset($form["flickr_block_{$delta}_tag_mode"]);
-      }
-      if (module_exists('geofield') || module_exists('location_node')) {
-        unset($form["flickr_block_{$delta}_geo"]);
-      }
-      if (module_exists('date')) {
-        unset($form["flickr_block_{$delta}_date"]);
-      }
       break;
 
     // Photos from a Flickr photoset.
@@ -822,15 +812,20 @@ function flickr_block_save($delta = '', $edit = array()) {
       else {
         $tag_mode = 'context';
       }
+      $geo = module_exists('geofield') || module_exists('location_node') ? $edit["flickr_block_{$delta}_geo"] : 0;
+      $date = module_exists('date') ? $edit["flickr_block_{$delta}_date"] : 0;
       variable_set('flickr_block_' . $delta, array(
         'group_id' => $edit["flickr_block_{$delta}_group_id"],
         'show_n' => (int) $edit["flickr_block_{$delta}_show_n"],
         'size' => $edit["flickr_block_{$delta}_size"],
         'sort' => $edit["flickr_block_{$delta}_sort"],
+        'filter' => $edit["flickr_block_{$delta}_filter"],
         'media' => $edit["flickr_block_{$delta}_media"],
         'vocab' => $vocab,
         'extend' => $extend,
         'tag_mode' => $tag_mode,
+        'geo' => $geo,
+        'date' => $date,
         'min_title' => $edit["flickr_block_{$delta}_min_title"],
         'min_metadata' => $edit["flickr_block_{$delta}_min_metadata"],
       ));
@@ -1299,12 +1294,38 @@ function flickr_block_view($delta = '') {
         else {
           $tags = '';
         }
+        if (module_exists('geofield') && !is_numeric($settings['geo']) && !empty($settings['geo'])) {
+          $value = field_get_items('node', $node, $settings['geo']);
+          $lat = $value[0]['lat'];
+          $lon= $value[0]['lon'];
+        }
+        elseif (module_exists('location_node') && $settings['geo'] == 1 && !empty($node->locations)) {
+          $lat = $node->locations[0]['latitude'];
+          $lon= $node->locations[0]['longitude'];
+        }
+        else {
+          $lat = NULL;
+          $lon = NULL;
+        }
+        if (module_exists('date') && !is_numeric($settings['date']) && !empty($settings['date'])) {
+          $value = field_get_items('node', $node, $settings['date']);
+          $datefrom = substr($value[0]['value'], 0, strrpos($value[0]['value'], ' '));
+          $dateto= substr($value[0]['value2'], 0, strrpos($value[0]['value2'], ' '));
+        }
+        else {
+          $datefrom = NULL;
+          $dateto = NULL;
+        }
       }
       else {
         $tags = '';
+        $lat = NULL;
+        $lon = NULL;
+        $datefrom = NULL;
+        $dateto = NULL;
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('group', $settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, NULL, NULL, $settings['extend']);
+      $block['content'] = _flickr_album('group', $settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], $settings['filter'], $lat, $lon, NULL, $datefrom, $dateto, $settings['extend'], $settings['tag_mode']);
       break;
 
     // Photos from a Flickr photoset.

@@ -1,5 +1,5 @@
 (function ($) {
-  Drupal.behaviors.addLinkToColorboxCurrent =  {
+  Drupal.behaviors.addLinkToColorboxCurrent = {
     attach: function(context, settings) {
       var url = $("img[class='cboxPhoto']").attr('src');
       var regex = new RegExp(/^https?:\/\/([a-z0-9-]+\.)*flickr\.com(\/.*)?$/);

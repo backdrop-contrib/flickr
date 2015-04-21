@@ -62,12 +62,24 @@ function flickr_photos_search($nsid, $page = 1, $other_args = array()) {
   // The user ID that gets returned from flickr_user_find_by_identifier('').
   $tags = isset($other_args['tags']) ? $other_args['tags'] : '';
   $nsid = $nsid == 'public' || $nsid == '39873962@N08' || empty($nsid) ? '' : $nsid;
-  $args = array(
-    'user_id' => $nsid,
-    'tag_mode' => $other_args['tag_mode'],
-    'license' => $other_args['license'],
-    'page' => $page,
-  );
+  $other_args['group_id'] = isset($other_args['group_id']) ? $other_args['group_id'] : '';
+  if ($nsid == '39873962@N08' || empty($nsid)) {
+    $args = array(
+      'user_id' => '',
+      'group_id'=> $other_args['group_id'],
+      'tag_mode' => 'all',
+      'license' => $other_args['license'],
+      'page' => $page,
+    );
+  }
+  else {
+    $args = array(
+      'user_id' => $nsid,
+      'page' => $page,
+    );
+    // No license restrictions if a user ID is specified.
+    $other_args['license'] = '';
+  }
   // Set per_page to flickr module default if not specified in $other_args.
   if (!isset($other_args['per_page'])) {
     $args['per_page'] = variable_get('flickr_photos_per_page', 6);
@@ -340,33 +352,6 @@ function flickr_tags_getlistuser($nsid) {
   );
   if ($response) {
     return $response['who']['tags']['tag'];
-  }
-  return FALSE;
-}
-
-/**
- * Returns a list of pool photos for a given group.
- *
- * @param string $nsid
- *   NSID of the group whose photos you want.
- *
- * @return array $response
- *   Response from the flickr method flickr.groups.pools.getPhotos.
- *   (https://www.flickr.com/services/api/flickr.groups.pools.getPhotos.html)
- */
-function flickr_groups_pools_getphotos($nsid, $page = 1, $other_args = array()) {
-  $args = array(
-    'group_id' => $nsid,
-    'page' => $page,
-  );
-  // Set per_page to flickr module default if not specified in $other_args.
-  if (!isset($other_args['per_page'])) {
-    $args['per_page'] = variable_get('flickr_photos_per_page', 6);
-  }
-
-  $response = flickr_request('flickr.groups.pools.getPhotos', array_merge($args, $other_args));
-  if ($response) {
-    return $response;
   }
   return FALSE;
 }

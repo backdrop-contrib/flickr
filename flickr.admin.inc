@@ -170,7 +170,7 @@ function flickr_admin_settings() {
       t("Do not restrict media to Creative Commons licensed on 'public' queries."),
     ),
     '#default_value' => variable_get('flickr_restrict', 1),
-    '#description' => t("With 'public' queries are intended Flickr requests that do not specify a Flickr user ID, thus returning results from all public Flickr photos."),
+    '#description' => t("With 'public' queries are intended Flickr requests that do not specify a Flickr user or group ID, thus returning results from all public Flickr photos."),
   );
   $form['info_settings']['flickr_extend'] = array(
     '#type' => 'checkbox',
