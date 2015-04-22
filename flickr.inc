@@ -856,7 +856,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         )) . '</' . $heading . '>';
         break;
 
-      // User albums.
+      // User and group albums.
       default:
         if (!empty($tags) && strpos($tags, ',') == FALSE) {
           $map = variable_get('flickr_maps', 0) ? '(' . l(t('map'), $people['photosurl'] . 'tags/' . $tags . '/map/', array(
@@ -874,33 +874,24 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
             ),
           )) . ')' : '';
         }
-        $flickr = (empty($tags)) ? l(t('on Flickr'), $people['photosurl'], array(
+        if ($type == 'user') {
+          $link_id = $id == '39873962@N08' ? 'user_id=' : 'user_id=' . $id;
+          $username = ($id == '39873962@N08' || empty($id)) ? '' : ' ' . t('by') . ' ' . $people['name'];
+        }
+        else {
+          $link_id = 'group_id=' . $id;
+          $username = ' ' . t('from the group') . ' ' . strip_tags($info['group']['name']['_content']);
+        }
+        // Avoid empty gps attributes in the query that causes Flickr hickups.
+        $link_lat = empty($lat) ? '' : '&lat=' . $lat;
+        $link_lon = empty($lon) ? '' : '&lon=' . $lon;
+        $flickr = l(t("on Flickr"), 'https://www.flickr.com/search/?' . $link_id . '&per_page=' . $show_n . '&tag_mode=' . $tag_mode . '&tags=' . $tags . $link_lat . $link_lon . '&radius=' . $radius . '&min_taken_date=' . $datefrom . '&max_taken_date=' . $dateto . '&sort=' . $filter . '&media=' . $media, array(
           'attributes' => array(
-            'title' => t("Photostream by @name.", array(
-              '@name' => strip_tags($people['name']),
-            )),
-            'target' => '_blank',
-          ),
-        )) : l(t("on Flickr"), $people['photosurl'] . 'tags/' . $tags, array(
-          'attributes' => array(
-            'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tagsfixnoexclude)) . '.',
+            'title' => t('View the results on Flickr'),
             'target' => '_blank',
           ),
           'html' => TRUE,
         ));
-        $flickr = ($id == '39873962@N08' || empty($id)) ? l(t("on Flickr"), $people['photosurl'] . str_replace(",", " ", $tags) . '+OR+"' . str_replace(',', '","', $tagsfix) . '"', array(
-          'attributes' => array(
-            'title' => t('Tagged') . ' ' . preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tagsfixnoexclude)) . '.',
-            'target' => '_blank',
-          ),
-          'html' => TRUE,
-        )) : $flickr;
-        if ($type == 'user') {
-          $username = ($id == '39873962@N08' || empty($id)) ? '' : ' ' . t('by') . ' ' . $people['name'];
-        }
-        else {
-          $username = ' ' . t('from the group') . ' ' . strip_tags($info['group']['name']['_content']);
-        }
         $map = ($id == '39873962@N08' || empty($id)) ? '' : $map;
         if (isset($lat)) {
           $place_id = flickr_places_findbylatlon($lat, $lon);
