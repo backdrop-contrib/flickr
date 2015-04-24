@@ -564,7 +564,7 @@ function flickr_get_id_type($id) {
 /**
  * Render multiple photos as an album.
  */
-function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $datefrom = NULL, $dateto = NULL, $extend = 1, $tag_mode = 'context', $class = NULL, $style = NULL, $page = 1) {
+function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $datefrom = NULL, $dateto = NULL, $extend = 1, $tag_mode = 'context', $class = NULL, $style = NULL, $page = 1) {
   // As variables might change during processing, we set a fixed version of it
   // to use for the key to set the block cache after processing at the end.
   $idfix = $id;
@@ -573,8 +573,8 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
   if (!isset($dateto)) {
     $dateto = $datefrom;
   }
-  $datefrom = $datefrom . ' 00:00:00';
-  $dateto = $dateto . ' 23:59:59';
+  $datefrom = isset($datefrom) ? $datefrom . ' 00:00:00' : '';
+  $dateto = isset($dateto) ? $dateto . ' 23:59:59' : '';
   // Remove spaces from tags but save the original for matches in text instead
   // of tags.
   $tagsfix = $tags;
@@ -724,8 +724,6 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     }
     $people['photosurl'] = isset($people['photosurl']) ? $people['photosurl'] : 'https://www.flickr.com/groups/' . $idfix . '/';
     $people['photosurl'] = $id == '39873962@N08' ? 'https://www.flickr.com/search/?sort=relevance&text=' : $people['photosurl'];
-    $searchurl = isset($people['photosurl']) ? 'https://www.flickr.com/search/?' . $type . '_id=' . $id . '&sort=relevance&media=' . $media . '&q=' : 'https://www.flickr.com/search/?group_id=' . $idfix . '&sort=relevance&q=';
-    $searchurl = $id == '39873962@N08' ? 'https://www.flickr.com/search/?sort=relevance&q=' : $searchurl;
     $photos = $order . l(t('Flickr'), $people['photosurl'], array(
       'attributes' => array(
         'title' => t("View the @type's Flickr photostream.", array('@type' => $type)),
@@ -736,14 +734,9 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
     // one replaced by 'or' or 'and'.
     $conjunction = $tag_mode == 'all' ? t('and') : t('or');
     $tags1 = preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tagsfixnoexclude));
-    $tagsinurl = $tag_mode == 'all' ? str_replace(',', '+AND+', $tags) : str_replace(',', '+OR+', str_replace(',-', '+AND+-', $tags));
-    $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : '<span class="flickr-tags-wrap">' . l(' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span></span>', $searchurl . $tagsinurl, array(
-      'attributes' => array(
-        'title' => t('View tagged photos on Flickr.'),
-        'target' => '_blank',
-      ),
-      'html' => TRUE,
-    ));
+    $flickr = flickr_album_link_construct(' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span></span>', $type, $id , $show_n, $media, $tags , $filter, $lat, $lon, $radius, $datefrom, $dateto, $extend, $tag_mode);
+
+    $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : '<span class="flickr-tags-wrap">' . $flickr;
     // A single date.
     if ((empty($datetofix) || $datetofix == $datefromfix) && !empty($datefromfix)) {
       $str = format_date(strtotime(substr($datefrom, 0, 10)), 'medium', '', NULL);
@@ -875,23 +868,12 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
           )) . ')' : '';
         }
         if ($type == 'user') {
-          $link_id = $id == '39873962@N08' ? 'user_id=' : 'user_id=' . $id;
           $username = ($id == '39873962@N08' || empty($id)) ? '' : ' ' . t('by') . ' ' . $people['name'];
         }
         else {
-          $link_id = 'group_id=' . $id;
           $username = ' ' . t('from the group') . ' ' . strip_tags($info['group']['name']['_content']);
         }
-        // Avoid empty gps attributes in the query that causes Flickr hickups.
-        $link_lat = empty($lat) ? '' : '&lat=' . $lat;
-        $link_lon = empty($lon) ? '' : '&lon=' . $lon;
-        $flickr = l(t("on Flickr"), 'https://www.flickr.com/search/?' . $link_id . '&per_page=' . $show_n . '&tag_mode=' . $tag_mode . '&tags=' . $tags . $link_lat . $link_lon . '&radius=' . $radius . '&min_taken_date=' . $datefrom . '&max_taken_date=' . $dateto . '&sort=' . $filter . '&media=' . $media, array(
-          'attributes' => array(
-            'title' => t('View the results on Flickr'),
-            'target' => '_blank',
-          ),
-          'html' => TRUE,
-        ));
+        $flickr = flickr_album_link_construct(t('on Flickr'), $type, $id , $show_n, $media, $tags , $filter, $lat, $lon, $radius, $datefrom, $dateto, $extend, $tag_mode);
         $map = ($id == '39873962@N08' || empty($id)) ? '' : $map;
         if (isset($lat)) {
           $place_id = flickr_places_findbylatlon($lat, $lon);
@@ -1047,7 +1029,7 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
         $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : $page;
         // Debug info.
         if (variable_get('flickr_debug', 0) == 2 && module_exists('devel')) {
-          dpm("Arguments passed to 'function _flickr_album()': " . '$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total . ' $lat=' . $lat . ' $lon=' . $lon . ' $radius=' . $radius . '$datefrom=' . $datfrom . ' $dateto=' . $dateto . ' $extend=' . $extend . ' $tag_mode=' . $tag_mode . ' $class=' . $class . ' $style=' . $style . ' $page=' . $page);
+          dpm("Arguments passed to 'function flickr_album()': " . '$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total . ' $lat=' . $lat . ' $lon=' . $lon . ' $radius=' . $radius . '$datefrom=' . $datfrom . ' $dateto=' . $dateto . ' $extend=' . $extend . ' $tag_mode=' . $tag_mode . ' $class=' . $class . ' $style=' . $style . ' $page=' . $page);
         }
         // Get a list of "all" the photos. This is cached.
         switch ($type) {
@@ -1548,6 +1530,38 @@ function _flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $si
 }
 
 /**
+ * Create a link to a Flickr search page with similar results as a user or group
+ * album passing the same arguments.
+ */
+function flickr_album_link_construct($linktext, $type = 'user', $id = '39873962@N08', $show_n = NULL, $media = 'photos', $tags = '', $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $datefrom = NULL, $dateto = NULL, $extend = 1, $tag_mode = 'all') {
+  if ($extend == 1) {
+    $tagsinurl = $tag_mode == 'all' ? str_replace(',', '+AND+', $tags) : str_replace(',', '+OR+', str_replace(',-', '+AND+-', $tags));
+    $tags2 = '&q=' . $tagsinurl;
+  }
+  else {
+    $tags2 = '&tags=' . $tags;
+
+  }
+  if ($type == 'user') {
+    $link_id = $id == '39873962@N08' ? 'user_id=' : 'user_id=' . $id;
+  }
+  else {
+    $link_id = 'group_id=' . $id;
+  }
+  // Avoid empty gps attributes in the query that causes Flickr query hickups.
+  $link_lat = empty($lat) ? '' : '&lat=' . $lat;
+  $link_lon = empty($lon) ? '' : '&lon=' . $lon;
+  $flickr = l($linktext, 'https://www.flickr.com/search/?' . $link_id . '&per_page=' . $show_n . '&tag_mode=' . $tag_mode . $tags2 . $link_lat . $link_lon . '&radius=' . $radius . '&min_taken_date=' . $datefrom . '&max_taken_date=' . $dateto . '&sort=' . $filter . '&media=' . $media, array(
+    'attributes' => array(
+      'title' => t('View the results on Flickr'),
+      'target' => '_blank',
+    ),
+    'html' => TRUE,
+  ));
+  return $flickr;
+}
+
+/**
  * Callback function of array_filter().
  * Returns TRUE if a value is found in an array within a multidimensional array.
  * Note we use a closure to pass some variables.
@@ -1728,7 +1742,7 @@ function flickr_curl_http_request($url, array $options = array()) {
   $ch = curl_init($url);
 
   // Set the proxy settings.
-  _flickr_curl_set_proxy_settings($options, $ch, $uri);
+  flickr_curl_set_proxy_settings($options, $ch, $uri);
 
   // If the database prefix is being used by SimpleTest to run the tests in a
   // copied database then set the user-agent header to the database prefix so
@@ -1746,13 +1760,13 @@ function flickr_curl_http_request($url, array $options = array()) {
   }
 
   // Set default configuration.
-  _flickr_curl_set_defaults($options, $ch);
+  flickr_curl_set_defaults($options, $ch);
 
   // Set cookie settings.
-  _flickr_curl_set_cookie_settings($options, $ch);
+  flickr_curl_set_cookie_settings($options, $ch);
 
   // Set the port.
-  $success = _flickr_curl_set_port($options, $ch, $uri);
+  $success = flickr_curl_set_port($options, $ch, $uri);
 
   if (FALSE === $success) {
     $result->error = 'invalid schema ' . $uri['scheme'];
@@ -1761,7 +1775,7 @@ function flickr_curl_http_request($url, array $options = array()) {
   }
 
   // Set request options.
-  $success = _flickr_curl_request_type_option($options, $ch);
+  $success = flickr_curl_request_type_option($options, $ch);
 
   if (FALSE === $success) {
     $result->error = 'invalid method ' . $options['method'];
@@ -1776,10 +1790,10 @@ function flickr_curl_http_request($url, array $options = array()) {
   }
 
   // Set headers.
-  _flickr_curl_set_headers($options, $ch);
+  flickr_curl_set_headers($options, $ch);
 
   // Set any last minute options.
-  _flickr_curl_set_options($options, $ch);
+  flickr_curl_set_options($options, $ch);
 
   // Make request.
   $result->data = trim(curl_exec($ch));
@@ -1902,7 +1916,7 @@ function flickr_curl_http_request($url, array $options = array()) {
  * @param object $ch [reference]
  *  cURL Object
  */
-function _flickr_curl_set_options(&$options, &$ch) {
+function flickr_curl_set_options(&$options, &$ch) {
   // Set any extra cURL options.
   foreach ($options['curl_opts'] as $opt => $value) {
     $set = curl_setopt($ch, $opt, $value);
@@ -1920,7 +1934,7 @@ function _flickr_curl_set_options(&$options, &$ch) {
  * @param object $ch [reference]
  *  cURL Object
  */
-function _flickr_curl_set_defaults(&$options, &$ch) {
+function flickr_curl_set_defaults(&$options, &$ch) {
   curl_setopt($ch, CURLOPT_HEADER, TRUE);
   curl_setopt($ch, CURLOPT_USERAGENT, $options['headers']['User-Agent']);
   curl_setopt($ch, CURLINFO_HEADER_OUT, TRUE);
@@ -1946,7 +1960,7 @@ function _flickr_curl_set_defaults(&$options, &$ch) {
  * @param array $uri [reference]
  *  URI array
  */
-function _flickr_curl_set_proxy_settings(&$options, &$ch, &$uri) {
+function flickr_curl_set_proxy_settings(&$options, &$ch, &$uri) {
   // Select the right proxy for the right protocol.
   $proxy = ('https' == $uri['scheme']) ? $options['https_proxy'] : $options['http_proxy'];
 
@@ -1977,7 +1991,7 @@ function _flickr_curl_set_proxy_settings(&$options, &$ch, &$uri) {
  * @param object $ch [reference]
  *  cURL Object
  */
-function _flickr_curl_set_headers(&$options, &$ch) {
+function flickr_curl_set_headers(&$options, &$ch) {
   if (is_array($options['headers']) and !empty($options['headers'])) {
     $headers = array();
     foreach ($options['headers'] as $key => $value) {
@@ -1998,7 +2012,7 @@ function _flickr_curl_set_headers(&$options, &$ch) {
  * @return bool
  *  Returns FALSE on error.
  */
-function _flickr_curl_request_type_option(&$options, &$ch) {
+function flickr_curl_request_type_option(&$options, &$ch) {
   $valid_method = FALSE;
   switch (drupal_strtoupper($options['method'])) {
     case 'DELETE':
@@ -2072,7 +2086,7 @@ function _flickr_curl_request_type_option(&$options, &$ch) {
  * @return bool
  *  Returns TRUE if they were set properly, FALSE otherwise.
  */
-function _flickr_curl_set_port(&$options, &$ch, &$uri) {
+function flickr_curl_set_port(&$options, &$ch, &$uri) {
   $default_ports = array(
     'http' => 80,
     'feed' => 80,
@@ -2103,7 +2117,7 @@ function _flickr_curl_set_port(&$options, &$ch, &$uri) {
  * @param object $ch [reference]
  *  cURL Object
  */
-function _flickr_curl_set_cookie_settings(&$options, &$ch) {
+function flickr_curl_set_cookie_settings(&$options, &$ch) {
   // Set cookie settings.
   if ($options['cookiefile']) {
     curl_setopt($ch, CURLOPT_COOKIEJAR, $options['cookiefile']);

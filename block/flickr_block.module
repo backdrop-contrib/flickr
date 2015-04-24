@@ -1152,7 +1152,7 @@ function flickr_block_view($delta = '') {
             // Only if on a node page use it's terms.
             $tags = (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
             $block['subject'] = NULL;
-            $block['content'] = _flickr_album('user', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $tags_user, $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], $settings['filter'], $lat, $lon, NULL, $datefrom, $dateto, $settings['extend'], $settings['tag_mode']);
+            $block['content'] = flickr_album('user', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, $tags_user, $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], $settings['filter'], $lat, $lon, NULL, $datefrom, $dateto, $settings['extend'], $settings['tag_mode']);
             break;
 
           // User favorite Flickr photos.
@@ -1161,7 +1161,7 @@ function flickr_block_view($delta = '') {
             // Only if on a node page use it's terms.
             $tags = (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
             $block['subject'] = NULL;
-            $block['content'] = _flickr_album('favorites', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, NULL, NULL, $settings['extend']);
+            $block['content'] = flickr_album('favorites', $user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, NULL, NULL, $settings['extend']);
             break;
 
           // User gallery Flickr photos.
@@ -1179,7 +1179,7 @@ function flickr_block_view($delta = '') {
             foreach ($galleries as $gallery) {
               foreach ($terms as $term) {
                 if (stripos($gallery['title']['_content'], $term) !== FALSE || (empty($term) && !isset($taxonomy))) {
-                  $block['content'] .= _flickr_album('gallery', $gallery['id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, NULL, NULL, $settings['extend']);
+                  $block['content'] .= flickr_album('gallery', $gallery['id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, NULL, NULL, $settings['extend']);
                 }
               }
             }
@@ -1253,7 +1253,7 @@ function flickr_block_view($delta = '') {
         $dateto = NULL;
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], $settings['filter'], $lat, $lon, NULL, $datefrom, $dateto, $settings['extend'], $settings['tag_mode']);
+      $block['content'] = flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], $settings['filter'], $lat, $lon, NULL, $datefrom, $dateto, $settings['extend'], $settings['tag_mode']);
       break;
 
     // Recent photosets from a Flickr user.
@@ -1336,7 +1336,7 @@ function flickr_block_view($delta = '') {
         $dateto = NULL;
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('group', $settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], $settings['filter'], $lat, $lon, NULL, $datefrom, $dateto, $settings['extend'], $settings['tag_mode']);
+      $block['content'] = flickr_album('group', $settings['group_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], $settings['filter'], $lat, $lon, NULL, $datefrom, $dateto, $settings['extend'], $settings['tag_mode']);
       break;
 
     // Photos from a Flickr photoset.
@@ -1378,7 +1378,7 @@ function flickr_block_view($delta = '') {
         $tags = '';
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('photoset', $settings['photoset_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, NULL, NULL, $settings['extend']);
+      $block['content'] = flickr_album('photoset', $settings['photoset_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, NULL, NULL, $settings['extend']);
       break;
 
     // Favorite public photos from a Flickr user.
@@ -1421,13 +1421,13 @@ function flickr_block_view($delta = '') {
         $tags = '';
       }
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('favorites', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, NULL, NULL, $settings['extend']);
+      $block['content'] = flickr_album('favorites', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $tags, '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], $settings['vocab'], NULL, NULL, NULL, NULL, NULL, NULL, $settings['extend']);
       break;
 
     // Photos with a specific tag from a Flickr user.
     case 11:
       $block['subject'] = NULL;
-      $block['content'] = _flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], 0, $settings['filter'], NULL, NULL, NULL, NULL, NULL, $settings['extend'], $settings['tag_mode']);
+      $block['content'] = flickr_album('user', $settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $settings['tag'], '', $delta, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata'], 0, $settings['filter'], NULL, NULL, NULL, NULL, NULL, $settings['extend'], $settings['tag_mode']);
       break;
   }
   return $block;
@@ -1436,7 +1436,7 @@ function flickr_block_view($delta = '') {
 /**
  * Photoset block. Block delta: 1 and 4.
  */
-function _flickr_block_photosets($nsid, $show_n, $size, $media, $delta, $people = NULL, $sort = 0, $heading = 'h2', $min_title = 100, $min_metadata = 150) {
+function flickr_block_photosets($nsid, $show_n, $size, $media, $delta, $people = NULL, $sort = 0, $heading = 'h2', $min_title = 100, $min_metadata = 150) {
   if ($cache = cache_get('flickr_block_' . $delta . '_' . $nsid)) {
     $output = $cache->data;
   }
