@@ -1143,7 +1143,7 @@ function flickr_block_view($delta = '') {
             // Only if on a node page use it's terms.
             $tags = (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) ? $tags : '';
             $block['subject'] = t("!recent_sets by !username", array('!recent_sets' => $recent_sets, '!username' => $people['name']));
-            $block['content'] = _flickr_block_photosets($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $delta, $people, $sort, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+            $block['content'] = flickr_block_photosets($user->flickr['nsid'], $settings['show_n'], $settings['size'], $settings['media'], $delta, $people, $sort, variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
             break;
 
           // User Flickr photos.
@@ -1268,7 +1268,7 @@ function flickr_block_view($delta = '') {
         ),
       ));
       $block['subject'] = t("!recent_sets by !username", array('!recent_sets' => $recent_sets, '!username' => $people['name']));
-      $block['content'] = _flickr_block_photosets($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta, $people, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
+      $block['content'] = flickr_block_photosets($settings['user_id'], $settings['show_n'], $settings['size'], $settings['media'], $delta, $people, $settings['sort'], variable_get('flickr_block_heading', 'h2'), $settings['min_title'], $settings['min_metadata']);
       break;
 
     // Photos from a Flickr group.
