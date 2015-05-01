@@ -92,7 +92,7 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
       </td>
     </tr>
   </table>
-  n (320px) and c (800px) sizes are missing on \"older\" Flickr images. Photos with non existing sizes will be skipped in albums.<br /><br />
+  The 'c' size (800px) is missing on Flickr images uploaded before March 1, 2012. Photos with non existing sizes will be skipped in albums.<br /><br />
   <strong>PARAMETER EXAMPLES</strong> (omit a parameter to use the default value):<br />
   <strong>id=lolandese1</strong> : A photo, set, user or group ID. <strong>id=public</strong> grabs CC licensed public photos (only for <em>[flickr-user:...]</em>). <strong>Default: id=@default_userid</strong> (!config).<br />&nbsp;&nbsp;!find_id Valid ID values: numeric ID (the one that contains a '@'), path alias, Flickr username or the user's email.<br />
   <strong>class=\"floatleft foo bar\"</strong> : Syntax as in HTML. Wrap the value in quotes (or not) and put spaces between multiple classes. Applies to the outer HTML element of a photo or album.<br />

@@ -84,7 +84,7 @@ function flickr_admin_settings() {
       'c' => t('c: 800 px on longest side (!)'),
       'b' => t('b: 1024 px on longest side'),
     ),
-    '#description' => t('A default Flickr size to use if no size is specified, for example [flickr-photoset:id=72157634563269642].<br />Clear the cache on form submit.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+    '#description' => t("A default Flickr size to use if no size is specified, for example [flickr-photoset:id=72157634563269642].<br />Clear the cache on form submit.<br />!: TAKE CARE, the 'c' size (800px) is missing on Flickr images uploaded before March 1, 2012!"),
   );
   $guidelines = l(t('Guidelines'), 'https://www.flickr.com/guidelines.gne/', array(
       'attributes' => array(
@@ -241,7 +241,7 @@ function flickr_admin_settings() {
       'b' => t('b: 1024 px on longest side'),
       'h' => t('h: 1600 px on longest side'),
     ),
-    '#description' => t('The image size to open in the overlay browser when clicking the image. Larger sizes make navigating to next and previous pictures slower.<br />Clear the cache on form submit.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+    '#description' => t("The image size to open in the overlay browser when clicking the image. Larger sizes make navigating to next and previous pictures slower.<br />Clear the cache on form submit.<br />!: TAKE CARE, the 'c' size (800px) is missing on Flickr images uploaded before March 1, 2012!"),
   );
   $form['overlay_settings']['flickr_info_overlay'] = array(
     '#type' => 'checkboxes',

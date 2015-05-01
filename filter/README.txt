@@ -88,7 +88,7 @@ Size
 ----
 See https://drupal.org/node/2170535#sizes.
 
-TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr
+TAKE CARE, the c size (800px) is missing on many "older" Flickr
 images!
 
 More info at https://www.flickr.com/services/api/misc.urls.html and

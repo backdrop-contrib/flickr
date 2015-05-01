@@ -31,7 +31,7 @@ function flickr_sets_form_flickr_admin_settings_alter(&$form, &$form_state) {
       'c' => t('c: 800 px on longest side (!)'),
       'b' => t('b: 1024 px on longest side'),
     ),
-    '#description' => t('!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+    '#description' => t("!: TAKE CARE, the 'c' size (800px) is missing on Flickr images uploaded before March 1, 2012!"),
   );
   $form['photoset_settings']['flickr_sets_per_page'] = array(
     '#type' => 'textfield',

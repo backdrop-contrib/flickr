@@ -31,7 +31,7 @@ function flickr_filter_form_flickr_admin_settings_alter(&$form, &$form_state) {
       'c' => t('c: 800 px on longest side (!)'),
       'b' => t('b: 1024 px on longest side'),
     ),
-    '#description' => t('A default Flickr size to use if no size is specified, for example [flickr-photo:id=3711935987].<br />Clear the cache on form submit.<br />!: TAKE CARE, n (320px) and c (800px) sizes are missing on many "older" Flickr images!'),
+    '#description' => t("A default Flickr size to use if no size is specified, for example [flickr-photo:id=3711935987].<br />Clear the cache on form submit.<br />!: TAKE CARE, the c size (800px) is missing on Flickr images uploaded before March 1, 2012!"),
   );
   $form['filter_settings']['flickr_filter_heading'] = array(
     '#type' => 'textfield',
