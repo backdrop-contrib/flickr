@@ -659,5 +659,5 @@ function flickr_block_uninstall() {
   if ($field) {
      field_delete_field('field_flickr_geo');
   }
-  field_purge_batch(100);
+  field_purge_batch(500);
 }

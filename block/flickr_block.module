@@ -1115,8 +1115,8 @@ function flickr_block_view($delta = '') {
             }
             if (module_exists('date') && !is_numeric($settings['date']) && !empty($settings['date'])) {
               $value = field_get_items('node', $node, $settings['date']);
-              $datefrom = $value[0];
-              $dateto= $value[1];
+              $datefrom = substr($value[0]['value'], 0, strrpos($value[0]['value'], ' '));
+              $dateto= substr($value[0]['value2'], 0, strrpos($value[0]['value2'], ' '));
             }
              else {
               $datefrom = NULL;

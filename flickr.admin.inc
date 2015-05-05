@@ -202,6 +202,65 @@ function flickr_admin_settings() {
       'caption' => t('In the photo caption'),
     ),
   );
+  $form['date_formats_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Date formats'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  // Get list of all available date formats.
+  drupal_static_reset('system_get_date_types');
+  $formats = array();
+  foreach (system_get_date_types() as $f => $format) {
+    if (($format_string = variable_get('date_format_' . $f, FALSE)) === FALSE) {
+      $format_string = key(system_get_date_formats($f));
+    }
+
+    if (!empty($format_string)) {
+      $formats[$f] = $format['title'] . ' [' . format_date(REQUEST_TIME, 'custom', $format_string) . ']';
+    }
+  }
+  $formats['interval'] = 'Time ago [' . format_interval(3600 * 24 * 90, 1) . ' ago]';
+  $form['date_formats_settings']['flickr_date_format_image_title'] = array(
+    '#type' => 'select',
+    '#title' => t('When hovering an image (mouse-over)'),
+    '#default_value' => variable_get('flickr_date_format_image_title', 'medium'),
+    '#options' => $formats,
+    '#empty_option' => t('- None -'),
+    '#empty_value' => 'none',
+  );
+  $form['date_formats_settings']['flickr_date_format_image_caption'] = array(
+    '#type' => 'select',
+    '#title' => t('In the image caption'),
+    '#default_value' => variable_get('flickr_date_format_image_caption', 'interval'),
+    '#options' => $formats,
+    '#empty_option' => t('- None -'),
+    '#empty_value' => 'none',
+  );
+  $form['date_formats_settings']['flickr_date_format_image_caption_hover'] = array(
+    '#type' => 'select',
+    '#title' => t('When hovering a date in the caption'),
+    '#description' => t("If you don't want to display anything when hovering the date, select 'None'."),
+    '#default_value' => variable_get('flickr_date_format_image_caption_hover', 'long'),
+    '#options' => $formats,
+    '#empty_option' => t('- None -'),
+    '#empty_value' => 'none',
+  );
+  // Disable the caption hover option if a date in the caption is set to 'none'.
+  if (variable_get('flickr_date_format_image_caption', 'interval') == 'none') {
+    $form['date_formats_settings']['flickr_date_format_image_caption_hover']['#disabled'] = TRUE;
+    $form['date_formats_settings']['flickr_date_format_image_caption_hover']['#title'] = '<span class="grayed-out">' . t('When hovering a date in the caption') . '</span>';
+    $form['date_formats_settings']['flickr_date_format_image_caption_hover']['#description'] = t('Disabled until a date format for the image caption is selected.');
+  }
+  $form['date_formats_settings']['flickr_date_format_album_title'] = array(
+    '#type' => 'select',
+    '#title' => t('In the album title'),
+    '#description' => t("If the selected date format contains a time, only the date part of it will be used in the album title."),
+    '#default_value' => variable_get('flickr_date_format_album_title', 'short'),
+    '#options' => $formats,
+    '#empty_option' => t('- None -'),
+    '#empty_value' => 'none',
+  );
   $colorbox_module = l(t('Colorbox module'), 'https://drupal.org/project/colorbox', array(
       'attributes' => array(
         'title' => t('Colorbox| Drupal.org'),

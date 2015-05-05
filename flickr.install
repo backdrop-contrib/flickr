@@ -47,6 +47,10 @@ function flickr_uninstall() {
   variable_del('flickr_maps');
   variable_del('flickr_geophp');
   variable_del('flickr_smart');
+  variable_del('flickr_date_format_image_title');
+  variable_del('flickr_date_format_image_caption');
+  variable_del('flickr_date_format_image_caption_hover');
+  variable_del('flickr_date_format_album_title');
 }
 
 /**

@@ -310,7 +310,18 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
   }
   $info = !is_array($photo['title']) ? flickr_photos_getinfo($photo['id']) : '';
   if (isset($info['dates']) || isset($photo['dates'])) {
-    $taken_short = isset($info['dates']['taken']) ? format_date(strtotime($info['dates']['taken']), 'short', '', NULL) : format_date(strtotime($photo['dates']['taken']), 'short', '', NULL);
+    $date_taken = isset($info['dates']['taken']) ? $info['dates']['taken'] : $photo['dates']['taken'];
+    $format_title = variable_get('flickr_date_format_image_title', 'medium');
+    switch ($format_title) {
+      case 'interval':
+        $taken_short = format_interval(time() - strtotime($date_taken), 1) . ' ' . t('ago');
+        break;
+      case 'none':
+        $taken_short = '';
+        break;
+      default:
+        $taken_short = format_date(strtotime($date_taken), $format_title, '', NULL);
+    }
   }
   $taken_short = empty($taken_short) ? '' : $taken_short . ' - ';
   $title = is_array($photo['title']) ? str_replace('"', "'", htmlspecialchars_decode(strip_tags($photo['description']['_content']))) : str_replace('"', "'", htmlspecialchars_decode(strip_tags($info['description']['_content'])));
@@ -568,11 +579,41 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
   // As variables might change during processing, we set a fixed version of it
   // to use for the key to set the block cache after processing at the end.
   $idfix = $id;
+  // Standardize the date format, independent from the input.
   $datefromfix = $datefrom;
   $datetofix = $dateto;
   if (!isset($dateto)) {
     $dateto = $datefrom;
   }
+  $datestart = strtotime($datefrom);
+  $dateend = strtotime($dateto);
+  // Try again but turning DD/MM/YYYY to DD-MM-YYYY.
+  // See http://www.hashbangcode.com/node/702 (first part only).
+  if (!empty($datefrom) && ($datestart === FALSE || $dateend === FALSE || $datestart > $dateend)) {
+    $datestart = strtotime(str_replace('/', '-', $datefrom));
+    $dateend = strtotime(str_replace('/', '-', $dateto));
+    $ambiguous = l(t('ambiguous'), 'http://php.net/manual/en/function.strtotime.php#100144', array(
+      'attributes' => array(
+        'title' => t('PHP: strtotime - Manual'),
+        'target' => '_blank',
+      ),
+    ));
+    $dateformat = l(t('accepted date format'), 'http://php.net/manual/en/datetime.formats.date.php/', array(
+      'attributes' => array(
+        'title' => t('PHP: Date Formats - Manual'),
+        'target' => '_blank',
+      ),
+    ));
+    drupal_set_message(t("You used the date format DD/MM/YYYY (starting with the day). As some dates are !ambiguous (e.g. is 04/05/2013 5 April or 4 May?) it is recommended to use dashes when you start with the day (DD-MM-YYYY), slashes when you start with the month (MM/DD/YYYY) or use any other !dateformat (e.g. 11 Jan 2015).", array(
+        '!ambiguous' => $ambiguous,
+        '!dateformat' => $dateformat,
+      )), 'warning', FALSE);
+  }
+  if (!empty($datefrom) && ($datestart === FALSE || $dateend === FALSE)) {
+    drupal_set_message(t("Invalid date provided."), 'error', FALSE);
+  }
+  $datefrom = empty($datefrom) ? '' : date("Y-m-d", $datestart);
+  $dateto = empty($dateto) ? '' : date("Y-m-d", $dateend);
   $datefrom = isset($datefrom) ? $datefrom . ' 00:00:00' : '';
   $dateto = isset($dateto) ? $dateto . ' 23:59:59' : '';
   // Remove spaces from tags but save the original for matches in text instead
@@ -587,7 +628,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
   if ($tag_mode == 'context') {
     $tag_mode = empty($id) || $id == 'public' || $id == '39873962@N08' ? 'all' : 'any';
   }
-  if ($extend && $tag_mode == 'all') {
+  if ($extend && $tag_mode == 'all' && strpos($tags, ',') !== FALSE) {
     $tag_mode = 'any';
     drupal_set_message(t("The tag mode has been forced to 'any' (OR) for extended text matching (tags, titles and description). To use 'all' (AND) put 'extend=false' in Flickr's text filter code."), 'warning', FALSE);
   }
@@ -738,23 +779,51 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
 
     $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : '<span class="flickr-tags-wrap">' . $flickr;
     // A single date.
-    if ((empty($datetofix) || $datetofix == $datefromfix) && !empty($datefromfix)) {
-      $str = format_date(strtotime(substr($datefrom, 0, 10)), 'medium', '', NULL);
-      // Remove everthing after the last dash to remove the time.
-      $taken = ' ' . t('taken on') . ' ' . substr($str, 0, strrpos($str, '-'));
+    $format = empty($datefrom) ? 'none' : variable_get('flickr_date_format_album_title', 'short');
+    switch ($format) {
+      case 'interval':
+        $formated_datefrom = format_interval(time() - strtotime(substr($datefrom, 0, 10)), 1);
+        $formated_dateto = format_interval(time() - strtotime(substr($dateto, 0, 10)), 1);
+        break;
+      default:
+        $formated_datefrom = format_date(strtotime(substr($datefrom, 0, 10)), $format, '', NULL);
+        $formated_dateto = format_date(strtotime(substr($dateto, 0, 10)), $format, '', NULL);
+    }
+    if ((empty($datetofix) || $datetofix == $datefromfix || $formated_datefrom == $formated_dateto) && !empty($datefromfix)) {
+      // Remove the time by capturing anything preceding one or more digits
+      // followed by a colon. See http://rubular.com/r/7IJhj19P9K
+      $match1 = preg_match('/^(.*?)[-|\s].\d*:/', $formated_datefrom, $match);
+      // Only use the match if there is one (date with time).
+      $date1 = isset($match[1]) ? $match[1] : $formated_datefrom;
+      $taken = ($format == 'interval') ? ' ' . t('taken') . ' ' . $formated_datefrom . ' ' . t('ago') : ' ' . t('taken on') . ' ' . $date1;
     }
     // Multiple days.
     elseif (!empty($datefromfix)) {
-      // Remove everthing after the last dash to remove the time.
-      $str = format_date(strtotime(substr($datefrom, 0, 10)), 'medium', '', NULL);
-      $strto = format_date(strtotime(substr($dateto, 0, 10)), 'medium', '', NULL);
-      $taken = ' ' . t('taken from') . ' ' . substr($str, 0, strrpos($str, '-')) . ' ' . t('to') . ' ' . substr($strto, 0, strrpos($strto, '-'));
+      // Remove the times.
+      $match1 = preg_match('/^(.*?)[-|\s].\d*:/', $formated_datefrom, $matchfrom);
+      if (isset($matchfrom[1])) {
+        preg_match('/^(.*?)[-|\s].\d*:/', $formated_dateto, $matchto);
+        $date1 = $matchfrom[1];
+        $date2 = $matchto[1];
+      }
+      else {
+        $date1 = $formated_datefrom;
+        $date2 = $formated_dateto;
+      }
+      switch ($format) {
+        case 'interval':
+          $taken = ' ' . t('taken') . ' ' . $formated_datefrom . ' ' . t('to') . ' ' . $formated_dateto . ' ' . t('ago');
+          break;
+        default:
+          $taken = ' ' . t('taken from') . ' ' . $date1 . ' ' . t('to') . ' ' . $date2;
+      }
     }
     else {
       $taken = '';
       $datefrom = '';
       $dateto = '';
     }
+    $taken = $format == 'none' ? '' : $taken;
 
     // Generate an album heading depending on type.
     switch ($type) {
