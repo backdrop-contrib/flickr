@@ -239,7 +239,14 @@ function flickr_block_configure($delta = '') {
     '#size' => 3,
     '#maxlength' => 3,
   );
-  $form['display_settings']["flickr_block_{$delta}_sort"] = array(
+  $form['filter_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Filter / Sort order'),
+    '#description' => t("The filters/sort order below get ignored for slideshows (always newest first)."),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['filter_settings']["flickr_block_{$delta}_sort"] = array(
     '#type' => 'select',
     '#options' => array(
       'unsorted' => t('Unsorted, as delivered by the Flickr API (fastest response)'),
@@ -252,13 +259,6 @@ function flickr_block_configure($delta = '') {
     '#title' => t('Sort order'),
     '#default_value' => $settings['sort'],
     '#description' => t("Gets ignored for slideshows (always newest first)."),
-  );
-  $form['filter_settings'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Filter by ..'),
-    '#description' => t("The filters below get ignored for slideshows (always newest first)."),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
   );
   $form['filter_settings']["flickr_block_{$delta}_filter"] = array(
     '#type' => 'select',
@@ -328,10 +328,10 @@ function flickr_block_configure($delta = '') {
       );
       // Disable specific options.
       // See https://www.drupal.org/node/342316#comment-4732130.
-      $form["flickr_block_{$delta}_tag_mode"]['all'] = array(
+      $form['filter_settings']["flickr_block_{$delta}_tag_mode"]['all'] = array(
         '#disabled' => TRUE,
       );
-      $form["flickr_block_{$delta}_tag_mode"]['context'] = array(
+      $form['filter_settings']["flickr_block_{$delta}_tag_mode"]['context'] = array(
         '#disabled' => TRUE,
       );
     }
@@ -401,21 +401,21 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form["flickr_block_{$delta}_photoset"]);
-      unset($form["flickr_block_{$delta}_sort"]);
-      unset($form["flickr_block_{$delta}_filter"]);
+      unset($form['filter_settings']["flickr_block_{$delta}_sort"]);
+      unset($form['filter_settings']["flickr_block_{$delta}_filter"]);
       if (module_exists('taxonomy')) {
-        unset($form["flickr_block_{$delta}_vocab"]);
-        unset($form["flickr_block_{$delta}_extend"]);
-        unset($form["flickr_block_{$delta}_tag_mode"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_vocab"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_extend"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_tag_mode"]);
       }
       if (module_exists('geofield') || module_exists('location_node')) {
-        unset($form["flickr_block_{$delta}_geo"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_geo"]);
       }
       if (module_exists('date')) {
-        unset($form["flickr_block_{$delta}_date"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_date"]);
       }
       if (module_exists('date')) {
-        unset($form["flickr_block_{$delta}_date"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_date"]);
       }
       // Photoset, not photos.
       $form["flickr_block_{$delta}_show_n"]['#title'] = t('Show the last <em>n</em> photosets');
@@ -438,15 +438,15 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form["flickr_block_{$delta}_photoset"]);
-      unset($form["flickr_block_{$delta}_filter"]);
+      unset($form['filter_settings']["flickr_block_{$delta}_filter"]);
       if (module_exists('taxonomy')) {
-        unset($form["flickr_block_{$delta}_tag_mode"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_tag_mode"]);
       }
       if (module_exists('geofield') || module_exists('location_node')) {
-        unset($form["flickr_block_{$delta}_geo"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_geo"]);
       }
       if (module_exists('date')) {
-        unset($form["flickr_block_{$delta}_date"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_date"]);
       }
       break;
 
@@ -476,15 +476,15 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form["flickr_block_{$delta}_photoset"]);
       unset($form['flickr_block_note']);
-      unset($form["flickr_block_{$delta}_filter"]);
+      unset($form['filter_settings']["flickr_block_{$delta}_filter"]);
       if (module_exists('taxonomy')) {
-        unset($form["flickr_block_{$delta}_tag_mode"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_tag_mode"]);
       }
       if (module_exists('geofield') || module_exists('location_node')) {
-        unset($form["flickr_block_{$delta}_geo"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_geo"]);
       }
       if (module_exists('date')) {
-        unset($form["flickr_block_{$delta}_date"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_date"]);
       }
       break;
 
@@ -493,18 +493,18 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form["flickr_block_{$delta}_photoset"]);
       unset($form['flickr_block_note']);
-      unset($form["flickr_block_{$delta}_sort"]);
-      unset($form["flickr_block_{$delta}_filter"]);
+      unset($form['filter_settings']["flickr_block_{$delta}_sort"]);
+      unset($form['filter_settings']["flickr_block_{$delta}_filter"]);
       if (module_exists('taxonomy')) {
-        unset($form["flickr_block_{$delta}_vocab"]);
-        unset($form["flickr_block_{$delta}_extend"]);
-        unset($form["flickr_block_{$delta}_tag_mode"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_vocab"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_extend"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_tag_mode"]);
       }
       if (module_exists('geofield') || module_exists('location_node')) {
-        unset($form["flickr_block_{$delta}_geo"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_geo"]);
       }
       if (module_exists('date')) {
-        unset($form["flickr_block_{$delta}_date"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_date"]);
       }
       // Photosets, not photos.
       $form["flickr_block_{$delta}_show_n"]['#title'] = t('Show the last <em>n</em> photosets');
@@ -517,7 +517,7 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_photoset"]);
       unset($form['flickr_block_note']);
-      $form["flickr_block_{$delta}_sort"]['#options'] = array(
+      $form['filter_settings']["flickr_block_{$delta}_sort"]['#options'] = array(
         'unsorted' => t('Recent unsorted, as delivered by the Flickr API (fastest response)'),
         'random' => t('Random (slower response after cache clear)'),
         'date-taken-desc' => t('Latest taken (newest first)'),
@@ -534,15 +534,15 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_user_id"]);
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form['flickr_block_note']);
-      unset($form["flickr_block_{$delta}_filter"]);
+      unset($form['filter_settings']["flickr_block_{$delta}_filter"]);
       if (module_exists('taxonomy')) {
-        unset($form["flickr_block_{$delta}_tag_mode"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_tag_mode"]);
       }
       if (module_exists('geofield') || module_exists('location_node')) {
-        unset($form["flickr_block_{$delta}_geo"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_geo"]);
       }
       if (module_exists('date')) {
-        unset($form["flickr_block_{$delta}_date"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_date"]);
       }
       break;
 
@@ -552,13 +552,13 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_photoset"]);
       unset($form['flickr_block_note']);
       if (module_exists('taxonomy')) {
-        unset($form["flickr_block_{$delta}_vocab"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_vocab"]);
       }
       if (module_exists('geofield') || module_exists('location_node')) {
-        unset($form["flickr_block_{$delta}_geo"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_geo"]);
       }
       if (module_exists('date')) {
-        unset($form["flickr_block_{$delta}_date"]);
+        unset($form['filter_settings']["flickr_block_{$delta}_date"]);
       }
       if (empty($default_userid)) {
         $form["flickr_block_{$delta}_user_id"]['#description'] = t("A Flickr user ID (number@number, alias, username or email). Leave empty or use the keyword <em>public</em> to grab CC licensed Public photos.");
