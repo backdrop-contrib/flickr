@@ -579,59 +579,10 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
   // As variables might change during processing, we set a fixed version of it
   // to use for the key to set the block cache after processing at the end.
   $idfix = $id;
-  // Standardize the date format, independent from the input.
   $datefromfix = $datefrom;
   $datetofix = $dateto;
-  if (!isset($dateto)) {
-    $dateto = $datefrom;
-  }
-  $datestart = strtotime($datefrom);
-  $dateend = strtotime($dateto);
-  // Try again but turning DD/MM/YYYY to DD-MM-YYYY.
-  // See http://www.hashbangcode.com/node/702 (first part only).
-  if (!empty($datefrom) && ($datestart === FALSE || $dateend === FALSE || $datestart > $dateend)) {
-    $datestart = strtotime(str_replace('/', '-', $datefrom));
-    $dateend = strtotime(str_replace('/', '-', $dateto));
-    $ambiguous = l(t('ambiguous'), 'http://php.net/manual/en/function.strtotime.php#100144', array(
-      'attributes' => array(
-        'title' => t('PHP: strtotime - Manual'),
-        'target' => '_blank',
-      ),
-    ));
-    $dateformat = l(t('accepted date format'), 'http://php.net/manual/en/datetime.formats.date.php/', array(
-      'attributes' => array(
-        'title' => t('PHP: Date Formats - Manual'),
-        'target' => '_blank',
-      ),
-    ));
-    drupal_set_message(t("You used the date format DD/MM/YYYY (starting with the day). As some dates are !ambiguous (e.g. is 04/05/2013 5 April or 4 May?) it is recommended to use dashes when you start with the day (DD-MM-YYYY), slashes when you start with the month (MM/DD/YYYY) or use any other !dateformat (e.g. 11 Jan 2015).", array(
-        '!ambiguous' => $ambiguous,
-        '!dateformat' => $dateformat,
-      )), 'warning', FALSE);
-  }
-  if (!empty($datefrom) && ($datestart === FALSE || $dateend === FALSE)) {
-    drupal_set_message(t("Invalid date provided."), 'error', FALSE);
-  }
-  $datefrom = empty($datefrom) ? '' : date("Y-m-d", $datestart);
-  $dateto = empty($dateto) ? '' : date("Y-m-d", $dateend);
-  $datefrom = isset($datefrom) ? $datefrom . ' 00:00:00' : '';
-  $dateto = isset($dateto) ? $dateto . ' 23:59:59' : '';
-  // Remove spaces from tags but save the original for matches in text instead
-  // of tags.
-  $tagsfix = $tags;
-  // Remove tags to exclude (preceded by a minus symbol) for album titles.
-  $tagsfixnoexclude = preg_replace('/,(^|\s)*-(\w+)/', '', $tags);
-  $pagefix = $page;
   // Also Flickr converts tags to lowercase, removes spaces and the ampersand.
   $tags = strtolower(str_replace(array(' ', '&'), '', $tags));
-  // Set the default tag mode appropriate.
-  if ($tag_mode == 'context') {
-    $tag_mode = empty($id) || $id == 'public' || $id == '39873962@N08' ? 'all' : 'any';
-  }
-  if ($extend && $tag_mode == 'all' && strpos($tags, ',') !== FALSE) {
-    $tag_mode = 'any';
-    drupal_set_message(t("The tag mode has been forced to 'any' (OR) for extended text matching (tags, titles and description). To use 'all' (AND) put 'extend=false' in Flickr's text filter code."), 'warning', FALSE);
-  }
   // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
   $cache = cache_get('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . $datetofix . '_' . $datefromfix . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $page);
   // If $delta is a number it is a block that could be cached.
@@ -641,6 +592,67 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
 
   // In any other case we generate an album, including a heading and counter.
   else {
+  // Turn GPS coordinates from degrees / minutes / seconds to decimal format.
+    if (isset($lat)) {
+      $dmslat = preg_match_all('/[(\.|,)0-9]+/', $lat, $matches);
+      $deg = isset($matches[0][0]) ? $matches[0][0] : $lat;
+      $min = isset($matches[0][1]) ? $matches[0][1] : 0;
+      $sec = isset($matches[0][2]) ? $matches[0][2] : 0;
+      $lat = $deg+((($min*60)+($sec))/3600);
+      $dmslon = preg_match_all('/[(\.|,)0-9]+/', $lon, $matches);
+      $deg = isset($matches[0][0]) ? $matches[0][0] : $lon;
+      $min = isset($matches[0][1]) ? $matches[0][1] : 0;
+      $sec = isset($matches[0][2]) ? $matches[0][2] : 0;
+      $lon = $deg+((($min*60)+($sec))/3600);
+    }
+    if (!isset($dateto)) {
+      $dateto = $datefrom;
+    }
+    $datestart = strtotime($datefrom);
+    $dateend = strtotime($dateto);
+    // Try again but turning DD/MM/YYYY to DD-MM-YYYY.
+    // See http://www.hashbangcode.com/node/702 (first part only).
+    if (!empty($datefrom) && ($datestart === FALSE || $dateend === FALSE || $datestart > $dateend)) {
+      $datestart = strtotime(str_replace('/', '-', $datefrom));
+      $dateend = strtotime(str_replace('/', '-', $dateto));
+      $ambiguous = l(t('ambiguous'), 'http://php.net/manual/en/function.strtotime.php#100144', array(
+        'attributes' => array(
+          'title' => t('PHP: strtotime - Manual'),
+          'target' => '_blank',
+        ),
+      ));
+      $dateformat = l(t('accepted date format'), 'http://php.net/manual/en/datetime.formats.date.php/', array(
+        'attributes' => array(
+          'title' => t('PHP: Date Formats - Manual'),
+          'target' => '_blank',
+        ),
+      ));
+      drupal_set_message(t("You used the date format DD/MM/YYYY (starting with the day). As some dates are !ambiguous (e.g. is 04/05/2013 5 April or 4 May?) it is recommended to use dashes when you start with the day (DD-MM-YYYY), slashes when you start with the month (MM/DD/YYYY) or use any other !dateformat (e.g. 11 Jan 2015).", array(
+          '!ambiguous' => $ambiguous,
+          '!dateformat' => $dateformat,
+        )), 'warning', FALSE);
+    }
+    if (!empty($datefrom) && ($datestart === FALSE || $dateend === FALSE)) {
+      drupal_set_message(t("Invalid date provided."), 'error', FALSE);
+    }
+    $datefrom = empty($datefrom) ? '' : date("Y-m-d", $datestart);
+    $dateto = empty($dateto) ? '' : date("Y-m-d", $dateend);
+    $datefrom = isset($datefrom) ? $datefrom . ' 00:00:00' : '';
+    $dateto = isset($dateto) ? $dateto . ' 23:59:59' : '';
+    // Remove spaces from tags but save the original for matches in text instead
+    // of tags.
+    $tagsfix = $tags;
+    // Remove tags to exclude (preceded by a minus symbol) for album titles.
+    $tagsfixnoexclude = preg_replace('/,(^|\s)*-(\w+)/', '', $tags);
+    $pagefix = $page;
+    // Set the default tag mode appropriate.
+    if ($tag_mode == 'context') {
+      $tag_mode = empty($id) || $id == 'public' || $id == '39873962@N08' ? 'all' : 'any';
+    }
+    if ($extend && $tag_mode == 'all' && strpos($tags, ',') !== FALSE) {
+      $tag_mode = 'any';
+      drupal_set_message(t("The tag mode has been forced to 'any' (OR) for extended text matching (tags, titles and description). To use 'all' (AND) put 'extend=false' in Flickr's text filter code."), 'warning', FALSE);
+    }
     $sizes = flickr_photo_sizes();
     $show_n = is_null($show_n) ? variable_get('flickr_photos_per_page', 6) : $show_n;
     $size = is_null($size) ? variable_get('flickr_default_size_album', 's') : $size;
