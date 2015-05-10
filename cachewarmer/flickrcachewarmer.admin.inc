@@ -59,7 +59,7 @@ function flickrcachewarmer_form_flickr_admin_settings_alter(&$form, &$form_state
     '#title' => t("Rebuild the cache on form submit to enhance performance for all page visits after saving this form."),
     '#default_value' => variable_get('flickrcachewarmer_run', 0),
     '#description' => t("Note that form submit will very slow. The cache will be rebuilt for the nodes of the selected content types for cache warming.") . '<br />' . t("If you get errors, try to !runcron.", array('!runcron' => $runcron)),
-    '#weight' => 100,
+    '#weight' => 98,
   );
 }
 

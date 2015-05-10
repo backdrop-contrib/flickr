@@ -576,15 +576,10 @@ function flickr_get_id_type($id) {
  * Render multiple photos as an album.
  */
 function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $datefrom = NULL, $dateto = NULL, $extend = 1, $tag_mode = 'context', $class = NULL, $style = NULL, $page = 1) {
-  // As variables might change during processing, we set a fixed version of it
-  // to use for the key to set the block cache after processing at the end.
-  $idfix = $id;
-  $datefromfix = $datefrom;
-  $datetofix = $dateto;
   // Also Flickr converts tags to lowercase, removes spaces and the ampersand.
   $tags = strtolower(str_replace(array(' ', '&'), '', $tags));
   // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
-  $cache = cache_get('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . $datetofix . '_' . $datefromfix . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $page);
+  $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . $lat . '_' . $datefrom . '_' . $dateto . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $page);
   // If $delta is a number it is a block that could be cached.
   if ($cache && is_numeric($delta)) {
     $output = $cache->data;
@@ -592,6 +587,14 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
 
   // In any other case we generate an album, including a heading and counter.
   else {
+    // As variables might change during processing, we set a fixed version of it
+    // to use for the key to set the block cache after processing at the end.
+    $idfix = $id;
+    $datefromfix = $datefrom;
+    $datetofix = $dateto;
+    $tagsfix = $tags;
+    $latfix = $lat;
+    $pagefix = $page;
     // Turn GPS coordinates from degrees / minutes / seconds to decimal format.
     if (isset($lat)) {
       $dmslat = preg_match_all('/[\-(\.|,)0-9]+/', $lat, $matches);
@@ -639,12 +642,8 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
     $dateto = empty($dateto) ? '' : date("Y-m-d", $dateend);
     $datefrom = isset($datefrom) ? $datefrom . ' 00:00:00' : '';
     $dateto = isset($dateto) ? $dateto . ' 23:59:59' : '';
-    // Remove spaces from tags but save the original for matches in text instead
-    // of tags.
-    $tagsfix = $tags;
     // Remove tags to exclude (preceded by a minus symbol) for album titles.
     $tagsfixnoexclude = preg_replace('/,(^|\s)*-(\w+)/', '', $tags);
-    $pagefix = $page;
     // Set the default tag mode appropriate.
     if ($tag_mode == 'context') {
       $tag_mode = empty($id) || $id == 'public' || $id == '39873962@N08' ? 'all' : 'any';
@@ -1609,7 +1608,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
       $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
       // drupal_is_front_page() is added because it also can have
       // arg(0) == 'node'.
-      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tagsfix . '_' . $lat . '_' . $datetofix . '_' . $datefromfix . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $pagefix, $output, 'cache', time() + $refresh * 60 * 60);
+      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tagsfix . '_' . $latfix . '_' . $datefromfix . '_' . $datetofix . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $pagefix, $output, 'cache', time() + $refresh * 60 * 60);
     }
   }
   return $output;
