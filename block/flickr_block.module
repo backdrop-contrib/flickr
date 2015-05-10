@@ -23,15 +23,15 @@ function flickr_block_help($path, $arg) {
  */
 function flickr_block_info() {
   // User blocks.
-  $blocks[0]['info'] = t("Flickr: Node author photos corresponding with a node's taxonomy term, location or date field (1)");
+  $blocks[0]['info'] = t("Flickr: Node author photos corresponding with a node's taxonomy term, location and/or date field (1)");
   $blocks[1]['info'] = t("Flickr: Node author recent photosets");
-  $blocks[2]['info'] = t("Flickr: Node author photos corresponding with a node's taxonomy term, location or date field (2)");
+  $blocks[2]['info'] = t("Flickr: Node author photos corresponding with a node's taxonomy term, location and/or date field (2)");
 
   // Site wide blocks.
-  $blocks[3]['info'] = t("Flickr: User photos corresponding with a node's taxonomy term, location or date field (1)");
+  $blocks[3]['info'] = t("Flickr: User photos corresponding with a node's taxonomy term, location and/or date field (1)");
   $blocks[4]['info'] = t('Flickr: User recent photosets');
-  $blocks[5]['info'] = t("Flickr: User photos corresponding with a node's taxonomy term, location or date field (2)");
-  $blocks[6]['info'] = t("Flickr: Group photos corresponding with a node's taxonomy term (1)");
+  $blocks[5]['info'] = t("Flickr: User photos corresponding with a node's taxonomy term, location and/or date field (2)");
+  $blocks[6]['info'] = t("Flickr: Group photos corresponding with a node's taxonomy term, location and/or date field (1)");
 
   // Photoset blocks.
   $blocks[7]['info'] = t("Flickr: Set photos corresponding with a node's taxonomy term (1)");
@@ -40,7 +40,7 @@ function flickr_block_info() {
   // Returns a list of favorite public photos for the given user.
   $blocks[9]['info'] = t("Flickr: Favorites corresponding with a node's taxonomy term (1)");
 
-  $blocks[10]['info'] = t("Flickr: Group photos corresponding with a node's taxonomy term (2)");
+  $blocks[10]['info'] = t("Flickr: Group photos corresponding with a node's taxonomy term, location and/or date field (2)");
   $blocks[11]['info'] = t("Flickr: User photos with specific tags");
   $blocks[12]['info'] = t("Flickr: Favorites corresponding with a node's taxonomy term (2)");
 

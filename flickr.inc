@@ -592,14 +592,14 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
 
   // In any other case we generate an album, including a heading and counter.
   else {
-  // Turn GPS coordinates from degrees / minutes / seconds to decimal format.
+    // Turn GPS coordinates from degrees / minutes / seconds to decimal format.
     if (isset($lat)) {
-      $dmslat = preg_match_all('/[(\.|,)0-9]+/', $lat, $matches);
+      $dmslat = preg_match_all('/[\-(\.|,)0-9]+/', $lat, $matches);
       $deg = isset($matches[0][0]) ? $matches[0][0] : $lat;
       $min = isset($matches[0][1]) ? $matches[0][1] : 0;
       $sec = isset($matches[0][2]) ? $matches[0][2] : 0;
       $lat = $deg+((($min*60)+($sec))/3600);
-      $dmslon = preg_match_all('/[(\.|,)0-9]+/', $lon, $matches);
+      $dmslon = preg_match_all('/[\-(\.|,)0-9]+/', $lon, $matches);
       $deg = isset($matches[0][0]) ? $matches[0][0] : $lon;
       $min = isset($matches[0][1]) ? $matches[0][1] : 0;
       $sec = isset($matches[0][2]) ? $matches[0][2] : 0;
@@ -972,16 +972,21 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
               $result = drupal_http_request($google);
             }
             $json = json_decode($result->data);
-            $location_name = $json->results[0]->formatted_address;
-            // Remove the postal code from the string.
-            // Usually the last component of the returned address by Google.
-            $location_components = $json->results[0]->address_components;
-            $location_pc = end($location_components);
-            if (strpos($location_pc->types[0], 'postal_code') !== FALSE) {
-              $location_name = str_replace($location_pc->long_name, '', $location_name);
+            if ($json->status == 'ZERO_RESULTS') {
+              $location_name = $place_name;
             }
             else {
-              $location_name = $place_name;
+              $location_name = $json->results[0]->formatted_address;
+              // Remove the postal code from the string.
+              // Usually the last component of the returned address by Google.
+              $location_components = $json->results[0]->address_components;
+              $location_pc = end($location_components);
+              if (strpos($location_pc->types[0], 'postal_code') !== FALSE) {
+                $location_name = str_replace($location_pc->long_name, '', $location_name);
+              }
+              else {
+                $location_name = $place_name;
+              }
             }
           }
           else {
@@ -1604,7 +1609,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
       $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
       // drupal_is_front_page() is added because it also can have
       // arg(0) == 'node'.
-      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . $datetofix . '_' . $datefromfix . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $pagefix, $output, 'cache', time() + $refresh * 60 * 60);
+      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tagsfix . '_' . $lat . '_' . $datetofix . '_' . $datefromfix . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $pagefix, $output, 'cache', time() + $refresh * 60 * 60);
     }
   }
   return $output;
