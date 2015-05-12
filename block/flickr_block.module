@@ -295,7 +295,7 @@ function flickr_block_configure($delta = '') {
       '#position'      => 'left',
       '#options'       => $checklist_vocab_array,
       '#default_value' => $settings['vocab'],
-      '#description'   => t("Limit the Flickr images to those that have a Flickr tag identical to the terms found for the node on the page the block is displayed on of a specific vocabulary. Case insensitive, matches any tag, for photosets even partial. Multiple tags for groups will only query the last 500 photos on Flickr (slowest API request). For user blocks the Flickr account of the node author will be queried. Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'). Use taxonomy terms without spaces in the vocabulary dedicated to Flickr.<br />For your content type, adjust the <em>Help text</em> of the used taxonomy field accordingly (e.g. at <em>admin/structure/types/manage/article/fields/field_tags</em>). The recommended widget type is <em>Autocomplete term widget (tagging)</em> with an <em>unlimited number of values</em>. If not already in use, the default existing vocabulary <em>Tags</em> can be used which is already configured right by default. Set <em>Tags</em> as a <em>Term reference</em> field on your content type and it works out-of-the-box.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>.<br />Note that if you add this <em>term reference</em> field to user profiles at <em>admin/config/people/accounts/fields</em> it will filter additionally on it for user blocks. E.g. a user can set individually that from their account only photos tagged <em>'website'</em> should be used to embed, indepedent from other used tags. Does apply only on user blocks, except for favorites."),
+      '#description'   => t("Limit the Flickr images to those that have a Flickr tag identical to the terms found for the node on the page the block is displayed on of a specific vocabulary. Case insensitive, matches any tag, for photosets even partial. Multiple tags for groups will only query the last 500 photos on Flickr (slowest API request). For user blocks the Flickr account of the node author will be queried. Remember that Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes 'beachtrip'). Use taxonomy terms without spaces in the vocabulary dedicated to Flickr.<br />For your content type, adjust the <em>Help text</em> of the used taxonomy field accordingly (e.g. at <em>admin/structure/types/manage/article/fields/field_tags</em>). The recommended widget type is <em>Autocomplete term widget (tagging)</em> with an <em>unlimited number of values</em>. If not already in use, the default existing vocabulary <em>Tags</em> can be used which is already configured right by default. Set <em>Tags</em> as a <em>Term reference</em> field on your content type and it works out-of-the-box.<br />If not on a node page, all photos will be displayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>.<br />Note that if you add this <em>term reference</em> field to user profiles at <em>admin/config/people/accounts/fields</em> it will filter additionally on it for user blocks. E.g. a user can set individually that from their account only photos tagged <em>'website'</em> should be used to embed, indepedent from other used tags. Does apply only on user blocks, except for favorites."),
     );
     if ($delta < 7 || $delta == 10 || $delta == 11) {
       $form['filter_settings']["flickr_block_{$delta}_extend"] = array(
@@ -324,7 +324,7 @@ function flickr_block_configure($delta = '') {
         'context' => '<span class="grayed-out">' . t("All (AND) for public searches, any (OR) if a Flickr user ID is known.") . '</span>',
         ),
         '#default_value' => 'any',
-        '#description' => t("Forced to 'any' (OR) for extended searches. Unselect the checkbox above and save if you want to use this option."),
+        '#description' => t("Forced to 'any' (OR) for extended searches. Unselect the checkbox above ('Extend') and save if you want to use this option."),
       );
       // Disable specific options.
       // See https://www.drupal.org/node/342316#comment-4732130.
@@ -345,7 +345,7 @@ function flickr_block_configure($delta = '') {
           'context' => t("All (AND) for public searches, any (OR) if a Flickr user ID is known."),
         ),
         '#default_value' => $settings['tag_mode'],
-        '#description' => t("Either 'any' for an OR combination of tags, 'all' for an AND combination or both, depending on the context. "),
+        '#description' => t("Either 'any' for an OR operator between tags, 'all' for an AND operator or depending on the context."),
       );
     }
   }
@@ -367,7 +367,7 @@ function flickr_block_configure($delta = '') {
       '#position'      => 'left',
       '#options'       => $checklist_fields_array,
       '#default_value' => $settings['geo'],
-      '#description'   => t("Limit the Flickr images to those that have a geo location near to the geofield found for the node on the page the block is displayed on.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>."),
+      '#description'   => t("Limit the Flickr images to those that have a geo location near to the geofield found for the node on the page the block is displayed on.<br />If not on a node page, all photos will be displayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>."),
     );
   }
   if (module_exists('date')) {
@@ -385,7 +385,7 @@ function flickr_block_configure($delta = '') {
       '#position'      => 'left',
       '#options'       => $checklist_fields_array,
       '#default_value' => $settings['date'],
-      '#description'   => t("Limit the Flickr images to those that are taken on or between the dates attached to the node on the page the block is displayed on.<br />If not on a node page, all photos will be diplayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>."),
+      '#description'   => t("Limit the Flickr images to those that are taken on or between the dates attached to the node on the page the block is displayed on.<br />If not on a node page, all photos will be displayed. To avoid this set the visibility settings below to <em>Only the listed pages</em> specified as <em>node/*</em>."),
     );
   }
   // A note for dynamic user blocks.

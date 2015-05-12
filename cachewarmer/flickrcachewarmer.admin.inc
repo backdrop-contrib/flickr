@@ -33,6 +33,7 @@ function flickrcachewarmer_form_flickr_admin_settings_alter(&$form, &$form_state
     '#description' => t('Rebuilds the page cache after cron runs for selected content types also known as !cache_warming. It avoids long page loads for the first visitor after a cron run.', array('!cache_warming' => $cache_warming)),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
+    '#weight' => 14,
   );
   // Cache warming once a day is enough, but leave it up to the
   // site owner to decide.

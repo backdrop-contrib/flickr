@@ -17,6 +17,7 @@ function flickr_admin_settings() {
     '#title' => t('Flickr credentials'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
+    '#weight' => 2,
   );
   $apply = l(t('https://www.flickr.com/services/apps/create/apply'), 'https://www.flickr.com/services/apps/create/apply', array(
       'attributes' => array(
@@ -59,6 +60,7 @@ function flickr_admin_settings() {
     '#title' => t('Global options'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
+    '#weight' => 4,
   );
   $form['info_settings']['flickr_photos_per_page'] = array(
     '#type' => 'textfield',
@@ -207,6 +209,7 @@ function flickr_admin_settings() {
     '#title' => t('Date formats'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
+    '#weight' => 6,
   );
   // Get list of all available date formats.
   drupal_static_reset('system_get_date_types');
@@ -273,6 +276,7 @@ function flickr_admin_settings() {
     '#description' => t('Recommended is the !colorbox_module. Leave empty to link directly to the Flickr photo page instead of opening the bigger version of the image.', array('!colorbox_module' => $colorbox_module)),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
+    '#weight' => 8,
   );
   $form['overlay_settings']['flickr_class'] = array(
     '#type' => 'textfield',
@@ -324,6 +328,7 @@ function flickr_admin_settings() {
     '#title' => t('Styling (CSS related)'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
+    '#weight' => 10,
   );
   $autofloat_module = l(t('AutoFloat module'), 'https://drupal.org/project/autofloat', array(
       'attributes' => array(
@@ -352,6 +357,7 @@ function flickr_admin_settings() {
     '#title' => t('Advanced'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
+    '#weight' => 12,
   );
   $times = array(
     900,
@@ -464,6 +470,7 @@ function flickr_admin_settings() {
     '#title' => t('Block options'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
+    '#weight' => 16,
   );
   if (module_exists('flickr_block')) {
     $form['block_settings']['#description'] = t('Clear the cache on form submit.');

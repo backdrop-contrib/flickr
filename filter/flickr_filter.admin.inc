@@ -15,6 +15,7 @@ function flickr_filter_form_flickr_admin_settings_alter(&$form, &$form_state) {
     '#description' => t('Clear the cache on form submit.'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
+    '#weight' => 18,
   );
   $form['filter_settings']['flickr_filter_default_size'] = array(
     '#type' => 'select',

@@ -54,7 +54,7 @@ function flickr_block_form_flickr_admin_settings_alter(&$form, &$form_state) {
     '#title' => t('Number of photos per set'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_block_photos_per_set', 6),
-    '#description' => t('The number indicates how many photos display per set on blocks that display multiple photosets. Clear the cache on form submit.'),
+    '#description' => t('How many photos display per set on blocks that display multiple photosets. Clear the cache on form submit.'),
     '#size' => 2,
     '#maxlength' => 2,
   );
