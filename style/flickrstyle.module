@@ -8,6 +8,17 @@
   module_load_include('inc', 'flickrstyle', 'flickrstyle.admin');
 
 /**
+ * Implements hook_help().
+ */
+function flickrstyle_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#flickrstyle':
+      // Return a line-break version of the README.txt.
+      return _filter_autop(file_get_contents(dirname(__FILE__) . '/README.txt'));
+  }
+}
+
+/**
  * Implements hook_page_build().
  */
 function flickrstyle_page_build(&$page) {

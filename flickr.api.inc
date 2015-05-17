@@ -66,7 +66,7 @@ function flickr_photos_search($nsid, $page = 1, $other_args = array()) {
   if ($nsid == '39873962@N08' || empty($nsid)) {
     $args = array(
       'user_id' => '',
-      'group_id'=> $other_args['group_id'],
+      'group_id' => $other_args['group_id'],
       'tag_mode' => 'all',
       'license' => $other_args['license'],
       'page' => $page,

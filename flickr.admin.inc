@@ -67,7 +67,7 @@ function flickr_admin_settings() {
     '#title' => t('Number of photos per album'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_photos_per_page', 6),
-    '#description' => t('The number indicates how many photos of a photoset display in your nodes if no number is specified. Clear the cache on form submit.'),
+    '#description' => t('How many photos of a photoset display in your nodes if no number is specified. Clear the cache on form submit.'),
     '#size' => 3,
     '#maxlength' => 3,
   );
@@ -498,9 +498,9 @@ function flickr_admin_settings() {
   global $conf;
   if (module_exists('flickr_block') || isset($conf['flickr_block_photos_per_set'])) {
     $form['block_settings']['flickr_smart']['#disabled'] = TRUE;
-    $form['block_settings']['flickr_smart']['#title'] = '<span class="grayed-out">' . t("Smart install of Flickr Block"). '</span> | ' . t('Disabled until uninstall of Flickr Block.');
-    $form['block_settings']['flickr_smart']['#description'] = '<span class="grayed-out">' . t("On install of Flickr Block auto create Flickr taxonomy, date and geo fields on all node types to grab Flickr photos related to the node on the same page as a Flickr block based on tags, a date or a location. Enable Taxonomy (core), !date (including date_popup) and !geofield before enabling Flickr Block for the first time (or uninstall it first).", array('!date' => $date, '!geofield' => $geofield)). '</span>';
-    }
+    $form['block_settings']['flickr_smart']['#title'] = '<span class="grayed-out">' . t("Smart install of Flickr Block") . '</span> | ' . t('Disabled until uninstall of Flickr Block.');
+    $form['block_settings']['flickr_smart']['#description'] = '<span class="grayed-out">' . t("On install of Flickr Block auto create Flickr taxonomy, date and geo fields on all node types to grab Flickr photos related to the node on the same page as a Flickr block based on tags, a date or a location. Enable Taxonomy (core), !date (including date_popup) and !geofield before enabling Flickr Block for the first time (or uninstall it first).", array('!date' => $date, '!geofield' => $geofield)) . '</span>';
+  }
   $flickr_block = l(t('Flickr Block'), 'admin/modules', array(
       'attributes' => array(
         'title' => t('Display Flickr photos in blocks.'),

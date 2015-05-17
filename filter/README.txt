@@ -9,8 +9,9 @@ Part of the Flickr module. Project page at https://drupal.org/project/flickr
 
 OVERVIEW
 ========
-Include single Flickr images, albums or slideshows (for sets, users or groups)
-into the node body using only the Flickr ID and optionally a other parameters.
+Embed single Flickr images, sets, albums or slideshows (for sets, users or
+groups) in the node body using only the Flickr ID and optionally other
+parameters.
 
 FILTER CONFIGURATION
 ====================
@@ -21,7 +22,7 @@ image related HTML, for example AutoFloat
 (https://drupal.org/project/autofloat).
 
 Once you enabled the Flickr Filter submodule, you'll find a section FILTER
-SETTINGS on the Flickr configuration page at admin/config/media/flickr to
+OPTIONS on the Flickr configuration page at admin/config/media/flickr to
 provide the default values for the parameters size and heading. Both can be
 overridden by specifying them in the filter tag, like [flickr-
 group:id=91484156@N00, size=q, num=8, tags=flowers, heading=none].
@@ -29,15 +30,22 @@ group:id=91484156@N00, size=q, num=8, tags=flowers, heading=none].
 Default size for single photos
 ------------------------------
 A default Flickr size to use. This will be used when no size is specified, for
-example [flickr-photo:id=3711935987]. TAKE CARE, n (320px) and c (800px) sizes
-are missing on many "older" Flickr images! Defaults to m: 240 px on longest
-side. Thanks to the default setting you can change the size of all images
-without a specified size on the site in one go.
+example [flickr-photo:id=3711935987]. TAKE CARE, the c (800px) size is missing
+on Flickr images uploaded before March 1, 2012. Defaults to m: 240 px on longest side. Thanks to
+the default setting you can change the size of all images without a specified
+size on the site in one go.
 
 Wrap the album title in an HTML heading tag (only for the text filter)
 ----------------------------------------------------------------------
 To style the album title. Use 'p' for no style, e.g. 'h3' for a heading or
 'none' to not display an album title.
+
+Checkbox: Collapsible filter tips (collapsed by default)
+--------------------------------------------------------
+Collapse the in-line help for the Flickr Filter text format under the body field
+on node edit forms. This option is only available if the Chaos tool suite
+(ctools) module is enabled. This is almost always the case as this is a
+dependency of the popular Views module.
 
 CREATE NEW FLICKR BLOCKS USING FLICKR FILTER
 ============================================
@@ -72,9 +80,11 @@ The filter format is:
 It consists of:
 - An opening square bracket ([).
 - The term flickr followed by a dash (-).
-The type: photo, photoset, user, group or favorites followed by a colon (:).
+- The type: photo, photoset, gallery, user, group or favorites followed by a
+  colon (:).
 - A series of parameters separated by commas: id, size, class, style, num, tags,
-  media, heading, sort, filter, count, mintitle and minmetadata
+  extend, tag_mode, location, date, media, heading, sort, filter, count,
+  mintitle and minmetadata
 - A closing square bracket (]).
 
 Photo ID
@@ -169,8 +179,8 @@ Examples:
 For users and groups you can also use the path alias if it exists:
 - group: 'southseauk' in https://www.flickr.com/groups/southseauk
 
-For albums you have the extra sizes 'x' and 'y' available that result in a Flash
-or non-Flash slideshow over the full content width (responsive). Note that for
+For albums you have the extra sizes 'x' and 'y' available that result in a full featured
+or basic slideshow over the full content width (responsive). Note that for
 now a slideshow is only supported for photosets, groups and users and any other
 parameters are ignored (NO sort, tags or location). To add some spacing above
 and below a slideshow, modify your CSS or add some lines that contain a non
@@ -183,14 +193,21 @@ breaking space:
 
 For all other sizes the following parameters can be used:
 
-num : The number of photos to show.
-tags : Flickr tags to filter on.
-location : Lattitude, longitude and optionally radius in km (defaults to 5 km).
-media : photos, videos or all.
-heading : To suppress the album title.
-sort : Date taken, posted, number of views, random or unsorted.
-filter : Interesting or relevant. Only for user albums.
-count : To suppress how many are available on Flickr.
+- num : The number of photos to show.
+- tags : Flickr tags to filter on.
+- extend : Extends the tag matching to words found in the Flickr photo title or
+  description.
+- tag_mode : Matches 'all' defined tags (AND) or 'any' (OR).
+- location : Grab photos near a certain GPS point. Lat/lon/radius (in km)
+- date : Grab photos taken on a certain date. Also within an interval covering
+  multiple days.
+- location : Lattitude, longitude and optionally radius in km (defaults to 5
+  km).
+- media : photos, videos or all.
+- heading : To suppress the album title.
+- sort : Date taken, posted, number of views, random or unsorted.
+- filter : Interesting or relevant. Only for user albums.
+- count : To suppress how many are available on Flickr.
 
 Again, you'll find parameter examples, their use and default values at the
 bottom of the text filter help on the 'Edit' page.

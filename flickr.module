@@ -624,9 +624,11 @@ function theme_flickr_photo($variables) {
       case 'interval':
         $taken = format_interval(time() - strtotime($info['dates']['taken']), 1) . ' ' . t('ago');
         break;
+
       case 'none':
         $taken = '';
         break;
+
       default:
         $taken = format_date(strtotime($info['dates']['taken']), $format_taken, '', NULL);
     }
@@ -636,9 +638,11 @@ function theme_flickr_photo($variables) {
       case 'interval':
         $taken_hover = format_interval(time() - strtotime($info['dates']['taken']), 1) . ' ' . t('ago');
         break;
+
       case 'none':
         $taken_hover = '';
         break;
+
       default:
         $taken_hover = format_date(strtotime($info['dates']['taken']), $format_hover, '', NULL);
     }
@@ -887,7 +891,7 @@ function theme_flickr_photoset($variables) {
 
 /**
  * Theme Flickr set/user/group photos as an embedded Flickr.com slideshow
- * (Flash, 'size' = x).
+ * ('size' = x).
  */
 function theme_flickr_flickrcomslideshow($variables) {
   $id = $variables['id'];

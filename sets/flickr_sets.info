@@ -2,4 +2,5 @@ name = Flickr Sets
 description = Adds photoset capability to the Flickr module.
 core = 7.x
 package = Flickr
+configure = admin/config/media/flickr
 dependencies[] = flickr

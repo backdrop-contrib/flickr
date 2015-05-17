@@ -99,7 +99,7 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
         - : medium, 500 on longest side
       </td>
       <td>
-        x: Flash responsive slideshow (for group, set and user IDs only)<br />
+        x: Responsive slideshow (for group, set and user IDs only)<br />
         y: Basic responsive slideshow (for set and user IDs only)
       </td>
     </tr>
@@ -405,27 +405,27 @@ function flickr_filter_callback_group($matches) {
         $config['filter'] = 'relevance';
         break;
     }
-  if (!isset($config['location'])) {
-    $config['location'][0] = NULL;
-    $config['location'][1] = NULL;
-    $config['location'][2] = NULL;
-  }
-  else {
-    $config['location'] = explode("/", $config['location']);
-    if (!isset($config['location'][2])) {
+    if (!isset($config['location'])) {
+      $config['location'][0] = NULL;
+      $config['location'][1] = NULL;
       $config['location'][2] = NULL;
     }
-  }
-  if (!isset($config['date'])) {
-    $config['date'][0] = NULL;
-    $config['date'][1] = NULL;
-  }
-  else {
-    $config['date'] = explode("|", $config['date']);
-    if (!isset($config['date'][1])) {
+    else {
+      $config['location'] = explode("/", $config['location']);
+      if (!isset($config['location'][2])) {
+        $config['location'][2] = NULL;
+      }
+    }
+    if (!isset($config['date'])) {
+      $config['date'][0] = NULL;
       $config['date'][1] = NULL;
     }
-  }
+    else {
+      $config['date'] = explode("|", $config['date']);
+      if (!isset($config['date'][1])) {
+        $config['date'][1] = NULL;
+      }
+    }
     if (!isset($config['extend'])) {
       $config['extend'] = variable_get('flickr_extend', 1);
     }
@@ -505,27 +505,27 @@ function flickr_filter_callback_gallery($matches) {
         $config['filter'] = 'relevance';
         break;
     }
-  if (!isset($config['location'])) {
-    $config['location'][0] = NULL;
-    $config['location'][1] = NULL;
-    $config['location'][2] = NULL;
-  }
-  else {
-    $config['location'] = explode("/", $config['location']);
-    if (!isset($config['location'][2])) {
+    if (!isset($config['location'])) {
+      $config['location'][0] = NULL;
+      $config['location'][1] = NULL;
       $config['location'][2] = NULL;
     }
-  }
-  if (!isset($config['date'])) {
-    $config['date'][0] = NULL;
-    $config['date'][1] = NULL;
-  }
-  else {
-    $config['date'] = explode("|", $config['date']);
-    if (!isset($config['date'][1])) {
+    else {
+      $config['location'] = explode("/", $config['location']);
+      if (!isset($config['location'][2])) {
+        $config['location'][2] = NULL;
+      }
+    }
+    if (!isset($config['date'])) {
+      $config['date'][0] = NULL;
       $config['date'][1] = NULL;
     }
-  }
+    else {
+      $config['date'] = explode("|", $config['date']);
+      if (!isset($config['date'][1])) {
+        $config['date'][1] = NULL;
+      }
+    }
     if (!isset($config['extend'])) {
       $config['extend'] = variable_get('flickr_extend', 1);
     }
@@ -609,27 +609,27 @@ function flickr_filter_callback_favorites($matches) {
         $config['filter'] = 'relevance';
         break;
     }
-  if (!isset($config['location'])) {
-    $config['location'][0] = NULL;
-    $config['location'][1] = NULL;
-    $config['location'][2] = NULL;
-  }
-  else {
-    $config['location'] = explode("/", $config['location']);
-    if (!isset($config['location'][2])) {
+    if (!isset($config['location'])) {
+      $config['location'][0] = NULL;
+      $config['location'][1] = NULL;
       $config['location'][2] = NULL;
     }
-  }
-  if (!isset($config['date'])) {
-    $config['date'][0] = NULL;
-    $config['date'][1] = NULL;
-  }
-  else {
-    $config['date'] = explode("|", $config['date']);
-    if (!isset($config['date'][1])) {
+    else {
+      $config['location'] = explode("/", $config['location']);
+      if (!isset($config['location'][2])) {
+        $config['location'][2] = NULL;
+      }
+    }
+    if (!isset($config['date'])) {
+      $config['date'][0] = NULL;
       $config['date'][1] = NULL;
     }
-  }
+    else {
+      $config['date'] = explode("|", $config['date']);
+      if (!isset($config['date'][1])) {
+        $config['date'][1] = NULL;
+      }
+    }
     if (!isset($config['extend'])) {
       $config['extend'] = variable_get('flickr_extend', 1);
     }

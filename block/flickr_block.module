@@ -316,12 +316,12 @@ function flickr_block_configure($delta = '') {
     // Limit the tag mode to 'OR' for extended searches.
     if ($settings['extend']) {
       $form['filter_settings']["flickr_block_{$delta}_tag_mode"] = array(
-       '#type' => 'radios',
+        '#type' => 'radios',
         '#title' => t("Tag mode"),
         '#options' => array(
-        'any' => t("Any (OR)"),
-        'all' => '<span class="grayed-out">' . t("All (AND)") . '</span>',
-        'context' => '<span class="grayed-out">' . t("All (AND) for public searches, any (OR) if a Flickr user ID is known.") . '</span>',
+          'any' => t("Any (OR)"),
+          'all' => '<span class="grayed-out">' . t("All (AND)") . '</span>',
+          'context' => '<span class="grayed-out">' . t("All (AND) for public searches, any (OR) if a Flickr user ID is known.") . '</span>',
         ),
         '#default_value' => 'any',
         '#description' => t("Forced to 'any' (OR) for extended searches. Unselect the checkbox above ('Extend') and save if you want to use this option."),
@@ -429,10 +429,11 @@ function flickr_block_configure($delta = '') {
       unset($form["flickr_block_{$delta}_group_id"]);
       unset($form["flickr_block_{$delta}_photoset"]);
       break;
+
     // User favorite Flickr photos.
     case 13:
     case 14:
-    // User gallery Flickr photos.
+      // User gallery Flickr photos.
     case 15:
     case 16:
       unset($form["flickr_block_{$delta}_user_id"]);
@@ -1028,11 +1029,11 @@ function flickr_block_view($delta = '') {
             if (module_exists('geofield') && !is_numeric($settings['geo']) && !empty($settings['geo'])) {
               $value = field_get_items('user', $user, $settings['geo']);
               $lat = $value[0]['lat'];
-              $lon= $value[0]['lon'];
+              $lon = $value[0]['lon'];
             }
             elseif (module_exists('location_node') && $settings['geo'] == 1 && !empty($user->locations)) {
               $lat = $user->locations[0]['latitude'];
-              $lon= $user->locations[0]['longitude'];
+              $lon = $user->locations[0]['longitude'];
             }
             else {
               $lat = NULL;
@@ -1103,11 +1104,11 @@ function flickr_block_view($delta = '') {
             if (module_exists('geofield') && !is_numeric($settings['geo']) && !empty($settings['geo'])) {
               $value = field_get_items('node', $node, $settings['geo']);
               $lat = $value[0]['lat'];
-              $lon= $value[0]['lon'];
+              $lon = $value[0]['lon'];
             }
             elseif (module_exists('location_node') && $settings['geo'] == 1 && !empty($node->locations)) {
               $lat = $node->locations[0]['latitude'];
-              $lon= $node->locations[0]['longitude'];
+              $lon = $node->locations[0]['longitude'];
             }
             else {
               $lat = NULL;
@@ -1116,9 +1117,9 @@ function flickr_block_view($delta = '') {
             if (module_exists('date') && !is_numeric($settings['date']) && !empty($settings['date'])) {
               $value = field_get_items('node', $node, $settings['date']);
               $datefrom = substr($value[0]['value'], 0, strrpos($value[0]['value'], ' '));
-              $dateto= substr($value[0]['value2'], 0, strrpos($value[0]['value2'], ' '));
+              $dateto = substr($value[0]['value2'], 0, strrpos($value[0]['value2'], ' '));
             }
-             else {
+            else {
               $datefrom = NULL;
               $dateto = NULL;
             }
@@ -1225,11 +1226,11 @@ function flickr_block_view($delta = '') {
         if (module_exists('geofield') && !is_numeric($settings['geo']) && !empty($settings['geo'])) {
           $value = field_get_items('node', $node, $settings['geo']);
           $lat = $value[0]['lat'];
-          $lon= $value[0]['lon'];
+          $lon = $value[0]['lon'];
         }
         elseif (module_exists('location_node') && $settings['geo'] == 1 && !empty($node->locations)) {
           $lat = $node->locations[0]['latitude'];
-          $lon= $node->locations[0]['longitude'];
+          $lon = $node->locations[0]['longitude'];
         }
         else {
           $lat = NULL;
@@ -1238,7 +1239,7 @@ function flickr_block_view($delta = '') {
         if (module_exists('date') && !is_numeric($settings['date']) && !empty($settings['date'])) {
           $value = field_get_items('node', $node, $settings['date']);
           $datefrom = substr($value[0]['value'], 0, strrpos($value[0]['value'], ' '));
-          $dateto= substr($value[0]['value2'], 0, strrpos($value[0]['value2'], ' '));
+          $dateto = substr($value[0]['value2'], 0, strrpos($value[0]['value2'], ' '));
         }
         else {
           $datefrom = NULL;
@@ -1308,11 +1309,11 @@ function flickr_block_view($delta = '') {
         if (module_exists('geofield') && !is_numeric($settings['geo']) && !empty($settings['geo'])) {
           $value = field_get_items('node', $node, $settings['geo']);
           $lat = $value[0]['lat'];
-          $lon= $value[0]['lon'];
+          $lon = $value[0]['lon'];
         }
         elseif (module_exists('location_node') && $settings['geo'] == 1 && !empty($node->locations)) {
           $lat = $node->locations[0]['latitude'];
-          $lon= $node->locations[0]['longitude'];
+          $lon = $node->locations[0]['longitude'];
         }
         else {
           $lat = NULL;
@@ -1321,7 +1322,7 @@ function flickr_block_view($delta = '') {
         if (module_exists('date') && !is_numeric($settings['date']) && !empty($settings['date'])) {
           $value = field_get_items('node', $node, $settings['date']);
           $datefrom = substr($value[0]['value'], 0, strrpos($value[0]['value'], ' '));
-          $dateto= substr($value[0]['value2'], 0, strrpos($value[0]['value2'], ' '));
+          $dateto = substr($value[0]['value2'], 0, strrpos($value[0]['value2'], ' '));
         }
         else {
           $datefrom = NULL;

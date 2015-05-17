@@ -196,11 +196,11 @@ function flickrfield_field_formatter_info() {
     }
   }
   $formatters['photoset_flickrcomslideshow'] = array(
-    'label' => 'Embedded Flickr.com slideshow (Flash)',
+    'label' => 'Embedded Flickr.com slideshow',
     'field types' => array('flickrfield_photoset'),
   );
   $formatters['photoset_flickrcomslideshow_simple'] = array(
-    'label' => 'Embedded Flickr.com slideshow (non Flash)',
+    'label' => 'Embedded Flickr.com slideshow (basic)',
     'field types' => array('flickrfield_photoset'),
   );
   $formatters['photoset_flickrcomsetlink'] = array(
@@ -364,7 +364,7 @@ function theme_flickrfield_formatter_photoset_primaryphoto($element) {
 }
 
 /**
- * Theme a Flickr photo set as an embedded Flickr.com slideshow (Flash).
+ * Theme a Flickr photo set as an embedded Flickr.com slideshow.
  */
 function theme_flickrfield_formatter_photoset_flickrcomslideshow($variables) {
   if (empty($variables['#item']['flickrid'])) {
@@ -377,7 +377,7 @@ function theme_flickrfield_formatter_photoset_flickrcomslideshow($variables) {
 }
 
 /**
- * Theme a Flickr photo set as an embedded Flickr.com slideshow (non Flash).
+ * Theme a Flickr photo set as an embedded Flickr.com slideshow (basic).
  */
 function theme_flickrfield_formatter_photoset_flickrcomslideshow_simple($variables) {
   if (empty($variables['#item']['flickrid'])) {

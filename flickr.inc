@@ -65,7 +65,7 @@ function flickr_photo_sizes() {
       'description' => t('o: Original image'),
     ),
     'x' => array(
-      'label' => 'Flash slideshow',
+      'label' => 'slideshow',
       'description' => t('x: Full featured responsive slideshow (for group, set and user IDs only)'),
     ),
     'y' => array(
@@ -141,7 +141,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     // (Request Timeout).
     $result = flickr_curl_http_request($url);
     $cmethod = 'cURL';
-    $message = t('Automatic fallback to the cURL connection method kicked in to handle the request. Result code from the failing request: ') . $result->code;
+    $message = t('Automatic fallback to the cURL connection method kicked in to handle the request. Result code from the failing request') . ': ' . $result->code;
     drupal_set_message($message, 'warning', FALSE);
     watchdog('flickr', $message, array(), WATCHDOG_WARNING);
     if ($return_errors) {
@@ -210,13 +210,13 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     $attribs = str_replace('"', '', $attribs);
     $methodurl = l($method, 'https://www.flickr.com/services/api/' . $method . '.htm', array(
       'attributes' => array(
-        'title' => t('Flickr Services: Flickr API: ') . $method,
+        'title' => t('Flickr Services: Flickr API') . ': ' . $method,
         'target' => '_blank',
       ),
     ));
-    $explorerurl = l('API Explorer', 'https://www.flickr.com/services/api/explore/' . $method, array(
+    $explorerurl = l(t('API Explorer'), 'https://www.flickr.com/services/api/explore/' . $method, array(
       'attributes' => array(
-        'title' => t('Flickr Api Explorer - ') . $method,
+        'title' => t('Flickr Api Explorer') . ' - ' . $method,
         'target' => '_blank',
       ),
     ));
@@ -226,7 +226,14 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
         'target' => '_blank',
       ),
     ));
-    $message = t("Debug info: Connection by %cmethod with method !methodurl gives the !requrl to check in the !explorerurl.<br />Passed arguments: " . $attribs, array('%cmethod' => $cmethod, '!methodurl' => $methodurl, '!explorerurl' => $explorerurl, '!requrl' => $requrl));
+    $message = t("Debug info: Connection by %cmethod with method !methodurl gives the !requrl to check in the !explorerurl.", array(
+      '%cmethod' => $cmethod,
+      '!methodurl' => $methodurl,
+      '!explorerurl' => $explorerurl,
+      '!requrl' => $requrl,
+    )) . '<br />' . t("Passed arguments: %attribs", array(
+      '%attribs' => $attribs,
+    ));
     drupal_set_message($message, 'warning');
     watchdog('flickr', $message, array(), WATCHDOG_WARNING);
   }
@@ -316,9 +323,11 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
       case 'interval':
         $taken_short = format_interval(time() - strtotime($date_taken), 1) . ' ' . t('ago');
         break;
+
       case 'none':
         $taken_short = '';
         break;
+
       default:
         $taken_short = format_date(strtotime($date_taken), $format_title, '', NULL);
     }
@@ -601,12 +610,12 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
       $deg = isset($matches[0][0]) ? $matches[0][0] : $lat;
       $min = isset($matches[0][1]) ? $matches[0][1] : 0;
       $sec = isset($matches[0][2]) ? $matches[0][2] : 0;
-      $lat = $deg+((($min*60)+($sec))/3600);
+      $lat = $deg + ((($min * 60) + ($sec)) / 3600);
       $dmslon = preg_match_all('/[\-(\.|,)0-9]+/', $lon, $matches);
       $deg = isset($matches[0][0]) ? $matches[0][0] : $lon;
       $min = isset($matches[0][1]) ? $matches[0][1] : 0;
       $sec = isset($matches[0][2]) ? $matches[0][2] : 0;
-      $lon = $deg+((($min*60)+($sec))/3600);
+      $lon = $deg + ((($min * 60) + ($sec)) / 3600);
     }
     if (!isset($dateto)) {
       $dateto = $datefrom;
@@ -786,7 +795,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
     // one replaced by 'or' or 'and'.
     $conjunction = $tag_mode == 'all' ? t('and') : t('or');
     $tags1 = preg_replace('/(.*),/', '$1 ' . $conjunction, str_replace(',', ', ', $tagsfixnoexclude));
-    $flickr = flickr_album_link_construct(' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span></span>', $type, $id , $show_n, $media, $tags , $filter, $lat, $lon, $radius, $datefrom, $dateto, $extend, $tag_mode);
+    $flickr = flickr_album_link_construct(' ' . t('tagged') . ' <span class="flickr-tags">' . $tags1 . '</span></span>', $type, $id, $show_n, $media, $tags, $filter, $lat, $lon, $radius, $datefrom, $dateto, $extend, $tag_mode);
 
     $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : '<span class="flickr-tags-wrap">' . $flickr;
     // A single date.
@@ -796,6 +805,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
         $formated_datefrom = format_interval(time() - strtotime(substr($datefrom, 0, 10)), 1);
         $formated_dateto = format_interval(time() - strtotime(substr($dateto, 0, 10)), 1);
         break;
+
       default:
         $formated_datefrom = format_date(strtotime(substr($datefrom, 0, 10)), $format, '', NULL);
         $formated_dateto = format_date(strtotime(substr($dateto, 0, 10)), $format, '', NULL);
@@ -825,6 +835,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
         case 'interval':
           $taken = ' ' . t('taken') . ' ' . $formated_datefrom . ' ' . t('to') . ' ' . $formated_dateto . ' ' . t('ago');
           break;
+
         default:
           $taken = ' ' . t('taken from') . ' ' . $date1 . ' ' . t('to') . ' ' . $date2;
       }
@@ -953,7 +964,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
         else {
           $username = ' ' . t('from the group') . ' ' . strip_tags($info['group']['name']['_content']);
         }
-        $flickr = flickr_album_link_construct(t('on Flickr'), $type, $id , $show_n, $media, $tags , $filter, $lat, $lon, $radius, $datefrom, $dateto, $extend, $tag_mode);
+        $flickr = flickr_album_link_construct(t('on Flickr'), $type, $id, $show_n, $media, $tags, $filter, $lat, $lon, $radius, $datefrom, $dateto, $extend, $tag_mode);
         $map = ($id == '39873962@N08' || empty($id)) ? '' : $map;
         if (isset($lat)) {
           $place_id = flickr_places_findbylatlon($lat, $lon);
@@ -1001,7 +1012,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
             )) : $place_name;
           }
           else {
-            if ($type =='user') {
+            if ($type == 'user') {
               $place_name = !is_array($place_name) ? l($location_name, 'https://www.flickr.com/photos/' . $id . '/map?&location=' . $place_name, array(
                 'attributes' => array(
                   'title' => t('View photos on Flickr map.'),
@@ -1076,8 +1087,8 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
             break;
 
           case "group":
-            $output .= '<div class="messages error">' . t('Choose the Flash slideshow for group pool albums (size = x).') . '</div>';
-            drupal_set_message(t('Choose the Flash slideshow for group pool albums (size = x).'), 'error', FALSE);
+            $output .= '<div class="messages error">' . t('Choose the slideshow for group pool albums (size = x).') . '</div>';
+            drupal_set_message(t('Choose the slideshow for group pool albums (size = x).'), 'error', FALSE);
             break;
 
           default:
@@ -1194,26 +1205,10 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
               // Start with a circle of 14 meter.
               $radius = empty($radius) ? 0.014 : $radius;
               do {
-              if (variable_get('flickr_restrict', 1) < 2) {
-                $response = flickr_photos_search($id, $page, array(
-                  'group_id' => $group_id,
-                  'tags' => $tags_combined,
-                  'tag_mode' => $tag_mode,
-                  'min_taken_date' => $datefrom,
-                  'max_taken_date' => $dateto,
-                  'sort' => $valid_sort,
-                  'per_page' => $per_page,
-                  'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
-                  'media' => $media,
-                  'lat' => $lat,
-                  'lon' => $lon,
-                  'radius' => $radius,
-                  'license' => $license,
-                ));
-                foreach ($texts as $tagsfiks) {
-                  $textextension = flickr_photos_search($id, $page, array(
+                if (variable_get('flickr_restrict', 1) < 2) {
+                  $response = flickr_photos_search($id, $page, array(
                     'group_id' => $group_id,
-                    'text' => '"' . $tagsfiks . '"',
+                    'tags' => $tags_combined,
                     'tag_mode' => $tag_mode,
                     'min_taken_date' => $datefrom,
                     'max_taken_date' => $dateto,
@@ -1226,30 +1221,30 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
                     'radius' => $radius,
                     'license' => $license,
                   ));
-                  $textext = array_merge($textext, $textextension['photo']);
+                  foreach ($texts as $tagsfiks) {
+                    $textextension = flickr_photos_search($id, $page, array(
+                      'group_id' => $group_id,
+                      'text' => '"' . $tagsfiks . '"',
+                      'tag_mode' => $tag_mode,
+                      'min_taken_date' => $datefrom,
+                      'max_taken_date' => $dateto,
+                      'sort' => $valid_sort,
+                      'per_page' => $per_page,
+                      'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
+                      'media' => $media,
+                      'lat' => $lat,
+                      'lon' => $lon,
+                      'radius' => $radius,
+                      'license' => $license,
+                    ));
+                    $textext = array_merge($textext, $textextension['photo']);
+                  }
                 }
-              }
-              // No results, to extend the search on license.
-              if ((empty($response['photo']) || variable_get('flickr_restrict', 1) == 2) && variable_get('flickr_restrict', 1) != 0) {
-                $response = flickr_photos_search($id, $page, array(
-                  'group_id' => $group_id,
-                  'tags' => $tags_combined,
-                  'tag_mode' => $tag_mode,
-                  'min_taken_date' => $datefrom,
-                  'max_taken_date' => $dateto,
-                  'sort' => $valid_sort,
-                  'per_page' => $per_page,
-                  'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
-                  'media' => $media,
-                  'lat' => $lat,
-                  'lon' => $lon,
-                  'radius' => $radius,
-                  'license' => '',
-                ));
-                foreach ($texts as $tagsfiks) {
-                  $textextension = flickr_photos_search($id, $page, array(
+                // No results, to extend the search on license.
+                if ((empty($response['photo']) || variable_get('flickr_restrict', 1) == 2) && variable_get('flickr_restrict', 1) != 0) {
+                  $response = flickr_photos_search($id, $page, array(
                     'group_id' => $group_id,
-                    'text' => '"' . $tagsfiks . '"',
+                    'tags' => $tags_combined,
                     'tag_mode' => $tag_mode,
                     'min_taken_date' => $datefrom,
                     'max_taken_date' => $dateto,
@@ -1262,13 +1257,29 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
                     'radius' => $radius,
                     'license' => '',
                   ));
-                  $textext = array_merge($textext, $textextension['photo']);
+                  foreach ($texts as $tagsfiks) {
+                    $textextension = flickr_photos_search($id, $page, array(
+                      'group_id' => $group_id,
+                      'text' => '"' . $tagsfiks . '"',
+                      'tag_mode' => $tag_mode,
+                      'min_taken_date' => $datefrom,
+                      'max_taken_date' => $dateto,
+                      'sort' => $valid_sort,
+                      'per_page' => $per_page,
+                      'extras' => 'date_upload,date_taken,license,geo,tags,views,media',
+                      'media' => $media,
+                      'lat' => $lat,
+                      'lon' => $lon,
+                      'radius' => $radius,
+                      'license' => '',
+                    ));
+                    $textext = array_merge($textext, $textextension['photo']);
+                  }
                 }
-              }
-              // Extend the search geo radius gradually to 32 km if there are
-              // not enough results.
-              $radius = $radius * 3;
-            } while ((count($response['photo']) + count($textext)) < $show_n && $radius <= 32);
+                // Extend the search geo radius gradually to 32 km if there are
+                // not enough results.
+                $radius = $radius * 3;
+              } while ((count($response['photo']) + count($textext)) < $show_n && $radius <= 32);
             }
             else {
               if (variable_get('flickr_restrict', 1) < 2) {
@@ -1581,10 +1592,10 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
           $mt = empty ($mt) ? '' : $mt . ' ' . t('mt');
           $km = $radius >= 1 ? $km . ' ' . t('km') : '';
           $separator = empty($km) || empty($mt) ? '' : ' ' . t('and') . ' ';
-          $range = ' ' . t('in a radius of') . ' '. $km . $separator . $mt;
+          $range = ' ' . t('in a radius of') . ' ' . $km . $separator . $mt;
         }
         else {
-          $range ='';
+          $range = '';
         }
         $count = t('@number out of @total !flickr@range', array(
           '@number' => $i,
@@ -1766,6 +1777,7 @@ function flickr_one_size_bigger($size) {
  *   - https_proxy: An array that will override the system-wide HTTPS proxy
  *     settings.
  *   - curl_opts: An array of generic cURL options.
+ *
  * @return object
  *   An object that can have one or more of the following components:
  *   - request: A string containing the request body that was sent.
@@ -2262,7 +2274,7 @@ function flickr_response_codes() {
 }
 
 /**
- * Parse parameters to the fiter from a format like:
+ * Parse parameters to the filter from a format like:
  * style="float:left;border:1px"
  * into an associative array with HTML attributes and their values.
  */

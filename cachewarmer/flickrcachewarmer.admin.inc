@@ -88,7 +88,7 @@ function flickrcachewarmer_admin_settings_submit($form, &$form_state) {
       ->condition('n.type', array_filter($content_types), 'IN')
       ->execute()
       ->fetchCol();
-      flickrcachewarmer_run($nids);
+    flickrcachewarmer_run($nids);
     drupal_set_message(t('All caches are rebuilt.'), 'status', FALSE);
   }
 }

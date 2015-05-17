@@ -39,7 +39,7 @@ function flickr_sets_form_flickr_admin_settings_alter(&$form, &$form_state) {
     '#title' => t('Number of photosets per page'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_sets_per_page', 8),
-    '#description' => t('The number indicates how many photosets display on user profile pages at <em>flickr/%uid/sets</em>. Clear the cache on form submit.'),
+    '#description' => t('How many photosets display on user profile pages at <em>flickr/%uid/sets</em>. Clear the cache on form submit.'),
     '#size' => 2,
     '#maxlength' => 2,
   );
@@ -48,7 +48,7 @@ function flickr_sets_form_flickr_admin_settings_alter(&$form, &$form_state) {
     '#title' => t('Number of photos per set'),
     '#required' => TRUE,
     '#default_value' => variable_get('flickr_sets_photos_per_set', 6),
-    '#description' => t('The number indicates how many photos display in a set on user profile pages at <em>flickr/%uid/sets/%nsid</em>. Clear the cache on form submit.'),
+    '#description' => t('How many photos display in a set on user profile pages at <em>flickr/%uid/sets/%nsid</em>. Clear the cache on form submit.'),
     '#size' => 2,
     '#maxlength' => 2,
   );
