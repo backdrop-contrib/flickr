@@ -9,7 +9,7 @@
  */
 function flickr_block_install() {
   $t = get_t();
-  if (module_exists('taxonomy') && variable_get('flickr_smart', 1)) {
+  if (function_exists('taxonomy_vocabulary_machine_name_load') && variable_get('flickr_smart', 1)) {
     $vocab = (object) array(
       'name' => 'Flickr tags',
       'machine_name' => 'flickr_tags',
@@ -265,7 +265,7 @@ function flickr_block_install() {
  */
 function flickr_block_update_7101() {
   $t = get_t();
-  if (module_exists('taxonomy')) {
+  if (function_exists('taxonomy_vocabulary_machine_name_load')) {
     $vocab = (object) array(
       'name' => 'Flickr tags',
       'machine_name' => 'flickr_tags',
@@ -644,7 +644,7 @@ function flickr_block_uninstall() {
   foreach (range(0, 16) as $delta) {
     variable_del("flickr_block_{$delta}");
   }
-  if (module_exists('taxonomy')) {
+  if (function_exists('taxonomy_vocabulary_machine_name_load')) {
     $vocabulary = taxonomy_vocabulary_machine_name_load('flickr_tags');
     if ($vocabulary) {
       field_delete_field('field_' . $vocabulary->machine_name);

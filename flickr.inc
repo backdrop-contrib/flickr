@@ -146,7 +146,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     watchdog('flickr', $message, array(), WATCHDOG_WARNING);
     if ($return_errors) {
       // Debug info.
-      if (variable_get('flickr_debug', 0) == 2 && module_exists('devel')) {
+      if (variable_get('flickr_debug', 0) == 2 && function_exists('dpm')) {
         dpm("Value of error 'result' in 'function flickr_request()' with connection method " . "'" . $cmethod . "' in 'flickr.inc':");
         dpm($result);
       }
@@ -162,7 +162,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     // Even the cURL method returns an error.
     if ($result->code != 200) {
       // Debug info.
-      if (variable_get('flickr_debug', 0) == 2 && module_exists('devel')) {
+      if (variable_get('flickr_debug', 0) == 2 && function_exists('dpm')) {
         dpm("Value of 'result' with error in 'function flickr_request()' with connection method " . "'" . $cmethod . "' in 'flickr.inc':");
         dpm($result);
       }
@@ -177,7 +177,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
 
   }
   // Debug info.
-  if (variable_get('flickr_debug', 0) == 2 && module_exists('devel')) {
+  if (variable_get('flickr_debug', 0) == 2 && function_exists('dpm')) {
     dpm("Value of 'result' in 'function flickr_request()' with the " . "'" . $cmethod . "' connection method in 'flickr.inc':");
     dpm($result);
   }
@@ -263,7 +263,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
  */
 function flickr_img($photo, $size = NULL, $attributes = NULL) {
   // Debug info.
-  if (variable_get('flickr_debug', 0) == 2 && module_exists('devel')) {
+  if (variable_get('flickr_debug', 0) == 2 && function_exists('dpm')) {
     dpm("Value of 'photo' passed to 'function flickr_img()' in 'flickr.inc':");
     dpm($photo);
   }
@@ -1124,7 +1124,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
         $rest_ok = ($total % variable_get('flickr_per_page', 100)) > 3 * $show_n ? 1 : 0;
         $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : $page;
         // Debug info.
-        if (variable_get('flickr_debug', 0) == 2 && module_exists('devel')) {
+        if (variable_get('flickr_debug', 0) == 2 && function_exists('dpm')) {
           dpm("Arguments passed to 'function flickr_album()': " . '$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total . ' $lat=' . $lat . ' $lon=' . $lon . ' $radius=' . $radius . '$datefrom=' . $datefrom . ' $dateto=' . $dateto . ' $extend=' . $extend . ' $tag_mode=' . $tag_mode . ' $class=' . $class . ' $style=' . $style . ' $page=' . $page);
         }
         // Get a list of "all" the photos. This is cached.

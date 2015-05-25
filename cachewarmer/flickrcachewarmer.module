@@ -103,7 +103,7 @@ function flickrcachewarmer_run($nids) {
         // Even the cURL method returns an error.
         if ($result->code != 200) {
           // Debug info.
-          if (variable_get('flickr_debug', 0) == 2 && module_exists('devel')) {
+          if (variable_get('flickr_debug', 0) == 2 && function_exists('dpm')) {
             dpm(t("Value of 'result' on nid %nid with error in 'function flickr_request()' with connection method '%cmethod' in 'flickr.inc'", array('%nid' => $nid, '%cmethod' => $cmethod)) . ':');
             dpm($result);
           }

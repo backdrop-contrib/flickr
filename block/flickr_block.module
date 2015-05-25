@@ -280,7 +280,7 @@ function flickr_block_configure($delta = '') {
     '#title' => t('Media type'),
     '#default_value' => $settings['media'],
   );
-  if (module_exists('taxonomy')) {
+  if (function_exists('taxonomy_get_vocabularies')) {
     // Get a list of existing vocabularies.
     $vocabulary = taxonomy_get_vocabularies();
     $checklist_vocab_array = array('0' => '<none>');
@@ -996,7 +996,7 @@ function flickr_block_view($delta = '') {
         case 'user':
           if ($uid = (int) arg(1)) {
             $user = user_load($uid);
-            if (module_exists('taxonomy') && $settings['vocab'] != 0) {
+            if (function_exists('taxonomy_vocabulary_load') && $settings['vocab'] != 0) {
               $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
               if (property_exists($user, 'field_' . $taxonomy->machine_name)) {
                 $terms_user = (!empty($settings['vocab'])) ? field_view_field('user', $user, 'field_' . $taxonomy->machine_name) : '';
@@ -1050,7 +1050,7 @@ function flickr_block_view($delta = '') {
           if (($nid = (int) arg(1)) && ((arg(2) == "" || arg(2) == 'view'))) {
             $node = node_load($nid);
             $user = user_load($node->uid);
-            if (module_exists('taxonomy') && $settings['vocab'] != 0) {
+            if (function_exists('taxonomy_vocabulary_load') && $settings['vocab'] != 0) {
               $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
               if (property_exists($user, 'field_' . $taxonomy->machine_name)) {
                 $terms_user = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('user', $user, 'field_' . $taxonomy->machine_name) : '';
@@ -1194,7 +1194,7 @@ function flickr_block_view($delta = '') {
     case 5:
       if (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
-        if (module_exists('taxonomy') && $settings['vocab'] != 0) {
+        if (function_exists('taxonomy_vocabulary_load') && $settings['vocab'] != 0) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
           if (property_exists($node, 'field_' . $taxonomy->machine_name)) {
             $terms = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
@@ -1277,7 +1277,7 @@ function flickr_block_view($delta = '') {
     case 10:
       if (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
-        if (module_exists('taxonomy') && $settings['vocab'] != 0) {
+        if (function_exists('taxonomy_vocabulary_load') && $settings['vocab'] != 0) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
           if (property_exists($node, 'field_' . $taxonomy->machine_name)) {
             $terms = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
@@ -1345,7 +1345,7 @@ function flickr_block_view($delta = '') {
     case 8:
       if (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
-        if (module_exists('taxonomy') && $settings['vocab'] != 0) {
+        if (function_exists('taxonomy_vocabulary_load') && $settings['vocab'] != 0) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
           if (property_exists($node, 'field_' . $taxonomy->machine_name)) {
             $terms = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
@@ -1388,7 +1388,7 @@ function flickr_block_view($delta = '') {
       $media = $settings['media'] == 'videos' ? t('videos') : t('photos');
       if (($nid = (int) arg(1)) && arg(0) == 'node' && ((arg(2) == "" || arg(2) == 'view'))) {
         $node = node_load($nid);
-        if (module_exists('taxonomy') && $settings['vocab'] != 0) {
+        if (function_exists('taxonomy_vocabulary_load') && $settings['vocab'] != 0) {
           $taxonomy = taxonomy_vocabulary_load($settings['vocab']);
           if (property_exists($node, 'field_' . $taxonomy->machine_name)) {
             $terms = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
