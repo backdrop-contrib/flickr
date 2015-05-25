@@ -5,11 +5,10 @@ it there, as it is more detailed.
 NAME
 ====
 Flickr
-Project page at https://drupal.org/project/flickr
 
 REQUIREMENTS
 ============
-This module requires Drupal 7.X and a Flickr API key.
+This module requires Backdrop 1.X and a Flickr API key.
 
 OVERVIEW
 ========
@@ -20,6 +19,15 @@ corresponding Flickr page.
 - Show user/group photostreams and sets as responsive slideshows.
 - Image caption with the Flickr title, date taken, where and by who.
 - Show the longer Flickr description on hover if it exists.
+
+LICENSE
+=======
+This project is GPL v2 software. See the LICENSE.txt file in this directory for
+complete text.
+
+MAINTAINER
+==========
+- Martin Postma (https://github.com/lolandese)
 
 INSTALLATION AND CONFIGURATION
 ==============================
