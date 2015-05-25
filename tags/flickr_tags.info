@@ -1,5 +1,5 @@
 name = Flickr Tags
 description = Adds tags capability to Flickr module.
-core = 7.x
+backdrop = 1.x
 package = Flickr
 dependencies[] = flickr

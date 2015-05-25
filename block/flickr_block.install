@@ -10,11 +10,12 @@
 function flickr_block_install() {
   $t = get_t();
   if (function_exists('taxonomy_vocabulary_machine_name_load') && variable_get('flickr_smart', 1)) {
-    $vocab = (object) array(
+    $vocab = new TaxonomyVocabulary(array(
       'name' => 'Flickr tags',
       'machine_name' => 'flickr_tags',
       'description' => $t('Grab Flickr photos with these tags only. Comma separated. You can exclude results that match a term by prepending it with a - character.'),
-    );
+      'module' => 'flickr_block',
+    ));
     taxonomy_vocabulary_save($vocab);
 
     $vocabulary = taxonomy_vocabulary_machine_name_load('flickr_tags');
@@ -632,23 +633,14 @@ function flickr_block_uninstall() {
   variable_del('flickr_block_heading');
   variable_del('flickr_block_hide_empty');
   variable_del('flickr_block_photos_per_set');
-  db_delete('block')
-    ->condition('module', 'flickr')
-    ->execute();
-  db_delete('block_node_type')
-    ->condition('module', 'flickr')
-    ->execute();
-  db_delete('block_role')
-    ->condition('module', 'flickr')
-    ->execute();
   foreach (range(0, 16) as $delta) {
     variable_del("flickr_block_{$delta}");
   }
   if (function_exists('taxonomy_vocabulary_machine_name_load')) {
     $vocabulary = taxonomy_vocabulary_machine_name_load('flickr_tags');
     if ($vocabulary) {
-      field_delete_field('field_' . $vocabulary->machine_name);
-      taxonomy_vocabulary_delete($vocabulary->vid);
+//      field_delete_field('field_' . $vocabulary->machine_name);
+//      taxonomy_vocabulary_delete($vocabulary->vid);
     }
   }
   $field = field_info_field('field_flickr_date');

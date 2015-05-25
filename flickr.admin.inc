@@ -8,7 +8,7 @@
  * Implements hook_settings().
  */
 function flickr_admin_settings() {
-  drupal_add_css(drupal_get_path('module', 'flickr') . '/flickr_cc_icons.css', array(
+  backdrop_add_css(backdrop_get_path('module', 'flickr') . '/flickr_cc_icons.css', array(
     'group' => CSS_DEFAULT,
     'every_page' => FALSE,
   ));
@@ -212,15 +212,15 @@ function flickr_admin_settings() {
     '#weight' => 6,
   );
   // Get list of all available date formats.
-  drupal_static_reset('system_get_date_types');
+  backdrop_static_reset('system_get_date_types');
   $formats = array();
   foreach (system_get_date_types() as $f => $format) {
     if (($format_string = variable_get('date_format_' . $f, FALSE)) === FALSE) {
       $format_string = key(system_get_date_formats($f));
     }
 
-    if (!empty($format_string)) {
-      $formats[$f] = $format['title'] . ' [' . format_date(REQUEST_TIME, 'custom', $format_string) . ']';
+    if (!empty($format_string) && !(stripos($f, 'html') !== FALSE)) {
+      $formats[$f] = $format['label'];
     }
   }
   $formats['interval'] = 'Time ago [' . format_interval(3600 * 24 * 90, 1) . ' ago]';

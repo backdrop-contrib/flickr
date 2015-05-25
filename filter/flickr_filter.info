@@ -1,6 +1,6 @@
 name = Flickr Filter
 description = A text filter to insert Flickr photos and sets into content.
-core = 7.x
+backdrop = 1.x
 package = Flickr
 configure = admin/config/content/formats
 dependencies[] = flickr
