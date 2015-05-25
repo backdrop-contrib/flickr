@@ -29,6 +29,7 @@ INSTALLATION AND CONFIGURATION
 ------------------------------
 It is recommended to enable the Colorbox module prior to installation of the
 Flickr module. This avoids some manual configuration.
+
 1. Extract the download package in the '/sites/all/modules directory'.
 2. Enable the module in 'admin/modules'.
 3. Configure the API Key and settings at '/admin/config/media/flickr'.
@@ -39,21 +40,22 @@ SIZES
 The image size can be one of the following:
 
 Suffix - Label - Size in pixel:
-s - Square - small square 75x75
-t - Thumbnail - 100 on longest side
-q - Large Square - big square 150x150
-m - Small - 240 on longest side
-n - Small 320 - 320 on longest side
+
+- s - Square - small square 75x75
+- t - Thumbnail - 100 on longest side
+- q - Large Square - big square 150x150
+- m - Small - 240 on longest side
+- n - Small 320 - 320 on longest side
 - - Medium - 500 on longest side
-z - Medium 640 - 640 on longest side
-c - Medium 800 - 800 on longest side
-b - Large - 1024 on longest side
-h - Large 1600 - 1600 on longest side
-k - Large 2048 - 2048 on longest side
-o - Original - original image, either a jpg, gif or png, depending on source
+- z - Medium 640 - 640 on longest side
+- c - Medium 800 - 800 on longest side
+- b - Large - 1024 on longest side
+- h - Large 1600 - 1600 on longest side
+- k - Large 2048 - 2048 on longest side
+- o - Original - original image, either a jpg, gif or png, depending on source
     format
-x - Slideshow - Responsive slideshow (for group, set and user IDs only)
-y - Basic slideshow - Basic responsive slideshow (for set and user IDs only)
+- x - Slideshow - Responsive slideshow (for group, set and user IDs only)
+- y - Basic slideshow - Basic responsive slideshow (for set and user IDs only)
 
 NOTES:
 For square images ('s': 75px and 'q': 150px) no real width needs to be fetched, giving it a performance advantage over other sizes. Recommended if you include many images.
