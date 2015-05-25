@@ -349,7 +349,7 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
     $title = '';
   }
   return theme('image', array(
-    'path' => $img_url,
+    'uri' => $img_url,
     'alt' => $title,
     'title' => $title,
     'attributes' => $attributes,
