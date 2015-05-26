@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * The Flickr database schema and uninstall hook.
+ * The Flickr database schema, update and install hooks.
  */
 
 /**
@@ -9,48 +9,13 @@
  */
 function flickr_install() {
   if (module_exists('colorbox')) {
-    variable_set('flickr_class', 'colorbox');
-    variable_set('flickr_rel', 'gallery-all');
-    variable_set('colorbox_inline', 1);
+    config_set('flickr.settings', 'flickr_class', 'colorbox');
+    config_set('flickr.settings', 'flickr_rel', 'gallery-all');
+    config_set('colorbox.settings', 'colorbox_inline', 1);
   }
   elseif (module_exists('lightbox2')) {
-    variable_set('flickr_rel', 'lightbox[gallery]');
+    config_set('flickr.settings', 'flickr_rel', 'lightbox[gallery]');
   }
-}
-
-/**
- * Implements hook_uninstall().
- */
-function flickr_uninstall() {
-  variable_del('flickr_api_key');
-  variable_del('flickr_api_secret');
-  variable_del('flickr_cache_duration');
-  variable_del('flickr_cc');
-  variable_del('flickr_class');
-  variable_del('flickr_css');
-  variable_del('flickr_curl');
-  variable_del('flickr_curl2');
-  variable_del('flickr_debug');
-  variable_del('flickr_default_size_album');
-  variable_del('flickr_default_userid');
-  variable_del('flickr_opening_size');
-  variable_del('flickr_per_page');
-  variable_del('flickr_photos_per_page');
-  variable_del('flickr_rel');
-  variable_del('flickr_title_suppress_on_small');
-  variable_del('flickr_metadata_suppress_on_small');
-  variable_del('flickr_info_overlay');
-  variable_del('flickr_license');
-  variable_del('flickr_restrict');
-  variable_del('flickr_extend');
-  variable_del('flickr_counter');
-  variable_del('flickr_maps');
-  variable_del('flickr_geophp');
-  variable_del('flickr_smart');
-  variable_del('flickr_date_format_image_title');
-  variable_del('flickr_date_format_image_caption');
-  variable_del('flickr_date_format_image_caption_hover');
-  variable_del('flickr_date_format_album_title');
 }
 
 /**
@@ -84,49 +49,85 @@ function flickr_schema() {
 }
 
 /**
- * Create new index 'license' on the variable 'flickr_info_overlay'.
+ * Implements hook_update_last_removed().
  */
-function flickr_update_7001() {
-  $overlay = variable_get('flickr_info_overlay', array(
-    'title' => 'title',
-    'metadata' => 'metadata',
-    'description' => 'description',
-    'license' => 0,
-  ));
-  if (!isset($overlay['license'])) {
-    variable_set('flickr_info_overlay', array(
-      'title' => 'title',
-      'metadata' => 'metadata',
-      'description' => 'description',
-      'license' => 0,
-    ));
-  }
+function flickr_update_last_removed() {
+  return 7103;
 }
 
 /**
- * Removes old unused variables.
+ * Move flickr settings from variables to config.
  */
-function flickr_update_7101() {
-  variable_del("flickr_default_size");
-}
+function flickr_update_1000() {
+  // Migrate variables to config.
+  $config = config('flickr.settings');
+  $config->set('flickr_api_key', update_variable_get('flickr_api_key', ''));
+  $config->set('flickr_api_secret', update_variable_get('flickr_api_secret', ''));
+  $config->set('flickr_cache_duration', update_variable_get('flickr_cache_duration', 3600));
+  $config->set('flickr_cc', update_variable_get('flickr_cc', 0));
+  $config->set('flickr_class', update_variable_get('flickr_class', ''));
+  $config->set('flickr_css', update_variable_get('flickr_css', 1));
+  $config->set('flickr_curl', update_variable_get('flickr_curl', 0));
+  $config->set('flickr_curl2', update_variable_get('flickr_curl2', 0));
+  $config->set('flickr_debug', update_variable_get('flickr_debug', 0));
+  $config->set('flickr_default_size_album', update_variable_get('flickr_default_size_album', 's'));
+  $config->set('flickr_default_userid', update_variable_get('flickr_default_userid', ''));
+  $config->set('flickr_opening_size', update_variable_get('flickr_opening_size', ''));
+  $config->set('flickr_per_page', update_variable_get('flickr_per_page', 100));
+  $config->set('flickr_photos_per_page', update_variable_get('flickr_photos_per_page', 6));
+  $config->set('flickr_rel', update_variable_get('flickr_rel', ''));
+  $config->set('flickr_title_suppress_on_small', update_variable_get('flickr_title_suppress_on_small', '100'));
+  $config->set('flickr_metadata_suppress_on_small', update_variable_get('flickr_metadata_suppress_on_small', '150'));
+  $config->set('flickr_license', update_variable_get('flickr_license', 1));
+  $config->set('flickr_restrict', update_variable_get('flickr_restrict', 1));
+  $config->set('flickr_extend', update_variable_get('flickr_extend', 1));
+  $config->set('flickr_counter', update_variable_get('flickr_counter', 1));
+  $config->set('flickr_maps', update_variable_get('flickr_maps', 0));
+  $config->set('flickr_smart', update_variable_get('flickr_smart', 1));
+  $config->set('flickr_date_format_image_title', update_variable_get('flickr_date_format_image_title', 'medium'));
+  $config->set('flickr_date_format_image_caption', update_variable_get('flickr_date_format_image_caption', 'interval'));
+  $config->set('flickr_date_format_image_caption_hover', update_variable_get('flickr_date_format_image_caption_hover', 'long'));
+  $config->set('flickr_date_format_album_title', update_variable_get('flickr_date_format_album_title', 'short'));
+  $config->set('flickr_info_overlay', update_variable_get('flickr_info_overlay', array(
+    "title",
+    "metadata",
+    "description",
+    0,
+  )));
+  $config->set('flickr_geophp', update_variable_get('flickr_geophp', array(
+    "title",
+    0,
+  )));
+  $config->save();
 
-/**
- * Enable 'Colorbox inline' to allow playing videos inside Colorbox.
- */
-function flickr_update_7102() {
-  if (module_exists('colorbox')) {
-    variable_set('flickr_class', 'colorbox');
-    variable_set('flickr_rel', 'gallery-all');
-    variable_set('colorbox_inline', 1);
-  }
-  elseif (module_exists('lightbox2')) {
-    variable_set('flickr_rel', 'lightbox[gallery]');
-  }
-}
-
-/**
- * Delete unused variables.
- */
-function flickr_update_7103() {
-  variable_del('flickr_caption_padding');
+  // Delete variables.
+  update_variable_del('flickr_api_key');
+  update_variable_del('flickr_api_secret');
+  update_variable_del('flickr_cache_duration');
+  update_variable_del('flickr_cc');
+  update_variable_del('flickr_class');
+  update_variable_del('flickr_css');
+  update_variable_del('flickr_curl');
+  update_variable_del('flickr_curl2');
+  update_variable_del('flickr_debug');
+  update_variable_del('flickr_default_size_album');
+  update_variable_del('flickr_default_userid');
+  update_variable_del('flickr_opening_size');
+  update_variable_del('flickr_per_page');
+  update_variable_del('flickr_photos_per_page');
+  update_variable_del('flickr_rel');
+  update_variable_del('flickr_title_suppress_on_small');
+  update_variable_del('flickr_metadata_suppress_on_small');
+  update_variable_del('flickr_license');
+  update_variable_del('flickr_restrict');
+  update_variable_del('flickr_extend');
+  update_variable_del('flickr_counter');
+  update_variable_del('flickr_maps');
+  update_variable_del('flickr_smart');
+  update_variable_del('flickr_date_format_image_title');
+  update_variable_del('flickr_date_format_image_caption');
+  update_variable_del('flickr_date_format_image_caption_hover');
+  update_variable_del('flickr_date_format_album_title');
+  update_variable_del('flickr_info_overlay');
+  update_variable_del('flickr_geophp');
 }

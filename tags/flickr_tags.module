@@ -53,7 +53,7 @@ function flickr_tags_menu() {
  */
 function flickr_tags_cloud($account, $nsid = NULL) {
   if (variable_get('flickr_css', 1)) {
-    backdrop_add_css(backdrop_get_path('module', 'flickr_tags') . '/flickr_tags.css');
+    backdrop_add_css(backdrop_get_path('module', 'flickr_tags') . '/css/flickr_tags.css');
   }
   drupal_set_title(t('Flickr tags cloud - @name', array('@name' => $account->name)));
   $nsid = $account->flickr['nsid'];
@@ -86,7 +86,7 @@ function flickr_tags_cloud($account, $nsid = NULL) {
  */
 function flickr_tags_list($account, $nsid = NULL) {
   if (variable_get('flickr_css', 1)) {
-    backdrop_add_css(backdrop_get_path('module', 'flickr_tags') . '/flickr_tags.css');
+    backdrop_add_css(backdrop_get_path('module', 'flickr_tags') . '/css/flickr_tags.css');
   }
   drupal_set_title(t('Flickr tags list - @name', array('@name' => $account->name)));
   $nsid = $account->flickr['nsid'];

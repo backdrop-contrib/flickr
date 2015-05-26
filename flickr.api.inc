@@ -82,7 +82,8 @@ function flickr_photos_search($nsid, $page = 1, $other_args = array()) {
   }
   // Set per_page to flickr module default if not specified in $other_args.
   if (!isset($other_args['per_page'])) {
-    $args['per_page'] = variable_get('flickr_photos_per_page', 6);
+    $args['per_page'] = config_get('flickr.settings', 'flickr_
+photos_per_page');
   }
 
   $response = flickr_request('flickr.photos.search', array_merge($args, $other_args));
@@ -112,7 +113,8 @@ function flickr_favorites_getpubliclist($nsid, $page = 1, $other_args = array())
 
   // Set per_page to flickr module default if not specified in $other_args.
   if (!isset($other_args['per_page'])) {
-    $args['per_page'] = variable_get('flickr_photos_per_page', 6);
+    $args['per_page'] = config_get('flickr.settings', 'flickr_
+photos_per_page');
   }
 
   $response = flickr_request('flickr.favorites.getPublicList', array_merge($args, $other_args));
@@ -154,7 +156,8 @@ function flickr_photosets_getinfo($photoset_id) {
  *   (https://www.flickr.com/services/api/flickr.photosets.getList.html)
  */
 function flickr_photosets_getlist($nsid, $page = NULL) {
-  $per_page = (!empty($page)) ? variable_get('flickr_sets_per_page', 8) : '';
+  $per_page = (!empty($page)) ? config_get('flickr.settings', 'flickr_
+sets_per_page') : '';
   $response = flickr_request(
     'flickr.photosets.getList',
     array(
@@ -211,7 +214,8 @@ function flickr_photosets_getphotos($photoset_id, $other_args = array(), $page =
 
   // Set per_page to flickr module default if not specified in $other_args.
   if (!isset($other_args['per_page'])) {
-    $args['per_page'] = variable_get('flickr_photos_per_page', 6);
+    $args['per_page'] = config_get('flickr.settings', 'flickr_
+photos_per_page');
   }
 
   $response = flickr_request('flickr.photosets.getPhotos', array_merge($args, $other_args));
@@ -399,7 +403,8 @@ function flickr_galleries_getphotos($id, $page = 1, $other_args = array()) {
 
   // Set per_page to flickr module default if not specified in $other_args.
   if (!isset($other_args['per_page'])) {
-    $args['per_page'] = variable_get('flickr_photos_per_page', 6);
+    $args['per_page'] = config_get('flickr.settings', 'flickr_
+photos_per_page');
   }
 
   $response = flickr_request('flickr.galleries.getPhotos', array_merge($args, $other_args));
@@ -448,7 +453,8 @@ function flickr_people_getpublicphotos($nsid, $page = 1, $other_args = array()) 
 
   // Set per_page to flickr module default if not specified in $other_args.
   if (!isset($other_args['per_page'])) {
-    $args['per_page'] = variable_get('flickr_photos_per_page', 6);
+    $args['per_page'] = config_get('flickr.settings', 'flickr_
+photos_per_page');
   }
 
   $response = flickr_request('flickr.people.getPublicPhotos', array_merge($args, $other_args));

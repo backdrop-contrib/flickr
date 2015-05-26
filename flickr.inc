@@ -92,7 +92,7 @@ function flickr_photo_sizes() {
  */
 function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALSE) {
   // Add in additional parameters then sort them for signing.
-  $args['api_key'] = trim(variable_get('flickr_api_key', ''));
+  $args['api_key'] = trim(config_get('flickr.settings', 'flickr_api_key'));
   $args['method'] = $method;
   $args['format'] = 'json';
   $args['nojsoncallback'] = 1;
@@ -104,7 +104,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     $arg_hash .= $k . $v;
   }
   // If we've got a secret, sign the arguments.
-  if ($secret = trim(variable_get('flickr_api_secret', ''))) {
+  if ($secret = trim(config_get('flickr.settings', 'flickr_api_secret'))) {
     $args['api_sig'] = md5($secret . $arg_hash);
   }
 
@@ -127,7 +127,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
   $cmethod = 'none';
   $result = new stdClass();
   $result->code = 0;
-  if ((variable_get('flickr_curl2', 0) || !function_exists('stream_socket_client')) && function_exists('curl_version')) {
+  if ((config_get('flickr.settings', 'flickr_curl2') || !function_exists('stream_socket_client')) && function_exists('curl_version')) {
     $result = flickr_curl_http_request($url);
     $cmethod = 'cURL';
   }
@@ -146,7 +146,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     watchdog('flickr', $message, array(), WATCHDOG_WARNING);
     if ($return_errors) {
       // Debug info.
-      if (variable_get('flickr_debug', 0) == 2 && function_exists('dpm')) {
+      if (config_get('flickr.settings', 'flickr_debug') == 2 && function_exists('dpm')) {
         dpm("Value of error 'result' in 'function flickr_request()' with connection method " . "'" . $cmethod . "' in 'flickr.inc':");
         dpm($result);
       }
@@ -162,7 +162,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     // Even the cURL method returns an error.
     if ($result->code != 200) {
       // Debug info.
-      if (variable_get('flickr_debug', 0) == 2 && function_exists('dpm')) {
+      if (config_get('flickr.settings', 'flickr_debug') == 2 && function_exists('dpm')) {
         dpm("Value of 'result' with error in 'function flickr_request()' with connection method " . "'" . $cmethod . "' in 'flickr.inc':");
         dpm($result);
       }
@@ -177,7 +177,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
 
   }
   // Debug info.
-  if (variable_get('flickr_debug', 0) == 2 && function_exists('dpm')) {
+  if (config_get('flickr.settings', 'flickr_debug') == 2 && function_exists('dpm')) {
     dpm("Value of 'result' in 'function flickr_request()' with the " . "'" . $cmethod . "' connection method in 'flickr.inc':");
     dpm($result);
   }
@@ -203,7 +203,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     flickr_set_error($response);
     return FALSE;
   }
-  elseif (isset($args) && variable_get('flickr_debug', 0)) {
+  elseif (isset($args) && config_get('flickr.settings', 'flickr_debug')) {
     $args['format'] = 'rest';
     unset($args['api_sig']);
     $attribs = urldecode(http_build_query($args, '', '&'));
@@ -240,7 +240,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
 
   // Save cacheable results for future use.
   if ($cacheable) {
-    cache_set("flickr_$arg_hash", $result->data, 'cache', time() + variable_get('flickr_cache_duration', 3600));
+    cache_set("flickr_$arg_hash", $result->data, 'cache', time() + config_get('flickr.settings', 'flickr_cache_duration'));
   }
 
   return $response;
@@ -263,7 +263,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
  */
 function flickr_img($photo, $size = NULL, $attributes = NULL) {
   // Debug info.
-  if (variable_get('flickr_debug', 0) == 2 && function_exists('dpm')) {
+  if (config_get('flickr.settings', 'flickr_debug') == 2 && function_exists('dpm')) {
     dpm("Value of 'photo' passed to 'function flickr_img()' in 'flickr.inc':");
     dpm($photo);
   }
@@ -318,7 +318,7 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
   $info = !is_array($photo['title']) ? flickr_photos_getinfo($photo['id']) : '';
   if (isset($info['dates']) || isset($photo['dates'])) {
     $date_taken = isset($info['dates']['taken']) ? $info['dates']['taken'] : $photo['dates']['taken'];
-    $format_title = variable_get('flickr_date_format_image_title', 'medium');
+    $format_title = config_get('flickr.settings', 'flickr_date_format_image_title');
     switch ($format_title) {
       case 'interval':
         $taken_short = format_interval(time() - strtotime($date_taken), 1) . ' ' . t('ago');
@@ -338,14 +338,9 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
     $title = is_array($photo['title']) ? str_replace('"', "'", htmlspecialchars_decode(strip_tags($photo['title']['_content']))) : $photo['title'];
   }
   $title = $taken_short . $title;
-  $overlay = variable_get('flickr_info_overlay', array(
-    'title' => 'title',
-    'metadata' => 'metadata',
-    'description' => 'description',
-    'license' => 0,
-  ));
+  $overlay = config_get('flickr.settings', 'flickr_info_overlay');
   $title = (gettype($overlay['description']) == 'integer') ? $photo['title'] : $title;
-  if (module_exists('jcaption') && (variable_get('flickr_class') != NULL || variable_get('flickr_rel') != NULL)) {
+  if (module_exists('jcaption') && (config_get('flickr.settings', 'flickr_class') != NULL || config_get('flickr.settings', 'flickr_rel') != NULL)) {
     $title = '';
   }
   return theme('image', array(
@@ -662,10 +657,10 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
       drupal_set_message(t("The tag mode has been forced to 'any' (OR) for extended text matching (tags, titles and description). To use 'all' (AND) put 'extend=false' in Flickr's text filter code."), 'warning', FALSE);
     }
     $sizes = flickr_photo_sizes();
-    $show_n = is_null($show_n) ? variable_get('flickr_photos_per_page', 6) : $show_n;
-    $size = is_null($size) ? variable_get('flickr_default_size_album', 's') : $size;
-    $min_title = is_null($min_title) ? variable_get('flickr_title_suppress_on_small', '100') : $min_title;
-    $min_metadata = is_null($min_metadata) ? variable_get('flickr_metadata_suppress_on_small', '150') : $min_metadata;
+    $show_n = is_null($show_n) ? config_get('flickr.settings', 'flickr_photos_per_page') : $show_n;
+    $size = is_null($size) ? config_get('flickr.settings', 'flickr_default_size_album') : $size;
+    $min_title = is_null($min_title) ? config_get('flickr.settings', 'flickr_title_suppress_on_small') : $min_title;
+    $min_metadata = is_null($min_metadata) ? config_get('flickr.settings', 'flickr_metadata_suppress_on_small') : $min_metadata;
     if ($show_n > 1 || is_numeric($delta)) {
       $output = '<div class="flickr-photoset">';
     }
@@ -799,7 +794,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
 
     $tagged = (empty($tags) || $size == 'x' || $size == 'y') ? '' : '<span class="flickr-tags-wrap">' . $flickr;
     // A single date.
-    $format = empty($datefrom) ? 'none' : variable_get('flickr_date_format_album_title', 'short');
+    $format = empty($datefrom) ? 'none' : config_get('flickr.settings', 'flickr_date_format_album_title');
     switch ($format) {
       case 'interval':
         $formated_datefrom = format_interval(time() - strtotime(substr($datefrom, 0, 10)), 1);
@@ -856,7 +851,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
             'target' => '_blank',
           ),
         ));
-        $map = variable_get('flickr_maps', 0) ? '(' . l(t('map'), $people['photosurl'] . 'sets/' . $id . '/map/', array(
+        $map = config_get('flickr.settings', 'flickr_maps') ? '(' . l(t('map'), $people['photosurl'] . 'sets/' . $id . '/map/', array(
           'attributes' => array(
             'title' => t('View set on Flickr map.'),
             'target' => '_blank',
@@ -943,7 +938,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
       // User and group albums.
       default:
         if (!empty($tags) && strpos($tags, ',') == FALSE) {
-          $map = variable_get('flickr_maps', 0) ? '(' . l(t('map'), $people['photosurl'] . 'tags/' . $tags . '/map/', array(
+          $map = config_get('flickr.settings', 'flickr_maps') ? '(' . l(t('map'), $people['photosurl'] . 'tags/' . $tags . '/map/', array(
             'attributes' => array(
               'title' => t('View tagged photos on Flickr map.'),
               'target' => '_blank',
@@ -951,7 +946,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
           )) . ')' : '';
         }
         else {
-          $map = variable_get('flickr_maps', 0) ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
+          $map = config_get('flickr.settings', 'flickr_maps') ? '(' . l(t('map'), $people['photosurl'] . 'map/', array(
             'attributes' => array(
               'title' => t('View user photos on Flickr map.'),
               'target' => '_blank',
@@ -969,13 +964,10 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
         if (isset($lat)) {
           $place_id = flickr_places_findbylatlon($lat, $lon);
           $place_name = $place_id['places']['place'][0]['name'];
-          $geophp = variable_get('flickr_geophp', array(
-            'title' => 'title',
-            'caption' => 0,
-          ));
+          $geophp = config_get('flickr.settings', 'flickr_geophp');
           if (gettype($geophp['title']) != 'integer') {
             $google = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $lat . ',' . $lon;
-            if ((variable_get('flickr_curl2', 0) || !function_exists('stream_socket_client')) && function_exists('curl_version')) {
+            if ((config_get('flickr.settings', 'flickr_curl2') || !function_exists('stream_socket_client')) && function_exists('curl_version')) {
               $result = flickr_curl_http_request($google);
             }
             elseif (function_exists('stream_socket_client')) {
@@ -1108,7 +1100,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
         // For recent sorted photos this is 4 x the displayed number to provide
         // a sufficient distinction between recently uploaded and recently
         // taken.
-        $per_page = ($sort == 'random' || $sort == 'views') ? variable_get('flickr_per_page', 100) : 4 * $show_n;
+        $per_page = ($sort == 'random' || $sort == 'views') ? config_get('flickr.settings', 'flickr_per_page') : 4 * $show_n;
         // ...but if unsorted or user/date, limit it more (except size 'n')...
         $per_page = (($sort == 'unsorted' || ($type == 'user' && ($sort == 'date-taken-desc' || $sort == 'date-posted-desc') && empty($filter))) && $size != 'n') ? $show_n : $per_page;
         // When we have a photoset, gallery or favorites, use the maximum...
@@ -1116,15 +1108,15 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
         // ...but when filtering on muiltiple tags in groups, use the maximum.
         $per_page = (strpos($tags, ',') !== FALSE && $type == 'group') || ($id == '39873962@N08' && $sort == 'date-taken-desc' && empty($filter)) ? $total : $per_page;
         // Fallback: Avoid that $page can be empty or 0.
-        $per_page = isset($page) && $per_page > 0 ? $per_page : variable_get('flickr_per_page', 100);
+        $per_page = isset($page) && $per_page > 0 ? $per_page : config_get('flickr.settings', 'flickr_per_page');
         // If we could have a response of over [variable_get('flickr_per_page',
         // 100)] photos, we want a random sort to take a random page first, so
         // any photos could be taken (not only from the most recent batch).
         // The amount in the last page has to be sufficient to draw a random.
-        $rest_ok = ($total % variable_get('flickr_per_page', 100)) > 3 * $show_n ? 1 : 0;
-        $page = ($sort == 'random' && isset($total) && $total > variable_get('flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / variable_get('flickr_per_page', 100)) + $rest_ok) : $page;
+        $rest_ok = ($total % config_get('flickr.settings', 'flickr_per_page')) > 3 * $show_n ? 1 : 0;
+        $page = ($sort == 'random' && isset($total) && $total > config_get('flickr.settings', 'flickr_per_page', 100) && empty($tags)) ? mt_rand(1, floor($total / config_get('flickr.settings', 'flickr_per_page')) + $rest_ok) : $page;
         // Debug info.
-        if (variable_get('flickr_debug', 0) == 2 && function_exists('dpm')) {
+        if (config_get('flickr.settings', 'flickr_debug') == 2 && function_exists('dpm')) {
           dpm("Arguments passed to 'function flickr_album()': " . '$type=' . $type . ' $delta=' . $delta . ' $id=' . $id . ' $sort=' . $sort . ' $filter=' . $filter . ' $page=' . $page . ' $per_page=' . $per_page . ' $tags=' . $tags . ' $vocab_isset=' . $vocab_isset . ' $total=' . $total . ' $lat=' . $lat . ' $lon=' . $lon . ' $radius=' . $radius . '$datefrom=' . $datefrom . ' $dateto=' . $dateto . ' $extend=' . $extend . ' $tag_mode=' . $tag_mode . ' $class=' . $class . ' $style=' . $style . ' $page=' . $page);
         }
         // Get a list of "all" the photos. This is cached.
@@ -1205,7 +1197,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
               // Start with a circle of 14 meter.
               $radius = empty($radius) ? 0.014 : $radius;
               do {
-                if (variable_get('flickr_restrict', 1) < 2) {
+                if (config_get('flickr.settings', 'flickr_restrict') < 2) {
                   $response = flickr_photos_search($id, $page, array(
                     'group_id' => $group_id,
                     'tags' => $tags_combined,
@@ -1241,7 +1233,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
                   }
                 }
                 // No results, to extend the search on license.
-                if ((empty($response['photo']) || variable_get('flickr_restrict', 1) == 2) && variable_get('flickr_restrict', 1) != 0) {
+                if ((empty($response['photo']) || config_get('flickr.settings', 'flickr_restrict') == 2) && config_get('flickr.settings', 'flickr_restrict') != 0) {
                   $response = flickr_photos_search($id, $page, array(
                     'group_id' => $group_id,
                     'tags' => $tags_combined,
@@ -1282,7 +1274,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
               } while ((count($response['photo']) + count($textext)) < $show_n && $radius <= 32);
             }
             else {
-              if (variable_get('flickr_restrict', 1) < 2) {
+              if (config_get('flickr.settings', 'flickr_restrict') < 2) {
                 $response = flickr_photos_search($id, $page, array(
                   'group_id' => $group_id,
                   'tags' => $tags_combined,
@@ -1311,7 +1303,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
                   $textext = array_merge($textext, $textextension['photo']);
                 }
               }
-              if ((empty($response['photo']) || variable_get('flickr_restrict', 1) == 2) && variable_get('flickr_restrict', 1) != 0) {
+              if ((empty($response['photo']) || config_get('flickr.settings', 'flickr_restrict') == 2) && config_get('flickr.settings', 'flickr_restrict', 1) != 0) {
                 $response = flickr_photos_search($id, $page, array(
                   'group_id' => $group_id,
                   'tags' => $tags_combined,
@@ -1485,7 +1477,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
           $terms = array_merge($taxs, $texts);
           $done = 0;
           foreach ($photos as $key => $photo) {
-            $phototags = (variable_get('flickr_extend', 1) || $extend) && $extend ? $photo['tags'] . ' ' . strtolower($photo['title']) : $photo['tags'];
+            $phototags = (config_get('flickr.settings', 'flickr_extend') || $extend) && $extend ? $photo['tags'] . ' ' . strtolower($photo['title']) : $photo['tags'];
             foreach ($terms as $term) {
               if (($i >= $show_n && (stripos($phototags, $term) !== FALSE || $type == 'user')) || ($photo['id'] == $done && (stripos($phototags, $term) !== FALSE || $type == 'user'))) {
                 $j++;
@@ -1562,7 +1554,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
         }
         $output .= '</div>';
 
-        if ($i == 0 && variable_get('flickr_block_hide_empty', 0)) {
+        if ($i == 0 && config_get('flickr.settings', 'flickr_block_hide_empty')) {
           $output = '';
           if (is_numeric($delta) && module_exists('flickr_block')) {
             $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
@@ -1607,7 +1599,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
         // If the total found > max query ($per_page), omit the counter if tags
         // are applied.
         $terms = isset($terms) ? $terms : 1;
-        $output .= (((variable_get('flickr_counter', 1) && $delta != 'false') || $delta == 'true') && (isset($response['total']) || ($j < $per_page * count($terms) || empty($tags))) && ($show_n > 1 || is_numeric($delta))) ? '<div class="flickr-album-counter">' . $count . '</div>' : '';
+        $output .= (((config_get('flickr.settings', 'flickr_counter') && $delta != 'false') || $delta == 'true') && (isset($response['total']) || ($j < $per_page * count($terms) || empty($tags))) && ($show_n > 1 || is_numeric($delta))) ? '<div class="flickr-album-counter">' . $count . '</div>' : '';
     }
     if ($show_n > 1 || is_numeric($delta)) {
       $output .= '</div>';
