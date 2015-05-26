@@ -8,14 +8,14 @@
   module_load_include('inc', 'flickr_filter', 'flickr_filter.admin');
 
 /**
- * Implements hook_help().
+ * Implements hook_config_info().
  */
-function flickr_filter_help($path, $arg) {
-  switch ($path) {
-    case 'admin/help#flickr_filter':
-      // Return a line-break version of the README.txt.
-      return _filter_autop(file_get_contents(dirname(__FILE__) . '/README.txt'));
-  }
+function flickr_filter_config_info() {
+  $prefixes['flickr_filter.settings'] = array(
+    'label' => t('Flickr Filter settings'),
+    'group' => t('Flickr'),
+  );
+  return $prefixes;
 }
 
 /**
@@ -65,10 +65,10 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
       'target' => '_blank',
     ),
   ));
-  $count = variable_get('flickr_counter', 1) ? 'true' : 'false';
-  $extend = variable_get('flickr_extend', 1) ? 'true' : 'false';
-  $default_userid = variable_get('flickr_default_userid', '');
-  $info = empty($default_userid) ? '' : flickr_people_getinfo(variable_get('flickr_default_userid', ''));
+  $count = config_get('flickr.settings', 'flickr_counter') ? 'true' : 'false';
+  $extend = config_get('flickr.settings', 'flickr_extend') ? 'true' : 'false';
+  $default_userid = config_get('flickr.settings', 'flickr_default_userid');
+  $info = empty($default_userid) ? '' : flickr_people_getinfo(config_get('flickr.settings', 'flickr_default_userid'));
   $default_userid = empty($info) ? '[undefined]' : $info['username']['_content'];
   $output = t("Insert a <strong>Flickr photo</strong>. A working example:
   <ul>
@@ -127,13 +127,13 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
     '!autofloat' => $autofloat,
     '!find_id' => $idgettr,
     '@default_userid' => $default_userid,
-    '@default_size' => variable_get('flickr_filter_default_size', 'm'),
-    '@default_size_album' => variable_get('flickr_default_size_album', 's'),
-    '@default_limit' => variable_get('flickr_per_page', 100),
-    '@default_number' => variable_get('flickr_photos_per_page', 6),
-    '@default_mintitle' => variable_get('flickr_title_suppress_on_small', '100'),
-    '@default_minmetadata' => variable_get('flickr_metadata_suppress_on_small', '150'),
-    '@default_heading' => variable_get('flickr_filter_heading', 'p'),
+    '@default_size' => config_get('flickr_filter.settings', 'flickr_filter_default_size'),
+    '@default_size_album' => config_get('flickr.settings', 'flickr_default_size_album'),
+    '@default_limit' => config_get('flickr.settings', 'flickr_per_page'),
+    '@default_number' => config_get('flickr.settings', 'flickr_photos_per_page'),
+    '@default_mintitle' => config_get('flickr.settings', 'flickr_title_suppress_on_small'),
+    '@default_minmetadata' => config_get('flickr.settings', 'flickr_metadata_suppress_on_small'),
+    '@default_heading' => config_get('flickr_filter.settings', 'flickr_filter_heading'),
     '@default_count' => $count,
     '@default_extend' => $extend,
     '!config' => $config,
@@ -157,7 +157,7 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
     'handle' => t('Flickr Filter options. !toggle', array('!toggle' => $toggle)),
     'content' => $output, 'collapsed' => TRUE,
   );
-  $output = module_exists('ctools') && variable_get('flickr_filter_collapsible', 1) ? theme('ctools_collapsible', $options) : $output;
+  $output = module_exists('ctools') && config_get('flickr_filter.settings', 'flickr_filter_collapsible') ? theme('ctools_collapsible', $options) : $output;
   return $output;
 }
 
@@ -211,19 +211,19 @@ function flickr_filter_callback_photo($matches) {
   if (isset($config['id'])) {
     if ($photo = flickr_photos_getinfo($config['id'])) {
       if (!isset($config['size'])) {
-        $config['size'] = variable_get('flickr_filter_default_size', 'm');
+        $config['size'] = config_get('flickr_filter.settings', 'flickr_filter_default_size');
       }
       if (!isset($config['mintitle'])) {
-        $config['mintitle'] = variable_get('flickr_title_suppress_on_small', '100');
+        $config['mintitle'] = config_get('flickr.settings', 'flickr_title_suppress_on_small');
       }
       if (!isset($config['minmetadata'])) {
-        $config['minmetadata'] = variable_get('flickr_metadata_suppress_on_small', '150');
+        $config['minmetadata'] = config_get('flickr.settings', 'flickr_metadata_suppress_on_small');
       }
       switch ($config['size']) {
         case "x":
         case "y":
           drupal_set_message(t("Do not use a slideshow for a single image."), 'error');
-          $config['size'] = variable_get('flickr_filter_default_size', 'm');
+          $config['size'] = config_get('flickr_filter.settings', 'flickr_filter_default_size');
           break;
       }
       $sizes = flickr_photo_sizes();
@@ -253,7 +253,7 @@ function flickr_filter_callback_photo($matches) {
 function flickr_filter_callback_album($matches) {
   list($config, $attribs) = flickr_filter_split_config($matches[1]);
   if (!isset($config['id']) || $config['id'] == 'public') {
-    $default_userid = variable_get('flickr_default_userid', '');
+    $default_userid = config_get('flickr.settings', 'flickr_default_userid');
     $config['id'] = !isset($config['id']) ? $default_userid : $config['id'];
     $config['id'] = (!empty($default_userid) && $config['id'] != 'public') ? $default_userid : '39873962@N08';
   }
@@ -273,7 +273,7 @@ function flickr_filter_callback_album($matches) {
     $config['media'] = 'photos';
   }
   if (!isset($config['heading'])) {
-    $config['heading'] = variable_get('flickr_filter_heading', 'p');
+    $config['heading'] = config_get('flickr_filter.settings', 'flickr_filter_heading');
   }
   if (!isset($config['tags'])) {
     $config['tags'] = '';
@@ -303,10 +303,10 @@ function flickr_filter_callback_album($matches) {
     }
   }
   if (!isset($config['count'])) {
-    $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
+    $config['count'] = config_get('flickr.settings', 'flickr_counter') ? 'true' : 'false';
   }
   if (!isset($config['extend'])) {
-    $config['extend'] = variable_get('flickr_extend', 1);
+    $config['extend'] = config_get('flickr.settings', 'flickr_extend');
   }
   else {
     $config['extend'] = $config['extend'] == 'false' ? 0 : 1;
@@ -376,7 +376,7 @@ function flickr_filter_callback_group($matches) {
       $config['sort'] = 'unsorted';
     }
     if (!isset($config['heading'])) {
-      $config['heading'] = variable_get('flickr_filter_heading', 'p');
+      $config['heading'] = config_get('flickr_filter.settings', 'flickr_filter_heading');
     }
     if (!isset($config['tags'])) {
       $config['tags'] = '';
@@ -385,7 +385,7 @@ function flickr_filter_callback_group($matches) {
       $config['tags'] = str_replace("/", ",", $config['tags']);
     }
     if (!isset($config['count'])) {
-      $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
+      $config['count'] = config_get('flickr.settings', 'flickr_counter') ? 'true' : 'false';
     }
     if (!isset($config['mintitle'])) {
       $config['mintitle'] = NULL;
@@ -427,7 +427,7 @@ function flickr_filter_callback_group($matches) {
       }
     }
     if (!isset($config['extend'])) {
-      $config['extend'] = variable_get('flickr_extend', 1);
+      $config['extend'] = config_get('flickr.settings', 'flickr_extend');
     }
     else {
       $config['extend'] = $config['extend'] == 'false' ? 0 : 1;
@@ -476,7 +476,7 @@ function flickr_filter_callback_gallery($matches) {
       $config['sort'] = 'unsorted';
     }
     if (!isset($config['heading'])) {
-      $config['heading'] = variable_get('flickr_filter_heading', 'p');
+      $config['heading'] = config_get('flickr_filter.settings', 'flickr_filter_heading');
     }
     if (!isset($config['tags'])) {
       $config['tags'] = '';
@@ -485,7 +485,7 @@ function flickr_filter_callback_gallery($matches) {
       $config['tags'] = str_replace("/", ",", $config['tags']);
     }
     if (!isset($config['count'])) {
-      $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
+      $config['count'] = config_get('flickr.settings', 'flickr_counter') ? 'true' : 'false';
     }
     if (!isset($config['mintitle'])) {
       $config['mintitle'] = NULL;
@@ -527,7 +527,7 @@ function flickr_filter_callback_gallery($matches) {
       }
     }
     if (!isset($config['extend'])) {
-      $config['extend'] = variable_get('flickr_extend', 1);
+      $config['extend'] = config_get('flickr.settings', 'flickr_extend');
     }
     else {
       $config['extend'] = $config['extend'] == 'false' ? 0 : 1;
@@ -557,7 +557,7 @@ function flickr_filter_callback_favorites($matches) {
   list($config, $attribs) = flickr_filter_split_config($matches[1]);
 
   if (!isset($config['id'])) {
-    $default_userid = variable_get('flickr_default_userid', '');
+    $default_userid = config_get('flickr.settings', 'flickr_default_userid');
     $config['id'] = !empty($default_userid) ? $default_userid : NULL;
   }
   if (isset($config['id'])) {
@@ -580,7 +580,7 @@ function flickr_filter_callback_favorites($matches) {
       $config['sort'] = 'unsorted';
     }
     if (!isset($config['heading'])) {
-      $config['heading'] = variable_get('flickr_filter_heading', 'p');
+      $config['heading'] = config_get('flickr_filter.settings', 'flickr_filter_heading');
     }
     if (!isset($config['tags'])) {
       $config['tags'] = '';
@@ -589,7 +589,7 @@ function flickr_filter_callback_favorites($matches) {
       $config['tags'] = str_replace("/", ",", $config['tags']);
     }
     if (!isset($config['count'])) {
-      $config['count'] = variable_get('flickr_counter', 1) ? 'true' : 'false';
+      $config['count'] = config_get('flickr.settings', 'flickr_counter') ? 'true' : 'false';
     }
     if (!isset($config['mintitle'])) {
       $config['mintitle'] = NULL;
@@ -631,7 +631,7 @@ function flickr_filter_callback_favorites($matches) {
       }
     }
     if (!isset($config['extend'])) {
-      $config['extend'] = variable_get('flickr_extend', 1);
+      $config['extend'] = config_get('flickr.settings', 'flickr_extend');
     }
     else {
       $config['extend'] = $config['extend'] == 'false' ? 0 : 1;

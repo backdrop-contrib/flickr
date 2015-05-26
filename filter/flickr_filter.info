@@ -1,5 +1,6 @@
 name = Flickr Filter
 description = A text filter to insert Flickr photos and sets into content.
+type = module
 backdrop = 1.x
 package = Flickr
 configure = admin/config/content/formats

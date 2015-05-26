@@ -1,5 +1,6 @@
 name = Flickr Style
 description = Extra configuration options: Rounded corners, shadow, border, emphasize on hover.
+type = module
 backdrop = 1.x
 package = Flickr
 configure = admin/config/media/flickr

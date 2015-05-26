@@ -1,14 +1,22 @@
 <?php
 /**
  * @file
- * The Flickr Filter uninstall hook
+ * The Flickr Filter update hook
  */
 
 /**
- * Implements hook_uninstall().
+ * Move flickr settings from variables to config.
  */
-function flickr_filter_uninstall() {
-  variable_del('flickr_filter_heading');
-  variable_del('flickr_filter_default_size');
-  variable_del('flickr_filter_collapsible');
+function flickr_filter_update_1000() {
+  // Migrate variables to config.
+  $config = config('flickr_filter.settings');
+  $config->set('flickr_filter_heading', update_variable_get('flickr_filter_heading', 'p'));
+  $config->set('flickr_filter_default_size', update_variable_get('flickr_filter_default_size', 'm'));
+  $config->set('flickr_filter_collapsible', update_variable_get('flickr_filter_collapsible', 1));
+  $config->save();
+
+  // Delete variables.
+  update_variable_del('flickr_filter_heading');
+  update_variable_del('flickr_filter_default_size');
+  update_variable_del('flickr_filter_collapsible');
 }

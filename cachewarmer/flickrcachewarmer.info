@@ -1,5 +1,6 @@
 name = Flickr Cache Warmer
 description = Enhances the performance by rebuilding the page cache after cron runs for selected content types.
+type = module
 backdrop = 1.x
 package = Flickr
 configure = admin/config/media/flickr

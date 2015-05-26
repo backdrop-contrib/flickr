@@ -1,5 +1,6 @@
 name = Flickr Sets
 description = Adds photoset capability to the Flickr module.
+type = module
 backdrop = 1.x
 package = Flickr
 configure = admin/config/media/flickr

@@ -80,7 +80,7 @@ function flickr_admin_settings() {
       't' => t('t: 100 px on longest side'),
       'q' => t('q: 150 px square'),
       'm' => t('m: 240 px on longest side'),
-      'n' => t('n: 320 px on longest side (!)'),
+      'n' => t('n: 320 px on longest side'),
       '-' => t('-: 500 px on longest side'),
       'z' => t('z: 640 px on longest side'),
       'c' => t('c: 800 px on longest side (!)'),
@@ -261,9 +261,9 @@ function flickr_admin_settings() {
     '#empty_option' => t('- None -'),
     '#empty_value' => 'none',
   );
-  $colorbox_module = l(t('Colorbox module'), 'https://drupal.org/project/colorbox', array(
+  $colorbox_module = l(t('Colorbox module'), 'https://github.com/backdrop-contrib/colorbox', array(
       'attributes' => array(
-        'title' => t('Colorbox| Drupal.org'),
+        'title' => t('backdrop-contrib/colorbox | GitHub'),
         'target' => '_blank',
       ),
   ));
@@ -294,7 +294,7 @@ function flickr_admin_settings() {
     '#options' => array(
       'q' => t('q: 150 px square'),
       'm' => t('m: 240 px on longest side'),
-      'n' => t('n: 320 px on longest side (!)'),
+      'n' => t('n: 320 px on longest side'),
       '' => t('-: 500 px on longest side'),
       'z' => t('z: 640 px on longest side'),
       'c' => t('c: 800 px on longest side (!)'),
@@ -322,9 +322,9 @@ function flickr_admin_settings() {
     '#collapsed' => TRUE,
     '#weight' => 10,
   );
-  $autofloat_module = l(t('AutoFloat module'), 'https://drupal.org/project/autofloat', array(
+  $autofloat_module = l(t('AutoFloat module'), 'https://github.com/backdrop-contrib/autofloat', array(
       'attributes' => array(
-        'title' => t('AutoFloat | Drupal.org'),
+        'title' => t('backdrop-contrib/autofloat | GitHub'),
         'target' => '_blank',
       ),
   ));
@@ -423,9 +423,9 @@ function flickr_admin_settings() {
     $form['advanced_settings']['flickr_curl2']['#disabled'] = TRUE;
     $form['advanced_settings']['flickr_curl2']['#description'] = t("Disabled because your server configuration only allows 'stream_socket_client' (not 'cURL')");
   }
-  $devel_module = l(t('Devel module'), 'https://drupal.org/project/devel', array(
+  $devel_module = l(t('Devel module'), 'https://github.com/backdrop-contrib/devel', array(
       'attributes' => array(
-        'title' => t('Devel | Drupal.org'),
+        'title' => t('backdrop-contrib/devel | GitHub'),
         'target' => '_blank',
       ),
   ));
@@ -467,15 +467,15 @@ function flickr_admin_settings() {
   if (module_exists('flickr_block')) {
     $form['block_settings']['#description'] = t('Clear the cache on form submit.');
   }
-  $date = l(t('Date'), 'https://www.drupal.org/project/date', array(
+  $date = l(t('Date'), 'https://github.com/backdrop-contrib/date', array(
     'attributes' => array(
-      'title' => t('Project page on Drupal.org'),
+      'title' => t('backdrop-contrib/date | GitHub'),
       'target' => '_blank',
     ),
   ));
-  $geofield = l(t('Geofield'), 'https://www.drupal.org/project/geofield', array(
+  $geofield = l(t('Geofield'), 'https://github.com/backdrop-contrib/geofield', array(
     'attributes' => array(
-      'title' => t('Project page on Drupal.org'),
+      'title' => t('backdrop-contrib/geofield | GitHub'),
       'target' => '_blank',
     ),
   ));
@@ -597,5 +597,40 @@ function flickr_admin_settings_submit($form, &$form_state) {
     $config->set($key, $value);
   }
   $config->save();
+  if (module_exists('flickr_block')) {
+    $config = config('flickr_block.settings');
+    foreach ($form_state['values'] as $key => $value) {
+      $config->set($key, $value);
+    }
+    $config->save();
+  }
+  if (module_exists('flickrcachewarmer')) {
+    $config = config('flickrcachewarmer.settings');
+    foreach ($form_state['values'] as $key => $value) {
+      $config->set($key, $value);
+    }
+    $config->save();
+  }
+  if (module_exists('flickr_filter')) {
+    $config = config('flickr_filter.settings');
+    foreach ($form_state['values'] as $key => $value) {
+      $config->set($key, $value);
+    }
+    $config->save();
+  }
+  if (module_exists('flickr_sets')) {
+    $config = config('flickr_sets.settings');
+    foreach ($form_state['values'] as $key => $value) {
+      $config->set($key, $value);
+    }
+    $config->save();
+  }
+  if (module_exists('flickr_style')) {
+    $config = config('flickr_style.settings');
+    foreach ($form_state['values'] as $key => $value) {
+      $config->set($key, $value);
+    }
+    $config->save();
+  }
   backdrop_set_message(t('The configuration options have been saved.'));
 }

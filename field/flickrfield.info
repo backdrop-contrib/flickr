@@ -1,5 +1,6 @@
 name = Flickr Field
 description = Add Flickr images or sets to content as fields.
+type = module
 backdrop = 1.x
 package = Flickr
 configure = admin/structure/types

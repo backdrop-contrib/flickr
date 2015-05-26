@@ -1,5 +1,6 @@
 name = Flickr Block
 description = Display Flickr images in blocks to show recent or random images from a user, set or group.
+type = module
 backdrop = 1.x
 package = Flickr
 configure = admin/structure/block

@@ -1,6 +1,6 @@
 {
   "_config_name": "flickr_filter.settings",
-  "flickr_filter_heading": "",
-  "flickr_filter_default_size": "",
-  "flickr_filter_collapsible": ""
+  "flickr_filter_heading": "p",
+  "flickr_filter_default_size": "m",
+  "flickr_filter_collapsible": 1
 }

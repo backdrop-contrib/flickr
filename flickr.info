@@ -1,5 +1,6 @@
 name = Flickr
 description = Flickr and Drupal integration.
+type = module
 backdrop = 1.x
 package = Flickr
 configure = admin/config/media/flickr
