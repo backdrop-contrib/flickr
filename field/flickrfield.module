@@ -121,10 +121,10 @@ function flickrfield_form_process_flickrfield($element, $form_state, $form = arr
     '#type' => 'textfield',
     '#title' => t('User Id'),
     '#maxlength' => 64,
-    '#default_value' => !empty($element['#value']['nsid']) ? $element['#value']['nsid'] : variable_get('flickr_default_userid', ''),
+    '#default_value' => !empty($element['#value']['nsid']) ? $element['#value']['nsid'] : config_get('flickr.settings', 'flickr_default_userid'),
     '#required' => $element['#required'],
     '#description' => t("The user id of the Flickr user who owns the photos. If this is left blank, the sites's default user will be used. Current default id is @id. !find_id", array(
-      '@id' => variable_get('flickr_default_userid', ''),
+      '@id' => config_get('flickr.settings', 'flickr_default_userid'),
       '!find_id' => $idgettr,
     )),
   );
@@ -327,7 +327,7 @@ function theme_flickrfield_field_formatter($element) {
         'attribs' => NULL,
         'size' => $formatter,
         'photoset' => $photo_data,
-        'per_page' => variable_get('flickr_sets_photos_per_set', 6),
+        'per_page' => config_get('flickr.settings', 'flickr_sets_photos_per_set'),
       ));
   }
 }
