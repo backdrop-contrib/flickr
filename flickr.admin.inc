@@ -632,5 +632,12 @@ function flickr_admin_settings_submit($form, &$form_state) {
     }
     $config->save();
   }
+  if (module_exists('flickr_tags')) {
+    $config = config('flickr_tags.settings');
+    foreach ($form_state['values'] as $key => $value) {
+      $config->set($key, $value);
+    }
+    $config->save();
+  }
   backdrop_set_message(t('The configuration options have been saved.'));
 }

@@ -1,0 +1,18 @@
+<?php
+/**
+ * @file
+ * Update hook.
+ */
+
+/**
+ * Move flickr settings from variables to config.
+ */
+function flickr_tags_update_1000() {
+  // Migrate variables to config.
+  $config = config('flickr_tags_in_cloud.settings');
+  $config->set('flickr_tags_in_cloud', update_variable_get('flickr_tags_in_cloud', 150));
+  $config->save();
+
+  // Delete variables.
+  update_variable_del('flickr_tags_in_cloud');
+}

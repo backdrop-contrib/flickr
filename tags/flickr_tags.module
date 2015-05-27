@@ -4,6 +4,20 @@
  * The Flickr tags module.
  */
 
+  // Load flickr_tags.admin.inc from the flickr_sets module.
+  module_load_include('inc', 'flickr_tags', 'flickr_tags.admin');
+
+/**
+ * Implements hook_config_info().
+ */
+function flickr_tags_config_info() {
+  $prefixes['flickr_tags.settings'] = array(
+    'label' => t('Flickr Tags settings'),
+    'group' => t('Flickr'),
+  );
+  return $prefixes;
+}
+
 /**
  * Implements hook_menu().
  */
@@ -52,13 +66,13 @@ function flickr_tags_menu() {
  * Returns a given user's tags cloud.
  */
 function flickr_tags_cloud($account, $nsid = NULL) {
-  if (variable_get('flickr_css', 1)) {
+  if (config_get('flickr.settings', 'flickr_css')) {
     backdrop_add_css(backdrop_get_path('module', 'flickr_tags') . '/css/flickr_tags.css');
   }
   drupal_set_title(t('Flickr tags cloud - @name', array('@name' => $account->name)));
   $nsid = $account->flickr['nsid'];
   // Get tag info.
-  $poptag_response = flickr_tags_getlistuserpopular($nsid, variable_get('flickr_tags_in_cloud', 150));
+  $poptag_response = flickr_tags_getlistuserpopular($nsid, config_get('flickr_tags.settings', 'flickr_tags_in_cloud'));
 
   if ($poptag_response === FALSE) {
     drupal_set_message(t("Error retrieving %user's tags from Flickr", array('%user' => $account->name)));
@@ -85,7 +99,7 @@ function flickr_tags_cloud($account, $nsid = NULL) {
  * Returns a given user's tags.
  */
 function flickr_tags_list($account, $nsid = NULL) {
-  if (variable_get('flickr_css', 1)) {
+  if (config_get('flickr.settings', 'flickr_css')) {
     backdrop_add_css(backdrop_get_path('module', 'flickr_tags') . '/css/flickr_tags.css');
   }
   drupal_set_title(t('Flickr tags list - @name', array('@name' => $account->name)));
