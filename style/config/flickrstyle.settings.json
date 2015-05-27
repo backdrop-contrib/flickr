@@ -1,7 +1,11 @@
 {
-  "_config_name": "autofloat.settings",
-  "autofloat_start": 0,
-  "autofloat_css": 1,
-  "autofloat_span": "flickr-wrap",
-  "autofloat_div": "flickr-photoset"
+  "_config_name": "flickrstyle.settings",
+  "flickrstyle_styles": [
+    "rounded",
+    "shadow",
+    "border"
+  ],
+  "flickrstyle_caption": 1,
+  "flickrstyle_emphasize": 2,
+  "flickrstyle_nostyle": 1
 }

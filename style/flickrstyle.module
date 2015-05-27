@@ -8,14 +8,14 @@
   module_load_include('inc', 'flickrstyle', 'flickrstyle.admin');
 
 /**
- * Implements hook_help().
+ * Implements hook_config_info().
  */
-function flickrstyle_help($path, $arg) {
-  switch ($path) {
-    case 'admin/help#flickrstyle':
-      // Return a line-break version of the README.txt.
-      return _filter_autop(file_get_contents(dirname(__FILE__) . '/README.txt'));
-  }
+function flickrstyle_config_info() {
+  $prefixes['flickrstyle.settings'] = array(
+    'label' => t('Flickr Style settings'),
+    'group' => t('Flickr'),
+  );
+  return $prefixes;
 }
 
 /**
@@ -23,12 +23,8 @@ function flickrstyle_help($path, $arg) {
  */
 function flickrstyle_init() {
   // Determine the settings which CSS files to use.
-  if (variable_get('flickr_css', 1)) {
-    $styles = variable_get('flickrstyle_styles', array(
-      'rounded' => 'rounded',
-      'shadow' => 'shadow',
-      'border' => 0,
-    ));
+  if (config_get('flickr.settings', 'flickr_css')) {
+    $styles = config_get('flickrstyle.settings', 'flickrstyle_styles');
     if (gettype($styles['rounded']) != 'integer') {
       backdrop_add_css(backdrop_get_path('module', 'flickrstyle') . '/css/flickrstyle_rounded.css', array(
         'group' => CSS_DEFAULT,
@@ -53,7 +49,7 @@ function flickrstyle_init() {
         'every_page' => TRUE,
       ));
     }
-    switch (variable_get('flickrstyle_caption', 1)) {
+    switch (config_get('flickrstyle.settings', 'flickrstyle_caption')) {
       case 1:
         if (gettype($styles['shadow']) != 'integer') {
           backdrop_add_css(backdrop_get_path('module', 'flickrstyle') . '/css/flickrstyle_caption_shadow.css', array(
@@ -84,13 +80,13 @@ function flickrstyle_init() {
         }
         break;
     }
-    if (variable_get('flickrstyle_nostyle', 1)) {
+    if (config_get('flickrstyle.settings', 'flickrstyle_nostyle')) {
       backdrop_add_css(backdrop_get_path('module', 'flickrstyle') . '/css/flickrstyle_nostyle.css', array(
         'group' => CSS_DEFAULT,
         'every_page' => TRUE,
       ));
     }
-    switch (variable_get('flickrstyle_emphasize', 2)) {
+    switch (config_get('flickrstyle.settings', 'flickrstyle_emphasize')) {
       case 1:
         backdrop_add_css(backdrop_get_path('module', 'flickrstyle') . '/css/flickrstyle_enlarge.css', array(
           'group' => CSS_DEFAULT,

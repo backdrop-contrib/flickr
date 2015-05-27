@@ -1,15 +1,28 @@
 <?php
 /**
  * @file
- * The Flickr Style uninstall hook
+ * The Flickr Style update hook
  */
 
 /**
- * Implements hook_uninstall().
+ * Move flickr settings from variables to config.
  */
-function flickrstyle_uninstall() {
-  variable_del('flickrstyle_styles');
-  variable_del('flickrstyle_caption');
-  variable_del('flickrstyle_emphasize');
-  variable_del('flickrstyle_nostyle');
+function flickrstyle_update_1000() {
+  // Migrate variables to config.
+  $config = config('flickr_style.settings');
+  $config->set('flickrstyle_styles', update_variable_get('flickrstyle_styles', array(
+      'rounded',
+      'shadow',
+      'border',
+    )));
+  $config->set('flickrstyle_caption', update_variable_get('flickrstyle_caption', 1));
+  $config->set('flickrstyle_emphasize', update_variable_get('flickrstyle_emphasize', 2));
+  $config->set('flickrstyle_nostyle', update_variable_get('flickrstyle_nostyle', 1));
+  $config->save();
+
+  // Delete variables.
+  update_variable_del('flickrstyle_styles');
+  update_variable_del('flickrstyle_caption');
+  update_variable_del('flickrstyle_emphasize');
+  update_variable_del('flickrstyle_nostyle');
 }

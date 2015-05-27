@@ -10,7 +10,7 @@
 function flickrstyle_form_flickr_admin_settings_alter(&$form, &$form_state) {
   $form['#validate'][] = 'flickrstyle_admin_settings_validate';
   // Do not display CSS styling options if the module's CSS is disabled.
-  if (variable_get('flickr_css', 1)) {
+  if (config_get('flickr.settings', 'flickr_css')) {
     $options = array(
       'rounded' => t('Rounded corners'),
       'shadow' => t('Shadow'),
@@ -19,23 +19,15 @@ function flickrstyle_form_flickr_admin_settings_alter(&$form, &$form_state) {
     $form['css_settings']['flickrstyle_styles'] = array(
       '#type' => 'checkboxes',
       '#title' => t('Image styles'),
-      '#default_value' => variable_get('flickrstyle_styles', array(
-        'rounded' => 'rounded',
-        'shadow' => 'shadow',
-        'border' => 'border',
-      )),
+      '#default_value' => config_get('flickrstyle.settings', 'flickrstyle_styles'),
       '#options' => $options,
       '#weight' => 8,
     );
-    $styles = variable_get('flickrstyle_styles', array(
-      'rounded' => 'rounded',
-      'shadow' => 'shadow',
-      'border' => 'border',
-    ));
+    $styles = config_get('flickrstyle.settings', 'flickrstyle_styles');
     // We need a shadow and/or border before we can use a style on the caption
     // and a reset to 'No' of it if so.
     if (gettype($styles['shadow']) == 'integer' && gettype($styles['border']) == 'integer') {
-      variable_set('flickrstyle_caption', 0);
+      config_set('flickrstyle.settings', 'flickrstyle_caption', 0);
       drupal_set_message(t("The caption style has been disabled until you set a 'border' and/or 'shadow' in the 'Image styles'. It will be available again after saving the form."), 'warning', FALSE);
     }
     $form['css_settings']['flickrstyle_caption'] = array(
@@ -47,7 +39,7 @@ function flickrstyle_form_flickr_admin_settings_alter(&$form, &$form_state) {
         t('Yes, wrapped around the image and caption ("Polaroid" effect if applied with a border)'),
       ),
       // Defaults to 'No'
-      '#default_value' => variable_get('flickrstyle_caption', 1),
+      '#default_value' => config_get('flickrstyle.settings', 'flickrstyle_caption'),
       '#weight' => 10,
     );
     // We need a shadow and/or border before we can use a style on the caption.
@@ -63,13 +55,13 @@ function flickrstyle_form_flickr_admin_settings_alter(&$form, &$form_state) {
     $form['css_settings']['flickrstyle_nostyle'] = array(
       '#type' => 'checkbox',
       '#title' => t("Disable the above styles on a caption with only the text 'Flickr' (simple link)"),
-      '#default_value' => variable_get('flickrstyle_nostyle', 1),
+      '#default_value' => config_get('flickrstyle.settings', 'flickrstyle_nostyle'),
       '#weight' => 11,
     );
     // Disable the 'Enlarge' style until a border is set or shadow unselected.
     if (gettype($styles['shadow']) != 'integer' && gettype($styles['border']) == 'integer') {
-      if (variable_get('flickrstyle_emphasize', 2) == 2) {
-        variable_set('flickrstyle_emphasize', 3);
+      if (config_get('flickrstyle.settings', 'flickrstyle_emphasize') == 2) {
+        config_set('flickrstyle.settings', 'flickrstyle_emphasize', 3);
         drupal_set_message(t("The emphasize style has been set to 'Zoom'. 'Enlarge' has been disabled until you set a 'border' or unselect 'shadow' in the 'Image styles'. It will be available again after saving the form."), 'warning', FALSE);
       }
     }
@@ -84,7 +76,7 @@ function flickrstyle_form_flickr_admin_settings_alter(&$form, &$form_state) {
         t('Magnifier icon'),
       ),
       // Defaults to 'Enlarge slightly'.
-      '#default_value' => variable_get('flickrstyle_emphasize', 2),
+      '#default_value' => config_get('flickrstyle.settings', 'flickrstyle_emphasize'),
       '#description' => t("(*): The 'Zoom' and 'Enlarge' styles use bigger images to maintain the resolution. This has a slight performance impact and the size 'big square' (q) is not square but 150px on the longest side to avoid distortion on older browsers."),
       '#weight' => 12,
     );

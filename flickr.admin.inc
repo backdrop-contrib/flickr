@@ -625,8 +625,8 @@ function flickr_admin_settings_submit($form, &$form_state) {
     }
     $config->save();
   }
-  if (module_exists('flickr_style')) {
-    $config = config('flickr_style.settings');
+  if (module_exists('flickrstyle')) {
+    $config = config('flickrstyle.settings');
     foreach ($form_state['values'] as $key => $value) {
       $config->set($key, $value);
     }

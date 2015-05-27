@@ -1,14 +1,22 @@
 <?php
 /**
  * @file
- * The uninstall hook.
+ * Update hook.
  */
 
 /**
- * Implements hook_uninstall().
+ * Move flickr settings from variables to config.
  */
-function flickr_sets_uninstall() {
-  variable_del('flickr_sets_thumb_default_size');
-  variable_del('flickr_sets_per_page');
-  variable_del('flickr_sets_photos_per_set');
+function flickr_sets_update_1000() {
+  // Migrate variables to config.
+  $config = config('flickr_sets.settings');
+  $config->set('flickr_sets_thumb_default_size', update_variable_get('flickr_sets_thumb_default_size', 's'));
+  $config->set('flickr_sets_per_page', update_variable_get('flickr_sets_per_page', 8));
+  $config->set('flickr_sets_photos_per_set', update_variable_get('flickr_sets_photos_per_set', 6));
+  $config->save();
+
+  // Delete variables.
+  update_variable_del('flickr_sets_thumb_default_size');
+  update_variable_del('flickr_sets_per_page');
+  update_variable_del('flickr_sets_photos_per_set');
 }
