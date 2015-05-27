@@ -3,6 +3,6 @@ description = Display Flickr images in blocks to show recent or random images fr
 type = module
 backdrop = 1.x
 package = Flickr
-configure = admin/structure/block
+configure = admin/structure/layouts/manage/default
 dependencies[] = flickr
 dependencies[] = block

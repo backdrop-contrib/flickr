@@ -1,8 +1,8 @@
 {
   "_config_name": "flickr_block.settings",
-  "flickr_block_refresh_random": "",
-  "flickr_block_refresh_others": "",
-  "flickr_block_heading": "",
-  "flickr_block_hide_empty": "",
-  "flickr_block_photos_per_set": ""
+  "flickr_block_refresh_random": 23,
+  "flickr_block_refresh_others": 31,
+  "flickr_block_heading": "h2",
+  "flickr_block_hide_empty": 0,
+  "flickr_block_photos_per_set": 6
 }
