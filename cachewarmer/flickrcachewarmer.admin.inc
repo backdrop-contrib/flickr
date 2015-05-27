@@ -10,14 +10,14 @@
 function flickrcachewarmer_form_flickr_admin_settings_alter(&$form, &$form_state) {
   $form['#validate'][] = 'flickrcachewarmer_admin_settings_validate';
   $form['#submit'][] = 'flickrcachewarmer_admin_settings_submit';
-  if (variable_get('cache_lifetime', 0) != 0) {
+  if (config_get('system.core', 'cache_lifetime') != 0) {
     $disable_cachelifetime = l(t("set the 'Minimum cache lifetime' to 'none'"), 'admin/config/development/performance', array(
       'attributes' => array(
         'title' => t('Admin > Configuration > Development > Performance'),
       ),
       'query' => array('destination' => 'admin/config/media/flickr'),
     ));
-    $lifetime = format_interval(variable_get('cache_lifetime', 0), 2);
+    $lifetime = format_interval(config_get('system.core', 'cache_lifetime'), 2);
     $message = t("NOTE: The Flickr Cache Warmer only seems to work well if you !disable_cachelifetime. Currently it is set to %lifetime.", array('!disable_cachelifetime' => $disable_cachelifetime, '%lifetime' => $lifetime));
     drupal_set_message($message, 'warning', FALSE);
   }
@@ -41,11 +41,11 @@ function flickrcachewarmer_form_flickr_admin_settings_alter(&$form, &$form_state
   $form['cachewarmer_settings']['flickrcachewarmer_nodetypes'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Content types to warm'),
-    '#default_value' => variable_get('flickrcachewarmer_nodetypes', array()),
+    '#default_value' => config_get('flickrcachewarmer.settings', 'flickrcachewarmer_nodetypes'),
     '#options' => array_map('check_plain', $names),
     '#description' => t('Enable cache warming for the selected node type(s). Leave empty to select all content types.'),
   );
-  if (variable_get('cache_lifetime', 0) != 0) {
+  if (config_get('system.core', 'cache_lifetime') != 0) {
     $form['cachewarmer_settings']['flickrcachewarmer_nodetypes']['#description'] = t('Enable cache warming for the selected node type(s). Leave empty to select all content types.') . '<br />' . t("NOTE: The Flickr Cache Warmer only seems to work well if you !disable_cachelifetime. Currently it is set to %lifetime.", array('!disable_cachelifetime' => $disable_cachelifetime, '%lifetime' => $lifetime));
   }
   $runcron = l(t("run cron separately"), 'admin/config/system/cron', array(
@@ -54,11 +54,11 @@ function flickrcachewarmer_form_flickr_admin_settings_alter(&$form, &$form_state
     ),
     'query' => array('destination' => 'admin/config/media/flickr'),
   ));
-  variable_set('flickrcachewarmer_run', 0);
+  config_set('flickrcachewarmer.settings', 'flickrcachewarmer_run', 0);
   $form['flickrcachewarmer_run'] = array(
     '#type' => 'checkbox',
     '#title' => t("Rebuild the cache on form submit to enhance performance for all page visits after saving this form."),
-    '#default_value' => variable_get('flickrcachewarmer_run', 0),
+    '#default_value' => config_get('flickrcachewarmer.settings', 'flickrcachewarmer_run'),
     '#description' => t("Note that form submit will very slow. The cache will be rebuilt for the nodes of the selected content types for cache warming.") . '<br />' . t("If you get errors, try to !runcron.", array('!runcron' => $runcron)),
     '#weight' => 98,
   );
@@ -75,7 +75,7 @@ function flickrcachewarmer_admin_settings_validate($form, &$form_state) {
  */
 function flickrcachewarmer_admin_settings_submit($form, &$form_state) {
   if ($form_state['values']['flickrcachewarmer_run']) {
-    $content_types = array_filter(variable_get('flickrcachewarmer_nodetypes', array()));
+    $content_types = array_filter(config_get('flickrcachewarmer.settings', 'flickrcachewarmer_nodetypes'));
     // If no content types are selected in the settings, use all.
     if (empty($content_types)) {
       $names = node_type_get_names();

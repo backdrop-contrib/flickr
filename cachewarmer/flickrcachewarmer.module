@@ -8,14 +8,14 @@
   module_load_include('inc', 'flickrcachewarmer', 'flickrcachewarmer.admin');
 
 /**
- * Implements hook_help().
+ * Implements hook_config_info().
  */
-function flickrcachewarmer_help($path, $arg) {
-  switch ($path) {
-    case 'admin/help#flickrcachewarmer':
-      // Return a line-break version of the README.txt.
-      return _filter_autop(file_get_contents(dirname(__FILE__) . '/README.txt'));
-  }
+function flickrcachewarmer_config_info() {
+  $prefixes['flickrcachewarmer.settings'] = array(
+    'label' => t('Flickr Cache Warmer settings'),
+    'group' => t('Flickr'),
+  );
+  return $prefixes;
 }
 
 /**
@@ -24,7 +24,7 @@ function flickrcachewarmer_help($path, $arg) {
  * Called every time the Drupal cron runs.
  */
 function flickrcachewarmer_cron() {
-  $content_types = array_filter(variable_get('flickrcachewarmer_nodetypes', array()));
+  $content_types = array_filter(config_get('flickrcachewarmer.settings', 'flickrcachewarmer_nodetypes'));
   // If no content types are selected in the settings, use all.
   if (empty($content_types)) {
     $names = node_type_get_names();
@@ -41,19 +41,19 @@ function flickrcachewarmer_cron() {
   // interval, cut the above array in chunks to batch process them.
   // Note it should currently not be used as we recommend to leave the cache
   // lifetime set to 'none'.
-  $batchnumber = variable_get('cache_lifetime', 0) > (2 * variable_get('cron_safe_threshold', DRUPAL_CRON_DEFAULT_THRESHOLD)) ? ceil(variable_get('cache_lifetime', 0) / variable_get('cron_safe_threshold', DRUPAL_CRON_DEFAULT_THRESHOLD)) : 1;
+  $batchnumber = config_get('system.core', 'cache_lifetime') > (2 * config_get('system.core', 'cron_safe_threshold')) ? ceil(config_get('system.core', 'cache_lifetime') / config_get('system.core', 'cron_safe_threshold')) : 1;
   $batchnumber = $batchnumber > count($nids) ? count($nids) : $batchnumber;
   $batchsize = ceil(count($nids) / $batchnumber);
   $nids = array_chunk($nids, $batchsize, FALSE);
   // If the batch 'ID' is an undefined index (offset), reset it to zero.
-  $batch = variable_get('flickrcachewarmer_batch', 0) > $batchnumber - 1 ? 0 : variable_get('flickrcachewarmer_batch', 0);
+  $batch = config_get('flickrcachewarmer.settings', 'flickrcachewarmer_batch') > $batchnumber - 1 ? 0 : config_get('flickrcachewarmer.settings', 'flickrcachewarmer_batch');
   // Go ahead to warm the cache for a batch of nodes.
   flickrcachewarmer_run($nids[$batch]);
   // Next time we should do the next batch.
-  variable_set('flickrcachewarmer_batch', $batch + 1);
+  config_set('flickrcachewarmer.settings', 'flickrcachewarmer_batch', $batch + 1);
   $nidslist = implode(', ', $nids[$batch]);
   $batchplusone = $batch + 1;
-  $nextcw = format_interval(variable_get('cron_safe_threshold', DRUPAL_CRON_DEFAULT_THRESHOLD), 2);
+  $nextcw = format_interval(config_get('system.core', 'cron_safe_threshold'), 2);
   $ctlist = implode(', ', $content_types);
   $message = t("Cache of nodes successfully rebuilt for the selected content types. Node ID's: %nidslist. This was batch # %batchplusone out of a total of %batchnumber", array(
     '%nidslist' => $nidslist,
@@ -76,7 +76,7 @@ function flickrcachewarmer_cron() {
 function flickrcachewarmer_run($nids) {
   // Visit each node.
   foreach ($nids as $nid) {
-    if ((variable_get('flickr_curl2', 0) || !function_exists('stream_socket_client')) && function_exists('curl_version')) {
+    if ((config_get('flickr.settings', 'flickr_curl2') || !function_exists('stream_socket_client')) && function_exists('curl_version')) {
       $result = flickr_curl_http_request($GLOBALS['base_url'] . '/node/' . $nid, array(
         'method' => 'HEAD',
       ));
@@ -103,7 +103,7 @@ function flickrcachewarmer_run($nids) {
         // Even the cURL method returns an error.
         if ($result->code != 200) {
           // Debug info.
-          if (variable_get('flickr_debug', 0) == 2 && function_exists('dpm')) {
+          if (config_get('flickr.settings', 'flickr_debug') == 2 && function_exists('dpm')) {
             dpm(t("Value of 'result' on nid %nid with error in 'function flickr_request()' with connection method '%cmethod' in 'flickr.inc'", array('%nid' => $nid, '%cmethod' => $cmethod)) . ':');
             dpm($result);
           }

@@ -1,6 +1,6 @@
 {
   "_config_name": "flickrcachewarmer.settings",
-  "flickrcachewarmer_nodetypes": "",
-  "flickrcachewarmer_run": "",
+  "flickrcachewarmer_nodetypes": "[]",
+  "flickrcachewarmer_run": 0,
   "flickrcachewarmer_batch": ""
 }

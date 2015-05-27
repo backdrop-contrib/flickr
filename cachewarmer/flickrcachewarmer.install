@@ -5,10 +5,18 @@
  */
 
 /**
- * Implements hook_uninstall().
+ * Move flickr settings from variables to config.
  */
-function flickrcachewarmer_uninstall() {
-  variable_del('flickrcachewarmer_nodetypes');
-  variable_del('flickrcachewarmer_run');
-  variable_del('flickrcachewarmer_batch');
+function flickrcachewarmer_update_1000() {
+  // Migrate variables to config.
+  $config = config('flickrcachewarmer.settings');
+  $config->set('flickrcachewarmer_nodetypes', update_variable_get('flickrcachewarmer_nodetypes', array()));
+  $config->set('flickrcachewarmer_run', update_variable_get('flickrcachewarmer_run', 0));
+  $config->set('flickrcachewarmer_batch', update_variable_get('flickrcachewarmer_batch', 0));
+  $config->save();
+
+  // Delete variables.
+  update_variable_del('flickrcachewarmer_nodetypes');
+  update_variable_del('flickrcachewarmer_run');
+  update_variable_del('flickrcachewarmer_batch');
 }
