@@ -317,7 +317,7 @@ function flickr_img($photo, $size = NULL, $attributes = NULL) {
   }
   $info = !is_array($photo['title']) ? flickr_photos_getinfo($photo['id']) : '';
   if (isset($info['dates']) || isset($photo['dates'])) {
-    $date_taken = isset($info['dates']['taken']) ? $info['dates']['taken'] : $photo['dates']['taken'];
+    $date_taken = is_array($info) && isset($info['dates']['taken']) ? $info['dates']['taken'] : $photo['dates']['taken'];
     $format_title = variable_get('flickr_date_format_image_title', 'medium');
     switch ($format_title) {
       case 'interval':
