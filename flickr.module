@@ -268,18 +268,18 @@ function flickr_user_load($users) {
 /**
  * Implements hook_user_presave().
  */
-function flickr_user_presave(&$edit, $account, $category) {
-  if (isset($edit['flickr_identifier'])) {
+function flickr_user_presave($account) {
+  if (isset($account->flickr_identifier)) {
     db_delete('flickr_users')
       ->condition('uid', $account->uid)
       ->execute();
     // $user_affected = db_affected_rows();
-    if (!empty($edit['flickr_identifier'])) {
+    if (!empty($account->flickr_identifier)) {
       $id = db_insert('flickr_users')
         ->fields(array(
           'uid' => $account->uid,
-          'nsid' => flickr_user_find_by_identifier($edit['flickr_identifier']),
-          'identifier' => $edit['flickr_identifier'],
+          'nsid' => flickr_user_find_by_identifier($account->flickr_identifier),
+          'identifier' => $account->flickr_identifier,
         ))
         ->execute();
     }
@@ -307,8 +307,7 @@ function flickr_user_delete($account) {
  * Adds the Flickr form to the user profile form.
  */
 function flickr_form_user_profile_form_alter(&$form, &$form_state) {
-  if ($form['#user_category'] == 'account' && (user_access('view own flickr photos') || user_access('administer flickr'))) {
-    $account = $form['#user'];
+  if (user_access('view own flickr photos') || user_access('administer flickr')) {
     $form['flickr'] = array(
       '#type' => 'fieldset',
       '#title' => t('Flickr settings'),
@@ -316,6 +315,7 @@ function flickr_form_user_profile_form_alter(&$form, &$form_state) {
       '#weight' => 4,
       '#tree' => FALSE,
     );
+    $account = $form['#user'];
     $form['flickr']['flickr_identifier'] = array(
       '#type' => 'textfield',
       '#title' => t('Flickr identifier'),
