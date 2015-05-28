@@ -308,20 +308,14 @@ function flickr_user_delete($account) {
  */
 function flickr_form_user_profile_form_alter(&$form, &$form_state) {
   if (user_access('view own flickr photos') || user_access('administer flickr')) {
-    $form['flickr'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Flickr settings'),
-      '#collapsible' => FALSE,
-      '#weight' => 4,
-      '#tree' => FALSE,
-    );
     $account = $form['#user'];
-    $form['flickr']['flickr_identifier'] = array(
+    $form['flickr_identifier'] = array(
       '#type' => 'textfield',
       '#title' => t('Flickr identifier'),
       '#default_value' => empty($account->flickr['identifier']) ? '' : $account->flickr['identifier'],
       '#description' => t('Enter either your Flickr username, URL path alias, the email address associated with your Flickr account, or your Flickr NSID. Leave this box empty to delete your Flickr page on this site.'),
       '#maxlength' => 64,
+      '#weight' => 3,
     );
     $form['#validate'][] = 'flickr_user_account_form_validate';
   }
