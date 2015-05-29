@@ -27,7 +27,7 @@ function flickr_init() {
     return; // Don't add the JavaScript and CSS multiple times.
   }
   // Determine the setting to use flickr.css or not.
-  if (variable_get('flickr_css', 1)) {
+  if (config_get('flickr.settings', 'flickr_css')) {
     backdrop_add_css(backdrop_get_path('module', 'flickr') . '/css/flickr.css', array(
       'group' => CSS_DEFAULT,
       'every_page' => TRUE,
@@ -35,7 +35,7 @@ function flickr_init() {
   }
   // Determine the setting to use flickr_license_overlay.css or not (license
   // icon on the image).
-  if (variable_get('flickr_license', 1) == 1) {
+  if (config_get('flickr.settings', 'flickr_license') == 1) {
     backdrop_add_css(backdrop_get_path('module', 'flickr') . '/css/flickr_cc_icons_on_hover.css', array(
       'group' => CSS_DEFAULT,
       'every_page' => TRUE,
@@ -43,7 +43,7 @@ function flickr_init() {
   }
   // Determine the setting to use flickr_cc_icons.css or not (license info in
   // the caption).
-  if (variable_get('flickr_license', 1) == 3) {
+  if (config_get('flickr.settings', 'flickr_license') == 3) {
     backdrop_add_css(backdrop_get_path('module', 'flickr') . '/css/flickr_cc_icons.css', array(
       'group' => CSS_DEFAULT,
       'every_page' => TRUE,
@@ -53,8 +53,8 @@ function flickr_init() {
   // Tweak the condition to apply on other styles. Also needs CSS changes.
   // !path_is_admin($_GET['q'])) was added to avoid the JS kicking in on admin
   // pages. It mangled the dragging of block weight on admin/structure/block.
-  if (function_exists('_colorbox_active') && !path_is_admin($_GET['q']) && variable_get('flickr_class', '') == 'colorbox') {
-    if (variable_get('colorbox_style', 'default') == 'default' && _colorbox_active()) {
+  if (function_exists('_colorbox_active') && !path_is_admin($_GET['q']) && config_get('flickr.settings', 'flickr_class') == 'colorbox') {
+    if (config_get('colorbox.settings', 'colorbox_style') == 'default' && _colorbox_active()) {
       backdrop_add_js(backdrop_get_path('module', 'flickr') . '/js/flickr_colorbox.js');
     }
   }
@@ -117,8 +117,8 @@ function flickr_theme() {
         'size' => NULL,
         'format' => NULL,
         'attribs' => NULL,
-        'min_title' => variable_get('flickr_title_suppress_on_small', '100'),
-        'min_metadata' => variable_get('flickr_metadata_suppress_on_small', '150'),
+        'min_title' => config_get('flickr.settings', 'flickr_title_suppress_on_small'),
+        'min_metadata' => config_get('flickr.settings', 'flickr_metadata_suppress_on_small'),
       ),
     ),
     'flickr_photo_box' => array(
@@ -137,8 +137,8 @@ function flickr_theme() {
     'flickr_photoset' => array(
       'variables' => array(
         'attribs' => NULL,
-        'min_title' => variable_get('flickr_title_suppress_on_small', '100'),
-        'min_metadata' => variable_get('flickr_metadata_suppress_on_small', '150'),
+        'min_title' => config_get('flickr.settings', 'flickr_title_suppress_on_small'),
+        'min_metadata' => config_get('flickr.settings', 'flickr_metadata_suppress_on_small'),
       ),
     ),
     'flickr_flickrcomslideshow' => array(
@@ -220,7 +220,7 @@ function flickr_photos($user = NULL) {
   $pager_page_array[$element] = empty($_GET['page']) ? 0 : (int) $_GET['page'];
 
   if ($user === NULL) {
-    $nsid = variable_get('flickr_default_userid');
+    $nsid = config_get('flickr.settings', 'flickr_default_userid');
     if (!$nsid) {
       drupal_set_message(t('No default Flickr user id has been set.'));
       return FALSE;
@@ -343,8 +343,8 @@ function flickr_photos_page_title($user) {
  * Theme Flickr photo.
  */
 function theme_flickr_photo($variables) {
-  $class = variable_get('flickr_class');
-  $rel = variable_get('flickr_rel');
+  $class = config_get('flickr.settings', 'flickr_class');
+  $rel = config_get('flickr.settings', 'flickr_rel');
   $photo = $variables['photo'];
   $size = $variables['size'];
   $format = $variables['format'];
@@ -366,7 +366,7 @@ function theme_flickr_photo($variables) {
   else {
     $style_float = '';
   }
-  $url = flickr_photo_img($photo, variable_get('flickr_opening_size', ''), $format);
+  $url = flickr_photo_img($photo, config_get('flickr.settings', 'flickr_opening_size'), $format);
   $img_url = flickr_photo_img($photo, $size);
   // If the image is a square we know the width (avoids to make a request).
   switch ($size) {
@@ -382,7 +382,7 @@ function theme_flickr_photo($variables) {
   }
   $sise = $size;
   if (module_exists('flickrstyle')) {
-    if ((variable_get('flickrstyle_emphasize', 2) == 2 || variable_get('flickrstyle_emphasize', 2) == 3) && $size == 'q') {
+    if ((config_get('flickrstyle.settings', 'flickrstyle_emphasize') == 2 || config_get('flickrstyle.settings', 'flickrstyle_emphasize') == 3) && $size == 'q') {
       $size = flickr_one_size_bigger($size);
       $img_url = flickr_photo_img($photo, $size);
     }
@@ -393,10 +393,10 @@ function theme_flickr_photo($variables) {
     // Reset the variable to use cURL if not available. In case it has been
     // removed. Unlikely but possible.
     if (!function_exists('curl_version')) {
-      variable_set('flickr_curl', 0);
+      config_set('flickr.settings', 'flickr_curl', 0);
     }
     // 'getimagesize' needs 'allow_url_fopen' to be enabled.
-    if (ini_get("allow_url_fopen") && variable_get('flickr_curl', 0) == 0) {
+    if (ini_get("allow_url_fopen") && config_get('flickr.settings', 'flickr_curl') == 0) {
       list($width) = getimagesize($img_url);
     }
     // Fallback to cURL if fopen cannot be used or cURL is set to be used.
@@ -484,7 +484,7 @@ function theme_flickr_photo($variables) {
   // If we zoom or enlarge an image, we should use the bigger size to retain
   // an acceptable resolution.
   if (module_exists('flickrstyle')) {
-    if (variable_get('flickrstyle_emphasize', 2) == 2 || variable_get('flickrstyle_emphasize', 2) == 3) {
+    if (config_get('flickrstyle.settings', 'flickrstyle_emphasize') == 2 || config_get('flickrstyle.settings', 'flickrstyle_emphasize') == 3) {
       if ($width < $height && $sise == 'q') {
         $width = round(150 * $width / $height);
       }
@@ -601,8 +601,8 @@ function theme_flickr_photo($variables) {
   }
   // Disable license icon overlay if not set or with the Flickr Style 'Enlarge'.
   // See https://www.drupal.org/node/2424119.
-  $license_overlay = variable_get('flickr_license', 1) > 0 && variable_get('flickr_license', 1) < 3 && !(variable_get('flickrstyle_emphasize', 2) == 2 && variable_get('flickr_license', 1) == 1) ? $license : '';
-  $license = variable_get('flickr_license', 1) > 2 ? $license : '';
+  $license_overlay = config_get('flickr.settings', 'flickr_license') > 0 && config_get('flickr.settings', 'flickr_license') < 3 && !(config_get('flickrstyle.settings', 'flickrstyle_emphasize') == 2 && config_get('flickr.settings', 'flickr_license') == 1) ? $license : '';
+  $license = config_get('flickr.settings', 'flickr_license') > 2 ? $license : '';
   // Get the Flickr image title for set data or the photo itself. Sanitize.
   $title = is_array($photo['title']) ? str_replace('"', "'", strip_tags($photo['title']['_content'])) : $photo['title'];
   // Replace titles like e.g. 'IMG_4259' with 'View on Flickr'.
@@ -618,7 +618,7 @@ function theme_flickr_photo($variables) {
   $taken = '';
   if (isset($info['dates']['taken'])) {
     // Format the date displayed in the image caption.
-    $format_taken = variable_get('flickr_date_format_image_caption', 'interval');
+    $format_taken = config_get('flickr.settings', 'flickr_date_format_image_caption');
     switch ($format_taken) {
       case 'interval':
         $taken = format_interval(time() - strtotime($info['dates']['taken']), 1) . ' ' . t('ago');
@@ -632,7 +632,7 @@ function theme_flickr_photo($variables) {
         $taken = format_date(strtotime($info['dates']['taken']), $format_taken, '', NULL);
     }
     // Format the date displayed when hovering the date on image caption.
-    $format_hover = variable_get('flickr_date_format_image_caption_hover', 'long');
+    $format_hover = config_get('flickr.settings', 'flickr_date_format_image_caption_hover');
     switch ($format_hover) {
       case 'interval':
         $taken_hover = format_interval(time() - strtotime($info['dates']['taken']), 1) . ' ' . t('ago');
@@ -654,13 +654,10 @@ function theme_flickr_photo($variables) {
   $locality = isset($info['location']['locality']['_content']) ? strip_tags($info['location']['locality']['_content']) . ', ' : '';
   $region = isset($info['location']['region']['_content']) ? strip_tags($info['location']['region']['_content']) . ', ' : '';
   $country = isset($info['location']['country']['_content']) ? strip_tags($info['location']['country']['_content']) : '';
-  $geophp = variable_get('flickr_geophp', array(
-    'title' => 'title',
-    'caption' => 0,
-  ));
+  $geophp = config_get('flickr.settings', 'flickr_geophp');
   if (gettype($geophp['caption']) != 'integer' && isset($info['location']['latitude']) && isset($info['location']['longitude'])) {
     $google = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $info['location']['latitude'] . ',' . $info['location']['longitude'];
-    if ((variable_get('flickr_curl2', 0) || !function_exists('stream_socket_client')) && function_exists('curl_version')) {
+    if ((config_get('flickr.settings', 'flickr_curl2') || !function_exists('stream_socket_client')) && function_exists('curl_version')) {
       $result = flickr_curl_http_request($google);
     }
     elseif (function_exists('stream_socket_client')) {
@@ -696,7 +693,7 @@ function theme_flickr_photo($variables) {
   // Image width < 150 px is too small for extra info. Can be set differently.
   $metadatacaption = $width < $min_metadata ? '' : '<span class="flickr-metadata">' . $metadata . $license . '</span>';
   // Image width < 100 px is too small for most titles. Can be set differently.
-  if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) {
+  if (config_get('flickr.settings', 'flickr_class') == NULL && config_get('flickr.settings', 'flickr_rel') == NULL) {
     $notitle = '';
   }
   else {
@@ -708,22 +705,17 @@ function theme_flickr_photo($variables) {
   $class_notitle = $width < $min_title ? ' flickr-no-title' : '';
   $credit = $width < $min_title ? $notitle : '<span class="flickr-title">' . $title . '</span><br />';
   // Determine what info goes with the enlarged version of the image.
-  $overlay = variable_get('flickr_info_overlay', array(
-    'title' => 'title',
-    'metadata' => 'metadata',
-    'description' => 'description',
-    'license' => 0,
-  ));
+  $overlay = config_get('flickr.settings', 'flickr_info_overlay');
   $overlaytitle = (gettype($overlay['title']) == 'integer') ? '' : $title . ' - ';
   $metadata = (gettype($overlay['metadata']) == 'integer') ? '' : $metadata . ' - ';
   $description = (gettype($overlay['description']) == 'integer' || $overlaytitle == $description . ' - ') ? '' : $description . ' - ';
   $licenselong = (gettype($overlay['license']) == 'integer') ? '' : $licenselong;
   $overlayhtml = $overlaytitle . $metadata . $description . $licenselong;
   // Optionally use the GPL licensed magnifier image supplied with the module.
-  $magnifier = (variable_get('flickrstyle_emphasize', 2) == 4) ? '<span class="hover-icon"><img src="/' . backdrop_get_path('module', 'flickr') . '/style/img/magnifier.png' . '" style="width:50px;height:50px;"></span>' : '';
+  $magnifier = (config_get('flickrstyle.settings', 'flickrstyle_emphasize') == 4) ? '<span class="hover-icon"><img src="/' . backdrop_get_path('module', 'flickr') . '/style/img/magnifier.png' . '" style="width:50px;height:50px;"></span>' : '';
   // Final step when NO overlay browser is used that generates the image that
   // links to the Flickr page to comply with the TOS of Flickr.
-  if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL && $width < $min_title && $width < $min_metadata) {
+  if (config_get('flickr.settings', 'flickr_class') == NULL && config_get('flickr.settings', 'flickr_rel') == NULL && $width < $min_title && $width < $min_metadata) {
     return '<span class="flickr-wrap' . $class_notitle . $class_float . '"' . ' style="width:' . $width . 'px;"' . $style_float . '><span class="flickr-image">' . l($img . $magnifier, $photo_url, array(
       'attributes' => array(
         'title' => $title,
@@ -739,13 +731,13 @@ function theme_flickr_photo($variables) {
     // caption.
     // Final step that generates the image with a link to the bigger version and
     // a link to the Flickr page under it to comply with the TOS of Flickr.
-    if (variable_get('flickr_class') == NULL && variable_get('flickr_rel') == NULL) {
+    if (config_get('flickr.settings', 'flickr_class') == NULL && config_get('flickr.settings', 'flickr_rel') == NULL) {
       $url = $photo_url;
     }
     if (!isset($photo['media'])) {
       $photo = flickr_photos_getinfo($photo['id']);
     }
-    if ($photo['media'] == 'video' && module_exists('colorbox') && variable_get('colorbox_inline', 0) == 1) {
+    if ($photo['media'] == 'video' && module_exists('colorbox') && config_get('colorbox.settings', 'colorbox_inline') == 1) {
       return '<div style="display: none;">
       <div id="' . $photo['id'] . '">
         <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" data="https://www.flickr.com/apps/video/stewart.swf" type="application/x-shockwave-flash" height="270" width="480">
@@ -844,7 +836,7 @@ function theme_flickr_photoset($variables) {
   $attribs = $variables['attribs'];
   $min_title = $variables['min_title'];
   $min_metadata = $variables['min_metadata'];
-  $per_page = (isset($variables['per_page'])) ? $variables['per_page'] : variable_get('flickr_photos_per_page', 6);
+  $per_page = (isset($variables['per_page'])) ? $variables['per_page'] : config_get('flickr.settings', 'flickr_photos_per_page');
 
   if (module_exists('flickr_sets')) {
     $output = "<div class='flickr-photoset'>\n";
