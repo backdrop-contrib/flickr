@@ -36,9 +36,9 @@ function flickr_filter_info() {
  * Returns the filter information for the filter help page.
  */
 function flickr_filter_tips($filter, $format, $long = FALSE) {
-  $autofloat = l(t('AutoFloat module'), 'https://drupal.org/project/autofloat/', array(
+  $autofloat = l(t('AutoFloat module'), 'https://github.com/backdrop-contrib/autofloat/', array(
     'attributes' => array(
-      'title' => t('AutoFloat | Drupal.org'),
+      'title' => t('backdrop-contrib/autofloat | GitHub'),
       'target' => '_blank',
     ),
   ));
@@ -222,7 +222,7 @@ function flickr_filter_callback_photo($matches) {
       switch ($config['size']) {
         case "x":
         case "y":
-          drupal_set_message(t("Do not use a slideshow for a single image."), 'error');
+          backdrop_set_message(t("Do not use a slideshow for a single image."), 'error');
           $config['size'] = config_get('flickr_filter.settings', 'flickr_filter_default_size');
           break;
       }

@@ -278,9 +278,9 @@ function 'getimagesize' ###
 Checkbox (default OFF). Your server configuration now uses 'fopen' for external
 resources (used by 'getimagesize'). 'cURL' might be faster.
 
-### Use 'cURL' instead of 'stream_socket_client' (drupal_http_request) to makedata requests ###
+### Use 'cURL' instead of 'stream_socket_client' (backdrop_http_request) to makedata requests ###
 Checkbox (default OFF). Otherwise cURL will only be used as fallback when
-drupal_http_request fails.
+backdrop_http_request fails.
 
 ### Enable Debug Output ###
 Radio buttons:

@@ -21,7 +21,7 @@ function flickrcachewarmer_config_info() {
 /**
  * Implements hook_cron().
  *
- * Called every time the Drupal cron runs.
+ * Called every time the Backdrop cron runs.
  */
 function flickrcachewarmer_cron() {
   $content_types = array_filter(config_get('flickrcachewarmer.settings', 'flickrcachewarmer_nodetypes'));
@@ -63,7 +63,7 @@ function flickrcachewarmer_cron() {
     '%nextcw' => $nextcw,
     '%ctlist' => $ctlist,
     ));
-  drupal_set_message($message, 'status', FALSE);
+  backdrop_set_message($message, 'status', FALSE);
   watchdog('flickrcachewarmer', $message);
 }
 
@@ -71,7 +71,7 @@ function flickrcachewarmer_cron() {
  * Virtually visits all nodes of selected content types to ensure the cache of
  * these pages is rebuild to avoid long page loads for a real visitor.
  * Note that with the HEAD method the server MUST NOT return a message-body in
- * the response. It turns out Drupal will rebuild the full page's cache anyway.
+ * the response. It turns out Backdrop will rebuild the full page's cache anyway.
  */
 function flickrcachewarmer_run($nids) {
   // Visit each node.
@@ -83,14 +83,14 @@ function flickrcachewarmer_run($nids) {
       $cmethod = 'cURL';
     }
     elseif (function_exists('stream_socket_client')) {
-      $result = drupal_http_request($GLOBALS['base_url'] . '/node/' . $nid, array(
+      $result = backdrop_http_request($GLOBALS['base_url'] . '/node/' . $nid, array(
         'method' => 'HEAD',
       ));
       $cmethod = 'stream_socket_client';
     }
     if (isset($result)) {
       if ($result->code != 200 && ($cmethod == 'stream_socket_client' || $cmethod == 'none') && function_exists('curl_version')) {
-        // Try to use cURL when drupal_http_request returns a different code
+        // Try to use cURL when backdrop_http_request returns a different code
         // than 200 (valid request, no errors). Most likely are 403 (forbidden)
         // or 408 (Request Timeout).
         $result = flickr_curl_http_request($GLOBALS['base_url'] . '/node/' . $nid, array(
@@ -98,7 +98,7 @@ function flickrcachewarmer_run($nids) {
         ));
         $cmethod = 'cURL';
         $message = t('Automatic fallback to the cURL connection method kicked in on nid %nid to handle the request. Result code from the failing request', array('%nid' => $nid)) . ': ' . $result->code;
-        drupal_set_message($message, 'warning', FALSE);
+        backdrop_set_message($message, 'warning', FALSE);
         watchdog('flickr', $message, array(), WATCHDOG_WARNING);
         // Even the cURL method returns an error.
         if ($result->code != 200) {
@@ -113,7 +113,7 @@ function flickrcachewarmer_run($nids) {
     }
     else {
       $message = t("There seems to be no connection method available on your server. Neither 'stream_socket_client' nor 'cURL'.");
-      drupal_set_message($message, 'error', FALSE);
+      backdrop_set_message($message, 'error', FALSE);
       watchdog('flickr', $message, array(), WATCHDOG_ERROR);
     }
   }

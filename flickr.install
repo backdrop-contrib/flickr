@@ -23,12 +23,12 @@ function flickr_install() {
  */
 function flickr_schema() {
   $schema['flickr_users'] = array(
-    'description' => 'Connects Drupal users to their Flickr accounts.',
+    'description' => 'Connects Backdrop users to their Flickr accounts.',
     'fields' => array(
       'uid' => array(
         'type' => 'int',
         'not null' => TRUE,
-        'description' => 'Primary Key: Drupal user ID',
+        'description' => 'Primary Key: Backdrop user ID',
       ),
       'nsid' => array(
         'type' => 'varchar',

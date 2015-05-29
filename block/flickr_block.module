@@ -51,7 +51,7 @@ function flickr_block_info() {
   $blocks[16]['info'] = t("Flickr: Node author gallery photos corresponding with a node's taxonomy term (2)");
 
   for ($i = 0; $i < 17; $i++) {
-    $blocks[$i]['cache'] = DRUPAL_CACHE_CUSTOM;
+    $blocks[$i]['cache'] = BACKDROP_CACHE_CUSTOM;
   }
   return $blocks;
 }
@@ -688,13 +688,13 @@ function flickr_block_save($delta = '', $edit = array()) {
       if (!empty($userid) && $userid != 'public') {
         if (!flickr_is_nsid($edit["flickr_block_{$delta}_user_id"])) {
           if ($user = flickr_user_find_by_identifier($userid)) {
-            drupal_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $edit["flickr_block_{$delta}_user_id"], '%uid' => $user)));
+            backdrop_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $edit["flickr_block_{$delta}_user_id"], '%uid' => $user)));
             $edit["flickr_block_{$delta}_user_id"] = $user;
           }
         }
         else {
           $info = flickr_people_getinfo($edit["flickr_block_{$delta}_user_id"]);
-          drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
+          backdrop_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
 
         }
       }
@@ -734,13 +734,13 @@ function flickr_block_save($delta = '', $edit = array()) {
       if (!empty($userid) && $userid != 'public') {
         if (!flickr_is_nsid($edit["flickr_block_{$delta}_user_id"])) {
           if ($user = flickr_user_find_by_identifier($userid)) {
-            drupal_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $edit["flickr_block_{$delta}_user_id"], '%uid' => $user)));
+            backdrop_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $edit["flickr_block_{$delta}_user_id"], '%uid' => $user)));
             $edit["flickr_block_{$delta}_user_id"] = $user;
           }
         }
         else {
           $info = flickr_people_getinfo($edit["flickr_block_{$delta}_user_id"]);
-          drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
+          backdrop_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
 
         }
       }
@@ -774,13 +774,13 @@ function flickr_block_save($delta = '', $edit = array()) {
       if (!empty($userid)) {
         if (!flickr_is_nsid($edit["flickr_block_{$delta}_user_id"])) {
           if ($user = flickr_user_find_by_identifier($userid)) {
-            drupal_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $edit["flickr_block_{$delta}_user_id"], '%uid' => $user)));
+            backdrop_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $edit["flickr_block_{$delta}_user_id"], '%uid' => $user)));
             $edit["flickr_block_{$delta}_user_id"] = $user;
           }
         }
         else {
           $info = flickr_people_getinfo($edit["flickr_block_{$delta}_user_id"]);
-          drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
+          backdrop_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
 
         }
       }
@@ -863,13 +863,13 @@ function flickr_block_save($delta = '', $edit = array()) {
       if (!empty($userid) && $userid != 'public') {
         if (!flickr_is_nsid($edit["flickr_block_{$delta}_user_id"])) {
           if ($user = flickr_user_find_by_identifier($userid)) {
-            drupal_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $edit["flickr_block_{$delta}_user_id"], '%uid' => $user)));
+            backdrop_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $edit["flickr_block_{$delta}_user_id"], '%uid' => $user)));
             $edit["flickr_block_{$delta}_user_id"] = $user;
           }
         }
         else {
           $info = flickr_people_getinfo($edit["flickr_block_{$delta}_user_id"]);
-          drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
+          backdrop_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $edit["flickr_block_{$delta}_user_id"], '%userid' => $info['username']['_content'])));
 
         }
       }
@@ -969,7 +969,7 @@ function flickr_block_view($delta = '') {
               }
               else {
                 $terms_user = '';
-                drupal_set_message(t("It is not required, but you can add the 'Term reference' field !vocab_name to user profiles at <a href='#overlay=admin/config/people/accounts/fields%3Fdestination%3D@current_path'>admin/config/people/accounts/fields</a> to give users the option to grab only certain tagged photos from their Flickr account (e.g. 'website' or 'blog') or select a vocabulary in your <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>Flickr block configuration</a> that does exist also on a user profile.", array(
+                backdrop_set_message(t("It is not required, but you can add the 'Term reference' field !vocab_name to user profiles at <a href='#overlay=admin/config/people/accounts/fields%3Fdestination%3D@current_path'>admin/config/people/accounts/fields</a> to give users the option to grab only certain tagged photos from their Flickr account (e.g. 'website' or 'blog') or select a vocabulary in your <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>Flickr block configuration</a> that does exist also on a user profile.", array(
                     '!vocab_name' => '<em>' . $taxonomy->name . '</em>',
                     '@current_path' => current_path(),
                     '@delta' => $delta,
@@ -1023,7 +1023,7 @@ function flickr_block_view($delta = '') {
               }
               else {
                 $terms_user = '';
-                drupal_set_message(t("It is not required, but you can add the 'Term reference' field !vocab_name to user profiles at <a href='#overlay=admin/config/people/accounts/fields%3Fdestination%3D@current_path'>admin/config/people/accounts/fields</a> to give users the option to grab only certain tagged photos from their Flickr account (e.g. 'website' or 'blog') or select a vocabulary in your <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>Flickr block configuration</a> that does exist also on a user profile.", array(
+                backdrop_set_message(t("It is not required, but you can add the 'Term reference' field !vocab_name to user profiles at <a href='#overlay=admin/config/people/accounts/fields%3Fdestination%3D@current_path'>admin/config/people/accounts/fields</a> to give users the option to grab only certain tagged photos from their Flickr account (e.g. 'website' or 'blog') or select a vocabulary in your <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>Flickr block configuration</a> that does exist also on a user profile.", array(
                     '!vocab_name' => '<em>' . $taxonomy->name . '</em>',
                     '@current_path' => current_path(),
                     '@delta' => $delta,
@@ -1043,7 +1043,7 @@ function flickr_block_view($delta = '') {
                 $terms_node = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
               }
               else {
-                drupal_set_message(t("Add the 'Term reference' field !vocab_name to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type or select another vocabulary to use.", array(
+                backdrop_set_message(t("Add the 'Term reference' field !vocab_name to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type or select another vocabulary to use.", array(
                     '!vocab_name' => '<em>' . $taxonomy->name . '</em>',
                     '@type' => $node->type,
                     '@current_path' => current_path(),
@@ -1166,7 +1166,7 @@ function flickr_block_view($delta = '') {
             $terms = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
           }
           else {
-            drupal_set_message(t("Add the 'Term reference' field !vocab_name to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type or select another vocabulary to use.", array(
+            backdrop_set_message(t("Add the 'Term reference' field !vocab_name to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type or select another vocabulary to use.", array(
                 '!vocab_name' => '<em>' . $taxonomy->name . '</em>',
                 '@type' => $node->type,
                 '@current_path' => current_path(),
@@ -1249,7 +1249,7 @@ function flickr_block_view($delta = '') {
             $terms = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
           }
           else {
-            drupal_set_message(t("Add the 'Term reference' field !vocab_name to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type or select another vocabulary to use.", array(
+            backdrop_set_message(t("Add the 'Term reference' field !vocab_name to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type or select another vocabulary to use.", array(
                 '!vocab_name' => '<em>' . $taxonomy->name . '</em>',
                 '@type' => $node->type,
                 '@current_path' => current_path(),
@@ -1317,7 +1317,7 @@ function flickr_block_view($delta = '') {
             $terms = (!empty($settings['vocab']) && !empty($taxonomy->machine_name)) ? field_view_field('node', $node, 'field_' . $taxonomy->machine_name) : '';
           }
           else {
-            drupal_set_message(t("Add the 'Term reference' field !vocab_name to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type or select another vocabulary to use.", array(
+            backdrop_set_message(t("Add the 'Term reference' field !vocab_name to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type or select another vocabulary to use.", array(
                 '!vocab_name' => '<em>' . $taxonomy->name . '</em>',
                 '@type' => $node->type,
                 '@current_path' => current_path(),
@@ -1361,7 +1361,7 @@ function flickr_block_view($delta = '') {
           }
           else {
             $terms = '';
-            drupal_set_message(t("Add the 'Term reference' field !vocab_name to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type or select another vocabulary to use.", array(
+            backdrop_set_message(t("Add the 'Term reference' field !vocab_name to the current content type at <a href='#overlay=admin/structure/types/manage/@type/fields%3Fdestination%3D@current_path'>admin/structure/types/manage/@type/fields</a> or <a href='#overlay=admin/structure/block/manage/flickr/@delta/configure%3Fdestination%3D@current_path'>exclude the Flickr block</a> in the block 'Visibility settings' for this content type or select another vocabulary to use.", array(
                 '!vocab_name' => '<em>' . $taxonomy->name . '</em>',
                 '@type' => $node->type,
                 '@current_path' => current_path(),

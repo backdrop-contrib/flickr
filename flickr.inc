@@ -132,17 +132,17 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     $cmethod = 'cURL';
   }
   elseif (function_exists('stream_socket_client')) {
-    $result = drupal_http_request($url);
+    $result = backdrop_http_request($url);
     $cmethod = 'stream_socket_client';
   }
   if ($result->code != 200 && ($cmethod == 'stream_socket_client' || $cmethod == 'none') && function_exists('curl_version')) {
-    // Try to use cURL when drupal_http_request returns a different code than
+    // Try to use cURL when backdrop_http_request returns a different code than
     // 200 (valid request, no errors). Most likely are 403 (forbidden) or 408
     // (Request Timeout).
     $result = flickr_curl_http_request($url);
     $cmethod = 'cURL';
     $message = t('Automatic fallback to the cURL connection method kicked in to handle the request. Result code from the failing request') . ': ' . $result->code;
-    drupal_set_message($message, 'warning', FALSE);
+    backdrop_set_message($message, 'warning', FALSE);
     watchdog('flickr', $message, array(), WATCHDOG_WARNING);
     if ($return_errors) {
       // Debug info.
@@ -172,7 +172,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
   }
   if ($result->code == 0) {
     $message = t("There seems to be no connection method available on your server. Neither 'stream_socket_client' nor 'cURL'.");
-    drupal_set_message($message, 'error', FALSE);
+    backdrop_set_message($message, 'error', FALSE);
     watchdog('flickr', $message, array(), WATCHDOG_ERROR);
 
   }
@@ -234,7 +234,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     )) . '<br />' . t("Passed arguments: %attribs", array(
       '%attribs' => $attribs,
     ));
-    drupal_set_message($message, 'warning');
+    backdrop_set_message($message, 'warning');
     watchdog('flickr', $message, array(), WATCHDOG_WARNING);
   }
 
@@ -495,7 +495,7 @@ function flickr_set_error($message_or_response) {
   }
 
   if (user_access('administer flickr')) {
-    drupal_set_message($message, 'error');
+    backdrop_set_message($message, 'error');
   }
   watchdog('flickr', $message, array(), WATCHDOG_WARNING);
 }
@@ -571,7 +571,7 @@ function flickr_get_id_type($id) {
     return 'user';
   }
   $message = t('A valid Flickr ID could not be found');
-  drupal_set_message($message, 'error');
+  backdrop_set_message($message, 'error');
   watchdog('flickr', $message, array(), WATCHDOG_WARNING);
   return FALSE;
 }
@@ -582,8 +582,8 @@ function flickr_get_id_type($id) {
 function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $datefrom = NULL, $dateto = NULL, $extend = 1, $tag_mode = 'context', $class = NULL, $style = NULL, $page = 1) {
   // Also Flickr converts tags to lowercase, removes spaces and the ampersand.
   $tags = strtolower(str_replace(array(' ', '&'), '', $tags));
-  // drupal_is_front_page() is added because it also can have arg(0) == 'node'.
-  $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . $lat . '_' . $datefrom . '_' . $dateto . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $page);
+  // backdrop_is_front_page() is added because it also can have arg(0) == 'node'.
+  $cache = cache_get('flickr_block_' . $delta . '_' . $id . '_' . $tags . '_' . $lat . '_' . $datefrom . '_' . $dateto . '_' . arg(0) . '_' . backdrop_is_front_page() . '_' . $page);
   // If $delta is a number it is a block that could be cached.
   if ($cache && is_numeric($delta)) {
     $output = $cache->data;
@@ -634,13 +634,13 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
           'target' => '_blank',
         ),
       ));
-      drupal_set_message(t("You used the date format DD/MM/YYYY (starting with the day). As some dates are !ambiguous (e.g. is 04/05/2013 5 April or 4 May?) it is recommended to use dashes when you start with the day (DD-MM-YYYY), slashes when you start with the month (MM/DD/YYYY) or use any other !dateformat (e.g. 11 Jan 2015).", array(
+      backdrop_set_message(t("You used the date format DD/MM/YYYY (starting with the day). As some dates are !ambiguous (e.g. is 04/05/2013 5 April or 4 May?) it is recommended to use dashes when you start with the day (DD-MM-YYYY), slashes when you start with the month (MM/DD/YYYY) or use any other !dateformat (e.g. 11 Jan 2015).", array(
           '!ambiguous' => $ambiguous,
           '!dateformat' => $dateformat,
         )), 'warning', FALSE);
     }
     if (!empty($datefrom) && ($datestart === FALSE || $dateend === FALSE)) {
-      drupal_set_message(t("Invalid date provided."), 'error', FALSE);
+      backdrop_set_message(t("Invalid date provided."), 'error', FALSE);
     }
     $datefrom = empty($datefrom) ? '' : date("Y-m-d", $datestart);
     $dateto = empty($dateto) ? '' : date("Y-m-d", $dateend);
@@ -654,7 +654,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
     }
     if ($extend && $tag_mode == 'all' && strpos($tags, ',') !== FALSE) {
       $tag_mode = 'any';
-      drupal_set_message(t("The tag mode has been forced to 'any' (OR) for extended text matching (tags, titles and description). To use 'all' (AND) put 'extend=false' in Flickr's text filter code."), 'warning', FALSE);
+      backdrop_set_message(t("The tag mode has been forced to 'any' (OR) for extended text matching (tags, titles and description). To use 'all' (AND) put 'extend=false' in Flickr's text filter code."), 'warning', FALSE);
     }
     $sizes = flickr_photo_sizes();
     $show_n = is_null($show_n) ? config_get('flickr.settings', 'flickr_photos_per_page') : $show_n;
@@ -880,7 +880,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
             '@set' => strip_tags($set),
             '@username' => strip_tags($people['name']),
           ));
-          drupal_set_title($title_bar);
+          backdrop_set_title($title_bar);
         }
         break;
 
@@ -971,7 +971,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
               $result = flickr_curl_http_request($google);
             }
             elseif (function_exists('stream_socket_client')) {
-              $result = drupal_http_request($google);
+              $result = backdrop_http_request($google);
             }
             $json = json_decode($result->data);
             if ($json->status == 'ZERO_RESULTS') {
@@ -1024,7 +1024,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
             }
           }
           if (is_array($place_name)) {
-            drupal_set_message(t("Temporarily the album location could not be retrieved from Flickr and is therefore omitted in the album title."), 'warning', FALSE);
+            backdrop_set_message(t("Temporarily the album location could not be retrieved from Flickr and is therefore omitted in the album title."), 'warning', FALSE);
           }
         }
         $place = isset($lat) && !is_array($place_name) ? t('near') . ' ' . $place_name . ' ' : '';
@@ -1054,7 +1054,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
           case "favorites":
           case "gallery":
             $output .= '<div class="messages error">' . t("You cannot choose a slideshow for '@type'. Select another size.", array('@type' => $type)) . '</div>';
-            drupal_set_message(t("You cannot choose a slideshow for '@type'. Select another size.", array('@type' => $type)), 'error', FALSE);
+            backdrop_set_message(t("You cannot choose a slideshow for '@type'. Select another size.", array('@type' => $type)), 'error', FALSE);
             break;
 
           default:
@@ -1065,7 +1065,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
               'class' => $class,
               'style' => $style,
             ));
-            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags, location and media settings."), 'warning', FALSE);
+            backdrop_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags, location and media settings."), 'warning', FALSE);
             break;
         }
         break;
@@ -1075,12 +1075,12 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
           case "favorites":
           case "gallery":
             $output .= '<div class="messages error">' . t("You cannot choose a slideshow for '@type'. Select another size.", array('@type' => $type)) . '</div>';
-            drupal_set_message(t("You cannot choose a slideshow for '@type'. Select another size.", array('@type' => $type)), 'error', FALSE);
+            backdrop_set_message(t("You cannot choose a slideshow for '@type'. Select another size.", array('@type' => $type)), 'error', FALSE);
             break;
 
           case "group":
             $output .= '<div class="messages error">' . t('Choose the slideshow for group pool albums (size = x).') . '</div>';
-            drupal_set_message(t('Choose the slideshow for group pool albums (size = x).'), 'error', FALSE);
+            backdrop_set_message(t('Choose the slideshow for group pool albums (size = x).'), 'error', FALSE);
             break;
 
           default:
@@ -1089,7 +1089,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
               'class' => $class,
               'style' => $style,
             ));
-            drupal_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags, location and media settings."), 'warning', FALSE);
+            backdrop_set_message(t("Note that slideshows show in reverse chronological order (newest first) and ignore number, filter, tags, location and media settings."), 'warning', FALSE);
             break;
         }
         break;
@@ -1399,7 +1399,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
             }
           }
           if ($skipped > 0) {
-            drupal_set_message(t("Skipped !number photos because dated in the future (probably due to a wrong date on the used camera).", array('!number' => '<em>' . $skipped . '</em>')), 'warning');
+            backdrop_set_message(t("Skipped !number photos because dated in the future (probably due to a wrong date on the used camera).", array('!number' => '<em>' . $skipped . '</em>')), 'warning');
           }
         }
         // We shouldn't try to return more than the total number of photos.
@@ -1550,7 +1550,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
           }
         }
         if ($k > 0) {
-          drupal_set_message(t("!number photos were skipped because the requested image size is not available on Flickr. They were uploaded when this size was not offered yet. To include them, use another size or re-upload your photos on Flickr.", array('!number' => '<em>' . $k . '</em>')), 'warning');
+          backdrop_set_message(t("!number photos were skipped because the requested image size is not available on Flickr. They were uploaded when this size was not offered yet. To include them, use another size or re-upload your photos on Flickr.", array('!number' => '<em>' . $k . '</em>')), 'warning');
         }
         $output .= '</div>';
 
@@ -1558,9 +1558,9 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
           $output = '';
           if (is_numeric($delta) && module_exists('flickr_block')) {
             $refresh = $sort == 'random' ? config_get('flickr_block.settings', 'flickr_block_refresh_random') : config_get('flickr_block.settings', 'flickr_block_refresh_others');
-            // drupal_is_front_page() is added because it also can have
+            // backdrop_is_front_page() is added because it also can have
             // arg(0) == 'node'.
-            cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . $datetofix . '_' . $datefromfix . '_' . arg(0) . '_' . drupal_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
+            cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . $datetofix . '_' . $datefromfix . '_' . arg(0) . '_' . backdrop_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
           }
           return $output;
         }
@@ -1609,9 +1609,9 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
     }
     if (is_numeric($delta) && module_exists('flickr_block')) {
       $refresh = $sort == 'random' ? config_get('flickr_block.settings', 'flickr_block_refresh_random') : config_get('flickr_block.settings', 'flickr_block_refresh_others');
-      // drupal_is_front_page() is added because it also can have
+      // backdrop_is_front_page() is added because it also can have
       // arg(0) == 'node'.
-      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tagsfix . '_' . $latfix . '_' . $datefromfix . '_' . $datetofix . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $pagefix, $output, 'cache', time() + $refresh * 60 * 60);
+      cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tagsfix . '_' . $latfix . '_' . $datefromfix . '_' . $datetofix . '_' . arg(0) . '_' . backdrop_is_front_page() . '_' . $pagefix, $output, 'cache', time() + $refresh * 60 * 60);
     }
   }
   return $output;
@@ -1835,14 +1835,14 @@ function flickr_curl_http_request($url, array $options = array()) {
 
   // If the database prefix is being used by SimpleTest to run the tests in a
   // copied database then set the user-agent header to the database prefix so
-  // that any calls to other Drupal pages will run the SimpleTest prefixed
+  // that any calls to other Backdrop pages will run the SimpleTest prefixed
   // database.
   // The user-agent is used to ensure that multiple testing sessions running at
   // the same time won't interfere with each other as they would if the database
   // prefix were stored statically in a file or database variable.
-  $test_info = &$GLOBALS['drupal_test_info'];
+  $test_info = &$GLOBALS['backdrop_test_info'];
   if (!empty($test_info['test_run_id'])) {
-    $options['headers']['User-Agent'] = drupal_generate_test_ua($test_info['test_run_id']);
+    $options['headers']['User-Agent'] = backdrop_generate_test_ua($test_info['test_run_id']);
   }
   elseif (empty($options['headers']['User-Agent'])) {
     $options['headers']['User-Agent'] = 'Drupal (+http://drupal.org/)';

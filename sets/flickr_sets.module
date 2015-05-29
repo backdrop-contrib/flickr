@@ -76,7 +76,7 @@ function flickr_sets_page_title($user) {
 function flickr_sets_photosets($account, $nsid = NULL) {
   global $pager_page_array, $pager_total, $pager_total_items, $user;
 
-  drupal_set_title(flickr_sets_page_title($user));
+  backdrop_set_title(flickr_sets_page_title($user));
   $uid = $account->uid;
   $nsid = $account->flickr['nsid'];
   // Set this to something else if you want multiple pagers.
@@ -91,11 +91,11 @@ function flickr_sets_photosets($account, $nsid = NULL) {
   $set_response = flickr_photosets_getlist($nsid, $pager_page_array[$element] + 1);
 
   if ($set_response === FALSE) {
-    drupal_set_message(t("Error retrieving %user's photosets from Flickr", array('%user' => $account->name)));
+    backdrop_set_message(t("Error retrieving %user's photosets from Flickr", array('%user' => $account->name)));
     return '';
   }
   if (!$set_response || empty($set_response)) {
-    drupal_set_message(t('%user has no photosets', array('%user' => $account->name)));
+    backdrop_set_message(t('%user has no photosets', array('%user' => $account->name)));
     return '';
   }
 
@@ -120,7 +120,7 @@ function flickr_sets_photoset($account, $set) {
 
   // Make sure that $nsid is the real owner of $id.
   if ($nsid != $set_info['owner']) {
-    drupal_goto('flickr/' . $uid . '/sets');
+    backdrop_goto('flickr/' . $uid . '/sets');
   }
 
   // Display photos.
@@ -132,11 +132,11 @@ function flickr_sets_photoset($account, $set) {
   // Request set of photos.
   $set_response = flickr_set_load($id, $pager_page_array[$element] + 1);
   if (!$set_response) {
-    drupal_set_message(t("Error retrieving :setid's photosets from Flickr"), array(':setid', $id));
+    backdrop_set_message(t("Error retrieving :setid's photosets from Flickr"), array(':setid', $id));
     return '';
   }
   elseif (!isset($set_response['photoset']['photo']) || empty($set_response['photoset']['photo'])) {
-    drupal_set_message(t('This photoset is empty'));
+    backdrop_set_message(t('This photoset is empty'));
     return '';
   }
   // Set pager information we just acquired.

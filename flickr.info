@@ -1,5 +1,5 @@
 name = Flickr
-description = Flickr and Drupal integration.
+description = Flickr and Backdrop integration.
 type = module
 backdrop = 1.x
 package = Flickr

@@ -19,7 +19,7 @@ function flickrcachewarmer_form_flickr_admin_settings_alter(&$form, &$form_state
     ));
     $lifetime = format_interval(config_get('system.core', 'cache_lifetime'), 2);
     $message = t("NOTE: The Flickr Cache Warmer only seems to work well if you !disable_cachelifetime. Currently it is set to %lifetime.", array('!disable_cachelifetime' => $disable_cachelifetime, '%lifetime' => $lifetime));
-    drupal_set_message($message, 'warning', FALSE);
+    backdrop_set_message($message, 'warning', FALSE);
   }
   $cache_warming = l(t('cache warming'), 'https://drupal.org/node/1576686/', array(
     'attributes' => array(
@@ -89,6 +89,6 @@ function flickrcachewarmer_admin_settings_submit($form, &$form_state) {
       ->execute()
       ->fetchCol();
     flickrcachewarmer_run($nids);
-    drupal_set_message(t('All caches are rebuilt.'), 'status', FALSE);
+    backdrop_set_message(t('All caches are rebuilt.'), 'status', FALSE);
   }
 }

@@ -365,7 +365,7 @@ function flickr_admin_settings() {
     43200,
     86400,
   );
-  $ageoptions = drupal_map_assoc($times, 'format_interval');
+  $ageoptions = backdrop_map_assoc($times, 'format_interval');
   $form['advanced_settings']['flickr_cache_duration'] = array(
     '#type' => 'select',
     '#title' => t('Update interval'),
@@ -402,9 +402,9 @@ function flickr_admin_settings() {
   );
   $form['advanced_settings']['flickr_curl2'] = array(
     '#type' => 'checkbox',
-    '#title' => t("Use 'cURL' instead of 'stream_socket_client' (drupal_http_request) to make data requests."),
+    '#title' => t("Use 'cURL' instead of 'stream_socket_client' (backdrop_http_request) to make data requests."),
     '#default_value' => config_get('flickr.settings', 'flickr_curl2'),
-    '#description' => t("Otherwise cURL will only be used as fallback when drupal_http_request fails."),
+    '#description' => t("Otherwise cURL will only be used as fallback when backdrop_http_request fails."),
   );
   // Offer the following setting if both allow_url_fopen and curl are enabled.
   if (!ini_get("allow_url_fopen") || !function_exists('curl_version')) {
@@ -434,7 +434,7 @@ function flickr_admin_settings() {
   if (!module_exists('devel')) {
     if (config_get('flickr.settings', 'flickr_debug') == 2) {
       config_set('flickr.settings', 'flickr_debug', 1);
-      drupal_set_message(t("The debug output has been set to 'Flickr response only'. 'Plus Devel' has been disabled until you enable the !devel_module.", array('!devel_module' => $devel_module)), 'warning', FALSE);
+      backdrop_set_message(t("The debug output has been set to 'Flickr response only'. 'Plus Devel' has been disabled until you enable the !devel_module.", array('!devel_module' => $devel_module)), 'warning', FALSE);
     }
   }
   $form['advanced_settings']['flickr_debug'] = array(
@@ -571,8 +571,8 @@ function flickr_admin_settings_validate($form, &$form_state) {
  */
 function flickr_admin_settings_submit($form, &$form_state) {
   if ($form_state['values']['flickr_cc']) {
-    drupal_flush_all_caches();
-    drupal_set_message(t('All caches are flushed.'), 'status', FALSE);
+    backdrop_flush_all_caches();
+    backdrop_set_message(t('All caches are flushed.'), 'status', FALSE);
   }
   // Clean up the data.
   $form_state['values']['flickr_api_key'] = trim($form_state['values']['flickr_api_key']);
@@ -585,13 +585,13 @@ function flickr_admin_settings_submit($form, &$form_state) {
   if (!flickr_is_nsid($form_state['values']['flickr_default_userid'])) {
     $userid = $form_state['values']['flickr_default_userid'];
     if (!empty($userid) && $user = flickr_user_find_by_identifier($userid)) {
-      drupal_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $form_state['values']['flickr_default_userid'], '%uid' => $user)));
+      backdrop_set_message(t("The Flickr user associated with '%userid' has internally been replaced with the corresponding Flickr ID '%uid'.", array('%userid' => $form_state['values']['flickr_default_userid'], '%uid' => $user)));
       $form_state['values']['flickr_default_userid'] = $user;
     }
   }
   else {
     $info = flickr_people_getinfo($form_state['values']['flickr_default_userid']);
-    drupal_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $form_state['values']['flickr_default_userid'], '%userid' => $info['username']['_content'])));
+    backdrop_set_message(t("The Flickr user associated with '%uid' will be shown to you as Flickr user '%userid'.", array('%uid' => $form_state['values']['flickr_default_userid'], '%userid' => $info['username']['_content'])));
   }
   $config = config('flickr.settings');
   foreach ($form_state['values'] as $key => $value) {

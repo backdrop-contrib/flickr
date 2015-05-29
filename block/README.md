@@ -157,7 +157,7 @@ vocabulary. Case insensitive, matches any tag, for photosets even partial.
 Multiple tags for groups will only query the last 500 photos on Flickr (slowest
 API request). For user blocks the Flickr account of the node author will be
 queried. Flickr removes spaces from multi word tags (e.g. 'beach trip' becomes
-'beachtrip'). Multi word tags in Drupal can be used as spaces are stripped to
+'beachtrip'). Multi word tags in Backdrop can be used as spaces are stripped to
 make a Flickr request. For your content type, adjust the Help text of the used
 taxonomy field accordingly (e.g. at
 admin/structure/types/manage/article/fields/field_tags). The recommended widget

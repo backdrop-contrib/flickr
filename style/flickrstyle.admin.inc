@@ -28,7 +28,7 @@ function flickrstyle_form_flickr_admin_settings_alter(&$form, &$form_state) {
     // and a reset to 'No' of it if so.
     if (gettype($styles['shadow']) == 'integer' && gettype($styles['border']) == 'integer') {
       config_set('flickrstyle.settings', 'flickrstyle_caption', 0);
-      drupal_set_message(t("The caption style has been disabled until you set a 'border' and/or 'shadow' in the 'Image styles'. It will be available again after saving the form."), 'warning', FALSE);
+      backdrop_set_message(t("The caption style has been disabled until you set a 'border' and/or 'shadow' in the 'Image styles'. It will be available again after saving the form."), 'warning', FALSE);
     }
     $form['css_settings']['flickrstyle_caption'] = array(
       '#type' => 'radios',
@@ -62,7 +62,7 @@ function flickrstyle_form_flickr_admin_settings_alter(&$form, &$form_state) {
     if (gettype($styles['shadow']) != 'integer' && gettype($styles['border']) == 'integer') {
       if (config_get('flickrstyle.settings', 'flickrstyle_emphasize') == 2) {
         config_set('flickrstyle.settings', 'flickrstyle_emphasize', 3);
-        drupal_set_message(t("The emphasize style has been set to 'Zoom'. 'Enlarge' has been disabled until you set a 'border' or unselect 'shadow' in the 'Image styles'. It will be available again after saving the form."), 'warning', FALSE);
+        backdrop_set_message(t("The emphasize style has been set to 'Zoom'. 'Enlarge' has been disabled until you set a 'border' or unselect 'shadow' in the 'Image styles'. It will be available again after saving the form."), 'warning', FALSE);
       }
     }
     $form['css_settings']['flickrstyle_emphasize'] = array(

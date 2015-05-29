@@ -69,17 +69,17 @@ function flickr_tags_cloud($account, $nsid = NULL) {
   if (config_get('flickr.settings', 'flickr_css')) {
     backdrop_add_css(backdrop_get_path('module', 'flickr_tags') . '/css/flickr_tags.css');
   }
-  drupal_set_title(t('Flickr tags cloud - @name', array('@name' => $account->name)));
+  backdrop_set_title(t('Flickr tags cloud - @name', array('@name' => $account->name)));
   $nsid = $account->flickr['nsid'];
   // Get tag info.
   $poptag_response = flickr_tags_getlistuserpopular($nsid, config_get('flickr_tags.settings', 'flickr_tags_in_cloud'));
 
   if ($poptag_response === FALSE) {
-    drupal_set_message(t("Error retrieving %user's tags from Flickr", array('%user' => $account->name)));
+    backdrop_set_message(t("Error retrieving %user's tags from Flickr", array('%user' => $account->name)));
     return '';
   }
   elseif (empty($poptag_response)) {
-    drupal_set_message(t('%user has no tags', array('%user' => $account->name)));
+    backdrop_set_message(t('%user has no tags', array('%user' => $account->name)));
     return '';
   }
 
@@ -102,17 +102,17 @@ function flickr_tags_list($account, $nsid = NULL) {
   if (config_get('flickr.settings', 'flickr_css')) {
     backdrop_add_css(backdrop_get_path('module', 'flickr_tags') . '/css/flickr_tags.css');
   }
-  drupal_set_title(t('Flickr tags list - @name', array('@name' => $account->name)));
+  backdrop_set_title(t('Flickr tags list - @name', array('@name' => $account->name)));
   $nsid = $account->flickr['nsid'];
   // Get all tags.
   $taglist_response = flickr_tags_getlistuser($nsid);
 
   if ($taglist_response === FALSE) {
-    drupal_set_message(t("Error retrieving %user's tags from Flickr", array('%user' => $account->name)));
+    backdrop_set_message(t("Error retrieving %user's tags from Flickr", array('%user' => $account->name)));
     return '';
   }
   elseif (empty($taglist_response)) {
-    drupal_set_message(t('%user has no tags', array('%user' => $account->name)));
+    backdrop_set_message(t('%user has no tags', array('%user' => $account->name)));
     return '';
   }
 
@@ -135,7 +135,7 @@ function flickr_tags_list($account, $nsid = NULL) {
 function flickr_tags_photos($account, $tagstring) {
   global $pager_page_array, $pager_total, $pager_total_items;
 
-  drupal_set_title(t('Flickr photos of @user tagged @tag', array(
+  backdrop_set_title(t('Flickr photos of @user tagged @tag', array(
     '@user' => $account->name,
     '@tag' => $tagstring,
   )));
@@ -150,11 +150,11 @@ function flickr_tags_photos($account, $tagstring) {
   $photo_arr = flickr_photos_search($nsid, $pager_page_array[$element] + 1, flickr_tag_request_args($tags));
 
   if ($photo_arr === FALSE) {
-    drupal_set_message(t("Error retrieving %user's photos from Flickr", array('%user' => $account->name)));
+    backdrop_set_message(t("Error retrieving %user's photos from Flickr", array('%user' => $account->name)));
     return '';
   }
   elseif (empty($photo_arr)) {
-    drupal_set_message(t("No photos tagged with %tags found in %user's Flickr account", array(
+    backdrop_set_message(t("No photos tagged with %tags found in %user's Flickr account", array(
       '%user' => $account->name,
       '%tags' => str_replace(',', ', ', $tagstring),
     )));

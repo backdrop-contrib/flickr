@@ -179,7 +179,7 @@ function flickr_permission() {
  * Displays the links to the user's photos, sets and tags.
  */
 function flickr_user_page($user) {
-  drupal_set_title(flickr_photos_page_title($user));
+  backdrop_set_title(flickr_photos_page_title($user));
   $links['items'][] = l(t("@name's photos", array('@name' => $user->name)), 'flickr/' . $user->uid);
 
   if (module_exists('flickr_sets')) {
@@ -222,7 +222,7 @@ function flickr_photos($user = NULL) {
   if ($user === NULL) {
     $nsid = config_get('flickr.settings', 'flickr_default_userid');
     if (!$nsid) {
-      drupal_set_message(t('No default Flickr user id has been set.'));
+      backdrop_set_message(t('No default Flickr user id has been set.'));
       return FALSE;
     }
     $uid = 0;
@@ -233,7 +233,7 @@ function flickr_photos($user = NULL) {
       $nsid = $account->flickr['nsid'];
     }
     else {
-      drupal_set_message(t('%user does not have a Flickr account', array('%user' => $account->name)), 'error');
+      backdrop_set_message(t('%user does not have a Flickr account', array('%user' => $account->name)), 'error');
       return FALSE;
     }
     $uid = $account->uid;
@@ -242,7 +242,7 @@ function flickr_photos($user = NULL) {
   $nsid = flickr_user_find_by_identifier($nsid);
   $photos = flickr_photos_search($nsid, $pager_page_array[$element] + 1);
   if (!$photos) {
-    drupal_set_message(t('No accessible photos found for Flickr %userid', array('%userid' => $nsid)), 'warning');
+    backdrop_set_message(t('No accessible photos found for Flickr %userid', array('%userid' => $nsid)), 'warning');
     return FALSE;
   }
 
@@ -286,7 +286,7 @@ function flickr_user_presave($account) {
     /*
     elseif ($user_affected) {
       //Flickr account deleted
-      drupal_set_message(t("%username's Flickr page has been deleted.", array('%username' => $account->name)));
+      backdrop_set_message(t("%username's Flickr page has been deleted.", array('%username' => $account->name)));
     }
     */
   }
@@ -661,7 +661,7 @@ function theme_flickr_photo($variables) {
       $result = flickr_curl_http_request($google);
     }
     elseif (function_exists('stream_socket_client')) {
-      $result = drupal_http_request($google);
+      $result = backdrop_http_request($google);
     }
     $json = json_decode($result->data);
     $loc = $json->results[0]->formatted_address;
@@ -936,7 +936,7 @@ function theme_flickr_flickrcomslideshow($variables) {
     case 'group':
       return '<div class="flickr-slideshow ' . $class . '"><object width="' . $width . '" height="' . $height . '" style="' . $attribs . '" type="application/x-shockwave-flash" data="https://www.flickr.com/apps/slideshow/show.swf?v=140556"><param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=140556"></param><param name="flashvars" value="offsite=true&lang=en-us&page_show_url=%2Fgroups%2F' . $id . '%2Fpool%2Fshow%2F&page_show_back_url=%2Fgroups%2F' . $id . '%2Fpool%2F&group_id=' . $id . '&jump_to=&start_index="></param><param name="allowFullScreen" value="true"><param name="wmode" value="opaque" /></param></object></div>';
   }
-  drupal_set_message(t('No valid set, user or group ID is provided for the slideshow.'), 'error');
+  backdrop_set_message(t('No valid set, user or group ID is provided for the slideshow.'), 'error');
 }
 
 /**
