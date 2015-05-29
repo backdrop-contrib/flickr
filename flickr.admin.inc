@@ -212,7 +212,7 @@ function flickr_admin_settings() {
   backdrop_static_reset('system_get_date_types');
   $formats = array();
   foreach (system_get_date_types() as $f => $format) {
-    if (($format_string = variable_get('date_format_' . $f, FALSE)) === FALSE) {
+    if (($format_string = config_get('system.date', 'formats')) === FALSE) {
       $format_string = key(system_get_date_formats($f));
     }
 
@@ -221,6 +221,7 @@ function flickr_admin_settings() {
     }
   }
   $formats['interval'] = 'Time ago [' . format_interval(3600 * 24 * 90, 1) . ' ago]';
+  $formats = array_filter($formats);
   $form['date_formats_settings']['flickr_date_format_image_title'] = array(
     '#type' => 'select',
     '#title' => t('When hovering an image (mouse-over)'),

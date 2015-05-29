@@ -1557,7 +1557,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
         if ($i == 0 && config_get('flickr.settings', 'flickr_block_hide_empty')) {
           $output = '';
           if (is_numeric($delta) && module_exists('flickr_block')) {
-            $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
+            $refresh = $sort == 'random' ? config_get('flickr_block.settings', 'flickr_block_refresh_random') : config_get('flickr_block.settings', 'flickr_block_refresh_others');
             // drupal_is_front_page() is added because it also can have
             // arg(0) == 'node'.
             cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tags . '_' . $lat . '_' . $datetofix . '_' . $datefromfix . '_' . arg(0) . '_' . drupal_is_front_page(), $output, 'cache', time() + $refresh * 60 * 60);
@@ -1608,7 +1608,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
       $output .= '</span>';
     }
     if (is_numeric($delta) && module_exists('flickr_block')) {
-      $refresh = $sort == 'random' ? variable_get('flickr_block_refresh_random', 23) : variable_get('flickr_block_refresh_others', 31);
+      $refresh = $sort == 'random' ? config_get('flickr_block.settings', 'flickr_block_refresh_random') : config_get('flickr_block.settings', 'flickr_block_refresh_others');
       // drupal_is_front_page() is added because it also can have
       // arg(0) == 'node'.
       cache_set('flickr_block_' . $delta . '_' . $idfix . '_' . $tagsfix . '_' . $latfix . '_' . $datefromfix . '_' . $datetofix . '_' . arg(0) . '_' . drupal_is_front_page() . '_' . $pagefix, $output, 'cache', time() + $refresh * 60 * 60);
