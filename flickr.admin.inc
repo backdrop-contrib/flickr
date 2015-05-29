@@ -209,18 +209,19 @@ function flickr_admin_settings() {
     '#weight' => 6,
   );
   // Get list of all available date formats.
-  backdrop_static_reset('system_get_date_types');
+  backdrop_static_reset('system_get_date_formats');
   $formats = array();
-  foreach (system_get_date_types() as $f => $format) {
+  foreach (system_get_date_formats() as $f => $format) {
     if (($format_string = config_get('system.date', 'formats')) === FALSE) {
       $format_string = key(system_get_date_formats($f));
+      $format_pattern = $format['pattern'];
     }
 
     if (!empty($format_string) && !(stripos($f, 'html') !== FALSE)) {
-      $formats[$f] = $format['label'];
+      $formats[$f] = $format['label'] . ' [' . format_date(REQUEST_TIME, $f, $format_pattern) . ']';
     }
   }
-  $formats['interval'] = 'Time ago [' . format_interval(3600 * 24 * 90, 1) . ' ago]';
+  $formats['interval'] = t('Time ago') . ' [' . format_interval(3600 * 24 * 90, 1) . ' ' . t('ago') . ']';
   $formats = array_filter($formats);
   $form['date_formats_settings']['flickr_date_format_image_title'] = array(
     '#type' => 'select',

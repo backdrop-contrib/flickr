@@ -2103,7 +2103,7 @@ function flickr_curl_set_headers(&$options, &$ch) {
  */
 function flickr_curl_request_type_option(&$options, &$ch) {
   $valid_method = FALSE;
-  switch (drupal_strtoupper($options['method'])) {
+  switch (backdrop_strtoupper($options['method'])) {
     case 'DELETE':
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
       $valid_method = TRUE;
