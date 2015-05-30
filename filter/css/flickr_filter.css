@@ -1,0 +1,7 @@
+fieldset.flickr-filter-tips.collapsible.collapsed {
+  margin: 0;
+}
+
+fieldset.flickr-filter-tips .fieldset-wrapper {
+  padding: 0 6px 10px 15px;
+}

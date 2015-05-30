@@ -43,15 +43,12 @@ function flickr_filter_form_flickr_admin_settings_alter(&$form, &$form_state) {
     '#size' => 4,
     '#maxlength' => 4,
   );
-  // Offer the following setting if the ctools module is enabled.
-  if (module_exists('ctools')) {
-    $form['filter_settings']['flickr_filter_collapsible'] = array(
-      '#type' => 'checkbox',
-      '#title' => t("Collapsible filter tips (collapsed by default)"),
-      '#default_value' => config_get('flickr_filter.settings', 'flickr_filter_collapsible'),
-      '#description' => t('Collapse the in-line help for the Flickr Filter text format under the body field on node edit forms.'),
-    );
-  }
+  $form['filter_settings']['flickr_filter_collapsible'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Collapsible filter tips (collapsed by default)"),
+    '#default_value' => config_get('flickr_filter.settings', 'flickr_filter_collapsible'),
+    '#description' => t('Collapse the in-line help for the Flickr Filter text format under the body field on node edit forms.'),
+  );
 }
 
 /**

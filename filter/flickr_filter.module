@@ -148,16 +148,11 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
     }
     $output .= theme('item_list', array('items' => $items));
   }
-  $toggle = l(t('expand / collapse'), '#', array(
-    'attributes' => array(
-      'title' => t('Examples to embed Flickr images'),
-    ),
-  ));
-  $options = array(
-    'handle' => t('Flickr Filter options. !toggle', array('!toggle' => $toggle)),
-    'content' => $output, 'collapsed' => TRUE,
-  );
-  $output = module_exists('ctools') && config_get('flickr_filter.settings', 'flickr_filter_collapsible') ? theme('ctools_collapsible', $options) : $output;
+  if (config_get('flickr_filter.settings', 'flickr_filter_collapsible')) {
+    backdrop_add_library('system', 'backdrop.collapse');
+    backdrop_add_css(backdrop_get_path('module', 'flickr_filter') . '/css/flickr_filter.css');
+    $output = '<fieldset class="flickr-filter-tips collapsible collapsed"><legend><span class="fieldset-legend">Flickr Filter options</span></legend><div class="fieldset-wrapper">' . $output . '</div></fieldset>';
+  }
   return $output;
 }
 

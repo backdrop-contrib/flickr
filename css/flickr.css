@@ -93,10 +93,6 @@ span.flickr-empty {
   display: none;
 }
 
-.tips span.ctools-toggle {
-  float: none !important;
-}
-
 span.grayed-out {
   color: darkgray;
 }
