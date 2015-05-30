@@ -273,8 +273,8 @@ spread between one another (not less random) and returns popular (most viewed on
 Flickr) only for the n most recent. Minimum 20, maximum 500. If you use cache
 warming you can set the maximum (see https://drupal.org/node/1576686).
 
-### Use 'cURL' to determine the image width instead of 'fopen' used by the PHP
-function 'getimagesize' ###
+### Use 'cURL' to determine the image width instead of 'fopen' ###
+Used by the PHP function 'getimagesize'
 Checkbox (default OFF). Your server configuration now uses 'fopen' for external
 resources (used by 'getimagesize'). 'cURL' might be faster.
 
