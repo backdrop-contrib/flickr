@@ -12,6 +12,9 @@ The content of this file is based on the online documentation that can be found
 at https://www.drupal.org/documentation/modules/flickr It is recommended to read
 it there, as it is more detailed.
 
+### [Demo](http://lolandese.altervista.org/ "Demo site of both the Flickr and AutoFloat modules")
+
+
 REQUIREMENTS
 ------------
 This module requires Backdrop 1.X and a Flickr API key.
@@ -21,9 +24,10 @@ LICENSE
 This project is GPL v2 software. See the LICENSE.txt file in this directory for
 complete text.
 
-MAINTAINER
+AUTHOR & MAINTAINER & CREDITS
 ----------
-- Martin Postma (https://github.com/lolandese)
+- Martin Postma ([lolandese](https://www.drupal.org/u/lolandese "Profile page on Drupal.org"))
+- See the CREDITS.md file in this directory for a list of all committers.
 
 INSTALLATION AND CONFIGURATION
 ------------------------------
