@@ -155,7 +155,8 @@ function flickr_filter_tips($filter, $format, $long = FALSE) {
   ));
   $options = array(
     'handle' => t('Flickr Filter options. !toggle', array('!toggle' => $toggle)),
-    'content' => $output, 'collapsed' => TRUE,
+    'content' => $output,
+    'collapsed' => TRUE,
   );
   $output = module_exists('ctools') && variable_get('flickr_filter_collapsible', 1) ? theme('ctools_collapsible', $options) : $output;
   return $output;
