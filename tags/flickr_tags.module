@@ -29,7 +29,7 @@ function flickr_tags_menu() {
     'access callback' => 'flickr_photos_access',
     'access arguments' => array(1),
   );
-  $items['flickr/%user/tags/%'] = array(
+  $items['flickr/%user/tag/%'] = array(
     'title' => 'Photos for tag',
     'description' => 'Show Flickr photos for a particular tag',
     'page callback' => 'flickr_tags_photos',
@@ -224,7 +224,7 @@ function theme_flickr_tags_cloud($variables) {
     $font_size = round(($max_font - $min_font) * sqrt($occurences / $max_occur) + $min_font, 1);
 
     $output .= "<li style='font-size: {$font_size}em'>";
-    $output .= l($tagname, "flickr/$uid/tags/$tagname");
+    $output .= l($tagname, "flickr/$uid/tag/$tagname");
     $output .= "</li>\n";
 
   }
