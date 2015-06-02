@@ -8,23 +8,17 @@
  * Implements hook_menu().
  */
 function flickr_tags_menu() {
-  $items['flickr/%user/tags/%'] = array(
-    'title' => 'Photos for tag',
-    'description' => 'Show Flickr photos for a particular tag',
-    'type' => MENU_LOCAL_TASK,
-    'page callback' => 'flickr_tags_photos',
-    'page arguments' => array(1, 3),
+  $items['flickr/%user/tags'] = array(
+    'title' => 'Tags',
+    'description' => 'Flickr main tag cloud page',
+    'page callback' => 'flickr_tags_cloud',
+    'page arguments' => array(1),
     'access callback' => 'flickr_photos_access',
     'access arguments' => array(1),
   );
   $items['flickr/%user/tags/cloud'] = array(
     'title' => 'Cloud',
-    'description' => 'Flickr main tag cloud page',
     'type' => MENU_DEFAULT_LOCAL_TASK,
-    'page callback' => 'flickr_tags_list',
-    'page arguments' => array(1),
-    'access callback' => 'flickr_photos_access',
-    'access arguments' => array(1),
   );
   $items['flickr/%user/tags/list'] = array(
     'title' => 'List',
@@ -35,12 +29,11 @@ function flickr_tags_menu() {
     'access callback' => 'flickr_photos_access',
     'access arguments' => array(1),
   );
-  $items['flickr/%user/tags'] = array(
-    'title' => 'Tags',
-    'description' => 'Flickr main tag cloud page',
-    'type' => MENU_LOCAL_TASK,
-    'page callback' => 'flickr_tags_cloud',
-    'page arguments' => array(1),
+  $items['flickr/%user/tags/%'] = array(
+    'title' => 'Photos for tag',
+    'description' => 'Show Flickr photos for a particular tag',
+    'page callback' => 'flickr_tags_photos',
+    'page arguments' => array(1, 3),
     'access callback' => 'flickr_photos_access',
     'access arguments' => array(1),
   );
