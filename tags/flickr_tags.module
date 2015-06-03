@@ -244,3 +244,38 @@ function flickr_tag_request_args($tags = array(), $mode = 'all') {
   }
   return $args;
 }
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function flickr_tags_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  global $user;
+  if ($root_path == 'flickr/%/tag/%') {
+    $data['tabs'][0]['count'] = 3;
+    $data['tabs'][0]['output'][] = array(
+      '#theme' => 'menu_local_task',
+      '#link' => array(
+        'title' => t('Cloud'),
+        'href' => 'flickr/' . $user->uid . '/tags/cloud',
+        'localized_options' => array(),
+      ),
+    );
+    $data['tabs'][0]['output'][] = array(
+      '#theme' => 'menu_local_task',
+      '#link' => array(
+        'title' => t('List'),
+        'href' => 'flickr/' . $user->uid . '/tags/list',
+        'localized_options' => array(),
+      ),
+    );
+    $data['tabs'][0]['output'][] = array(
+      '#theme' => 'menu_local_task',
+      '#link' => array(
+        'title' => t('Photos for tag'),
+        'href' => 'flickr/' . $user->uid . '/tag',
+        'localized_options' => array(),
+      ),
+      '#active' => TRUE,
+    );
+  }
+}
