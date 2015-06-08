@@ -42,6 +42,10 @@ function flickrcachewarmer_cron() {
   // Note it should currently not be used as we recommend to leave the cache
   // lifetime set to 'none'.
   $batchnumber = config_get('system.core', 'cache_lifetime') > (2 * config_get('system.core', 'cron_safe_threshold')) ? ceil(config_get('system.core', 'cache_lifetime') / config_get('system.core', 'cron_safe_threshold')) : 1;
+  // Interrupt if no nodes are found.
+  if (count($nids) == 0) {
+    return;
+  }
   $batchnumber = $batchnumber > count($nids) ? count($nids) : $batchnumber;
   $batchsize = ceil(count($nids) / $batchnumber);
   $nids = array_chunk($nids, $batchsize, FALSE);
