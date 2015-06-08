@@ -36,7 +36,7 @@ function flickr_filter_info() {
  * Returns the filter information for the filter help page.
  */
 function flickr_filter_tips($filter, $format, $long = FALSE) {
-  $autofloat = l(t('AutoFloat module'), 'https://github.com/backdrop-contrib/autofloat/', array(
+  $autofloat = l(t('AutoFloat module'), 'https://drupal.org/project/autofloat/', array(
     'attributes' => array(
       'title' => t('backdrop-contrib/autofloat | GitHub'),
       'target' => '_blank',
