@@ -95,7 +95,7 @@ function flickr_block_install() {
         'entity_type' => 'user',
         'label' => $vocabulary->name,
         'bundle' => $bundle,
-        'description' => $t("Limited the photos used from your Flickr account in Flickr blocks to those having a Flickr tag as indicated here (e.g. 'website' or 'blog'). Those have to be added to individual photos on Flickr as well. This is not necessary if the Flickr blocks themselves make use of the Flickr tags attached to a post, as the grabbed photos are filtered by those already. To do the opposite, exclude results that match a term by prepending it with a - character."),
+        'description' => $t("Limited the photos used from your Flickr account in Flickr blocks to those having a Flickr tag as indicated here (e.g. 'website' or 'blog'). Those have to be added to individual photos on Flickr as well. This is not necessary if the Flickr blocks themselves make use of the Flickr tags attached to a post, as the grabbed photos are filtered by those already. To do the opposite, exclude results that match a term by prepending it with a - character.<br />NOTA BENE: Does NOT have any impact on the photos displayed in a user profile."),
         // Use the taxonomy autocomplete widget.
         'widget' => array(
           'type' => 'taxonomy_autocomplete',
@@ -118,7 +118,7 @@ function flickr_block_install() {
     }
   }
 
-  if (module_exists('date_popup') && config_get('flickr.settings', 'flickr_smart') && !db_table_exists('field_data_field_flickr_date')) {
+  if (module_exists('date') && module_exists('date_popup') && config_get('flickr.settings', 'flickr_smart') && !db_table_exists('field_data_field_flickr_date')) {
     $field = array(
       'field_name' => 'field_flickr_date',
       'type' => 'datetime',
@@ -255,7 +255,7 @@ function flickr_block_install() {
       field_create_instance($instance);
     }
 
-    if (isset($vocabulary) && module_exists('date_popup')) {
+    if (isset($vocabulary) && module_exists('date') && module_exists('date_popup')) {
       foreach (range(0, 16) as $delta) {
         config_set('flickr_block.settings', 'flickr_block_' . $delta, array(
           'vocab' => $vocabulary->vid,
@@ -264,7 +264,7 @@ function flickr_block_install() {
         ));
       }
     }
-    elseif (module_exists('date_popup')) {
+    elseif (module_exists('date') && module_exists('date_popup')) {
       foreach (range(0, 16) as $delta) {
         config_set('flickr_block.settings', 'flickr_block_' . $delta, array(
           'date' => 'field_flickr_date',
@@ -286,6 +286,7 @@ function flickr_block_install() {
  * Implements hook_uninstall().
  */
 function flickr_block_uninstall() {
+  $t = get_t();
   if (function_exists('taxonomy_vocabulary_machine_name_load')) {
     $vocabulary = taxonomy_vocabulary_machine_name_load('flickr_tags');
     if ($vocabulary) {

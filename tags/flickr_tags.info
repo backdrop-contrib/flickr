@@ -3,4 +3,5 @@ description = Adds tags capability to Flickr module.
 type = module
 backdrop = 1.x
 package = Flickr
+configure = admin/config/media/flickr
 dependencies[] = flickr

@@ -120,6 +120,21 @@ function flickr_admin_settings() {
     '#size' => 3,
     '#maxlength' => 3,
   );
+  $rubular = l(t('http://rubular.com/r/RhKjj9Thy1'), 'http://rubular.com/r/RhKjj9Thy1', array(
+      'attributes' => array(
+        'title' => t('Rubular: ^[a-zA-Z]+[^\s][0-9]+$'),
+        'target' => '_blank',
+      ),
+  ));
+  $form['info_settings']['flickr_regex'] = array(
+    '#type' => 'textfield',
+    '#title' => t("Replace photo titles matching this Regular Expression with 'View on Flickr'"),
+    '#default_value' => config_get('flickr.setttings', 'flickr_regex'),
+    '#description' => t("Avoids camera generated titles like e.g. 'IMG_4259'. Try your own RegEx first with !rubular. Leave empty to NOT replace any titles.", array('!rubular' => $rubular)),
+    '#field_prefix' => t('/'),
+    '#field_suffix' => t('/'),
+    '#size' => 60,
+  );
   $cc_icons = l(t('Source for the CC icon font'), 'https://cc-icons.github.io/', array(
       'attributes' => array(
         'title' => t('Creative Commons Icon Font on GitHub'),
@@ -191,6 +206,16 @@ function flickr_admin_settings() {
     '#title' => t('Show a Flickr counter'),
     '#default_value' => config_get('flickr.settings', 'flickr_counter'),
     '#description' => t('Shows how many photos are displayed out of the total number available for a user, group, set or tags on Flickr. Can be overridden individually by the filter tag, eg. [flickr-photoset:id=72157634563269642,count=false]'),
+  );
+  $form['info_settings']['flickr_thousands_sep'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Counter thousands separator'),
+    '#default_value' => config_get('flickr.settings', 'flickr_thousands_sep'),
+    '#description' => t('Common values are NULL, a dot ("."), a comma (",") or a space (" ").'),
+    '#field_prefix' => t('E.g. 4 out of 23'),
+    '#field_suffix' => t('473'),
+    '#size' => 1,
+    '#maxlength' => 1,
   );
   $form['info_settings']['flickr_geophp'] = array(
     '#type' => 'checkboxes',
