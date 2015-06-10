@@ -13,7 +13,7 @@
 function flickrcachewarmer_config_info() {
   $prefixes['flickrcachewarmer.settings'] = array(
     'label' => t('Flickr Cache Warmer settings'),
-    'group' => t('Flickr'),
+    'group' => t('Configuration'),
   );
   return $prefixes;
 }

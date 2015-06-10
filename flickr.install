@@ -49,6 +49,22 @@ function flickr_schema() {
 }
 
 /**
+ * Implements hook_requirements().
+ */
+function flickr_requirements($phase) {
+  if ($phase == 'runtime') {
+    $requirements = array();
+    $t = get_t();
+     $requirements['flickr_requirements'] = array(
+      'title' => $t('Flickr'),
+      'value' => config_get('flickr.settings', 'flickr_api_key') ? $t('A Flickr API key has been set.') : $t("No Flickr API key has been set at !link.", array('!link' => l('admin/config/media/flickr', 'admin/config/media/flickr'))),
+      'severity' => config_get('flickr.settings', 'flickr_api_key') ? REQUIREMENT_OK : REQUIREMENT_ERROR,
+    );
+    return $requirements;
+  }
+}
+
+/**
  * Implements hook_update_last_removed().
  */
 function flickr_update_last_removed() {

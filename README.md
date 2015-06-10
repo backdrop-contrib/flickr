@@ -24,7 +24,7 @@ LICENSE
 This project is GPL v2 software. See the LICENSE.txt file in this directory for
 complete text.
 
-AUTHOR & MAINTAINER & CREDITS
+MAINTAINER & CREDITS
 ----------
 - Martin Postma ([lolandese](https://www.drupal.org/u/lolandese "Profile page on Drupal.org"))
 - See the CREDITS.md file in this directory for a list of all committers.

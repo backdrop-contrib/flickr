@@ -13,7 +13,7 @@
 function flickr_block_config_info() {
   $prefixes['flickr_block.settings'] = array(
     'label' => t('Flickr Block settings'),
-    'group' => t('Flickr'),
+    'group' => t('Configuration'),
   );
   return $prefixes;
 }
@@ -1477,4 +1477,38 @@ function flickr_block_photosets($nsid, $show_n, $size, $media, $delta, $people =
     cache_set('flickr_block_' . $delta . '_' . $nsid, $output, 'cache', time() + (config_get('flickr_block.settings', 'flickr_block_refresh_others') * 60 * 60));
   }
   return $output;
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ *
+ * Alter the node forms.
+ */
+function flickr_block_form_node_form_alter(&$form, &$form_state, $form_id) {
+  if (isset($form['field_flickr_tags']) || isset($form['field_flickr_date']) || isset($form['field_flickr_geo'])) {
+    // Move the Flickr fields in a fieldset on the node edit form.
+    // Only works for the default created Flickr fields during install.
+    // To make them work on other fields copy the code for an existing field and
+    // substitute the field's machine name.
+    $form['flickr'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Flickr'),
+      '#description' => t('If there is a Flickr block active that shows images related to the node dynamically, give some filter criteria below.'),
+      '#weight' => 5,
+      '#collapsed' => TRUE,
+      '#collapsible' => TRUE,
+    );
+    if (isset($form['field_flickr_tags'])) {
+      $form['flickr']['field_flickr_tags'] = $form['field_flickr_tags'];
+      unset($form['field_flickr_tags']);
+    }
+    if (isset($form['field_flickr_date'])) {
+      $form['flickr']['field_flickr_date'] = $form['field_flickr_date'];
+      unset($form['field_flickr_date']);
+    }
+    if (isset($form['field_flickr_geo'])) {
+      $form['flickr']['field_flickr_geo'] = $form['field_flickr_geo'];
+      unset($form['field_flickr_geo']);
+    }
+  }
 }

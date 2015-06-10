@@ -13,7 +13,7 @@ module_load_include('inc', 'flickr');
 function flickr_config_info() {
   $prefixes['flickr.settings'] = array(
     'label' => t('Flickr settings'),
-    'group' => t('Flickr'),
+    'group' => t('Configuration'),
   );
   return $prefixes;
 }
@@ -309,7 +309,14 @@ function flickr_user_delete($account) {
 function flickr_form_user_profile_form_alter(&$form, &$form_state) {
   if (user_access('view own flickr photos') || user_access('administer flickr')) {
     $account = $form['#user'];
-    $form['flickr_identifier'] = array(
+    $form['flickr'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Flickr settings'),
+      '#collapsible' => FALSE,
+      '#weight' => 4,
+      '#tree' => FALSE,
+    );
+    $form['flickr']['flickr_identifier'] = array(
       '#type' => 'textfield',
       '#title' => t('Flickr identifier'),
       '#default_value' => empty($account->flickr['identifier']) ? '' : $account->flickr['identifier'],
@@ -318,6 +325,14 @@ function flickr_form_user_profile_form_alter(&$form, &$form_state) {
       '#weight' => 3,
     );
     $form['#validate'][] = 'flickr_user_account_form_validate';
+    if (isset($form['field_flickr_tags'])) {
+      // Move the Flickr fields in the fieldset on the user form.
+      // Only works for the default created Flickr field during install.
+      // To make them work on other fields copy the code for an existing field
+      // and substitute the field's machine name.
+    $form['flickr']['field_flickr_tags'] = $form['field_flickr_tags'];
+      unset($form['field_flickr_tags']);
+  }
   }
 }
 
@@ -606,7 +621,8 @@ function theme_flickr_photo($variables) {
   // Get the Flickr image title for set data or the photo itself. Sanitize.
   $title = is_array($photo['title']) ? str_replace('"', "'", strip_tags($photo['title']['_content'])) : $photo['title'];
   // Replace titles like e.g. 'IMG_4259' with 'View on Flickr'.
-  $title = preg_match('/^[a-zA-Z]+[^\s][0-9]+$/', $title) ? 'View on Flickr' : $title;
+  $regex = config_get('flickr.settings', 'flickr_regex');
+  $title = (preg_match('/' . $regex . '/', $title) && !empty($regex)) || empty($title) ? 'View on Flickr' : $title;
   // For videos add the '(VIDEO)' to the title if it not already contains it.
   $title .= (($info['media'] !== 'video') || (stripos($title, 'video') !== FALSE)) ? '' : ' ' . t('(VIDEO)');
   // Use title if description does not exist, else sanitize the description.
