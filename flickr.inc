@@ -144,7 +144,7 @@ function flickr_request($method, $args, $cacheable = TRUE, $return_errors = FALS
     $message = t('Automatic fallback to the cURL connection method kicked in to handle the request. Result code from the failing request') . ': ' . $result->code;
     backdrop_set_message($message, 'warning', FALSE);
     watchdog('flickr', $message, array(), WATCHDOG_WARNING);
-    if ($return_errors) {
+    if ($return_errors && $result->code != 200) {
       // Debug info.
       if (config_get('flickr.settings', 'flickr_debug') == 2 && function_exists('dpm')) {
         dpm("Value of error 'result' in 'function flickr_request()' with connection method " . "'" . $cmethod . "' in 'flickr.inc':");
