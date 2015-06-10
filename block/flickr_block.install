@@ -93,7 +93,7 @@ function flickr_block_install() {
     }
   }
 
-  if (module_exists('date_popup') && variable_get('flickr_smart', 0)) {
+  if (module_exists('date') && module_exists('date_popup') && variable_get('flickr_smart', 0)) {
     $field = array(
       'field_name' => 'field_flickr_date',
       'type' => 'datetime',
@@ -230,7 +230,7 @@ function flickr_block_install() {
       field_create_instance($instance);
     }
 
-    if (isset($vocabulary) && module_exists('date_popup')) {
+    if (isset($vocabulary) && module_exists('date') && module_exists('date_popup')) {
       foreach (range(0, 16) as $delta) {
         variable_set('flickr_block_' . $delta, array(
           'vocab' => $vocabulary->vid,
@@ -239,7 +239,7 @@ function flickr_block_install() {
         ));
       }
     }
-    elseif (module_exists('date_popup')) {
+    elseif (module_exists('date') && module_exists('date_popup')) {
       foreach (range(0, 16) as $delta) {
         variable_set('flickr_block_' . $delta, array(
           'date' => 'field_flickr_date',
@@ -401,7 +401,7 @@ function flickr_block_update_7101() {
  */
 function flickr_block_update_7102() {
   $t = get_t();
-  if (module_exists('date_popup')) {
+  if (module_exists('date') && module_exists('date_popup')) {
     $field = array(
       'field_name' => 'field_flickr_date',
       'type' => 'datetime',
@@ -538,7 +538,7 @@ function flickr_block_update_7102() {
       field_create_instance($instance);
     }
 
-    if (isset($vocabulary) && module_exists('date_popup')) {
+    if (isset($vocabulary) && module_exists('date') && module_exists('date_popup')) {
       foreach (range(0, 16) as $delta) {
         variable_set('flickr_block_' . $delta, array(
           'vocab' => $vocabulary->vid,
@@ -547,7 +547,7 @@ function flickr_block_update_7102() {
         ));
       }
     }
-    elseif (module_exists('date_popup')) {
+    elseif (module_exists('date') && module_exists('date_popup')) {
       foreach (range(0, 16) as $delta) {
         variable_set('flickr_block_' . $delta, array(
           'date' => 'field_flickr_date',
