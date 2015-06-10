@@ -9,7 +9,7 @@
  */
 function flickr_block_install() {
   $t = get_t();
-  if (function_exists('taxonomy_vocabulary_machine_name_load') && variable_get('flickr_smart', 1)) {
+  if (function_exists('taxonomy_vocabulary_machine_name_load') && variable_get('flickr_smart', 0)) {
     $vocab = (object) array(
       'name' => 'Flickr tags',
       'machine_name' => 'flickr_tags',
@@ -93,7 +93,7 @@ function flickr_block_install() {
     }
   }
 
-  if (module_exists('date_popup') && variable_get('flickr_smart', 1)) {
+  if (module_exists('date_popup') && variable_get('flickr_smart', 0)) {
     $field = array(
       'field_name' => 'field_flickr_date',
       'type' => 'datetime',
@@ -175,7 +175,7 @@ function flickr_block_install() {
     }
   }
 
-  if (module_exists('geofield') && variable_get('flickr_smart', 1)) {
+  if (module_exists('geofield') && variable_get('flickr_smart', 0)) {
     $field = array(
       'translatable' => '0',
       'settings' => array(

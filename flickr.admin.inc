@@ -500,7 +500,7 @@ function flickr_admin_settings() {
   $form['block_settings']['flickr_smart'] = array(
     '#type' => 'checkbox',
     '#title' => t("Smart install of Flickr Block"),
-    '#default_value' => variable_get('flickr_smart', 1),
+    '#default_value' => variable_get('flickr_smart', 0),
     '#description' => t("On install of Flickr Block auto create Flickr taxonomy, date and geo fields on all node types to grab Flickr photos related to the node on the same page as a Flickr block based on tags, a date or a location. Enable Taxonomy (core), !date (including date_popup) and !geofield before enabling Flickr Block for the first time (or uninstall it first).", array('!date' => $date, '!geofield' => $geofield)),
   );
   // If a block variable exists, the Flickr Block module has not been
