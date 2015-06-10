@@ -4,6 +4,20 @@
  * The Flickr tags module.
  */
 
+  // Load flickr_tags.admin.inc from the flickrstyle module.
+  module_load_include('inc', 'flickr_tags', 'flickr_tags.admin');
+
+/**
+ * Implements hook_help().
+ */
+function flickr_tags_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#flickr_tags':
+      // Return a line-break version of the README.txt.
+      return _filter_autop(file_get_contents(dirname(__FILE__) . '/README.txt'));
+  }
+}
+
 /**
  * Implements hook_menu().
  */

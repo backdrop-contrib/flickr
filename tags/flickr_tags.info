@@ -2,4 +2,5 @@ name = Flickr Tags
 description = Adds tags capability to Flickr module.
 core = 7.x
 package = Flickr
+configure = admin/config/media/flickr
 dependencies[] = flickr
