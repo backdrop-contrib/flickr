@@ -11,9 +11,9 @@ function flickrstyle_update_1000() {
   // Migrate variables to config.
   $config = config('flickr_style.settings');
   $config->set('flickrstyle_styles', update_variable_get('flickrstyle_styles', array(
-      'rounded',
-      'shadow',
-      'border',
+      'rounded' => 'rounded',
+      'shadow' => 'shadow',
+      'border' => 'border',
     )));
   $config->set('flickrstyle_caption', update_variable_get('flickrstyle_caption', 1));
   $config->set('flickrstyle_emphasize', update_variable_get('flickrstyle_emphasize', 2));

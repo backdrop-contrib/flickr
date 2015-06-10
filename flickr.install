@@ -105,14 +105,14 @@ function flickr_update_1000() {
   $config->set('flickr_date_format_image_caption_hover', update_variable_get('flickr_date_format_image_caption_hover', 'long'));
   $config->set('flickr_date_format_album_title', update_variable_get('flickr_date_format_album_title', 'short'));
   $config->set('flickr_info_overlay', update_variable_get('flickr_info_overlay', array(
-    "title",
-    "metadata",
-    "description",
-    0,
+    'title' => 'title',
+    'metadata' => 'metadata',
+    'description' => 'description',
+    'license' => 0,
   )));
   $config->set('flickr_geophp', update_variable_get('flickr_geophp', array(
-    "title",
-    0,
+    'title' => 'title',
+    'caption' => 0,
   )));
   $config->save();
 
