@@ -494,13 +494,16 @@ function flickr_set_error($message_or_response) {
       '@error_id' => $message_or_response['code'],
       '%flickr_error' => $message_or_response['message'],
     ));
+    if ($message_or_response['code'] == 100) {
+      $message .= '. ' . t('No valid Flickr API key has been set at !link.', array('!link' => l('admin/config/media/flickr', 'admin/config/media/flickr')));
+    }
   }
   else {
     $message = $message_or_response;
   }
 
   if (user_access('administer flickr')) {
-    drupal_set_message($message, 'error');
+    drupal_set_message($message, 'error', FALSE);
   }
   watchdog('flickr', $message, array(), WATCHDOG_WARNING);
 }
@@ -585,6 +588,10 @@ function flickr_get_id_type($id) {
  * Render multiple photos as an album.
  */
 function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $size = NULL, $media = 'photos', $tags = '', $tags_user = '', $delta = 'true', $sort = 'unsorted', $heading = 'p', $min_title = NULL, $min_metadata = NULL, $vocab_isset = 0, $filter = NULL, $lat = NULL, $lon = NULL, $radius = NULL, $datefrom = NULL, $dateto = NULL, $extend = 1, $tag_mode = 'context', $class = NULL, $style = NULL, $page = 1) {
+  // If no API key is set, break.
+  if (!variable_get('flickr_api_key', NULL)) {
+    return FALSE;
+  }
   // Also Flickr converts tags to lowercase, removes spaces and the ampersand.
   $tags = strtolower(str_replace(array(' ', '&'), '', $tags));
   // drupal_is_front_page() is added because it also can have arg(0) == 'node'.

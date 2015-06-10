@@ -84,6 +84,22 @@ function flickr_schema() {
 }
 
 /**
+ * Implements hook_requirements().
+ */
+function flickr_requirements($phase) {
+  if ($phase == 'runtime') {
+    $requirements = array();
+    $t = get_t();
+     $requirements['flickr_requirements'] = array(
+      'title' => $t('Flickr'),
+      'value' => variable_get('flickr_api_key', NULL) ? $t('A Flickr API key has been set.') : $t("No Flickr API key has been set at !link.", array('!link' => l('admin/config/media/flickr', 'admin/config/media/flickr'))),
+      'severity' => variable_get('flickr_api_key', NULL) ? REQUIREMENT_OK : REQUIREMENT_ERROR,
+    );
+    return $requirements;
+  }
+}
+
+/**
  * Create new index 'license' on the variable 'flickr_info_overlay'.
  */
 function flickr_update_7001() {
