@@ -70,7 +70,7 @@ function flickr_block_install() {
         'entity_type' => 'user',
         'label' => $vocabulary->name,
         'bundle' => $bundle,
-        'description' => $t("Limited the photos used from your Flickr account in Flickr blocks to those having a Flickr tag as indicated here (e.g. 'website' or 'blog'). Those have to be added to individual photos on Flickr as well. This is not necessary if the Flickr blocks themselves make use of the Flickr tags attached to a post, as the grabbed photos are filtered by those already. To do the opposite, exclude results that match a term by prepending it with a - character."),
+        'description' => $t("Limited the photos used from your Flickr account in Flickr blocks to those having a Flickr tag as indicated here (e.g. 'website' or 'blog'). Those have to be added to individual photos on Flickr as well. This is not necessary if the Flickr blocks themselves make use of the Flickr tags attached to a post, as the grabbed photos are filtered by those already. To do the opposite, exclude results that match a term by prepending it with a - character.<br />NOTA BENE: Does NOT have any impact on the photos displayed in a user profile."),
         // Use the taxonomy autocomplete widget.
         'widget' => array(
           'type' => 'taxonomy_autocomplete',
@@ -326,7 +326,7 @@ function flickr_block_update_7101() {
         'entity_type' => 'user',
         'label' => $vocabulary->name,
         'bundle' => $bundle,
-        'description' => $t("Limited the photos used from your Flickr account in Flickr blocks to those having a Flickr tag as indicated here (e.g. 'website' or 'blog'). Those have to be added to individual photos on Flickr as well. This is not necessary if the Flickr blocks themselves make use of the Flickr tags attached to a post, as the grabbed photos are filtered by those already."),
+        'description' => $t("Limited the photos used from your Flickr account in Flickr blocks to those having a Flickr tag as indicated here (e.g. 'website' or 'blog'). Those have to be added to individual photos on Flickr as well. This is not necessary if the Flickr blocks themselves make use of the Flickr tags attached to a post, as the grabbed photos are filtered by those already.<br />NOTA BENE: Does NOT have any impact on the photos displayed in a user profile."),
         // Use the taxonomy autocomplete widget.
         'widget' => array(
           'type' => 'taxonomy_autocomplete',

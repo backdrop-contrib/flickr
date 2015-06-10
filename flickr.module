@@ -307,7 +307,7 @@ function flickr_form_user_profile_form_alter(&$form, &$form_state) {
     $form['flickr'] = array(
       '#type' => 'fieldset',
       '#title' => t('Flickr settings'),
-      '#collapsible' => FALSE,
+      '#collapsible' => TRUE,
       '#weight' => 4,
       '#tree' => FALSE,
     );
@@ -319,6 +319,14 @@ function flickr_form_user_profile_form_alter(&$form, &$form_state) {
       '#maxlength' => 64,
     );
     $form['#validate'][] = 'flickr_user_account_form_validate';
+    if (isset($form['field_flickr_tags'])) {
+      // Move the Flickr fields in the fieldset on the user form.
+      // Only works for the default created Flickr field during install.
+      // To make them work on other fields copy the code for an existing field
+      // and substitute the field's machine name.
+    $form['flickr']['field_flickr_tags'] = $form['field_flickr_tags'];
+      unset($form['field_flickr_tags']);
+  }
   }
 }
 
