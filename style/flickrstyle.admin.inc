@@ -25,7 +25,7 @@ function flickrstyle_form_flickr_admin_settings_alter(&$form, &$form_state) {
     );
     $styles = config_get('flickrstyle.settings', 'flickrstyle_styles');
     // We need a shadow and/or border before we can use a style on the caption
-    // and a reset to 'No' of it if so.
+    // and a reset to 'No' if so.
     if (gettype($styles['shadow']) == 'integer' && gettype($styles['border']) == 'integer') {
       config_set('flickrstyle.settings', 'flickrstyle_caption', 0);
       backdrop_set_message(t("The caption style has been disabled until you set a 'border' and/or 'shadow' in the 'Image styles'. It will be available again after saving the form."), 'warning', FALSE);

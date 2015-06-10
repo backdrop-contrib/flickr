@@ -129,7 +129,7 @@ function flickr_admin_settings() {
   $form['info_settings']['flickr_regex'] = array(
     '#type' => 'textfield',
     '#title' => t("Replace photo titles matching this Regular Expression with 'View on Flickr'"),
-    '#default_value' => config_get('flickr.setttings', 'flickr_regex'),
+    '#default_value' => config_get('flickr.settings', 'flickr_regex'),
     '#description' => t("Avoids camera generated titles like e.g. 'IMG_4259'. Try your own RegEx first with !rubular. Leave empty to NOT replace any titles.", array('!rubular' => $rubular)),
     '#field_prefix' => t('/'),
     '#field_suffix' => t('/'),
