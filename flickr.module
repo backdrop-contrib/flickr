@@ -607,7 +607,8 @@ function theme_flickr_photo($variables) {
   // Get the Flickr image title for set data or the photo itself. Sanitize.
   $title = is_array($photo['title']) ? str_replace('"', "'", strip_tags($photo['title']['_content'])) : $photo['title'];
   // Replace titles like e.g. 'IMG_4259' with 'View on Flickr'.
-  $title = preg_match('/^[a-zA-Z]+[^\s][0-9]+$/', $title) ? 'View on Flickr' : $title;
+  $regex = variable_get('flickr_regex', '^[a-zA-Z]+[^\s][0-9]+$');
+  $title = preg_match('/' . $regex . '/', $title) && !empty($regex) ? 'View on Flickr' : $title;
   // For videos add the '(VIDEO)' to the title if it not already contains it.
   $title .= (($info['media'] !== 'video') || (stripos($title, 'video') !== FALSE)) ? '' : ' ' . t('(VIDEO)');
   // Use title if description does not exist, else sanitize the description.
