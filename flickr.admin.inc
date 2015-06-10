@@ -192,6 +192,16 @@ function flickr_admin_settings() {
     '#default_value' => variable_get('flickr_counter', 1),
     '#description' => t('Shows how many photos are displayed out of the total number available for a user, group, set or tags on Flickr. Can be overridden individually by the filter tag, eg. [flickr-photoset:id=72157634563269642,count=false]'),
   );
+  $form['info_settings']['flickr_thousands_sep'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Counter thousands separator'),
+    '#default_value' => variable_get('flickr_thousands_sep', ','),
+    '#description' => t('Common values are NULL, a dot ("."), a comma (",") or a space (" ").'),
+    '#field_prefix' => t('E.g. 4 out of 23'),
+    '#field_suffix' => t('473'),
+    '#size' => 1,
+    '#maxlength' => 1,
+  );
   $form['info_settings']['flickr_geophp'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Use Google instead of Flickr for location info (reverse geocoding)'),

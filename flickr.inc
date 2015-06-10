@@ -1584,7 +1584,7 @@ function flickr_album($type = 'user', $id = '39873962@N08', $show_n = NULL, $siz
         $total = (isset($response['total']) && !empty($tags) && $j == $show_n * 4) ? $response['total'] : $total;
         $total = $total < $i ? $i : $total;
         $total = $i < $show_n ? $i : $total;
-        $total = number_format($total, 0, ",", ".");
+        $total = number_format($total, 0, '.', variable_get('flickr_thousands_sep', ','));
         if (!empty($radius)) {
           $radius = $radius / 3;
           $km = floor($radius);
